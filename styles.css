@@ -3885,3 +3885,36 @@ body::after{
         bottom:6px;
     }
 }
+/* =========================================================
+   ZERO'X — AJUSTE INDIVIDUAL DE ENCUADRE
+   ========================================================= */
+
+/* EREN */
+.character-art:has(img[alt="EREN"]) .character-img{
+    object-position:center 42%;
+}
+
+/* SUKUNA */
+.character-art:has(img[alt="SUKUNA"]) .character-img{
+    object-position:center 38%;
+}
+
+/* NAMI */
+.character-art:has(img[alt="NAMI"]) .character-img{
+    object-position:center 32%;
+}
+
+/* ZORO */
+.character-art:has(img[alt="ZORO"]) .character-img{
+    object-position:center 38%;
+}
+
+/* GOJO */
+.character-art:has(img[alt="GOJO"]) .character-img{
+    object-position:center 34%;
+}
+
+/* LUFFY */
+.character-art:has(img[alt="LUFFY"]) .character-img{
+    object-position:center 40%;
+}
