@@ -5489,3 +5489,215 @@ body::after{
         0 0 16px rgba(88,101,255,.70),
         0 0 28px rgba(88,101,255,.35) !important;
 }
+/* =====================================================
+   ZERO'X - STREAMING AGRUPADO
+   ===================================================== */
+
+.streaming-platform-card{
+    background:linear-gradient(
+        180deg,
+        #111218 0%,
+        #07080c 100%
+    );
+
+    border:1px solid rgba(255,35,65,.40);
+    border-radius:18px;
+
+    padding:14px;
+
+    overflow:hidden;
+
+    box-shadow:
+        0 0 18px rgba(255,20,55,.10);
+
+    transition:.25s ease;
+}
+
+
+/* IMAGEN */
+
+.streaming-platform-image{
+    width:100%;
+    min-height:160px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    overflow:hidden;
+
+    border-radius:14px;
+
+    background:#050507;
+}
+
+.streaming-platform-image
+.streaming-product-art{
+    width:100%;
+}
+
+.streaming-platform-image
+.streaming-product-img{
+    width:100%;
+    height:170px;
+
+    object-fit:cover;
+
+    display:block;
+}
+
+
+/* NOMBRE */
+
+.streaming-platform-title{
+    margin:14px 0 4px;
+
+    color:#fff;
+
+    font-size:22px;
+    font-weight:900;
+
+    text-transform:uppercase;
+}
+
+
+/* PRECIO DESDE */
+
+.streaming-from{
+    color:#aaa;
+
+    font-size:15px;
+
+    margin-bottom:12px;
+}
+
+.streaming-from b{
+    color:#fff;
+    font-size:20px;
+}
+
+
+/* VER PLANES */
+
+.streaming-plans{
+    width:100%;
+}
+
+.streaming-plans summary{
+    cursor:pointer;
+
+    list-style:none;
+
+    text-align:center;
+
+    padding:13px;
+
+    border-radius:12px;
+
+    background:#e5092f;
+
+    color:white;
+
+    font-weight:900;
+
+    letter-spacing:.5px;
+
+    box-shadow:
+        0 0 15px rgba(255,0,55,.30);
+}
+
+.streaming-plans summary::-webkit-details-marker{
+    display:none;
+}
+
+
+/* LISTA */
+
+.streaming-plan-list{
+    margin-top:12px;
+
+    display:flex;
+    flex-direction:column;
+
+    gap:8px;
+}
+
+
+/* PLAN */
+
+.streaming-plan{
+    display:flex;
+
+    align-items:center;
+    justify-content:space-between;
+
+    gap:10px;
+
+    padding:10px;
+
+    border-radius:11px;
+
+    background:#101117;
+
+    border:1px solid #292b35;
+}
+
+.streaming-plan-info{
+    display:flex;
+
+    flex-direction:column;
+
+    gap:3px;
+}
+
+.streaming-plan-info strong{
+    color:white;
+
+    font-size:14px;
+}
+
+.streaming-plan-info span{
+    color:#ff3655;
+
+    font-size:17px;
+
+    font-weight:900;
+}
+
+
+/* BOTÓN CARRITO */
+
+.streaming-buy{
+    width:44px;
+    height:44px;
+
+    border:none;
+    border-radius:10px;
+
+    background:#e5092f;
+
+    color:white;
+
+    font-size:19px;
+
+    cursor:pointer;
+
+    box-shadow:
+        0 0 12px rgba(255,0,55,.25);
+}
+
+
+/* MÓVIL */
+
+@media(max-width:650px){
+
+    .streaming-platform-title{
+        font-size:19px;
+    }
+
+    .streaming-platform-image
+    .streaming-product-img{
+        height:150px;
+    }
+
+}
