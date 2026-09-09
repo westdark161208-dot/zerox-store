@@ -310,9 +310,9 @@ function artFor(product) {
     characterName = "EREN";
   } 
   else if (name.includes("340")) {
-    character = "file_00000000f38c822fa6db576f47e8b0f9.png";
+    character = "file_000000004e4081f5b42e4462cb0ae3df.png";
     characterName = "SUKUNA";
-  } 
+}
   else if (name.includes("572")) {
     character = "file_00000000469c81f596dc0e8f49ca0040.png";
     characterName = "NAMI";
@@ -322,9 +322,9 @@ function artFor(product) {
     characterName = "ZORO";
 }
   else if (name.includes("2,398") || name.includes("2398")) {
-    character = "file_000000007c28823080a9330dbba6c2d6.png";
+    character = "file_00000000c610822f9e0e39ec27f497fb.png";
     characterName = "GOJO";
-  } 
+}
   else if (name.includes("6,160") || name.includes("6160")) {
     character = "file_000000005b2081fd8514a17c052ac79f.png";
     characterName = "LUFFY";
