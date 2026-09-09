@@ -4359,3 +4359,146 @@ body::after{
         radial-gradient(circle at 50% 18%, rgba(0,220,255,.14), transparent 34%),
         linear-gradient(180deg, #061218 0%, #050a0d 48%, #020303 100%) !important;
 }
+/* =====================================================
+   ZERO'X STORE — CABECERA PREMIUM DEL CATÁLOGO
+   ===================================================== */
+
+/* Título principal del catálogo */
+#catalog-title{
+    position:relative;
+    display:inline-block;
+
+    color:#fff !important;
+    font-weight:900 !important;
+    letter-spacing:.5px;
+
+    text-shadow:
+        0 2px 2px #000,
+        0 0 8px rgba(255,255,255,.08);
+}
+
+/* Línea neón debajo del título */
+#catalog-title::after{
+    content:"";
+    display:block;
+
+    width:72%;
+    height:3px;
+
+    margin-top:7px;
+
+    border-radius:999px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #ff1537 0%,
+            #ff3350 55%,
+            transparent 100%
+        );
+
+    box-shadow:
+        0 0 10px rgba(255,20,55,.55);
+}
+
+
+/* Texto informativo debajo del título */
+#catalog-note{
+    color:rgba(255,255,255,.72) !important;
+    line-height:1.5;
+}
+
+
+/* =====================================================
+   SELECTOR 1 VEZ POR ID / ILIMITADOS
+   ===================================================== */
+
+[data-cat="Diamantes 1 vez"],
+[data-cat="Diamantes ilimitados"]{
+    position:relative;
+
+    border-radius:999px !important;
+
+    padding:9px 18px !important;
+
+    border:1px solid rgba(255,255,255,.15) !important;
+
+    background:
+        linear-gradient(
+            180deg,
+            #1b1c22 0%,
+            #0e0f13 100%
+        ) !important;
+
+    color:#fff !important;
+
+    font-weight:900 !important;
+
+    box-shadow:
+        0 4px 10px rgba(0,0,0,.45),
+        inset 0 1px 1px rgba(255,255,255,.08);
+
+    transition:
+        transform .18s ease,
+        box-shadow .18s ease,
+        border-color .18s ease;
+}
+
+
+/* Opción seleccionada */
+[data-cat="Diamantes 1 vez"].active,
+[data-cat="Diamantes ilimitados"].active{
+    border:1px solid rgba(255,70,90,.95) !important;
+
+    background:
+        linear-gradient(
+            180deg,
+            #ff203b 0%,
+            #e4082a 55%,
+            #b70020 100%
+        ) !important;
+
+    box-shadow:
+        0 4px 10px rgba(0,0,0,.48),
+        0 0 12px rgba(255,20,55,.42),
+        inset 0 1px 1px rgba(255,255,255,.28) !important;
+}
+
+
+/* Al tocar */
+[data-cat="Diamantes 1 vez"]:active,
+[data-cat="Diamantes ilimitados"]:active{
+    transform:scale(.96);
+}
+
+
+/* =====================================================
+   PEQUEÑO DETALLE ROJO EN LA SECCIÓN
+   ===================================================== */
+
+#catalogo{
+    position:relative;
+}
+
+#catalogo::before{
+    content:"";
+    position:absolute;
+
+    left:0;
+    top:0;
+
+    width:3px;
+    height:70px;
+
+    border-radius:999px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #ff1537,
+            transparent
+        );
+
+    box-shadow:
+        0 0 10px rgba(255,20,55,.45);
+}
