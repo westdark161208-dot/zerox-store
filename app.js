@@ -656,19 +656,29 @@ if (filter === "Streaming") {
                     </div>
 
                     <button
-                        type="button"
-                        class="streaming-open-plans"
-                        onclick="openStreamingPlans('${esc(platform)}','${encodedPlans}')"
-                    >
-                        VER PLANES
-                    </button>
+    type="button"
+    class="streaming-open-plans"
+    data-platform="${esc(platform)}"
+    data-plans="${encodedPlans}"
+>
+    VER PLANES
+</button>
 
                 </article>
             `;
         })
         .join("");
 
-    return;
+container.querySelectorAll(".streaming-open-plans").forEach(button => {
+    button.addEventListener("click", () => {
+        const platform = button.dataset.platform;
+        const plans = button.dataset.plans;
+
+        openStreamingPlans(platform, plans);
+    });
+});
+
+return;
 }
   container.innerHTML =
     rows.map(product => `
