@@ -379,27 +379,27 @@ if (category === "Streaming") {
   let image = "";
 
   if (name.includes("Netflix")) {
-    image = "./assets/streaming/netflix.png";
+    image = "./assets/streaming/netflix.png.png";
   }
 
   else if (name.includes("Spotify")) {
-    image = "./assets/streaming/spotify.png";
+    image = "./assets/streaming/spotify.png.png";
   }
 
   else if (name.includes("Max")) {
-    image = "./assets/streaming/max.png";
+    image = "./assets/streaming/max.png.png";
   }
 
   else if (name.includes("Disney")) {
-    image = "./assets/streaming/disney.png";
+    image = "./assets/streaming/disney.png.png";
   }
 
   else if (name.includes("Prime")) {
-    image = "./assets/streaming/prime.png";
+    image = "./assets/streaming/prime.png.png";
   }
 
   else if (name.includes("Crunchyroll")) {
-    image = "./assets/streaming/crunchyroll.png";
+    image = "./assets/streaming/crunchyroll.png.png";
   }
 
   if (image) {
