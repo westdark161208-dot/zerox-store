@@ -5202,3 +5202,68 @@ body::after{
   }
 
 }
+/* =========================================
+   ZERO'X STORE - CATEGORÍAS NEÓN
+   ========================================= */
+
+.category-cards button,
+.category-cards a{
+  background:#0b0d10 !important;
+
+  border:1px solid rgba(255,255,255,.10) !important;
+
+  border-radius:16px !important;
+
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.03),
+    0 6px 18px rgba(0,0,0,.45) !important;
+
+  transition:
+    border-color .2s ease,
+    box-shadow .2s ease,
+    transform .2s ease !important;
+}
+
+
+/* CATEGORÍA SELECCIONADA */
+.category-cards button.active{
+  background:#0b0d10 !important;
+
+  border-color:#ff1537 !important;
+
+  box-shadow:
+    0 0 5px rgba(255,21,55,.9),
+    0 0 14px rgba(255,21,55,.55),
+    inset 0 0 12px rgba(255,21,55,.08) !important;
+}
+
+
+/* QUITAR FORMA OVALADA */
+.category-cards button,
+.category-cards a{
+  border-radius:16px !important;
+}
+
+
+/* IMÁGENES */
+.category-cards .cat-art{
+  border-radius:10px !important;
+}
+
+
+/* EFECTO AL TOCAR */
+.category-cards button:active,
+.category-cards a:active{
+  transform:scale(.97) !important;
+}
+
+
+/* MÓVIL */
+@media(max-width:650px){
+
+  .category-cards button,
+  .category-cards a{
+    border-radius:14px !important;
+  }
+
+}
