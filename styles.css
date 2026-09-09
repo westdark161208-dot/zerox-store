@@ -4028,3 +4028,123 @@ body::after{
         transparent 72%
     );
 }
+/* =====================================================
+   ZERO'X — BORDES NEÓN POR PERSONAJE
+   ===================================================== */
+
+/* Base */
+.product-card{
+    transition:
+        border-color .25s ease,
+        box-shadow .25s ease,
+        transform .25s ease;
+}
+
+/* 🔴 EREN — 110 diamantes */
+.product-card:has(.character-name:nth-last-child(n)){
+}
+
+/* Usamos el contenido/imagen correspondiente mediante el alt */
+.product-card:has(img[alt="EREN"]){
+    border: 1px solid rgba(255, 45, 45, .75) !important;
+    box-shadow:
+        0 0 8px rgba(255, 25, 25, .20),
+        inset 0 0 12px rgba(255, 25, 25, .05);
+}
+
+/* 🟣 SUKUNA — 340 diamantes */
+.product-card:has(img[alt="SUKUNA"]){
+    border: 1px solid rgba(190, 60, 255, .75) !important;
+    box-shadow:
+        0 0 8px rgba(190, 60, 255, .20),
+        inset 0 0 12px rgba(190, 60, 255, .05);
+}
+
+/* 🟠 NAMI — 572 diamantes */
+.product-card:has(img[alt="NAMI"]){
+    border: 1px solid rgba(255, 145, 35, .80) !important;
+    box-shadow:
+        0 0 9px rgba(255, 125, 20, .22),
+        inset 0 0 12px rgba(255, 125, 20, .05);
+}
+
+/* 🟢 ZORO — 1,166 diamantes */
+.product-card:has(img[alt="ZORO"]){
+    border: 1px solid rgba(30, 255, 110, .75) !important;
+    box-shadow:
+        0 0 9px rgba(20, 255, 100, .20),
+        inset 0 0 12px rgba(20, 255, 100, .05);
+}
+
+/* 🔵 GOJO — 2,398 diamantes */
+.product-card:has(img[alt="GOJO"]){
+    border: 1px solid rgba(35, 155, 255, .85) !important;
+    box-shadow:
+        0 0 10px rgba(20, 145, 255, .25),
+        inset 0 0 14px rgba(20, 145, 255, .06);
+}
+
+/* 🩵 LUFFY — 6,160 diamantes */
+.product-card:has(img[alt="LUFFY"]){
+    border: 1px solid rgba(30, 235, 255, .80) !important;
+    box-shadow:
+        0 0 10px rgba(20, 220, 255, .22),
+        inset 0 0 14px rgba(20, 220, 255, .05);
+}
+/* =====================================================
+   ZERO'X STORE — BORDE EXTERIOR NEÓN POR PERSONAJE
+   PEGAR AL FINAL DE styles.css
+   ===================================================== */
+
+/* EREN — VERDE */
+.product-card:has(img[alt="EREN"]){
+    border: 1px solid rgba(0,255,120,.65) !important;
+    box-shadow:
+        0 0 10px rgba(0,255,120,.18),
+        inset 0 0 12px rgba(0,255,120,.05);
+}
+
+/* SUKUNA — ROJO */
+.product-card:has(img[alt="SUKUNA"]){
+    border: 1px solid rgba(255,30,40,.70) !important;
+    box-shadow:
+        0 0 10px rgba(255,30,40,.20),
+        inset 0 0 12px rgba(255,30,40,.06);
+}
+
+/* NAMI — NARANJA */
+.product-card:has(img[alt="NAMI"]){
+    border: 1px solid rgba(255,145,20,.70) !important;
+    box-shadow:
+        0 0 10px rgba(255,145,20,.20),
+        inset 0 0 12px rgba(255,145,20,.06);
+}
+
+/* ZORO — VERDE NEÓN */
+.product-card:has(img[alt="ZORO"]){
+    border: 1px solid rgba(40,255,80,.70) !important;
+    box-shadow:
+        0 0 10px rgba(40,255,80,.20),
+        inset 0 0 12px rgba(40,255,80,.06);
+}
+
+/* GOJO — AZUL / VIOLETA */
+.product-card:has(img[alt="GOJO"]){
+    border: 1px solid rgba(80,130,255,.75) !important;
+    box-shadow:
+        0 0 11px rgba(80,130,255,.23),
+        inset 0 0 14px rgba(120,70,255,.07);
+}
+
+/* LUFFY — CELESTE */
+.product-card:has(img[alt="LUFFY"]){
+    border: 1px solid rgba(0,220,255,.70) !important;
+    box-shadow:
+        0 0 10px rgba(0,220,255,.20),
+        inset 0 0 12px rgba(0,220,255,.06);
+}
+
+/* Efecto suave al tocar/pasar sobre la tarjeta */
+.product-card:hover{
+    transform: translateY(-2px);
+}
