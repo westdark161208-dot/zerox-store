@@ -3806,3 +3806,104 @@ body::after{
     top:20px;
   }
 }
+/* =========================================================
+   ZERO'X — AJUSTE FINAL PERSONAJES EN TARJETAS DE DIAMANTES
+   ========================================================= */
+
+.character-art{
+    position: relative;
+    width: 100%;
+    height: 250px;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.character-img{
+    position: absolute;
+    width: auto;
+    height: 230px;
+    max-width: 95%;
+    object-fit: contain;
+
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+
+    z-index: 2;
+
+    filter:
+        drop-shadow(0 0 8px rgba(255,255,255,.15))
+        drop-shadow(0 0 14px rgba(0,180,255,.20));
+}
+
+/* Nombre del personaje */
+
+.character-name{
+    position: absolute;
+    z-index: 5;
+
+    left: 50%;
+    bottom: 8px;
+    transform: translateX(-50%);
+
+    width: 100%;
+    text-align: center;
+
+    color: #fff;
+    font-size: 27px;
+    font-weight: 900;
+    letter-spacing: 1px;
+
+    text-shadow:
+        0 3px 2px #000,
+        0 0 8px #000,
+        0 0 14px rgba(0,0,0,.9);
+
+    pointer-events: none;
+}
+
+/* Resplandor detrás del personaje */
+
+.character-glow{
+    position: absolute;
+    width: 75%;
+    height: 65%;
+
+    left: 50%;
+    bottom: 10%;
+    transform: translateX(-50%);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(0,200,255,.25) 0%,
+            rgba(0,100,255,.10) 40%,
+            transparent 72%
+        );
+
+    filter: blur(18px);
+    z-index: 1;
+}
+
+/* Ajuste para celulares */
+
+@media (max-width:650px){
+
+    .character-art{
+        height:220px;
+    }
+
+    .character-img{
+        height:205px;
+        max-width:94%;
+    }
+
+    .character-name{
+        font-size:23px;
+        bottom:6px;
+    }
+}
