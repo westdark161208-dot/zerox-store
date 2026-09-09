@@ -5155,3 +5155,50 @@ body::after{
     object-fit: contain !important;
     object-position: center center !important;
 }
+/* =========================================
+   ZERO'X STORE - ICONOS DE CATEGORIAS
+   ========================================= */
+
+.category-cards .cat-art{
+  width:100% !important;
+  height:74px !important;
+
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+
+  overflow:hidden !important;
+
+  margin:0 auto 6px !important;
+  padding:0 !important;
+
+  background:none !important;
+  border:none !important;
+}
+
+.category-cards .cat-art img{
+  width:72px !important;
+  height:72px !important;
+
+  object-fit:contain !important;
+  display:block !important;
+
+  border-radius:12px !important;
+
+  filter:
+    drop-shadow(0 4px 8px rgba(0,0,0,.55))
+    drop-shadow(0 0 8px rgba(0,180,255,.20));
+}
+
+@media(max-width:650px){
+
+  .category-cards .cat-art{
+    height:62px !important;
+  }
+
+  .category-cards .cat-art img{
+    width:60px !important;
+    height:60px !important;
+  }
+
+}
