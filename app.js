@@ -608,8 +608,6 @@ if (filter === "Streaming") {
     const platforms = {};
 
     rows.forEach(product => {
-
-        // Obtiene Netflix, Disney+, Max, Prime Video, etc.
         const platform = product.name.split(" - ")[0];
 
         if (!platforms[platform]) {
@@ -624,6 +622,16 @@ if (filter === "Streaming") {
 
             const cheapest = Math.min(
                 ...plans.map(plan => Number(plan.price) || 0)
+            );
+
+            const encodedPlans = encodeURIComponent(
+                JSON.stringify(
+                    plans.map(plan => ({
+                        id: plan.id,
+                        name: plan.name,
+                        price: plan.price
+                    }))
+                )
             );
 
             return `
@@ -641,49 +649,13 @@ if (filter === "Streaming") {
                         Desde <b>${money(cheapest)}</b>
                     </div>
 
-                    <details class="streaming-plans">
-
-                        <summary>
-                            VER PLANES
-                        </summary>
-
-                        <div class="streaming-plan-list">
-
-                            ${plans.map(plan => {
-
-                                const planName =
-                                    plan.name.includes(" - ")
-                                    ? plan.name.split(" - ").slice(1).join(" - ")
-                                    : plan.name;
-
-                                return `
-                                    <div class="streaming-plan">
-
-                                        <div class="streaming-plan-info">
-                                            <strong>
-                                                ${esc(planName)}
-                                            </strong>
-
-                                            <span>
-                                                ${money(plan.price)}
-                                            </span>
-                                        </div>
-
-                                        <button
-                                            type="button"
-                                            class="streaming-buy"
-                                            onclick="event.stopPropagation(); addToCart('${plan.id}')"
-                                        >
-                                            🛒
-                                        </button>
-
-                                    </div>
-                                `;
-                            }).join("")}
-
-                        </div>
-
-                    </details>
+                    <button
+                        type="button"
+                        class="streaming-open-plans"
+                        onclick="openStreamingPlans('${esc(platform)}','${encodedPlans}')"
+                    >
+                        VER PLANES
+                    </button>
 
                 </article>
             `;
@@ -789,7 +761,103 @@ if (filter === "Streaming") {
     };
   });
 }
+function openStreamingPlans(platform, encodedPlans) {
 
+    const plans = JSON.parse(
+        decodeURIComponent(encodedPlans)
+    );
+
+    const oldModal = document.querySelector("#streaming-modal");
+
+    if (oldModal) {
+        oldModal.remove();
+    }
+
+    const modal = document.createElement("div");
+
+    modal.id = "streaming-modal";
+    modal.className = "streaming-modal";
+
+    modal.innerHTML = `
+        <div
+            class="streaming-modal-backdrop"
+            onclick="closeStreamingPlans()">
+        </div>
+
+        <div class="streaming-modal-box">
+
+            <button
+                type="button"
+                class="streaming-modal-close"
+                onclick="closeStreamingPlans()"
+            >
+                ×
+            </button>
+
+            <h2>${esc(platform)}</h2>
+
+            <p class="streaming-modal-subtitle">
+                Selecciona el plan que deseas
+            </p>
+
+            <div class="streaming-modal-plans">
+
+                ${plans.map(plan => {
+
+                    const planName =
+                        plan.name.includes(" - ")
+                        ? plan.name.split(" - ").slice(1).join(" - ")
+                        : plan.name;
+
+                    return `
+                        <div class="streaming-modal-plan">
+
+                            <div class="streaming-modal-plan-info">
+                                <strong>${esc(planName)}</strong>
+                                <span>${money(plan.price)}</span>
+                            </div>
+
+                            <button
+                                type="button"
+                                class="streaming-modal-buy"
+                                onclick="addToCart('${plan.id}')"
+                            >
+                                🛒
+                            </button>
+
+                        </div>
+                    `;
+
+                }).join("")}
+
+            </div>
+
+            <button
+                type="button"
+                class="streaming-modal-bottom-close"
+                onclick="closeStreamingPlans()"
+            >
+                CERRAR
+            </button>
+
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+    document.body.classList.add("streaming-modal-open");
+}
+
+
+function closeStreamingPlans() {
+
+    const modal = document.querySelector("#streaming-modal");
+
+    if (modal) {
+        modal.remove();
+    }
+
+    document.body.classList.remove("streaming-modal-open");
+}
 /* =========================================================
    CATEGORÍAS / BÚSQUEDA / MONEDA
    ========================================================= */
