@@ -630,16 +630,6 @@ if (filter === "Streaming") {
                 ...plans.map(plan => Number(plan.price) || 0)
             );
 
-            const encodedPlans = encodeURIComponent(
-                JSON.stringify(
-                    plans.map(plan => ({
-                        id: plan.id,
-                        name: plan.name,
-                        price: plan.price
-                    }))
-                )
-            );
-
             return `
                 <article class="streaming-platform-card">
 
@@ -655,11 +645,10 @@ if (filter === "Streaming") {
                         Desde <b>${money(cheapest)}</b>
                     </div>
 
-                    <button
+      <button
     type="button"
     class="streaming-open-plans"
     data-platform="${esc(platform)}"
-    data-plans="${encodedPlans}"
 >
     VER PLANES
 </button>
@@ -670,12 +659,15 @@ if (filter === "Streaming") {
         .join("");
 
 container.querySelectorAll(".streaming-open-plans").forEach(button => {
-    button.addEventListener("click", () => {
-        const platform = button.dataset.platform;
-        const plans = button.dataset.plans;
 
-        openStreamingPlans(platform, plans);
+    button.addEventListener("click", () => {
+
+        const platform = button.dataset.platform;
+
+        openStreamingPlans(platform);
+
     });
+
 });
 
 return;
@@ -777,44 +769,63 @@ return;
     };
   });
 }
-function openStreamingPlans(platform, encodedPlans) {
+function openStreamingPlans(platform) {
 
-    const plans = JSON.parse(
-        decodeURIComponent(encodedPlans)
-    );
+    const plans = PRODUCTS.filter(product => {
 
-    const oldModal = document.querySelector("#streaming-modal");
+        if (product.category !== "Streaming") {
+            return false;
+        }
+
+        const productPlatform =
+            product.name.split(" - ")[0];
+
+        return (
+            productPlatform === platform &&
+            product.active
+        );
+
+    });
+
+
+    const oldModal =
+        document.querySelector("#streaming-modal");
 
     if (oldModal) {
         oldModal.remove();
     }
 
-    const modal = document.createElement("div");
+
+    const modal =
+        document.createElement("div");
 
     modal.id = "streaming-modal";
     modal.className = "streaming-modal";
 
+
     modal.innerHTML = `
-        <div
-            class="streaming-modal-backdrop"
-            onclick="closeStreamingPlans()">
-        </div>
+
+        <div class="streaming-modal-backdrop"></div>
 
         <div class="streaming-modal-box">
 
             <button
                 type="button"
                 class="streaming-modal-close"
-                onclick="closeStreamingPlans()"
             >
                 ×
             </button>
 
-            <h2>${esc(platform)}</h2>
+
+            <h2>
+                ${esc(platform)}
+            </h2>
+
 
             <p class="streaming-modal-subtitle">
                 Selecciona el plan que deseas
             </p>
+
 
             <div class="streaming-modal-plans">
 
@@ -822,45 +833,102 @@ function openStreamingPlans(platform, encodedPlans) {
 
                     const planName =
                         plan.name.includes(" - ")
-                        ? plan.name.split(" - ").slice(1).join(" - ")
+                        ? plan.name
+                            .split(" - ")
+                            .slice(1)
+                            .join(" - ")
                         : plan.name;
 
                     return `
+
                         <div class="streaming-modal-plan">
 
                             <div class="streaming-modal-plan-info">
-                                <strong>${esc(planName)}</strong>
-                                <span>${money(plan.price)}</span>
+
+                                <strong>
+                                    ${esc(planName)}
+                                </strong>
+
+                                <span>
+                                    ${money(plan.price)}
+                                </span>
+
                             </div>
+
 
                             <button
                                 type="button"
                                 class="streaming-modal-buy"
-                                onclick="addToCart('${plan.id}')"
+                                data-streaming-buy="${esc(plan.id)}"
                             >
                                 🛒
                             </button>
 
                         </div>
+
                     `;
 
                 }).join("")}
 
             </div>
 
+
             <button
                 type="button"
                 class="streaming-modal-bottom-close"
-                onclick="closeStreamingPlans()"
             >
                 CERRAR
             </button>
 
         </div>
+
     `;
 
+
     document.body.appendChild(modal);
-    document.body.classList.add("streaming-modal-open");
+
+    document.body.classList.add(
+        "streaming-modal-open"
+    );
+
+
+    /* CERRAR CON LA X */
+
+    modal
+        .querySelector(".streaming-modal-close")
+        .addEventListener("click", closeStreamingPlans);
+
+
+    /* CERRAR CON BOTÓN INFERIOR */
+
+    modal
+        .querySelector(".streaming-modal-bottom-close")
+        .addEventListener("click", closeStreamingPlans);
+
+
+    /* CERRAR TOCANDO EL FONDO */
+
+    modal
+        .querySelector(".streaming-modal-backdrop")
+        .addEventListener("click", closeStreamingPlans);
+
+
+    /* BOTONES DE COMPRA */
+
+    modal
+        .querySelectorAll("[data-streaming-buy]")
+        .forEach(button => {
+
+            button.addEventListener("click", () => {
+
+                addToCart(
+                    button.dataset.streamingBuy
+                );
+
+            });
+
+        });
+
 }
 
 
