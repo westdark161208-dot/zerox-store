@@ -2430,3 +2430,245 @@ body::after{
     font-size:14px;
   }
 }
+/* =========================================================
+   ZERO'X STORE - LOGO UNIDO EN HEADER
+   PEGAR AL FINAL DE styles.css
+   ========================================================= */
+
+.brand{
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+
+  min-width:155px !important;
+  width:auto !important;
+
+  line-height:1 !important;
+  text-decoration:none !important;
+}
+
+.brand-main{
+  display:flex !important;
+  align-items:flex-end !important;
+  justify-content:center !important;
+
+  white-space:nowrap !important;
+  line-height:.88 !important;
+}
+
+/* ZERO */
+.brand-main strong{
+  display:inline-block !important;
+
+  font-family:"Anton", Impact, sans-serif !important;
+  font-size:39px !important;
+  font-style:italic !important;
+  font-weight:400 !important;
+
+  line-height:.88 !important;
+  letter-spacing:-.055em !important;
+
+  background:
+    linear-gradient(
+      180deg,
+      #ffffff 0%,
+      #e5e5e5 18%,
+      #858585 44%,
+      #f5f5f5 66%,
+      #676767 100%
+    ) !important;
+
+  -webkit-background-clip:text !important;
+  background-clip:text !important;
+  color:transparent !important;
+
+  text-shadow:none !important;
+
+  filter:
+    drop-shadow(0 2px 0 #191919)
+    drop-shadow(0 4px 1px rgba(0,0,0,.85)) !important;
+}
+
+/* 'X */
+.brand-main i{
+  display:inline-block !important;
+
+  margin-left:-2px !important;
+
+  font-family:"Anton", Impact, sans-serif !important;
+  font-size:43px !important;
+  font-style:italic !important;
+  font-weight:400 !important;
+
+  line-height:.88 !important;
+
+  background:
+    linear-gradient(
+      180deg,
+      #ff3a4c 0%,
+      #d40b1e 38%,
+      #8f000d 74%,
+      #500006 100%
+    ) !important;
+
+  -webkit-background-clip:text !important;
+  background-clip:text !important;
+  color:transparent !important;
+
+  text-shadow:none !important;
+
+  filter:
+    drop-shadow(0 2px 0 #450008)
+    drop-shadow(0 4px 1px rgba(0,0,0,.8)) !important;
+}
+
+/* STORE debajo y centrado */
+.brand > span{
+  display:block !important;
+
+  width:100% !important;
+
+  margin:7px 0 0 !important;
+  padding-left:9px !important;
+
+  color:#efefef !important;
+
+  background:none !important;
+  -webkit-background-clip:initial !important;
+
+  font-family:"Barlow Condensed", Arial, sans-serif !important;
+  font-size:10px !important;
+  font-style:normal !important;
+  font-weight:800 !important;
+
+  line-height:1 !important;
+  letter-spacing:.52em !important;
+
+  text-align:center !important;
+  text-transform:uppercase !important;
+
+  filter:none !important;
+
+  text-shadow:
+    0 2px 2px rgba(0,0,0,.85) !important;
+}
+
+/* =========================================================
+   HEADER MÓVIL
+   ========================================================= */
+
+@media(max-width:650px){
+
+  .topbar .shell,
+  .topbar-grid{
+    display:grid !important;
+
+    grid-template-columns:
+      46px
+      minmax(145px,1fr)
+      auto
+      auto
+      auto !important;
+
+    gap:6px !important;
+    align-items:center !important;
+
+    min-height:88px !important;
+  }
+
+  .brand{
+    justify-self:start !important;
+    min-width:145px !important;
+  }
+
+  .brand-main strong{
+    font-size:34px !important;
+  }
+
+  .brand-main i{
+    font-size:38px !important;
+  }
+
+  .brand > span{
+    margin-top:6px !important;
+    font-size:9px !important;
+    letter-spacing:.48em !important;
+  }
+
+  /* Oculta buscador en móvil */
+  .search-wrap{
+    display:none !important;
+  }
+
+  /* Oculta globo extra de moneda */
+  .currency-select::before{
+    display:none !important;
+  }
+
+  .currency-select select{
+    min-width:82px !important;
+
+    padding:
+      10px
+      26px
+      10px
+      11px !important;
+
+    font-size:16px !important;
+  }
+
+  .cart-btn,
+  .profile-btn{
+    width:39px !important;
+    min-width:39px !important;
+    height:39px !important;
+
+    font-size:22px !important;
+  }
+}
+
+/* Pantallas muy pequeñas */
+@media(max-width:390px){
+
+  .topbar .shell,
+  .topbar-grid{
+    grid-template-columns:
+      42px
+      minmax(126px,1fr)
+      auto
+      auto
+      auto !important;
+
+    gap:4px !important;
+  }
+
+  .brand{
+    min-width:126px !important;
+  }
+
+  .brand-main strong{
+    font-size:30px !important;
+  }
+
+  .brand-main i{
+    font-size:34px !important;
+  }
+
+  .brand > span{
+    font-size:8px !important;
+    letter-spacing:.43em !important;
+  }
+
+  .currency-select select{
+    min-width:74px !important;
+    font-size:14px !important;
+  }
+
+  .cart-btn,
+  .profile-btn{
+    width:34px !important;
+    min-width:34px !important;
+    font-size:20px !important;
+  }
+}
