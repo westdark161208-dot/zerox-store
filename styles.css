@@ -4612,3 +4612,134 @@ body::after{
         padding:0 !important;
     }
 }
+/* =====================================================
+   ZERO'X STORE — HEADER MÓVIL EN 2 FILAS
+   ===================================================== */
+
+@media(max-width:650px){
+
+    .topbar{
+        padding:8px 10px 10px !important;
+        min-height:auto !important;
+    }
+
+    .topbar-grid{
+        display:grid !important;
+
+        grid-template-columns:
+            38px
+            minmax(82px,1fr)
+            68px
+            40px
+            40px !important;
+
+        grid-template-areas:
+            "menu brand currency cart profile"
+            "search search search search search";
+
+        align-items:center !important;
+        gap:8px !important;
+
+        width:100% !important;
+    }
+
+    /* MENÚ */
+    #menu-btn{
+        grid-area:menu;
+
+        width:38px !important;
+        height:38px !important;
+
+        margin:0 !important;
+        padding:0 !important;
+    }
+
+    /* LOGO */
+    .brand{
+        grid-area:brand;
+
+        width:auto !important;
+        min-width:0 !important;
+
+        margin:0 !important;
+        justify-self:start;
+    }
+
+    .brand-main{
+        font-size:16px !important;
+        line-height:1 !important;
+    }
+
+    .brand > span{
+        font-size:7px !important;
+        letter-spacing:2px !important;
+    }
+
+    /* MONEDA */
+    .currency-select{
+        grid-area:currency;
+
+        width:68px !important;
+        margin:0 !important;
+    }
+
+    #currency{
+        width:68px !important;
+        height:38px !important;
+
+        padding:0 8px !important;
+
+        font-size:11px !important;
+        font-weight:900 !important;
+
+        border-radius:12px !important;
+    }
+
+    /* CARRITO */
+    .cart-btn{
+        grid-area:cart;
+
+        width:40px !important;
+        height:40px !important;
+
+        margin:0 !important;
+        padding:0 !important;
+    }
+
+    /* PERFIL */
+    .profile-btn{
+        grid-area:profile;
+
+        width:40px !important;
+        height:40px !important;
+
+        margin:0 !important;
+        padding:0 !important;
+    }
+
+    /* BUSCADOR EN SEGUNDA FILA */
+    .search-wrap{
+        grid-area:search;
+
+        width:100% !important;
+        min-width:0 !important;
+
+        margin:2px 0 0 !important;
+    }
+
+    #search{
+        width:100% !important;
+        height:38px !important;
+
+        padding:0 13px !important;
+
+        font-size:12px !important;
+
+        border-radius:13px !important;
+    }
+
+    /* Ocultamos botón instalar del header */
+    #install-app{
+        display:none !important;
+    }
+}
