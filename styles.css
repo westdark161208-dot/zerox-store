@@ -4918,3 +4918,78 @@ body::after{
         color:rgba(255,255,255,.55) !important;
     }
 }
+/* =====================================================
+   ZERO'X STORE — BANNER INSTALACIÓN COMPACTO
+   ===================================================== */
+
+@media (max-width:650px){
+
+    #install-toast,
+    .install-toast{
+        left:12px !important;
+        right:12px !important;
+        bottom:82px !important;
+
+        width:auto !important;
+        min-height:64px !important;
+
+        padding:10px 12px !important;
+
+        border-radius:16px !important;
+
+        display:grid !important;
+        grid-template-columns:1fr auto auto !important;
+        align-items:center !important;
+        gap:10px !important;
+
+        background:#141416 !important;
+
+        border:1px solid rgba(255,35,60,.45) !important;
+
+        box-shadow:
+            0 10px 30px rgba(0,0,0,.55),
+            0 0 12px rgba(255,20,50,.12) !important;
+    }
+
+    #install-toast h3,
+    .install-toast h3{
+        font-size:14px !important;
+        line-height:1.1 !important;
+        margin:0 0 3px !important;
+    }
+
+    #install-toast p,
+    .install-toast p{
+        font-size:10px !important;
+        line-height:1.15 !important;
+        margin:0 !important;
+        opacity:.70;
+    }
+
+    #install-toast button,
+    .install-toast button{
+        min-height:40px !important;
+        padding:0 16px !important;
+
+        border-radius:11px !important;
+
+        font-size:13px !important;
+        font-weight:900 !important;
+    }
+
+    #install-btn,
+    .install-btn{
+        min-width:92px !important;
+
+        background:
+            linear-gradient(
+                180deg,
+                #ff2038 0%,
+                #df0827 100%
+            ) !important;
+
+        border:none !important;
+
+        color:#fff !important;
+    }
+}
