@@ -599,7 +599,99 @@ function render() {
       matchesSearch
     );
   });
+// =====================================================
+// STREAMING AGRUPADO POR PLATAFORMA
+// =====================================================
 
+if (filter === "Streaming") {
+
+    const platforms = {};
+
+    rows.forEach(product => {
+
+        // Obtiene Netflix, Disney+, Max, Prime Video, etc.
+        const platform = product.name.split(" - ")[0];
+
+        if (!platforms[platform]) {
+            platforms[platform] = [];
+        }
+
+        platforms[platform].push(product);
+    });
+
+    container.innerHTML = Object.entries(platforms)
+        .map(([platform, plans]) => {
+
+            const cheapest = Math.min(
+                ...plans.map(plan => Number(plan.price) || 0)
+            );
+
+            return `
+                <article class="streaming-platform-card">
+
+                    <div class="streaming-platform-image">
+                        ${artFor(plans[0])}
+                    </div>
+
+                    <h3 class="streaming-platform-title">
+                        ${esc(platform)}
+                    </h3>
+
+                    <div class="streaming-from">
+                        Desde <b>${money(cheapest)}</b>
+                    </div>
+
+                    <details class="streaming-plans">
+
+                        <summary>
+                            VER PLANES
+                        </summary>
+
+                        <div class="streaming-plan-list">
+
+                            ${plans.map(plan => {
+
+                                const planName =
+                                    plan.name.includes(" - ")
+                                    ? plan.name.split(" - ").slice(1).join(" - ")
+                                    : plan.name;
+
+                                return `
+                                    <div class="streaming-plan">
+
+                                        <div class="streaming-plan-info">
+                                            <strong>
+                                                ${esc(planName)}
+                                            </strong>
+
+                                            <span>
+                                                ${money(plan.price)}
+                                            </span>
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            class="streaming-buy"
+                                            onclick="event.stopPropagation(); addToCart('${plan.id}')"
+                                        >
+                                            🛒
+                                        </button>
+
+                                    </div>
+                                `;
+                            }).join("")}
+
+                        </div>
+
+                    </details>
+
+                </article>
+            `;
+        })
+        .join("");
+
+    return;
+}
   container.innerHTML =
     rows.map(product => `
       <article class="product-card ${product.featured ? "featured" : ""}">
