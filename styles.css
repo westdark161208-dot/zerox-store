@@ -5267,3 +5267,46 @@ body::after{
   }
 
 }
+/* =========================================
+   ZERO'X STORE - IMÁGENES EN OTROS PRODUCTOS
+   ========================================= */
+
+.feature-row .feature-art{
+  width:88px !important;
+  height:88px !important;
+
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+
+  overflow:hidden !important;
+
+  background:none !important;
+  border:none !important;
+  box-shadow:none !important;
+}
+
+.feature-row .feature-art img{
+  width:82px !important;
+  height:82px !important;
+
+  object-fit:contain !important;
+  display:block !important;
+
+  filter:
+    drop-shadow(0 5px 10px rgba(0,0,0,.65))
+    drop-shadow(0 0 8px rgba(0,190,255,.20));
+}
+
+@media(max-width:650px){
+
+  .feature-row .feature-art{
+    width:76px !important;
+    height:76px !important;
+  }
+
+  .feature-row .feature-art img{
+    width:72px !important;
+    height:72px !important;
+  }
+}
