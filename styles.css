@@ -1652,3 +1652,304 @@ body::after{
     font-size:62px;
   }
     }
+/* =========================================================
+   ZERO'X V5 - TIPOGRAFÍA MIXTA Y HERO
+   ========================================================= */
+
+.brand-metal,
+.metal-title{
+  font-family:"Anton",sans-serif;
+  font-weight:400;
+  text-transform:uppercase;
+  letter-spacing:-.02em;
+
+  background:
+    linear-gradient(
+      180deg,
+      #ffffff 0%,
+      #dadada 24%,
+      #777 48%,
+      #f4f4f4 68%,
+      #777 100%
+    );
+
+  -webkit-background-clip:text;
+  background-clip:text;
+
+  color:transparent;
+
+  filter:
+    drop-shadow(0 2px 0 #1a1a1a)
+    drop-shadow(0 3px 0 #000);
+}
+
+.brand-metal i{
+  background:
+    linear-gradient(
+      180deg,
+      #ff3e4d,
+      #98000e
+    );
+
+  -webkit-background-clip:text;
+  background-clip:text;
+
+  color:transparent;
+}
+
+.brush-white,
+.brush-red{
+  display:block;
+
+  font-family:
+    "Barlow Condensed",
+    Impact,
+    sans-serif;
+
+  font-style:italic;
+  font-weight:900;
+
+  letter-spacing:-.045em;
+  line-height:.82;
+
+  transform:skew(-4deg);
+
+  text-transform:uppercase;
+}
+
+.brush-white{
+  color:#f7f7f7;
+
+  text-shadow:
+    2px 3px 0 #151515;
+}
+
+.brush-red{
+  color:#d20a1c;
+
+  text-shadow:
+    2px 3px 0 #500008;
+}
+
+.small-brush{
+  margin-top:8px;
+  font-size:.67em;
+}
+
+.hero-copy{
+  max-width:500px;
+
+  padding:
+    18px 15px
+    24px;
+
+  border-left:
+    3px solid
+    #b40919;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(0,0,0,.78),
+      rgba(0,0,0,.25),
+      transparent
+    );
+}
+
+/* Mueve al personaje a la derecha
+   y evita que el texto lo cubra */
+.hero{
+  background-position:
+    63% center;
+}
+
+.hero-content{
+  justify-content:flex-start;
+}
+
+@media(max-width:650px){
+
+  .hero{
+    min-height:500px;
+
+    background-position:
+      58% center;
+  }
+
+  .hero-content{
+    align-items:flex-end;
+  }
+
+  .hero-copy{
+    width:70%;
+
+    padding-left:14px;
+
+    background:
+      linear-gradient(
+        90deg,
+        rgba(0,0,0,.9),
+        rgba(0,0,0,.44),
+        transparent
+      );
+  }
+
+  .hero-title{
+    font-size:
+      clamp(40px,10vw,58px) !important;
+  }
+
+  .hero p{
+    font-size:15px;
+  }
+
+}
+
+/* =========================================================
+   CATEGORÍAS 3D
+   ========================================================= */
+
+.cat-art,
+.feature-art{
+  position:relative;
+
+  display:grid;
+  place-items:center;
+
+  margin:auto;
+
+  font-size:34px;
+
+  filter:
+    drop-shadow(
+      0 4px 3px
+      rgba(0,0,0,.8)
+    );
+}
+
+.diamond-art{
+  filter:
+    drop-shadow(
+      0 0 5px
+      rgba(45,190,255,.7)
+    );
+}
+
+.unlimited-art{
+  color:#966cff;
+
+  filter:
+    drop-shadow(
+      0 0 7px
+      rgba(132,82,255,.65)
+    );
+}
+
+.pass-art{
+  filter:
+    drop-shadow(
+      0 0 7px
+      rgba(255,180,25,.45)
+    );
+}
+
+.fragment-art{
+  filter:
+    drop-shadow(
+      0 0 8px
+      rgba(138,62,255,.5)
+    );
+}
+
+.box-art{
+  filter:
+    drop-shadow(
+      0 0 6px
+      rgba(255,155,35,.4)
+    );
+}
+
+.likes-art{
+  filter:
+    drop-shadow(
+      0 0 8px
+      rgba(255,32,67,.5)
+    );
+}
+
+/* =========================================================
+   WHATSAPP FLOTANTE REAL
+   ========================================================= */
+
+body::after{
+  display:none !important;
+}
+
+.whatsapp-floating{
+  position:fixed;
+
+  z-index:95;
+
+  right:17px;
+  bottom:91px;
+
+  display:grid;
+  place-items:center;
+
+  width:58px;
+  height:58px;
+
+  border:
+    2px solid
+    #6cff94;
+
+  border-radius:50%;
+
+  background:#18c75a;
+
+  color:white;
+
+  box-shadow:
+    0 0 5px
+    rgba(49,255,109,.45),
+    0 0 16px
+    rgba(49,255,109,.22);
+
+  transition:
+    transform .18s ease;
+}
+
+.whatsapp-floating:active{
+  transform:scale(.92);
+}
+
+.whatsapp-floating svg{
+  width:34px;
+  height:34px;
+}
+
+/* Rojo más oscuro y menos luces */
+:root{
+  --red:#d40b1e;
+  --red-dark:#83000d;
+
+  --red-glow:
+    0 0 7px
+    rgba(190,0,25,.28);
+}
+
+.cta,
+.buy,
+.reseller-form button,
+.modal button[type=submit]{
+  background:
+    linear-gradient(
+      180deg,
+      #db1024,
+      #9e0011
+    );
+
+  box-shadow:
+    0 3px 8px
+    rgba(0,0,0,.38);
+}
