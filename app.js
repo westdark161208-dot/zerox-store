@@ -318,9 +318,9 @@ function artFor(product) {
     characterName = "NAMI";
   } 
   else if (name.includes("1,166") || name.includes("1166")) {
-    character = "file_0000000001f482309faad42cecb306fe.png";
+    character = "file_000000000f1482309faad42cecb306fe.png";
     characterName = "ZORO";
-  } 
+}
   else if (name.includes("2,398") || name.includes("2398")) {
     character = "file_000000007c28823080a9330dbba6c2d6.png";
     characterName = "GOJO";
