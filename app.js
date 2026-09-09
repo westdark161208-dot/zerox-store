@@ -946,4 +946,329 @@ if ($("#status-form")) {
 
           <b>
             ${esc(order.status)}
-         
+          </b>
+
+          <br>
+
+          <small>
+            ${esc(order.id)}
+          </small>
+
+          <br><br>
+
+          ${esc(order.productName)}
+
+          —
+
+          ${new Intl.NumberFormat(
+            "es-MX",
+            {
+              style: "currency",
+              currency: "MXN"
+            }
+          ).format(order.total)}
+          MXN
+
+        </div>
+      `;
+    }
+  );
+}
+
+/* =========================================================
+   REVENDEDORES
+   ========================================================= */
+
+function getResellers() {
+  return JSON.parse(
+    localStorage.getItem(
+      "zerox-resellers"
+    ) || "[]"
+  );
+}
+
+if ($("#reseller-form")) {
+  $("#reseller-form").addEventListener(
+    "submit",
+    event => {
+      event.preventDefault();
+
+      const form =
+        event.currentTarget;
+
+      const payload =
+        Object.fromEntries(
+          new FormData(form)
+            .entries()
+        );
+
+      const application = {
+        id:
+          "RS-" +
+          Date.now()
+            .toString()
+            .slice(-7),
+        ...payload,
+        createdAt:
+          new Date()
+            .toISOString()
+      };
+
+      const applications =
+        getResellers();
+
+      applications.unshift(
+        application
+      );
+
+      localStorage.setItem(
+        "zerox-resellers",
+        JSON.stringify(
+          applications
+        )
+      );
+
+      if ($("#reseller-result")) {
+        $("#reseller-result").innerHTML = `
+          <div class="success">
+
+            Solicitud recibida ✓
+
+            <br>
+
+            <small>
+              Folio:
+              ${esc(application.id)}
+            </small>
+
+          </div>
+        `;
+      }
+
+      form.reset();
+    }
+  );
+}
+
+/* =========================================================
+   MENÚ LATERAL
+   ========================================================= */
+
+const drawer =
+  $("#drawer");
+
+const backdrop =
+  $("#drawer-backdrop");
+
+function openDrawer() {
+  if (!drawer) return;
+
+  drawer.classList.add("open");
+
+  if (backdrop) {
+    backdrop.classList.add("show");
+  }
+
+  drawer.setAttribute(
+    "aria-hidden",
+    "false"
+  );
+}
+
+function closeDrawer() {
+  if (!drawer) return;
+
+  drawer.classList.remove("open");
+
+  if (backdrop) {
+    backdrop.classList.remove("show");
+  }
+
+  drawer.setAttribute(
+    "aria-hidden",
+    "true"
+  );
+}
+
+if ($("#menu-btn")) {
+  $("#menu-btn").onclick =
+    openDrawer;
+}
+
+if ($("#close-drawer")) {
+  $("#close-drawer").onclick =
+    closeDrawer;
+}
+
+if (backdrop) {
+  backdrop.onclick =
+    closeDrawer;
+}
+
+$$('#drawer a').forEach(
+  link => {
+    link.addEventListener(
+      "click",
+      closeDrawer
+    );
+  }
+);
+
+/* =========================================================
+   PWA / INSTALAR APP
+   ========================================================= */
+
+let deferredInstallPrompt =
+  null;
+
+const installBtn =
+  $("#install-app");
+
+const installToast =
+  $("#install-toast");
+
+const installToastBtn =
+  $("#install-toast-btn");
+
+const dismissInstall =
+  $("#dismiss-install");
+
+function isStandalone() {
+  return (
+    matchMedia(
+      "(display-mode: standalone)"
+    ).matches ||
+    navigator.standalone === true
+  );
+}
+
+async function triggerInstall() {
+  if (deferredInstallPrompt) {
+    deferredInstallPrompt.prompt();
+
+    await deferredInstallPrompt
+      .userChoice;
+
+    deferredInstallPrompt = null;
+
+    if (installBtn) {
+      installBtn.hidden = true;
+    }
+
+    if (installToast) {
+      installToast.hidden = true;
+    }
+
+    return;
+  }
+
+  const isiOS =
+    /iphone|ipad|ipod/i
+      .test(
+        navigator.userAgent
+      );
+
+  alert(
+    isiOS
+      ? 'En iPhone: toca Compartir y después "Agregar a pantalla de inicio".'
+      : 'En Chrome: abre el menú ⋮ y toca "Instalar aplicación" o "Agregar a pantalla principal".'
+  );
+}
+
+window.addEventListener(
+  "beforeinstallprompt",
+  event => {
+    event.preventDefault();
+
+    deferredInstallPrompt =
+      event;
+
+    if (installBtn) {
+      installBtn.hidden =
+        false;
+    }
+
+    if (
+      installToast &&
+      !isStandalone() &&
+      localStorage.getItem(
+        "zerox-install-dismissed"
+      ) !== "1"
+    ) {
+      installToast.hidden =
+        false;
+    }
+  }
+);
+
+if (installBtn) {
+  installBtn.addEventListener(
+    "click",
+    triggerInstall
+  );
+}
+
+if (installToastBtn) {
+  installToastBtn.addEventListener(
+    "click",
+    triggerInstall
+  );
+}
+
+if (dismissInstall) {
+  dismissInstall.addEventListener(
+    "click",
+    () => {
+      if (installToast) {
+        installToast.hidden =
+          true;
+      }
+
+      localStorage.setItem(
+        "zerox-install-dismissed",
+        "1"
+      );
+    }
+  );
+}
+
+window.addEventListener(
+  "appinstalled",
+  () => {
+    if (installBtn) {
+      installBtn.hidden =
+        true;
+    }
+
+    if (installToast) {
+      installToast.hidden =
+        true;
+    }
+  }
+);
+
+/* Service Worker */
+if ("serviceWorker" in navigator) {
+  window.addEventListener(
+    "load",
+    () => {
+      navigator.serviceWorker
+        .register(
+          "./service-worker.js"
+        )
+        .catch(error => {
+          console.log(
+            "Service Worker:",
+            error
+          );
+        });
+    }
+  );
+}
+
+/* =========================================================
+   INICIO
+   ========================================================= */
+
+render();
+updateCartUI();
