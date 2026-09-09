@@ -3508,3 +3508,75 @@ body::after{
   }
 
 }
+/* =========================================================
+   ZERO'X — ICONO DE CARRITO CSS
+   ========================================================= */
+
+.product-actions .buy{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:9px !important;
+}
+
+.buy-cart-icon{
+  position:relative;
+  display:inline-block;
+
+  width:21px;
+  height:15px;
+
+  border:2px solid #fff;
+  border-top:none;
+  border-radius:2px;
+
+  transform:skewX(-7deg);
+
+  box-sizing:border-box;
+}
+
+.buy-cart-icon::before{
+  content:"";
+  position:absolute;
+
+  width:7px;
+  height:2px;
+
+  background:#fff;
+
+  left:-6px;
+  top:-4px;
+
+  border-radius:2px;
+
+  transform:rotate(8deg);
+}
+
+.buy-cart-icon::after{
+  content:"";
+
+  position:absolute;
+
+  width:4px;
+  height:4px;
+
+  border-radius:50%;
+
+  background:#fff;
+
+  left:2px;
+  bottom:-7px;
+
+  box-shadow:11px 0 0 #fff;
+}
+
+.product-actions .buy:hover .buy-cart-icon{
+  transform:skewX(-7deg) translateX(1px);
+}
+
+@media(max-width:650px){
+  .buy-cart-icon{
+    width:18px;
+    height:13px;
+  }
+}
