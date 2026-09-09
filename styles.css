@@ -2801,32 +2801,63 @@ body::after{
 .diamond{
   position:absolute;
 
+  width:82px;
+  height:72px;
+
   clip-path:polygon(
     50% 0%,
-    100% 35%,
-    73% 100%,
-    27% 100%,
-    0% 35%
+    88% 20%,
+    100% 46%,
+    72% 100%,
+    28% 100%,
+    0% 46%,
+    12% 20%
   );
 
   background:
     linear-gradient(
       135deg,
-      #ffffff 0%,
-      #8ff4ff 18%,
-      #32d7ff 38%,
-      #009dff 56%,
-      #0063e3 76%,
-      #00327d 100%
+      transparent 0 19%,
+      rgba(255,255,255,.95) 20% 21%,
+      transparent 22% 100%
+    ),
+    linear-gradient(
+      45deg,
+      transparent 0 37%,
+      rgba(255,255,255,.45) 38% 39%,
+      transparent 40% 100%
+    ),
+    linear-gradient(
+      -45deg,
+      transparent 0 37%,
+      rgba(255,255,255,.35) 38% 39%,
+      transparent 40% 100%
+    ),
+    linear-gradient(
+      135deg,
+      #d9ffff 0%,
+      #75efff 16%,
+      #22c8ff 34%,
+      #078cff 55%,
+      #034fc5 75%,
+      #01235e 100%
     );
 
-  border:1px solid rgba(220,255,255,.8);
+  border:1px solid rgba(220,255,255,.9);
 
   box-shadow:
-    inset 8px 6px 10px rgba(255,255,255,.4),
-    inset -8px -8px 12px rgba(0,40,140,.36),
-    0 8px 9px rgba(0,0,0,.58),
-    0 0 8px rgba(0,150,255,.22);
+    inset 8px 6px 12px rgba(255,255,255,.38),
+    inset -9px -8px 13px rgba(0,20,100,.4),
+    0 9px 12px rgba(0,0,0,.55),
+    0 0 14px rgba(0,170,255,.28);
+
+  transform:
+    perspective(450px)
+    rotateX(6deg)
+    rotateY(-5deg);
+
+  filter:
+    drop-shadow(0 0 6px rgba(0,160,255,.2));
 }
 
 .big-diamond{
