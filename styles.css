@@ -3206,3 +3206,100 @@ body::after{
   font-size:19px;
   color:#fff;
 }
+/* =========================================================
+   AJUSTES TARJETAS PRODUCTO + BANNER INSTALACIÓN
+   ========================================================= */
+
+/* Evita que nombres como "340 Diamantes" se corten */
+.product-card h3{
+  font-size:22px !important;
+  line-height:1.05 !important;
+  white-space:normal !important;
+  overflow:visible !important;
+  text-overflow:clip !important;
+  min-height:48px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  text-align:center !important;
+  padding:0 4px !important;
+}
+
+/* Un poco más de espacio en cada tarjeta */
+.product-card{
+  min-height:390px !important;
+}
+
+/* Botón comprar más limpio */
+.product-actions{
+  gap:8px !important;
+}
+
+.product-actions .buy{
+  font-size:15px !important;
+  padding:12px 10px !important;
+}
+
+/* Banner de instalación más compacto */
+.install-toast{
+  left:16px !important;
+  right:16px !important;
+  bottom:92px !important;
+  min-height:auto !important;
+  padding:14px 16px !important;
+  border-radius:18px !important;
+}
+
+.install-toast > div:first-child{
+  gap:8px !important;
+}
+
+.install-toast b{
+  font-size:17px !important;
+  line-height:1.1 !important;
+}
+
+.install-toast span{
+  font-size:13px !important;
+  line-height:1.2 !important;
+}
+
+.install-toast button{
+  min-width:100px !important;
+  padding:12px 16px !important;
+  font-size:16px !important;
+}
+
+/* Móvil */
+@media(max-width:650px){
+
+  .product-card h3{
+    font-size:19px !important;
+    min-height:44px !important;
+  }
+
+  .product-card{
+    min-height:370px !important;
+  }
+
+  .install-toast{
+    left:12px !important;
+    right:12px !important;
+    bottom:88px !important;
+    padding:12px 14px !important;
+  }
+
+  .install-toast b{
+    font-size:15px !important;
+  }
+
+  .install-toast span{
+    font-size:12px !important;
+  }
+
+  .install-toast button{
+    min-width:88px !important;
+    font-size:14px !important;
+    padding:10px 13px !important;
+  }
+}
