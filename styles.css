@@ -4502,3 +4502,113 @@ body::after{
     box-shadow:
         0 0 10px rgba(255,20,55,.45);
 }
+/* =====================================================
+   ZERO'X STORE — HEADER MÓVIL COMPACTO
+   ===================================================== */
+
+@media(max-width:650px){
+
+    /* Header general */
+    header,
+    .site-header,
+    .top-header{
+        padding:8px 10px !important;
+        min-height:auto !important;
+    }
+
+    /* Contenedor principal de navegación */
+    .nav-grid,
+    .header-inner,
+    .header-content{
+        display:grid !important;
+        grid-template-columns:auto auto 1fr auto auto auto !important;
+        align-items:center !important;
+        gap:8px !important;
+    }
+
+    /* Menú hamburguesa */
+    .menu-toggle,
+    .hamburger,
+    .menu-btn{
+        margin:0 !important;
+        width:34px !important;
+        height:34px !important;
+        flex:0 0 34px !important;
+    }
+
+    /* Logo */
+    .logo,
+    .brand-logo,
+    .header-logo{
+        width:68px !important;
+        max-width:68px !important;
+        margin:0 !important;
+    }
+
+    /* Buscador */
+    #search,
+    .search,
+    .search-box,
+    .header-search{
+        width:100% !important;
+        min-width:0 !important;
+        margin:0 !important;
+    }
+
+    #search input,
+    .search input,
+    .search-box input,
+    .header-search input{
+        height:38px !important;
+        padding:0 12px !important;
+        font-size:12px !important;
+        border-radius:12px !important;
+    }
+
+    /* Selector MXN */
+    #currency,
+    .currency-select,
+    .currency{
+        width:auto !important;
+        min-width:58px !important;
+        height:38px !important;
+        margin:0 !important;
+        padding:0 10px !important;
+    }
+
+    /* Carrito y usuario */
+    .cart-button,
+    .cart-icon,
+    .user-button,
+    .user-icon,
+    .account-button{
+        width:34px !important;
+        height:34px !important;
+        margin:0 !important;
+        display:flex !important;
+        align-items:center !important;
+        justify-content:center !important;
+    }
+
+    /* Evita columnas o saltos verticales raros */
+    .nav-grid > *,
+    .header-inner > *,
+    .header-content > *{
+        align-self:center !important;
+    }
+
+    /* Reduce espacio muerto debajo del header */
+    .hero,
+    #inicio,
+    main{
+        margin-top:0 !important;
+        padding-top:0 !important;
+    }
+
+    /* Si el buscador está en fila separada */
+    .search-row,
+    .header-search-row{
+        margin:6px 0 0 !important;
+        padding:0 !important;
+    }
+}
