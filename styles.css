@@ -4743,3 +4743,132 @@ body::after{
         display:none !important;
     }
 }
+/* =====================================================
+   ZERO'X STORE — FIX DEFINITIVO HEADER MOBILE
+   ===================================================== */
+
+@media (max-width:650px){
+
+  .topbar{
+    padding:8px 10px !important;
+    height:auto !important;
+    min-height:0 !important;
+  }
+
+  .topbar .shell.topbar-grid{
+    display:grid !important;
+
+    grid-template-columns:
+      38px
+      1fr
+      70px
+      38px
+      38px !important;
+
+    grid-template-rows:44px 40px !important;
+
+    grid-template-areas:
+      "menu brand currency cart profile"
+      "search search search search search" !important;
+
+    gap:6px 8px !important;
+
+    align-items:center !important;
+
+    height:auto !important;
+    min-height:0 !important;
+
+    padding:0 !important;
+    margin:0 auto !important;
+  }
+
+  /* ☰ */
+  #menu-btn{
+    grid-area:menu !important;
+    position:static !important;
+
+    width:38px !important;
+    height:38px !important;
+
+    margin:0 !important;
+  }
+
+  /* ZERO'X */
+  .topbar .brand{
+    grid-area:brand !important;
+    position:static !important;
+
+    margin:0 !important;
+    padding:0 !important;
+
+    justify-self:start !important;
+  }
+
+  /* BUSCADOR */
+  .topbar .search-wrap{
+    grid-area:search !important;
+    position:static !important;
+
+    width:100% !important;
+    max-width:none !important;
+
+    margin:0 !important;
+    padding:0 !important;
+  }
+
+  #search{
+    width:100% !important;
+    height:38px !important;
+
+    margin:0 !important;
+
+    box-sizing:border-box !important;
+  }
+
+  /* MXN */
+  .topbar .currency-select{
+    grid-area:currency !important;
+    position:static !important;
+
+    width:70px !important;
+
+    margin:0 !important;
+    padding:0 !important;
+  }
+
+  #currency{
+    width:70px !important;
+    height:38px !important;
+
+    margin:0 !important;
+  }
+
+  /* 🛒 */
+  #open-cart{
+    grid-area:cart !important;
+    position:relative !important;
+
+    width:38px !important;
+    height:38px !important;
+
+    margin:0 !important;
+    padding:0 !important;
+  }
+
+  /* 👤 */
+  #open-status{
+    grid-area:profile !important;
+    position:static !important;
+
+    width:38px !important;
+    height:38px !important;
+
+    margin:0 !important;
+    padding:0 !important;
+  }
+
+  /* instalar no pertenece al header móvil */
+  #install-app{
+    display:none !important;
+  }
+}
