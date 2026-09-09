@@ -5410,3 +5410,31 @@ body::after{
     background: #08090c !important;
     border-color: #ff1744 !important;
 }
+/* TARJETAS NORMALES */
+.feature-row > button{
+    background:#08090c !important;
+
+    border:1px solid rgba(255,255,255,.08) !important;
+
+    box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,.015),
+        0 6px 18px rgba(0,0,0,.30) !important;
+
+    border-radius:14px !important;
+}
+
+
+/* TARJETA SELECCIONADA */
+.feature-row > button.active{
+    background:#08090c !important;
+
+    border:2px solid #ff1744 !important;
+
+    box-shadow:
+        0 0 6px rgba(255,23,68,1),
+        0 0 14px rgba(255,23,68,.70),
+        0 0 26px rgba(255,23,68,.40),
+        inset 0 0 12px rgba(255,23,68,.08) !important;
+
+    border-radius:14px !important;
+}
