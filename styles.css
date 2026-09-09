@@ -5310,3 +5310,61 @@ body::after{
     height:72px !important;
   }
 }
+/* =========================================
+   ZERO'X STORE - FEATURE CARDS NEON
+   ========================================= */
+
+/* Tarjeta normal */
+.feature-row > button {
+  background: #090a0d !important;
+  border: 2px solid rgba(255, 20, 60, 0.35) !important;
+  border-radius: 16px !important;
+
+  box-shadow:
+    inset 0 0 20px rgba(255, 0, 45, 0.025),
+    0 0 0 rgba(255, 0, 45, 0) !important;
+
+  transition:
+    border-color .2s ease,
+    box-shadow .2s ease,
+    transform .2s ease !important;
+}
+
+/* Cuando se toca */
+.feature-row > button:active,
+.feature-row > button:focus {
+  background: #090a0d !important;
+
+  border: 2px solid #ff1744 !important;
+
+  border-radius: 16px !important;
+
+  box-shadow:
+    0 0 7px rgba(255, 23, 68, .90),
+    0 0 16px rgba(255, 23, 68, .55),
+    inset 0 0 12px rgba(255, 23, 68, .08) !important;
+
+  outline: none !important;
+}
+
+/* Selección permanente */
+.feature-row > button.active {
+  background: #090a0d !important;
+
+  border: 2px solid #ff1744 !important;
+
+  border-radius: 16px !important;
+
+  box-shadow:
+    0 0 7px rgba(255, 23, 68, .95),
+    0 0 18px rgba(255, 23, 68, .60),
+    inset 0 0 14px rgba(255, 23, 68, .08) !important;
+}
+
+/* Evita que cualquier CSS anterior las vuelva ovaladas */
+.feature-row > button,
+.feature-row > button.active,
+.feature-row > button:focus,
+.feature-row > button:active {
+  border-radius: 16px !important;
+}
