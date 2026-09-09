@@ -1316,3 +1316,21 @@ if ("serviceWorker" in navigator) {
 
 render();
 updateCartUI();
+/* =========================================
+   ZERO'X - SELECCIÓN NEÓN DE TARJETAS
+   ========================================= */
+
+document.querySelectorAll('.feature-row > button').forEach(card => {
+
+    card.addEventListener('click', function () {
+
+        // Apagar todas
+        document.querySelectorAll('.feature-row > button')
+            .forEach(item => item.classList.remove('active'));
+
+        // Encender solamente la seleccionada
+        this.classList.add('active');
+
+    });
+
+});
