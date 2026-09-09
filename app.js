@@ -510,7 +510,13 @@ if (category === "Streaming") {
 
 function setFilter(category, scroll = true) {
   filter = category;
-
+   
+/* Activa diseño especial de Streaming */
+if (category === "Streaming") {
+    document.body.classList.add("streaming-view");
+} else {
+    document.body.classList.remove("streaming-view");
+}
   $$("[data-cat]").forEach(button => {
     button.classList.toggle(
       "active",
