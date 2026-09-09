@@ -5438,3 +5438,54 @@ body::after{
 
     border-radius:14px !important;
 }
+/* =========================================
+   ZERO'X STORE - NEÓN POR CATEGORÍA
+   ========================================= */
+
+/* TODAS NORMALES */
+.feature-row > button {
+    background: #08090c !important;
+    border: 1px solid rgba(255,255,255,.10) !important;
+    border-radius: 14px !important;
+    box-shadow: none !important;
+}
+
+/* BOOYAH - NARANJA / DORADO */
+.feature-row > button[data-cat="Pases Booyah"].active {
+    background: #08090c !important;
+    border: 2px solid #ff9d00 !important;
+    box-shadow:
+        0 0 7px #ff9d00,
+        0 0 16px rgba(255,157,0,.65),
+        0 0 28px rgba(255,157,0,.30) !important;
+}
+
+/* FRAGMENTOS - TURQUESA */
+.feature-row > button[data-cat="Fragmentos"].active {
+    background: #08090c !important;
+    border: 2px solid #00fff0 !important;
+    box-shadow:
+        0 0 7px #00fff0,
+        0 0 16px rgba(0,255,240,.65),
+        0 0 28px rgba(0,255,240,.30) !important;
+}
+
+/* CAJAS - AZUL CYAN */
+.feature-row > button[data-cat="Cajas"].active {
+    background: #08090c !important;
+    border: 2px solid #00aaff !important;
+    box-shadow:
+        0 0 7px #00aaff,
+        0 0 16px rgba(0,170,255,.65),
+        0 0 28px rgba(0,170,255,.30) !important;
+}
+
+/* LIKES - AZUL/VIOLETA */
+.feature-row > button[data-cat="Likes"].active {
+    background: #08090c !important;
+    border: 2px solid #5865ff !important;
+    box-shadow:
+        0 0 7px #5865ff,
+        0 0 16px rgba(88,101,255,.70),
+        0 0 28px rgba(88,101,255,.35) !important;
+}
