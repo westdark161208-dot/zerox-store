@@ -309,7 +309,7 @@ function artFor(product) {
     character = "file_00000000561081f592ab7a6e14562570.png";
     characterName = "EREN";
   } 
-  else if (name.includes("310")) {
+  else if (name.includes("340")) {
     character = "file_00000000f38c822fa6db576f47e8b0f9.png";
     characterName = "SUKUNA";
   } 
