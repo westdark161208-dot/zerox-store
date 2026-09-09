@@ -2779,3 +2779,399 @@ body::after{
   font-size:10px;
   letter-spacing:-2px;
 }
+/* =========================================================
+   ZERO'X - PRODUCTOS DIAMANTES 3D
+   ========================================================= */
+
+.product-art{
+  position:relative;
+  width:100%;
+  height:125px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  perspective:500px;
+}
+
+/* DIAMANTE BASE */
+
+.big-diamond,
+.diamond{
+  position:absolute;
+
+  clip-path:polygon(
+    50% 0%,
+    100% 35%,
+    73% 100%,
+    27% 100%,
+    0% 35%
+  );
+
+  background:
+    linear-gradient(
+      135deg,
+      #ffffff 0%,
+      #8ff4ff 18%,
+      #32d7ff 38%,
+      #009dff 56%,
+      #0063e3 76%,
+      #00327d 100%
+    );
+
+  border:1px solid rgba(220,255,255,.8);
+
+  box-shadow:
+    inset 8px 6px 10px rgba(255,255,255,.4),
+    inset -8px -8px 12px rgba(0,40,140,.36),
+    0 8px 9px rgba(0,0,0,.58),
+    0 0 8px rgba(0,150,255,.22);
+}
+
+.big-diamond{
+  width:82px;
+  height:75px;
+
+  transform:
+    perspective(400px)
+    rotateY(-4deg)
+    rotateX(2deg);
+}
+
+/* 340 */
+
+.product-art-340 .gem-a{
+  width:55px;
+  height:50px;
+  left:24%;
+  top:47px;
+  transform:rotate(-14deg);
+}
+
+.product-art-340 .gem-b{
+  width:73px;
+  height:66px;
+  left:50%;
+  top:25px;
+  transform:
+    translateX(-50%)
+    rotate(2deg);
+
+  z-index:3;
+}
+
+.product-art-340 .gem-c{
+  width:49px;
+  height:45px;
+  right:22%;
+  top:52px;
+  transform:rotate(15deg);
+}
+
+/* 572 */
+
+.product-art-572 .premium-center{
+  width:79px;
+  height:72px;
+  left:50%;
+  top:20px;
+
+  transform:
+    translateX(-50%)
+    rotate(2deg);
+
+  z-index:5;
+}
+
+.product-art-572 .premium-left{
+  width:50px;
+  height:45px;
+  left:18%;
+  top:52px;
+  transform:rotate(-18deg);
+}
+
+.product-art-572 .premium-right{
+  width:50px;
+  height:45px;
+  right:18%;
+  top:50px;
+  transform:rotate(18deg);
+}
+
+.product-art-572 .premium-mini-1{
+  width:28px;
+  height:26px;
+  left:34%;
+  top:75px;
+  transform:rotate(-8deg);
+}
+
+.product-art-572 .premium-mini-2{
+  width:28px;
+  height:26px;
+  right:34%;
+  top:75px;
+  transform:rotate(8deg);
+}
+
+/* =========================================================
+   COFRES DE DIAMANTES
+   ========================================================= */
+
+.product-chest{
+  position:relative;
+  width:135px;
+  height:105px;
+}
+
+.product-chest .chest-lid{
+  position:absolute;
+
+  left:50%;
+  top:35px;
+
+  width:112px;
+  height:31px;
+
+  transform:
+    translateX(-50%)
+    perspective(300px)
+    rotateX(-6deg);
+
+  border:2px solid #b9832a;
+  border-radius:8px 8px 3px 3px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #2a3038,
+      #11151a 65%,
+      #090b0e
+    );
+
+  box-shadow:
+    inset 0 4px 5px rgba(255,255,255,.06),
+    0 5px 8px rgba(0,0,0,.5);
+}
+
+.product-chest .chest-lid::after{
+  content:"";
+
+  position:absolute;
+
+  left:12px;
+  right:12px;
+  top:7px;
+
+  height:6px;
+
+  border-radius:3px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #9c6a18,
+      #ffd064,
+      #9b6715
+    );
+}
+
+.product-chest .chest-base{
+  position:absolute;
+
+  left:50%;
+  bottom:3px;
+
+  width:122px;
+  height:54px;
+
+  transform:translateX(-50%);
+
+  border:2px solid #aa751f;
+  border-radius:4px 4px 9px 9px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #11161d,
+      #283541 48%,
+      #090d11
+    );
+
+  box-shadow:
+    inset 0 7px 9px rgba(255,255,255,.03),
+    inset 0 -10px 12px rgba(0,0,0,.36),
+    0 8px 9px rgba(0,0,0,.58);
+}
+
+.product-chest .chest-base::before,
+.product-chest .chest-base::after{
+  content:"";
+
+  position:absolute;
+
+  top:0;
+  bottom:0;
+
+  width:9px;
+
+  background:
+    linear-gradient(
+      #d8a33a,
+      #77500f
+    );
+}
+
+.product-chest .chest-base::before{
+  left:15px;
+}
+
+.product-chest .chest-base::after{
+  right:15px;
+}
+
+.product-chest .chest-base span{
+  position:absolute;
+
+  left:50%;
+  bottom:10px;
+
+  transform:translateX(-50%);
+
+  color:#dbe6ef;
+
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.08em;
+}
+
+/* DIAMANTES SALIENDO DEL COFRE */
+
+.chest-gems{
+  position:absolute;
+
+  left:50%;
+  top:0;
+
+  width:125px;
+  height:70px;
+
+  transform:translateX(-50%);
+
+  z-index:4;
+}
+
+.chest-gems i{
+  position:absolute;
+
+  width:27px;
+  height:25px;
+
+  clip-path:polygon(
+    50% 0,
+    100% 35%,
+    73% 100%,
+    27% 100%,
+    0% 35%
+  );
+
+  background:
+    linear-gradient(
+      135deg,
+      #e9ffff,
+      #5feaff 25%,
+      #00aaff 55%,
+      #0048bf
+    );
+
+  border:1px solid rgba(220,255,255,.7);
+
+  box-shadow:
+    0 5px 5px rgba(0,0,0,.45),
+    0 0 5px rgba(0,150,255,.24);
+}
+
+.chest-gems i:nth-child(1){
+  left:9px;
+  top:35px;
+  transform:rotate(-20deg);
+}
+
+.chest-gems i:nth-child(2){
+  left:31px;
+  top:14px;
+  transform:rotate(-9deg) scale(1.12);
+}
+
+.chest-gems i:nth-child(3){
+  left:55px;
+  top:2px;
+  transform:rotate(2deg) scale(1.25);
+}
+
+.chest-gems i:nth-child(4){
+  right:20px;
+  top:17px;
+  transform:rotate(12deg);
+}
+
+.chest-gems i:nth-child(5){
+  right:1px;
+  top:38px;
+  transform:rotate(21deg) scale(.82);
+}
+
+/* Diferencia visual por cantidad */
+
+.small-chest{
+  transform:scale(.93);
+}
+
+.medium-chest{
+  transform:scale(1.02);
+}
+
+.large-chest{
+  transform:scale(1.11);
+}
+
+/* Tarjetas más tipo tienda gamer */
+
+.product-card{
+  padding-top:10px !important;
+}
+
+.product-card h3{
+  margin-top:2px !important;
+
+  font-size:25px !important;
+
+  background:
+    linear-gradient(
+      180deg,
+      #fff,
+      #cfcfcf 55%,
+      #777
+    );
+
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+
+  text-shadow:none;
+
+  filter:
+    drop-shadow(0 2px 0 #000);
+}
+
+.product-card .pricing{
+  margin-top:5px;
+}
+
+.product-card .pricing b,
+.product-card .pricing strong{
+  font-size:19px;
+  color:#fff;
+}
