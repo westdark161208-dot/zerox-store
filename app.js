@@ -182,77 +182,120 @@ const PRODUCTS = [
   requiresEligibility: false,
   badge: "PRÓXIMAMENTE"
 },
+   // =====================================================
+// STREAMING
+// =====================================================
 
-/* =========================================
-   STREAMING
-   ========================================= */
+// NETFLIX
+{ id:"netflix-perfil", category:"Streaming", name:"Netflix - Perfil", description:"Perfil Netflix", price:70, active:true, featured:false, requiresEligibility:false, badge:"NETFLIX" },
+{ id:"netflix-privado", category:"Streaming", name:"Netflix - Perfil Privado", description:"Perfil privado", price:75, active:true, featured:false, requiresEligibility:false, badge:"NETFLIX" },
+{ id:"netflix-privado-renovable", category:"Streaming", name:"Netflix - Perfil Privado Renovable", description:"Perfil privado renovable", price:85, active:true, featured:false, requiresEligibility:false, badge:"RENOVABLE" },
+{ id:"netflix-extra", category:"Streaming", name:"Netflix - Perfil Extra", description:"Perfil extra", price:90, active:true, featured:false, requiresEligibility:false, badge:"NETFLIX" },
+{ id:"netflix-completa", category:"Streaming", name:"Netflix - Completa", description:"Cuenta completa", price:220, active:true, featured:false, requiresEligibility:false, badge:"COMPLETA" },
 
-{
-  id: "stream-netflix",
-  category: "Streaming",
-  name: "Netflix",
-  description: "Acceso digital a Netflix.",
-  price: 0,
-  active: true,
-  featured: false,
-  requiresEligibility: false,
-  badge: "STREAMING"
-},
-{
-  id: "stream-spotify",
-  category: "Streaming",
-  name: "Spotify Premium",
-  description: "Spotify Premium con entrega digital.",
-  price: 0,
-  active: true,
-  featured: false,
-  requiresEligibility: false,
-  badge: "STREAMING"
-},
-{
-  id: "stream-max",
-  category: "Streaming",
-  name: "Max",
-  description: "Acceso digital a Max.",
-  price: 0,
-  active: true,
-  featured: false,
-  requiresEligibility: false,
-  badge: "STREAMING"
-},
-{
-  id: "stream-disney",
-  category: "Streaming",
-  name: "Disney+",
-  description: "Acceso digital a Disney+.",
-  price: 0,
-  active: true,
-  featured: false,
-  requiresEligibility: false,
-  badge: "STREAMING"
-},
-{
-  id: "stream-prime",
-  category: "Streaming",
-  name: "Prime Video",
-  description: "Acceso digital a Prime Video.",
-  price: 0,
-  active: true,
-  featured: false,
-  requiresEligibility: false,
-  badge: "STREAMING"
-},
-{
-  id: "stream-crunchyroll",
-  category: "Streaming",
-  name: "Crunchyroll",
-  description: "Acceso digital a Crunchyroll.",
-  price: 0,
-  active: true,
-  featured: false,
-  requiresEligibility: false,
-  badge: "STREAMING"
-}
+// DISNEY+
+{ id:"disney-perfil", category:"Streaming", name:"Disney+ - Perfil", description:"Perfil Disney+", price:31, active:true, featured:false, requiresEligibility:false, badge:"DISNEY+" },
+{ id:"disney-perfil-renovable", category:"Streaming", name:"Disney+ - Perfil Renovable", description:"Perfil renovable", price:35, active:true, featured:false, requiresEligibility:false, badge:"RENOVABLE" },
+{ id:"disney-completa", category:"Streaming", name:"Disney+ - Completa", description:"Cuenta completa", price:85, active:true, featured:false, requiresEligibility:false, badge:"DISNEY+" },
+{ id:"disney-completa-renovable", category:"Streaming", name:"Disney+ - Completa Renovable", description:"Cuenta completa renovable", price:95, active:true, featured:false, requiresEligibility:false, badge:"RENOVABLE" },
+
+// HBO MAX
+{ id:"max-perfil", category:"Streaming", name:"Max - Perfil", description:"Perfil HBO Max", price:29, active:true, featured:false, requiresEligibility:false, badge:"MAX" },
+{ id:"max-perfil-renovable", category:"Streaming", name:"Max - Perfil Renovable", description:"Perfil renovable", price:34, active:true, featured:false, requiresEligibility:false, badge:"RENOVABLE" },
+{ id:"max-platino", category:"Streaming", name:"Max - Completa Platino", description:"Cuenta completa Platino", price:68, active:true, featured:false, requiresEligibility:false, badge:"PLATINO" },
+{ id:"max-completa-renovable", category:"Streaming", name:"Max - Completa Renovable", description:"Cuenta completa renovable", price:85, active:true, featured:false, requiresEligibility:false, badge:"RENOVABLE" },
+
+// PRIME VIDEO
+{ id:"prime-1m-perfil", category:"Streaming", name:"Prime Video - 1 Mes Perfil", description:"Perfil por 1 mes", price:27, active:true, featured:false, requiresEligibility:false, badge:"PRIME" },
+{ id:"prime-1m-completa", category:"Streaming", name:"Prime Video - 1 Mes Completa", description:"Cuenta completa por 1 mes", price:60, active:true, featured:false, requiresEligibility:false, badge:"PRIME" },
+{ id:"prime-6m-perfil", category:"Streaming", name:"Prime Video - 6 Meses Perfil", description:"Perfil por 6 meses", price:58, active:true, featured:false, requiresEligibility:false, badge:"6 MESES" },
+{ id:"prime-6m-completa", category:"Streaming", name:"Prime Video - 6 Meses Completa", description:"Cuenta completa por 6 meses", price:110, active:true, featured:false, requiresEligibility:false, badge:"6 MESES" },
+
+// VIX
+{ id:"vix-1m-completa", category:"Streaming", name:"VIX - 1 Mes Completa", description:"Cuenta completa 1 mes", price:27, active:true, featured:false, requiresEligibility:false, badge:"VIX" },
+{ id:"vix-1m-completa-renovable", category:"Streaming", name:"VIX - 1 Mes Completa Renovable", description:"Cuenta completa renovable", price:33, active:true, featured:false, requiresEligibility:false, badge:"RENOVABLE" },
+{ id:"vix-2m-completa", category:"Streaming", name:"VIX - 2 Meses Completa", description:"Cuenta completa 2 meses", price:33, active:true, featured:false, requiresEligibility:false, badge:"2 MESES" },
+{ id:"vix-anual-completa", category:"Streaming", name:"VIX - Anual Completa", description:"Cuenta completa anual", price:90, active:true, featured:false, requiresEligibility:false, badge:"ANUAL" },
+{ id:"vix-perfil-1m", category:"Streaming", name:"VIX - Perfil 1 Mes", description:"Perfil por 1 mes", price:19, active:true, featured:false, requiresEligibility:false, badge:"VIX" },
+{ id:"vix-perfil-1m-renovable", category:"Streaming", name:"VIX - Perfil 1 Mes Renovable", description:"Perfil renovable", price:22, active:true, featured:false, requiresEligibility:false, badge:"RENOVABLE" },
+{ id:"vix-perfil-2m", category:"Streaming", name:"VIX - Perfil 2 Meses", description:"Perfil por 2 meses", price:21, active:true, featured:false, requiresEligibility:false, badge:"2 MESES" },
+{ id:"vix-perfil-anual", category:"Streaming", name:"VIX - Perfil Anual", description:"Perfil anual", price:40, active:true, featured:false, requiresEligibility:false, badge:"ANUAL" },
+
+// FOX ONE
+{ id:"fox-perfil", category:"Streaming", name:"Fox One - Perfil", description:"Perfil Fox One", price:28, active:true, featured:false, requiresEligibility:false, badge:"FOX ONE" },
+{ id:"fox-completa", category:"Streaming", name:"Fox One - Completa", description:"Cuenta completa", price:65, active:true, featured:false, requiresEligibility:false, badge:"COMPLETA" },
+
+// CRUNCHYROLL
+{ id:"crunchyroll-1m-completa", category:"Streaming", name:"Crunchyroll - 1 Mes Completa", description:"Cuenta completa 1 mes", price:60, active:true, featured:false, requiresEligibility:false, badge:"CRUNCHYROLL" },
+{ id:"crunchyroll-anual-completa", category:"Streaming", name:"Crunchyroll - Anual Completa", description:"Cuenta completa anual", price:200, active:true, featured:false, requiresEligibility:false, badge:"ANUAL" },
+{ id:"crunchyroll-perfil-1m", category:"Streaming", name:"Crunchyroll - Perfil 1 Mes", description:"Perfil por 1 mes", price:27, active:true, featured:false, requiresEligibility:false, badge:"CRUNCHYROLL" },
+{ id:"crunchyroll-perfil-anual", category:"Streaming", name:"Crunchyroll - Perfil Anual", description:"Perfil anual", price:85, active:true, featured:false, requiresEligibility:false, badge:"ANUAL" },
+
+// PARAMOUNT+
+{ id:"paramount-completa", category:"Streaming", name:"Paramount+ - Mensual Completa", description:"Cuenta completa mensual", price:70, active:true, featured:false, requiresEligibility:false, badge:"PARAMOUNT+" },
+{ id:"paramount-perfil", category:"Streaming", name:"Paramount+ - Perfil Mensual", description:"Perfil mensual", price:28, active:true, featured:false, requiresEligibility:false, badge:"PARAMOUNT+" },
+
+// DAZN
+{ id:"dazn-perfil", category:"Streaming", name:"DAZN - Perfil Mensual", description:"Perfil mensual", price:60, active:true, featured:false, requiresEligibility:false, badge:"DAZN" },
+{ id:"dazn-completa", category:"Streaming", name:"DAZN - Completa Mensual", description:"Cuenta completa mensual", price:140, active:true, featured:false, requiresEligibility:false, badge:"DAZN" },
+
+// MUBI
+{ id:"mubi-completa", category:"Streaming", name:"MUBI - Completa", description:"Cuenta completa", price:35, active:true, featured:false, requiresEligibility:false, badge:"MUBI" },
+{ id:"mubi-perfil", category:"Streaming", name:"MUBI - Perfil", description:"Perfil", price:23, active:true, featured:false, requiresEligibility:false, badge:"MUBI" },
+
+// VIKI
+{ id:"viki-completa", category:"Streaming", name:"VIKI - Completa", description:"Cuenta completa", price:50, active:true, featured:false, requiresEligibility:false, badge:"VIKI" },
+{ id:"viki-perfil", category:"Streaming", name:"VIKI - Perfil", description:"Perfil", price:25, active:true, featured:false, requiresEligibility:false, badge:"VIKI" },
+
+// CHATGPT
+{ id:"chatgpt-go", category:"Streaming", name:"ChatGPT - Go Compartido", description:"Acceso compartido", price:75, active:true, featured:false, requiresEligibility:false, badge:"CHATGPT" },
+{ id:"chatgpt-plus", category:"Streaming", name:"ChatGPT - Plus Compartido", description:"Acceso compartido", price:110, active:true, featured:false, requiresEligibility:false, badge:"PLUS" },
+
+// CAPCUT
+{ id:"capcut-perfil", category:"Streaming", name:"CapCut - Perfil", description:"Perfil", price:63, active:true, featured:false, requiresEligibility:false, badge:"CAPCUT" },
+{ id:"capcut-completa", category:"Streaming", name:"CapCut - Completa", description:"Cuenta completa", price:110, active:true, featured:false, requiresEligibility:false, badge:"CAPCUT" },
+
+// DUOLINGO
+{ id:"duolingo-individual", category:"Streaming", name:"Duolingo - 1 Mes Individual", description:"Activación a tus datos", price:25, active:true, featured:false, requiresEligibility:false, badge:"1 MES" },
+
+// YOUTUBE PREMIUM
+{ id:"youtube-familiar", category:"Streaming", name:"YouTube Premium - Familiar", description:"Plan familiar", price:60, active:true, featured:false, requiresEligibility:false, badge:"YOUTUBE" },
+{ id:"youtube-individual", category:"Streaming", name:"YouTube Premium - Individual", description:"Plan individual", price:35, active:true, featured:false, requiresEligibility:false, badge:"YOUTUBE" },
+{ id:"youtube-invitacion", category:"Streaming", name:"YouTube Premium - Invitación", description:"Activación mediante invitación", price:28, active:true, featured:false, requiresEligibility:false, badge:"INVITACIÓN" },
+
+// SPOTIFY
+{ id:"spotify-familiar", category:"Streaming", name:"Spotify - Familiar", description:"Plan familiar", price:185, active:true, featured:false, requiresEligibility:false, badge:"SPOTIFY" },
+{ id:"spotify-1m", category:"Streaming", name:"Spotify - Individual 1 Mes", description:"Individual / invitación", price:65, active:true, featured:false, requiresEligibility:false, badge:"1 MES" },
+{ id:"spotify-3m", category:"Streaming", name:"Spotify - Individual 3 Meses", description:"Plan individual", price:105, active:true, featured:false, requiresEligibility:false, badge:"3 MESES" },
+{ id:"spotify-6m", category:"Streaming", name:"Spotify - Individual 6 Meses", description:"Plan individual", price:140, active:true, featured:false, requiresEligibility:false, badge:"6 MESES" },
+{ id:"spotify-anual", category:"Streaming", name:"Spotify - Individual Anual", description:"Plan individual anual", price:175, active:true, featured:false, requiresEligibility:false, badge:"ANUAL" },
+
+// CANVA EDU
+{ id:"canva-edu-1m", category:"Streaming", name:"Canva EDU - 1 Mes", description:"Canva EDU", price:21, active:true, featured:false, requiresEligibility:false, badge:"CANVA EDU" },
+{ id:"canva-edu-2m", category:"Streaming", name:"Canva EDU - 2 Meses", description:"Canva EDU", price:25, active:true, featured:false, requiresEligibility:false, badge:"CANVA EDU" },
+{ id:"canva-edu-3m", category:"Streaming", name:"Canva EDU - 3 Meses", description:"Canva EDU", price:29, active:true, featured:false, requiresEligibility:false, badge:"CANVA EDU" },
+{ id:"canva-edu-6m", category:"Streaming", name:"Canva EDU - 6 Meses", description:"Canva EDU", price:33, active:true, featured:false, requiresEligibility:false, badge:"CANVA EDU" },
+{ id:"canva-edu-anual", category:"Streaming", name:"Canva EDU - Anual", description:"Canva EDU", price:40, active:true, featured:false, requiresEligibility:false, badge:"ANUAL" },
+{ id:"canva-edu-2anos", category:"Streaming", name:"Canva EDU - 2 Años", description:"Canva EDU", price:58, active:true, featured:false, requiresEligibility:false, badge:"2 AÑOS" },
+{ id:"canva-edu-perma", category:"Streaming", name:"Canva EDU - Perma", description:"Acceso permanente", price:70, active:true, featured:false, requiresEligibility:false, badge:"PERMA" },
+
+// CANVA PRO
+{ id:"canva-pro-1m", category:"Streaming", name:"Canva Pro - 1 Mes", description:"Canva Pro por 1 mes", price:35, active:true, featured:false, requiresEligibility:false, badge:"CANVA PRO" },
+
+// APPLE TV
+{ id:"appletv-1m-perfil", category:"Streaming", name:"Apple TV - 1 Mes Perfil", description:"Perfil por 1 mes", price:38, active:true, featured:false, requiresEligibility:false, badge:"APPLE TV" },
+{ id:"appletv-1m-completa", category:"Streaming", name:"Apple TV - 1 Mes Completa", description:"Cuenta completa 1 mes", price:80, active:true, featured:false, requiresEligibility:false, badge:"APPLE TV" },
+{ id:"appletv-3m-perfil", category:"Streaming", name:"Apple TV - 3 Meses Perfil", description:"Perfil por 3 meses", price:60, active:true, featured:false, requiresEligibility:false, badge:"3 MESES" },
+{ id:"appletv-3m-completa", category:"Streaming", name:"Apple TV - 3 Meses Completa", description:"Cuenta completa 3 meses", price:100, active:true, featured:false, requiresEligibility:false, badge:"3 MESES" },
+
+// APPLE MUSIC
+{ id:"applemusic-invitacion", category:"Streaming", name:"Apple Music - Invitación", description:"Acceso mediante invitación", price:68, active:true, featured:false, requiresEligibility:false, badge:"APPLE MUSIC" },
+
+// GEMINI PRO
+{ id:"gemini-pro-18m", category:"Streaming", name:"Gemini Pro - 18 Meses", description:"Activación mediante link", price:110, active:true, featured:false, requiresEligibility:false, badge:"18 MESES" },
+
+// MICROSOFT OFFICE
+{ id:"office-anual", category:"Streaming", name:"Microsoft Office - Anual", description:"Paquetería Office. Se solicita correo y contraseña.", price:290, active:true, featured:false, requiresEligibility:false, badge:"ANUAL" },
 
 ];
 
