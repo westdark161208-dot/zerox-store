@@ -527,10 +527,11 @@ function render() {
                 </button>
 
                 <button
-                  class="buy"
-                  data-buy="${esc(product.id)}">
-                  🛒 COMPRAR
-                </button>
+  class="buy"
+  data-buy="${esc(product.id)}">
+  <span class="buy-cart-icon" aria-hidden="true"></span>
+  <span>COMPRAR</span>
+</button>
               `
               : `
                 <button
