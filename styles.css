@@ -4148,3 +4148,42 @@ body::after{
 .product-card:hover{
     transform: translateY(-2px);
 }
+/* =====================================================
+   ZERO'X STORE — REFINADO PREMIUM DE TARJETAS
+   ===================================================== */
+
+.product-card:has(img[alt="EREN"]){
+    box-shadow:
+        0 0 5px rgba(0,255,120,.22),
+        inset 0 0 8px rgba(0,255,120,.04) !important;
+}
+
+.product-card:has(img[alt="SUKUNA"]){
+    box-shadow:
+        0 0 5px rgba(255,30,40,.24),
+        inset 0 0 8px rgba(255,30,40,.04) !important;
+}
+
+.product-card:has(img[alt="NAMI"]){
+    box-shadow:
+        0 0 5px rgba(255,145,20,.22),
+        inset 0 0 8px rgba(255,145,20,.04) !important;
+}
+
+.product-card:has(img[alt="ZORO"]){
+    box-shadow:
+        0 0 5px rgba(40,255,80,.22),
+        inset 0 0 8px rgba(40,255,80,.04) !important;
+}
+
+.product-card:has(img[alt="GOJO"]){
+    box-shadow:
+        0 0 6px rgba(80,130,255,.25),
+        inset 0 0 9px rgba(120,70,255,.05) !important;
+}
+
+.product-card:has(img[alt="LUFFY"]){
+    box-shadow:
+        0 0 5px rgba(0,220,255,.22),
+        inset 0 0 8px rgba(0,220,255,.04) !important;
+}
