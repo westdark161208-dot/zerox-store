@@ -322,7 +322,7 @@ function artFor(product) {
     characterName = "ZORO";
 }
   else if (name.includes("2,398") || name.includes("2398")) {
-    character = "file_00000000c610822f9e0e39ec27f497fb.png";
+    character = "file_000000009bac81f5847f448fd3b24e3a.png";
     characterName = "GOJO";
 }
   else if (name.includes("6,160") || name.includes("6160")) {
