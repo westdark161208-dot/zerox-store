@@ -2,108 +2,1155 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1,viewport-fit=cover"
+  >
+
   <meta name="theme-color" content="#050506">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Zero'X">
-  <link rel="manifest" href="./manifest.json">
-<link rel="apple-touch-icon" href="./apple-touch-icon.png">
-<link rel="stylesheet" href="./styles.css">
+  <meta
+    name="apple-mobile-web-app-status-bar-style"
+    content="black-translucent"
+  >
+  <meta
+    name="apple-mobile-web-app-title"
+    content="Zero'X Store"
+  >
+
+  <meta
+    name="description"
+    content="Zero'X Store: diamantes, Pase Booyah, fragmentos, cajas, likes y mucho más."
+  >
+
   <title>Zero'X Store — Tu mundo gamer</title>
-  <meta name="description" content="Zero'X Store: diamantes, pases Booyah, fragmentos, cajas, likes y más.">
+
+  <link rel="manifest" href="./manifest.json">
+  <link
+    rel="apple-touch-icon"
+    href="./apple-touch-icon.png"
+  >
+  <link rel="stylesheet" href="./styles.css">
 </head>
+
 <body>
-  <div class="announcement">⚡ RECARGAS RÁPIDAS · PRECIOS EN MXN · SOPORTE POR WHATSAPP</div>
-  <header class="topbar shell">
-    <button class="icon-btn" id="menu-btn" aria-label="Menú">☰</button>
-    <a class="brand" href="#inicio" aria-label="Zero'X Store"><strong>ZERO'<i>X</i></strong><span>STORE</span></a>
-    <div class="search-wrap"><input id="search" type="search" placeholder="Buscar productos..." autocomplete="off"><span>⌕</span></div>
-    <label class="currency-select"><span>🌐</span><select id="currency"><option value="MXN">MXN</option><option value="USD">USD</option><option value="COP">COP</option><option value="ARS">ARS</option><option value="BRL">BRL</option></select></label>
-    <button class="icon-btn cart-btn" id="open-cart" aria-label="Carrito">🛒<b id="cart-count">0</b></button>
-    <button class="icon-btn" id="open-status" aria-label="Mis pedidos">👤</button>
-    <button id="install-app" class="install-btn" hidden>⇩ App</button>
+
+  <!-- =====================================================
+       FRANJA SUPERIOR
+       ===================================================== -->
+
+  <div class="announcement">
+    ⚡ RECARGAS RÁPIDAS
+    <span>•</span>
+    PRECIOS EN MXN
+    <span>•</span>
+    SOPORTE DIRECTO
+  </div>
+
+
+  <!-- =====================================================
+       HEADER
+       ===================================================== -->
+
+  <header class="topbar">
+    <div class="shell topbar-grid">
+
+      <button
+        class="icon-btn"
+        id="menu-btn"
+        aria-label="Abrir menú">
+      </button>
+
+      <a
+        class="brand brand-metal"
+        href="#inicio"
+        aria-label="Zero'X Store">
+
+        <strong>ZERO</strong><i>'X</i>
+
+        <span>STORE</span>
+      </a>
+
+      <div class="search-wrap">
+        <input
+          id="search"
+          type="search"
+          placeholder="Buscar productos..."
+          autocomplete="off"
+        >
+      </div>
+
+      <label
+        class="currency-select"
+        aria-label="Seleccionar moneda">
+
+        <select id="currency">
+          <option value="MXN">MXN</option>
+          <option value="USD">USD</option>
+          <option value="COP">COP</option>
+          <option value="ARS">ARS</option>
+          <option value="BRL">BRL</option>
+        </select>
+      </label>
+
+      <button
+        class="icon-btn cart-btn"
+        id="open-cart"
+        aria-label="Abrir carrito">
+
+        🛒
+
+        <b id="cart-count">0</b>
+      </button>
+
+      <button
+        class="icon-btn profile-btn"
+        id="open-status"
+        aria-label="Mis pedidos">
+        ♙
+      </button>
+
+      <button
+        id="install-app"
+        class="install-btn"
+        hidden>
+        Instalar
+      </button>
+
+    </div>
   </header>
 
-  <nav class="desktop-nav" id="desktop-nav"><div class="shell nav-grid">
-    <a href="#inicio" class="active">⌂ <span>Inicio</span></a><button data-cat="Diamantes 1 vez">💎 <span>Diamantes</span></button><button data-cat="Pases Booyah">🎟 <span>Pases Booyah</span></button><button data-cat="Fragmentos">🧩 <span>Fragmentos</span></button><button data-cat="Cajas">📦 <span>Cajas</span></button><button data-cat="Likes">♥ <span>Likes</span></button><a href="#revendedores">👥 <span>Revendedores</span></a><button data-cat="Todos">••• <span>Más</span></button>
-  </div></nav>
+
+  <!-- =====================================================
+       NAVEGACIÓN CATEGORÍAS
+       ===================================================== -->
+
+  <nav
+    class="desktop-nav"
+    id="desktop-nav">
+
+    <div class="shell nav-grid">
+
+      <a href="#inicio" class="active">
+        🏠
+        <span>Inicio</span>
+      </a>
+
+      <button
+        data-cat="Diamantes 1 vez">
+        💎
+        <span>Diamantes</span>
+      </button>
+
+      <button
+        data-cat="Diamantes ilimitados">
+        ♾️
+        <span>Ilimitados</span>
+      </button>
+
+      <button
+        data-cat="Pases Booyah">
+        🎟️
+        <span>Pases Booyah</span>
+      </button>
+
+      <button
+        data-cat="Fragmentos">
+        🔮
+        <span>Fragmentos</span>
+      </button>
+
+      <button
+        data-cat="Cajas">
+        📦
+        <span>Cajas</span>
+      </button>
+
+      <button
+        data-cat="Likes">
+        ❤️
+        <span>Likes</span>
+      </button>
+
+      <a href="#revendedores">
+        👥
+        <span>Revendedores</span>
+      </a>
+
+    </div>
+  </nav>
+
+
+  <!-- =====================================================
+       HERO
+       ===================================================== -->
 
   <main id="inicio">
+
     <section class="hero">
-      <div class="hero-image" role="img" aria-label="Personaje principal de Zero'X Store"></div>
-      <div class="hero-overlay"></div>
+
+      <div class="hero-vignette"></div>
+
       <div class="shell hero-content">
-        <div class="hero-card">
-          <span class="eyebrow">ZERO'X STORE · ONLINE</span>
-          <h1>TU MUNDO <em>GAMER</em><br>EN UN SOLO LUGAR</h1>
-          <p>Diamantes, Pase Booyah, fragmentos, cajas, likes y mucho más. Compra fácil desde tu celular.</p>
-          <div class="hero-badges"><span>🛡 Compra segura</span><span>⚡ Atención rápida</span><span>📦 Pedidos rastreables</span></div>
-          <a class="cta" href="#catalogo">EXPLORA NUESTROS PRODUCTOS →</a>
+
+        <div class="hero-copy">
+
+          <span class="eyebrow">
+            ZERO'X STORE · ONLINE
+          </span>
+
+          <h1 class="hero-title">
+
+            <span class="brush-white">
+              TU MUNDO
+            </span>
+
+            <span class="brush-red">
+              GAMER
+            </span>
+
+            <span class="brush-white small-brush">
+              EN UN SOLO LUGAR
+            </span>
+
+          </h1>
+
+          <p>
+            Diamantes, Pase Booyah, fragmentos,
+            cajas, likes y mucho más.
+            Compra fácil desde tu celular.
+          </p>
+
+          <div class="hero-badges">
+
+            <span>
+              🛡️ Compra segura
+            </span>
+
+            <span>
+              ⚡ Atención rápida
+            </span>
+
+            <span>
+              📦 Pedidos rastreables
+            </span>
+
+          </div>
+
+          <a
+            class="cta"
+            href="#catalogo">
+
+            EXPLORA NUESTROS PRODUCTOS →
+
+          </a>
+
         </div>
+
       </div>
+
     </section>
+
+
+    <!-- ===================================================
+         BENEFICIOS
+         =================================================== -->
 
     <section class="trust shell">
-      <article>⚡<div><b>ENTREGA RÁPIDA</b><small>Preparada para automatización</small></div></article>
-      <article>🛡<div><b>PAGOS SEGUROS</b><small>Múltiples métodos</small></div></article>
-      <article>✓<div><b>PEDIDOS TRAZABLES</b><small>Consulta con tu folio</small></div></article>
-      <article>🎧<div><b>SOPORTE DIRECTO</b><small>WhatsApp</small></div></article>
+
+      <article>
+        <div class="benefit-icon">
+          ⚡
+        </div>
+
+        <div>
+          <b>ENTREGA RÁPIDA</b>
+          <small>
+            Preparada para automatización
+          </small>
+        </div>
+      </article>
+
+      <article>
+        <div class="benefit-icon">
+          🛡️
+        </div>
+
+        <div>
+          <b>PAGOS SEGUROS</b>
+          <small>
+            Múltiples métodos
+          </small>
+        </div>
+      </article>
+
+      <article>
+        <div class="benefit-icon">
+          📦
+        </div>
+
+        <div>
+          <b>PEDIDOS TRAZABLES</b>
+          <small>
+            Consulta con tu folio
+          </small>
+        </div>
+      </article>
+
+      <article>
+        <div class="benefit-icon">
+          🎧
+        </div>
+
+        <div>
+          <b>SOPORTE DIRECTO</b>
+          <small>
+            Atención por WhatsApp
+          </small>
+        </div>
+      </article>
+
     </section>
 
-    <section class="category-cards shell" aria-label="Categorías">
-      <button data-cat="Diamantes 1 vez" class="active"><b>💎</b><span>Diamantes</span><small>Free Fire</small></button>
-      <button data-cat="Diamantes ilimitados"><b>♾️</b><span>Ilimitados</span><small>Recargas</small></button>
-      <button data-cat="Pases Booyah"><b>🎟</b><span>Pases Booyah</span><small>Al mejor precio</small></button>
-      <button data-cat="Fragmentos"><b>🔮</b><span>Fragmentos</span><small>Favoritos</small></button>
-      <button data-cat="Cajas"><b>📦</b><span>Cajas</span><small>Variedad</small></button>
-      <button data-cat="Likes"><b>♥</b><span>Likes</span><small>Free Fire</small></button>
-      <a href="#revendedores"><b>👥</b><span>Revendedores</span><small>Gana más</small></a>
-      <button data-cat="Todos"><b>•••</b><span>Más</span><small>Productos</small></button>
+
+    <!-- ===================================================
+         CATEGORÍAS 3D
+         =================================================== -->
+
+    <section
+      class="category-cards shell"
+      aria-label="Categorías">
+
+      <button
+        data-cat="Diamantes 1 vez"
+        class="active">
+
+        <div class="cat-art diamond-art">
+          💎
+        </div>
+
+        <span>Diamantes</span>
+
+        <small>Free Fire</small>
+      </button>
+
+      <button
+        data-cat="Diamantes ilimitados">
+
+        <div class="cat-art unlimited-art">
+          ♾️
+        </div>
+
+        <span>Ilimitados</span>
+
+        <small>Recargas</small>
+      </button>
+
+      <button
+        data-cat="Pases Booyah">
+
+        <div class="cat-art pass-art">
+          🎟️
+        </div>
+
+        <span>Pase Booyah</span>
+
+        <small>Al mejor precio</small>
+      </button>
+
+      <button
+        data-cat="Fragmentos">
+
+        <div class="cat-art fragment-art">
+          🔮
+        </div>
+
+        <span>Fragmentos</span>
+
+        <small>Favoritos</small>
+      </button>
+
+      <button
+        data-cat="Cajas">
+
+        <div class="cat-art box-art">
+          📦
+        </div>
+
+        <span>Cajas</span>
+
+        <small>Variedad</small>
+      </button>
+
+      <button
+        data-cat="Likes">
+
+        <div class="cat-art likes-art">
+          ❤️
+        </div>
+
+        <span>Likes</span>
+
+        <small>Free Fire</small>
+      </button>
+
+      <a href="#revendedores">
+
+        <div class="cat-art reseller-art">
+          👥
+        </div>
+
+        <span>Revendedores</span>
+
+        <small>Gana más</small>
+      </a>
+
+      <button data-cat="Todos">
+
+        <div class="cat-art more-art">
+          •••
+        </div>
+
+        <span>Más</span>
+
+        <small>Productos</small>
+      </button>
+
     </section>
 
-    <section class="catalog shell" id="catalogo">
+
+    <!-- ===================================================
+         CATÁLOGO
+         =================================================== -->
+
+    <section
+      class="catalog shell"
+      id="catalogo">
+
       <div class="catalog-head">
-        <div><span class="section-kicker">♛ ZERO'X STORE</span><h2 id="catalog-title">DIAMANTES <em>1 VEZ POR ID</em></h2><p id="catalog-note">Se revisa primero que el ID sea válido para la promoción. Cada paquete promocional puede usarse una sola vez por ID.</p></div>
-        <div class="catalog-tools"><button class="pill active" data-cat="Diamantes 1 vez">1 VEZ X ID</button><button class="pill" data-cat="Diamantes ilimitados">ILIMITADOS</button></div>
+
+        <div>
+
+          <span class="section-kicker">
+            ZERO'X STORE
+          </span>
+
+          <h2 id="catalog-title">
+
+            <span class="metal-title">
+              DIAMANTES
+            </span>
+
+            <em>
+              1 VEZ POR ID
+            </em>
+
+          </h2>
+
+        </div>
+
+
+        <div class="catalog-tools">
+
+          <button
+            class="pill active"
+            data-cat="Diamantes 1 vez">
+
+            1 VEZ POR ID
+
+          </button>
+
+          <button
+            class="pill"
+            data-cat="Diamantes ilimitados">
+
+            ILIMITADOS
+
+          </button>
+
+        </div>
+
       </div>
-      <div class="rate-note" id="rate-note">Precios base en pesos mexicanos (MXN).</div>
-      <div id="products" class="products"></div>
+
+
+      <p
+        class="catalog-description"
+        id="catalog-note">
+
+        Se revisa primero que el ID sea válido
+        para la promoción. Cada paquete promocional
+        puede utilizarse una sola vez por ID.
+
+      </p>
+
+
+      <div
+        class="rate-note"
+        id="rate-note">
+
+        Precios base en pesos mexicanos (MXN).
+
+      </div>
+
+
+      <div
+        id="products"
+        class="products">
+      </div>
+
     </section>
+
+
+    <!-- ===================================================
+         OTROS PRODUCTOS
+         =================================================== -->
 
     <section class="feature-row shell">
-      <button data-cat="Pases Booyah"><b>🎟</b><div><strong>PASES BOOYAH</strong><small>Opciones y promociones</small></div></button>
-      <button data-cat="Fragmentos"><b>🔮</b><div><strong>FRAGMENTOS</strong><small>Consigue tus favoritos</small></div></button>
-      <button data-cat="Cajas"><b>📦</b><div><strong>CAJAS</strong><small>Variedad y stock</small></div></button>
-      <button data-cat="Likes"><b>♥</b><div><strong>LIKES FREE FIRE</strong><small>Aumenta tu popularidad</small></div></button>
+
+      <button data-cat="Pases Booyah">
+
+        <div class="feature-art pass-art">
+          🎟️
+        </div>
+
+        <div>
+          <strong>
+            PASES BOOYAH
+          </strong>
+
+          <small>
+            Opciones y promociones
+          </small>
+        </div>
+
+      </button>
+
+
+      <button data-cat="Fragmentos">
+
+        <div class="feature-art fragment-art">
+          🔮
+        </div>
+
+        <div>
+          <strong>
+            FRAGMENTOS
+          </strong>
+
+          <small>
+            Consigue tus favoritos
+          </small>
+        </div>
+
+      </button>
+
+
+      <button data-cat="Cajas">
+
+        <div class="feature-art box-art">
+          📦
+        </div>
+
+        <div>
+          <strong>
+            CAJAS
+          </strong>
+
+          <small>
+            Variedad y stock
+          </small>
+        </div>
+
+      </button>
+
+
+      <button data-cat="Likes">
+
+        <div class="feature-art likes-art">
+          ❤️
+        </div>
+
+        <div>
+          <strong>
+            LIKES FREE FIRE
+          </strong>
+
+          <small>
+            Aumenta tu popularidad
+          </small>
+        </div>
+
+      </button>
+
     </section>
+
+
+    <!-- ===================================================
+         MÉTODOS DE PAGO
+         =================================================== -->
 
     <section class="payments shell">
-      <div><span class="section-kicker">MÉTODOS DE PAGO</span><h2>Paga como prefieras</h2><p>Los métodos se activan realmente al conectar tus cuentas comerciales y webhooks.</p></div>
-      <div class="pay-grid"><span>◈ <b>Binance</b></span><span>⇄ <b>Transferencia</b></span><span>▣ <b>Depósito</b></span><span>Ⓟ <b>PayPal</b></span></div>
+
+      <span class="section-kicker">
+        MÉTODOS DE PAGO
+      </span>
+
+      <h2 class="metal-title">
+        PAGA COMO PREFIERAS
+      </h2>
+
+      <div class="pay-grid">
+
+        <span>
+          🟡 Binance
+        </span>
+
+        <span>
+          🏦 Transferencia
+        </span>
+
+        <span>
+          💵 Depósito
+        </span>
+
+        <span>
+          🅿️ PayPal
+        </span>
+
+      </div>
+
     </section>
 
-    <section class="resellers" id="revendedores"><div class="shell reseller-grid">
-      <div><span class="section-kicker">ZERO'X RESELLERS</span><h2>GANA MÁS <em>REVENDE</em></h2><p>Solicita acceso para precios especiales. La base ya queda preparada para niveles por volumen, saldo, pedidos masivos y API.</p><div class="reseller-features"><span>✓ Precios mayoristas</span><span>✓ Historial de pedidos</span><span>✓ Saldo de revendedor</span><span>✓ API en próxima etapa</span></div></div>
-      <form id="reseller-form" class="reseller-form"><h3>Solicitar acceso</h3><label>Nombre<input name="name" required maxlength="80" placeholder="Tu nombre o negocio"></label><label>WhatsApp<input name="whatsapp" required maxlength="30" placeholder="+52 ..."></label><label>Ventas estimadas por semana<select name="volume"><option>1–10 pedidos</option><option>11–50 pedidos</option><option>51–200 pedidos</option><option>Más de 200</option></select></label><button class="cta full" type="submit">ENVIAR SOLICITUD →</button><div id="reseller-result"></div></form>
-    </div></section>
 
-    <section class="whatsapp-bar shell"><div><b>¿Necesitas ayuda?</b><span>Habla directamente con Zero'X Store</span></div><a href="https://wa.me/529514754210" target="_blank" rel="noopener">💬 +52 951 475 4210 →</a></section>
+    <!-- ===================================================
+         REVENDEDORES
+         =================================================== -->
+
+    <section
+      class="resellers shell"
+      id="revendedores">
+
+      <div class="reseller-grid">
+
+        <div>
+
+          <span class="section-kicker">
+            ZERO'X RESELLERS
+          </span>
+
+          <h2>
+
+            <span class="metal-title">
+              GANA
+            </span>
+
+            <em>
+              MÁS
+            </em>
+
+          </h2>
+
+          <p>
+            Solicita acceso a precios especiales
+            para revendedores y prepárate para
+            manejar mayor volumen.
+          </p>
+
+        </div>
+
+
+        <form
+          id="reseller-form"
+          class="reseller-form">
+
+          <input
+            name="name"
+            placeholder="Nombre"
+            required
+          >
+
+          <input
+            name="whatsapp"
+            placeholder="WhatsApp"
+            required
+          >
+
+          <select
+            name="volume"
+            required>
+
+            <option value="">
+              Ventas aproximadas por mes
+            </option>
+
+            <option value="1-20">
+              1 - 20
+            </option>
+
+            <option value="21-50">
+              21 - 50
+            </option>
+
+            <option value="51-100">
+              51 - 100
+            </option>
+
+            <option value="100+">
+              Más de 100
+            </option>
+
+          </select>
+
+          <button type="submit">
+            SOLICITAR ACCESO
+          </button>
+
+          <div id="reseller-result"></div>
+
+        </form>
+
+      </div>
+
+    </section>
+
+
+    <!-- ===================================================
+         WHATSAPP - SOLO ICONO
+         =================================================== -->
+
+    <a
+      class="whatsapp-floating"
+      href="https://wa.me/529514754210"
+      target="_blank"
+      rel="noopener"
+      aria-label="Contactar por WhatsApp">
+
+      <svg
+        viewBox="0 0 32 32"
+        aria-hidden="true">
+
+        <path
+          fill="currentColor"
+          d="M16 3C9 3 3.4 8.6 3.4 15.5c0 2.4.7 4.7 2 6.7L3 29l7-2.3c1.8 1 3.9 1.5 6 1.5 7 0 12.6-5.6 12.6-12.6S23 3 16 3zm0 22.7c-1.9 0-3.8-.5-5.4-1.5l-.4-.2-4.1 1.3 1.4-4-.3-.4c-1.1-1.7-1.7-3.6-1.7-5.5C5.5 9.9 10.2 5.3 16 5.3c5.8 0 10.5 4.6 10.5 10.3 0 5.6-4.7 10.1-10.5 10.1z"
+        />
+
+      </svg>
+
+    </a>
+
   </main>
 
-  <footer class="footer"><div class="shell footer-grid"><div class="brand footer-brand"><strong>ZERO'<i>X</i></strong><span>STORE</span></div><p>SIEMPRE CONTIGO EN EL JUEGO</p><div>Instagram · TikTok · WhatsApp</div></div></footer>
 
-  <nav class="bottom-nav"><a href="#inicio" class="active">⌂<span>Inicio</span></a><a href="#catalogo">▦<span>Categorías</span></a><button id="bottom-cart" class="cart-fab">🛒<b id="bottom-cart-count">0</b></button><button id="bottom-status">▤<span>Mis pedidos</span></button><a href="https://wa.me/529514754210" target="_blank" rel="noopener">🎧<span>Soporte</span></a></nav>
+  <!-- =====================================================
+       FOOTER
+       ===================================================== -->
 
-  <dialog id="checkout"><form method="dialog" class="modal" id="checkout-form"><button class="close" value="cancel">×</button><span class="section-kicker">CHECKOUT ZERO'X</span><h2 id="modal-product"></h2><div class="summary" id="price-summary"></div><div id="eligibility-note" class="eligibility" hidden>⚠ Producto promocional de una sola vez por ID. Primero debe validarse que tu ID sea elegible.</div><label>ID / UID del jugador<input name="uid" required minlength="5" maxlength="32" autocomplete="off" placeholder="Ej. 123456789"></label><label>Nickname <small>(opcional)</small><input name="nickname" maxlength="40" placeholder="Tu nombre en el juego"></label><label>Correo para recibo<input name="email" type="email" required placeholder="tu@email.com"></label><label>Cupón<div class="coupon-row"><input name="coupon" id="coupon" placeholder="ZEROX5"><button type="button" class="apply" id="apply-coupon">Aplicar</button></div></label><label>Método de pago<select name="paymentMethod"><option value="transferencia">Transferencia</option><option value="deposito">Depósito</option><option value="paypal">PayPal</option><option value="binance">Binance</option></select></label><input type="hidden" name="productId" id="product-id"><button class="cta full" type="submit">CREAR PEDIDO →</button><p class="fine">Versión demo funcional: genera y rastrea pedidos, pero todavía no realiza cobros reales ni recargas reales.</p><div id="checkout-result"></div></form></dialog>
+  <footer class="footer">
 
-  <dialog id="cart"><div class="modal cart-modal"><button class="close" id="close-cart">×</button><span class="section-kicker">TU CARRITO</span><h2>Productos seleccionados</h2><div id="cart-items" class="cart-items"></div><div class="cart-total"><span>Total estimado</span><strong id="cart-total">$0</strong></div><p class="fine">Cada recarga requiere un UID. Para evitar errores, el checkout se completa un producto a la vez.</p><button id="checkout-cart-first" class="cta full">COMPRAR PRIMER PRODUCTO →</button></div></dialog>
+    <div class="shell footer-grid">
 
-  <dialog id="status"><form method="dialog" class="modal" id="status-form"><button class="close" value="cancel">×</button><span class="section-kicker">MIS PEDIDOS</span><h2>Rastrea tu pedido</h2><label>ID del pedido<input name="orderId" required placeholder="ZX-..."></label><button class="cta full" type="submit">CONSULTAR</button><div id="status-result" class="status-result"></div></form></dialog>
+      <div>
 
-  <aside class="drawer" id="drawer" aria-hidden="true"><button id="close-drawer">×</button><div class="brand"><strong>ZERO'<i>X</i></strong><span>STORE</span></div><a href="#inicio">Inicio</a><a href="#catalogo">Catálogo</a><a href="#revendedores">Revendedores</a><button id="drawer-orders">Mis pedidos</button><a href="/admin.html">Panel admin</a><a href="https://wa.me/529514754210" target="_blank">WhatsApp</a></aside><div class="drawer-backdrop" id="drawer-backdrop"></div>
+        <div class="footer-brand brand-metal">
+          ZERO'X STORE
+        </div>
 
-  <div class="install-toast" id="install-toast" hidden><div><b>📲 Instala Zero'X Store</b><span>Úsala desde tu pantalla principal.</span></div><button id="install-toast-btn">Instalar</button><button class="dismiss-install" id="dismiss-install">×</button></div>
+        <small>
+          Siempre contigo en el juego.
+        </small>
+
+      </div>
+
+      <small>
+        © Zero'X Store
+      </small>
+
+    </div>
+
+  </footer>
+
+
+  <!-- =====================================================
+       BARRA INFERIOR MÓVIL
+       ===================================================== -->
+
+  <nav class="bottom-nav">
+
+    <a
+      href="#inicio"
+      class="active">
+
+      🏠
+      <span>Inicio</span>
+
+    </a>
+
+    <a href="#catalogo">
+
+      ▦
+      <span>Categorías</span>
+
+    </a>
+
+    <button
+      id="bottom-cart"
+      class="big-cart">
+
+      🛒
+
+      <b id="bottom-cart-count">
+        0
+      </b>
+
+    </button>
+
+    <button id="bottom-status">
+
+      📋
+      <span>Mis pedidos</span>
+
+    </button>
+
+    <a
+      href="https://wa.me/529514754210"
+      target="_blank">
+
+      🎧
+      <span>Soporte</span>
+
+    </a>
+
+  </nav>
+
+
+  <!-- =====================================================
+       CARRITO
+       ===================================================== -->
+
+  <dialog
+    id="cart"
+    class="modal cart-modal">
+
+    <button
+      class="close"
+      id="close-cart">
+      ×
+    </button>
+
+    <span class="section-kicker">
+      ZERO'X STORE
+    </span>
+
+    <h2>
+      TU CARRITO
+    </h2>
+
+    <div id="cart-items"></div>
+
+    <div class="cart-total">
+
+      <span>Total</span>
+
+      <b id="cart-total">
+        $0
+      </b>
+
+    </div>
+
+    <button id="checkout-cart-first">
+      CONTINUAR COMPRA
+    </button>
+
+  </dialog>
+
+
+  <!-- =====================================================
+       CHECKOUT
+       ===================================================== -->
+
+  <dialog
+    id="checkout"
+    class="modal">
+
+    <form
+      method="dialog"
+      class="modal-close-form">
+
+      <button
+        class="close"
+        value="cancel">
+        ×
+      </button>
+
+    </form>
+
+
+    <span class="section-kicker">
+      COMPLETAR PEDIDO
+    </span>
+
+    <h2 id="modal-product">
+      Producto
+    </h2>
+
+
+    <form id="checkout-form">
+
+      <input
+        id="product-id"
+        type="hidden"
+        name="productId"
+      >
+
+      <div
+        id="eligibility-note"
+        class="eligibility-note">
+
+        ⚠️ Este producto requiere validar
+        primero si el ID aplica para la promoción.
+
+      </div>
+
+      <label>
+        ID de jugador
+
+        <input
+          name="playerId"
+          inputmode="numeric"
+          placeholder="Ej. 123456789"
+          required
+        >
+      </label>
+
+      <label>
+        Nickname
+
+        <input
+          name="nickname"
+          placeholder="Nombre dentro del juego"
+        >
+      </label>
+
+      <label>
+        Contacto
+
+        <input
+          name="contact"
+          placeholder="WhatsApp o correo"
+          required
+        >
+      </label>
+
+      <label>
+        Método de pago
+
+        <select
+          name="payment"
+          required>
+
+          <option value="">
+            Selecciona
+          </option>
+
+          <option value="Binance">
+            Binance
+          </option>
+
+          <option value="Transferencia">
+            Transferencia
+          </option>
+
+          <option value="Deposito">
+            Depósito
+          </option>
+
+          <option value="PayPal">
+            PayPal
+          </option>
+
+        </select>
+      </label>
+
+
+      <div class="coupon-row">
+
+        <input
+          id="coupon"
+          name="coupon"
+          placeholder="Cupón"
+        >
+
+        <button
+          type="button"
+          id="apply-coupon">
+
+          Aplicar
+
+        </button>
+
+      </div>
+
+
+      <div id="price-summary"></div>
+
+
+      <button type="submit">
+        CREAR PEDIDO
+      </button>
+
+
+      <div id="checkout-result"></div>
+
+    </form>
+
+  </dialog>
+
+
+  <!-- =====================================================
+       RASTREAR PEDIDO
+       ===================================================== -->
+
+  <dialog
+    id="status"
+    class="modal">
+
+    <form
+      method="dialog">
+
+      <button
+        class="close"
+        value="cancel">
+        ×
+      </button>
+
+    </form>
+
+
+    <span class="section-kicker">
+      ZERO'X STORE
+    </span>
+
+    <h2>
+      MIS PEDIDOS
+    </h2>
+
+
+    <form id="status-form">
+
+      <input
+        name="orderId"
+        placeholder="Ej. ZX-12345678"
+        required
+      >
+
+      <button type="submit">
+        CONSULTAR
+      </button>
+
+    </form>
+
+
+    <div id="status-result"></div>
+
+  </dialog>
+
+
+  <!-- =====================================================
+       MENÚ LATERAL
+       ===================================================== -->
+
+  <div
+    id="drawer-backdrop"
+    class="drawer-backdrop">
+  </div>
+
+
+  <aside
+    class="drawer"
+    id="drawer"
+    aria-hidden="true">
+
+    <button
+      id="close-drawer"
+      class="close">
+      ×
+    </button>
+
+    <div class="brand brand-metal">
+      <strong>ZERO</strong><i>'X</i>
+      <span>STORE</span>
+    </div>
+
+    <a href="#inicio">
+      🏠 Inicio
+    </a>
+
+    <a href="#catalogo">
+      💎 Diamantes
+    </a>
+
+    <a href="#revendedores">
+      👥 Revendedores
+    </a>
+
+    <button id="drawer-orders">
+      📋 Mis pedidos
+    </button>
+
+    <a
+      href="https://wa.me/529514754210"
+      target="_blank">
+
+      💬 WhatsApp
+
+    </a>
+
+  </aside>
+
+
+  <!-- =====================================================
+       INSTALAR PWA
+       ===================================================== -->
+
+  <div
+    class="install-toast"
+    id="install-toast"
+    hidden>
+
+    <div>
+
+      <b>
+        Instala Zero'X Store
+      </b>
+
+      <span>
+        Úsala desde tu pantalla principal.
+      </span>
+
+    </div>
+
+    <button
+      class="install-toast-btn"
+      id="install-toast-btn">
+
+      Instalar
+
+    </button>
+
+    <button
+      class="dismiss-install"
+      id="dismiss-install">
+
+      ×
+
+    </button>
+
+  </div>
+
+
   <script src="./app.js"></script>
-</body></html>
+
+</body>
+</html>
