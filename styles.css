@@ -3580,3 +3580,48 @@ body::after{
     height:13px;
   }
 }
+/* =========================================================
+   ZERO'X — BANNER INSTALACIÓN COMPACTO EN MÓVIL
+   ========================================================= */
+
+@media(max-width:650px){
+
+  #install-toast,
+  .install-toast{
+    left:12px !important;
+    right:12px !important;
+    bottom:92px !important;
+
+    width:auto !important;
+    min-height:72px !important;
+
+    padding:12px 14px !important;
+    border-radius:18px !important;
+  }
+
+  #install-toast h3,
+  .install-toast h3{
+    font-size:15px !important;
+    line-height:1.1 !important;
+    margin:0 0 3px !important;
+  }
+
+  #install-toast p,
+  .install-toast p{
+    font-size:11px !important;
+    line-height:1.15 !important;
+    margin:0 !important;
+  }
+
+  #install-toast button,
+  .install-toast button{
+    min-height:42px !important;
+  }
+
+  #install-btn,
+  .install-btn{
+    padding:9px 18px !important;
+    font-size:14px !important;
+    border-radius:12px !important;
+  }
+}
