@@ -294,14 +294,191 @@ function updateCartUI() {
    PRODUCTOS
    ========================================================= */
 
-function iconFor(product) {
-  if (product.category.includes("Diamantes")) return "💎";
-  if (product.category.includes("Pases")) return "🎟️";
-  if (product.category === "Likes") return "❤️";
-  if (product.category === "Cajas") return "📦";
-  if (product.category === "Fragmentos") return "🔮";
+function artFor(product) {
+  const name = product.name || "";
+  const category = product.category || "";
 
-  return "🎮";
+  if (!category.includes("Diamantes")) {
+    if (category.includes("Pases")) {
+      return `
+        <div class="art-3d pass-card-art">
+          <div class="ticket-3d">
+            <span>★</span>
+          </div>
+        </div>
+      `;
+    }
+
+    if (category === "Fragmentos") {
+      return `
+        <div class="art-3d fragment-card-art">
+          <div class="crystal-3d"></div>
+        </div>
+      `;
+    }
+
+    if (category === "Cajas") {
+      return `
+        <div class="art-3d box-card-art">
+          <div class="loot-box-3d"></div>
+        </div>
+      `;
+    }
+
+    if (category === "Likes") {
+      return `
+        <div class="art-3d likes-card-art">
+          <div class="heart-3d">♥</div>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="art-3d generic-art">
+        🎮
+      </div>
+    `;
+  }
+
+  let variant = "single";
+
+  if (name.includes("340")) variant = "triple";
+  if (name.includes("572")) variant = "premium";
+  if (name.includes("1,166")) variant = "box-small";
+  if (name.includes("2,398")) variant = "box-medium";
+  if (name.includes("6,160")) variant = "box-large";
+
+  if (variant === "single") {
+    return `
+      <div class="diamond-scene">
+        <svg viewBox="0 0 200 120" class="diamond-svg">
+          <defs>
+            <linearGradient id="dg1" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#eaffff"/>
+              <stop offset="25%" stop-color="#5ee9ff"/>
+              <stop offset="55%" stop-color="#00aaff"/>
+              <stop offset="100%" stop-color="#0051ff"/>
+            </linearGradient>
+
+            <filter id="glow1">
+              <feGaussianBlur stdDeviation="4" result="b"/>
+              <feMerge>
+                <feMergeNode in="b"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+
+          <ellipse
+            cx="100"
+            cy="95"
+            rx="55"
+            ry="12"
+            fill="#008cff"
+            opacity=".22"
+          />
+
+          <g filter="url(#glow1)">
+            <polygon
+              points="100,18 145,48 124,93 76,93 55,48"
+              fill="url(#dg1)"
+            />
+
+            <polygon
+              points="100,18 100,93 55,48"
+              fill="#62ecff"
+              opacity=".85"
+            />
+
+            <polygon
+              points="100,18 145,48 100,48"
+              fill="#cfffff"
+              opacity=".9"
+            />
+
+            <polygon
+              points="55,48 100,48 76,93"
+              fill="#0077ff"
+              opacity=".9"
+            />
+
+            <polygon
+              points="145,48 100,48 124,93"
+              fill="#004bd9"
+              opacity=".85"
+            />
+          </g>
+        </svg>
+      </div>
+    `;
+  }
+
+  if (variant === "triple") {
+    return `
+      <div class="diamond-scene multi-diamonds">
+
+        <div class="mini-diamond d1"></div>
+        <div class="mini-diamond d2"></div>
+        <div class="mini-diamond d3"></div>
+
+      </div>
+    `;
+  }
+
+  if (variant === "premium") {
+    return `
+      <div class="diamond-scene premium-diamonds">
+
+        <div class="mini-diamond p1"></div>
+        <div class="mini-diamond p2"></div>
+        <div class="mini-diamond p3"></div>
+        <div class="mini-diamond p4"></div>
+
+        <div class="premium-core"></div>
+
+      </div>
+    `;
+  }
+
+  if (
+    variant === "box-small" ||
+    variant === "box-medium" ||
+    variant === "box-large"
+  ) {
+    const level =
+      variant === "box-small"
+        ? "small"
+        : variant === "box-medium"
+        ? "medium"
+        : "large";
+
+    return `
+      <div class="diamond-scene loot-scene ${level}">
+
+        <div class="loot-chest">
+
+          <div class="chest-lid"></div>
+
+          <div class="chest-body">
+            <span>ZERO'X</span>
+          </div>
+
+        </div>
+
+        <div class="loot-gems">
+
+          <div class="gem g1"></div>
+          <div class="gem g2"></div>
+          <div class="gem g3"></div>
+          <div class="gem g4"></div>
+          <div class="gem g5"></div>
+
+        </div>
+
+      </div>
+    `;
+  }
+}
 }
 
 function setFilter(category, scroll = true) {
@@ -399,7 +576,7 @@ function render() {
         </div>
 
         <div class="diamond-icon">
-          ${iconFor(product)}
+          ${artFor(product)}
         </div>
 
         <h3>
