@@ -3457,3 +3457,54 @@ body::after{
     padding:6px 9px !important;
   }
 }
+/* =========================================================
+   ZERO'X — NOMBRES DE PRODUCTO SIN CORTES
+   ========================================================= */
+
+.product-card h3{
+  width:100% !important;
+  max-width:100% !important;
+
+  white-space:normal !important;
+  overflow:visible !important;
+  text-overflow:clip !important;
+
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+
+  text-align:center !important;
+
+  font-size:21px !important;
+  line-height:1.02 !important;
+
+  min-height:46px !important;
+
+  padding:0 6px !important;
+  margin:6px 0 4px !important;
+
+  word-break:normal !important;
+  overflow-wrap:anywhere !important;
+}
+
+/* Pantallas móviles */
+@media(max-width:650px){
+
+  .product-card h3{
+    font-size:17px !important;
+    line-height:1.05 !important;
+    min-height:42px !important;
+    padding:0 4px !important;
+  }
+
+}
+
+/* Pantallas muy pequeñas */
+@media(max-width:390px){
+
+  .product-card h3{
+    font-size:15px !important;
+    min-height:40px !important;
+  }
+
+}
