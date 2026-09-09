@@ -3303,3 +3303,157 @@ body::after{
     padding:10px 13px !important;
   }
 }
+/* =========================================================
+   ZERO'X — BOTONES Y BADGES PREMIUM
+   ========================================================= */
+
+/* Área inferior */
+.product-actions{
+  display:flex !important;
+  align-items:center !important;
+  gap:10px !important;
+  width:100% !important;
+}
+
+/* BOTÓN + */
+.product-actions .add-cart{
+  width:54px !important;
+  height:52px !important;
+  flex:0 0 54px !important;
+
+  border-radius:13px !important;
+  border:1px solid rgba(255,255,255,.20) !important;
+
+  background:
+    linear-gradient(145deg,#22242b,#090a0e) !important;
+
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,.15),
+    0 5px 14px rgba(0,0,0,.55) !important;
+
+  color:#fff !important;
+  font-size:28px !important;
+  font-weight:900 !important;
+}
+
+/* BOTÓN COMPRAR */
+.product-actions .buy{
+  position:relative !important;
+  overflow:hidden !important;
+
+  flex:1 !important;
+  min-height:52px !important;
+
+  border-radius:13px !important;
+  border:1px solid #ff263d !important;
+
+  background:
+    linear-gradient(
+      180deg,
+      #f01831 0%,
+      #c40820 48%,
+      #8f0012 100%
+    ) !important;
+
+  color:#fff !important;
+
+  font-weight:900 !important;
+  letter-spacing:.4px !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.25),
+    inset 0 -3px 7px rgba(80,0,0,.35),
+    0 6px 16px rgba(220,0,30,.24) !important;
+
+  text-shadow:
+    0 2px 2px rgba(0,0,0,.55) !important;
+}
+
+/* Brillo metálico */
+.product-actions .buy::before{
+  content:"" !important;
+  position:absolute !important;
+
+  top:0 !important;
+  left:-80% !important;
+
+  width:45% !important;
+  height:100% !important;
+
+  transform:skewX(-20deg) !important;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255,255,255,.22),
+      transparent
+    ) !important;
+
+  transition:.45s !important;
+}
+
+.product-actions .buy:hover::before{
+  left:130% !important;
+}
+
+/* Al tocar */
+.product-actions .buy:active,
+.product-actions .add-cart:active{
+  transform:scale(.96) !important;
+}
+
+/* BADGES */
+.product-card .tag{
+  border-radius:8px !important;
+
+  padding:7px 13px !important;
+
+  background:
+    linear-gradient(
+      180deg,
+      #e51630,
+      #a60017
+    ) !important;
+
+  border:1px solid rgba(255,70,85,.45) !important;
+
+  color:#fff !important;
+  font-weight:900 !important;
+
+  box-shadow:
+    0 5px 14px rgba(220,0,25,.25),
+    inset 0 1px rgba(255,255,255,.20) !important;
+}
+
+/* Precio con más presencia */
+.product-card .pricing b{
+  text-shadow:
+    0 2px 3px #000,
+    0 0 8px rgba(255,255,255,.15) !important;
+}
+
+/* MÓVIL */
+@media(max-width:650px){
+
+  .product-actions{
+    gap:7px !important;
+  }
+
+  .product-actions .add-cart{
+    width:48px !important;
+    height:48px !important;
+    flex-basis:48px !important;
+  }
+
+  .product-actions .buy{
+    min-height:48px !important;
+    font-size:14px !important;
+    padding:8px 7px !important;
+  }
+
+  .product-card .tag{
+    font-size:11px !important;
+    padding:6px 9px !important;
+  }
+}
