@@ -4187,3 +4187,129 @@ body::after{
         0 0 5px rgba(0,220,255,.22),
         inset 0 0 8px rgba(0,220,255,.04) !important;
 }
+/* =====================================================
+   ZERO'X STORE — BOTONES Y BADGES PREMIUM
+   ===================================================== */
+
+/* ---------- ETIQUETAS ---------- */
+
+.product-card .tag{
+    border-radius: 10px !important;
+    border: 1px solid rgba(255,80,95,.85) !important;
+
+    background:
+        linear-gradient(
+            180deg,
+            #ff2840 0%,
+            #e50928 55%,
+            #b90020 100%
+        ) !important;
+
+    box-shadow:
+        0 3px 8px rgba(0,0,0,.55),
+        0 0 8px rgba(255,20,55,.30),
+        inset 0 1px 1px rgba(255,255,255,.30) !important;
+
+    text-shadow:
+        0 2px 3px rgba(0,0,0,.65) !important;
+
+    font-weight:900 !important;
+}
+
+
+/* ---------- BOTÓN COMPRAR ---------- */
+
+.product-actions .buy{
+    position:relative;
+    overflow:hidden;
+
+    border:1px solid rgba(255,70,85,.90) !important;
+    border-radius:13px !important;
+
+    background:
+        linear-gradient(
+            180deg,
+            #ff2038 0%,
+            #e30627 52%,
+            #b50020 100%
+        ) !important;
+
+    box-shadow:
+        0 5px 12px rgba(0,0,0,.50),
+        0 0 9px rgba(255,20,50,.30),
+        inset 0 1px 1px rgba(255,255,255,.28),
+        inset 0 -3px 5px rgba(100,0,15,.25) !important;
+
+    text-shadow:
+        0 2px 3px rgba(0,0,0,.65);
+
+    transition:
+        transform .18s ease,
+        box-shadow .18s ease;
+}
+
+
+/* Brillo superior del botón */
+
+.product-actions .buy::before{
+    content:"";
+    position:absolute;
+
+    left:8%;
+    top:2px;
+
+    width:84%;
+    height:35%;
+
+    border-radius:50%;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,.20),
+            transparent
+        );
+
+    pointer-events:none;
+}
+
+
+/* ---------- BOTÓN + ---------- */
+
+.product-actions .add-cart{
+    border-radius:13px !important;
+
+    border:1px solid rgba(255,255,255,.16) !important;
+
+    background:
+        linear-gradient(
+            180deg,
+            #292a31 0%,
+            #17181d 100%
+        ) !important;
+
+    box-shadow:
+        0 5px 10px rgba(0,0,0,.45),
+        inset 0 1px 1px rgba(255,255,255,.10) !important;
+
+    text-shadow:
+        0 2px 3px #000;
+}
+
+
+/* ---------- EFECTO AL PRESIONAR ---------- */
+
+.product-actions .buy:active,
+.product-actions .add-cart:active{
+    transform:scale(.96) !important;
+}
+
+
+/* Glow del botón comprar al tocar/pasar */
+
+.product-actions .buy:hover{
+    box-shadow:
+        0 5px 14px rgba(0,0,0,.55),
+        0 0 14px rgba(255,20,50,.42),
+        inset 0 1px 1px rgba(255,255,255,.30) !important;
+}
