@@ -302,83 +302,49 @@ function artFor(product) {
     return "";
   }
 
+  let character = "";
+  let characterName = "";
+
   if (name.includes("110")) {
+    character = "file_00000000561081f592ab7a6e14562570.png";
+    characterName = "EREN";
+  } 
+  else if (name.includes("310")) {
+    character = "file_00000000f38c822fa6db576f47e8b0f9.png";
+    characterName = "SUKUNA";
+  } 
+  else if (name.includes("572")) {
+    character = "file_00000000469c81f596dc0e8f49ca0040.png";
+    characterName = "NAMI";
+  } 
+  else if (name.includes("1,166") || name.includes("1166")) {
+    character = "file_0000000001f482309faad42cecb306fe.png";
+    characterName = "ZORO";
+  } 
+  else if (name.includes("2,398") || name.includes("2398")) {
+    character = "file_000000007c28823080a9330dbba6c2d6.png";
+    characterName = "GOJO";
+  } 
+  else if (name.includes("6,160") || name.includes("6160")) {
+    character = "file_000000005b2081fd8514a17c052ac79f.png";
+    characterName = "LUFFY";
+  }
+
+  if (character) {
     return `
-      <div class="product-art product-art-110">
-        <div class="big-diamond"></div>
+      <div class="product-art character-art">
+        <div class="character-glow"></div>
+        <img
+          src="${character}"
+          alt="${characterName}"
+          class="character-img"
+        >
+        <div class="character-name">${characterName}</div>
       </div>
     `;
   }
 
-  if (name.includes("340")) {
-    return `
-      <div class="product-art product-art-340">
-        <div class="diamond gem-a"></div>
-        <div class="diamond gem-b"></div>
-        <div class="diamond gem-c"></div>
-      </div>
-    `;
-  }
-
-  if (name.includes("572")) {
-    return `
-      <div class="product-art product-art-572">
-        <div class="diamond premium-center"></div>
-        <div class="diamond premium-left"></div>
-        <div class="diamond premium-right"></div>
-        <div class="diamond premium-mini-1"></div>
-        <div class="diamond premium-mini-2"></div>
-      </div>
-    `;
-  }
-
-  if (name.includes("1,166") || name.includes("1166")) {
-    return `
-      <div class="product-art product-chest small-chest">
-        <div class="chest-gems">
-          <i></i><i></i><i></i>
-        </div>
-        <div class="chest-lid"></div>
-        <div class="chest-base">
-          <span>ZERO'X</span>
-        </div>
-      </div>
-    `;
-  }
-
-  if (name.includes("2,398") || name.includes("2398")) {
-    return `
-      <div class="product-art product-chest medium-chest">
-        <div class="chest-gems">
-          <i></i><i></i><i></i><i></i>
-        </div>
-        <div class="chest-lid"></div>
-        <div class="chest-base">
-          <span>ZERO'X</span>
-        </div>
-      </div>
-    `;
-  }
-
-  if (name.includes("6,160") || name.includes("6160")) {
-    return `
-      <div class="product-art product-chest large-chest">
-        <div class="chest-gems">
-          <i></i><i></i><i></i><i></i><i></i>
-        </div>
-        <div class="chest-lid"></div>
-        <div class="chest-base">
-          <span>ZERO'X</span>
-        </div>
-      </div>
-    `;
-  }
-
-  return `
-    <div class="product-art">
-      <div class="big-diamond"></div>
-    </div>
-  `;
+  return "";
 }
 
 function setFilter(category, scroll = true) {
