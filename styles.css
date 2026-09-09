@@ -5149,3 +5149,9 @@ body::after{
     line-height:24px !important;
   }
 }
+/* AJUSTE SOLO PARA LUFFY */
+.character-img[alt="LUFFY"]{
+    transform: scale(0.88) !important;
+    object-fit: contain !important;
+    object-position: center center !important;
+}
