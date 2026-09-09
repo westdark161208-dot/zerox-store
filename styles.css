@@ -4313,3 +4313,49 @@ body::after{
         0 0 14px rgba(255,20,50,.42),
         inset 0 1px 1px rgba(255,255,255,.30) !important;
 }
+/* =====================================================
+   ZERO'X STORE — FONDO PREMIUM POR PERSONAJE
+   ===================================================== */
+
+/* EREN — NEGRO + VERDE */
+.product-card:has(img[alt="EREN"]){
+    background:
+        radial-gradient(circle at 50% 18%, rgba(0,255,120,.12), transparent 34%),
+        linear-gradient(180deg, #07110c 0%, #06090a 48%, #020303 100%) !important;
+}
+
+/* SUKUNA — NEGRO + ROJO */
+.product-card:has(img[alt="SUKUNA"]){
+    background:
+        radial-gradient(circle at 50% 18%, rgba(255,25,40,.14), transparent 34%),
+        linear-gradient(180deg, #150708 0%, #090506 48%, #030202 100%) !important;
+}
+
+/* NAMI — NEGRO + NARANJA */
+.product-card:has(img[alt="NAMI"]){
+    background:
+        radial-gradient(circle at 50% 18%, rgba(255,145,20,.13), transparent 34%),
+        linear-gradient(180deg, #160e05 0%, #0b0804 48%, #030302 100%) !important;
+}
+
+/* ZORO — NEGRO + VERDE NEÓN */
+.product-card:has(img[alt="ZORO"]){
+    background:
+        radial-gradient(circle at 50% 18%, rgba(40,255,80,.13), transparent 34%),
+        linear-gradient(180deg, #071308 0%, #050a06 48%, #020302 100%) !important;
+}
+
+/* GOJO — NEGRO + AZUL/VIOLETA */
+.product-card:has(img[alt="GOJO"]){
+    background:
+        radial-gradient(circle at 50% 18%, rgba(90,120,255,.16), transparent 34%),
+        radial-gradient(circle at 80% 30%, rgba(150,60,255,.08), transparent 28%),
+        linear-gradient(180deg, #080a18 0%, #050611 48%, #020207 100%) !important;
+}
+
+/* LUFFY — NEGRO + CELESTE */
+.product-card:has(img[alt="LUFFY"]){
+    background:
+        radial-gradient(circle at 50% 18%, rgba(0,220,255,.14), transparent 34%),
+        linear-gradient(180deg, #061218 0%, #050a0d 48%, #020303 100%) !important;
+}
