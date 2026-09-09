@@ -172,16 +172,88 @@ const PRODUCTS = [
     badge: "PRÓXIMAMENTE"
   },
   {
-    id: "likes-demo",
-    category: "Likes",
-    name: "Likes Free Fire",
-    description: "Aumenta la popularidad de tu perfil.",
-    price: 0,
-    active: true,
-    featured: false,
-    requiresEligibility: false,
-    badge: "PRÓXIMAMENTE"
-  }
+  id: "likes-demo",
+  category: "Likes",
+  name: "Likes Free Fire",
+  description: "Aumenta la popularidad de tu perfil.",
+  price: 0,
+  active: true,
+  featured: false,
+  requiresEligibility: false,
+  badge: "PRÓXIMAMENTE"
+},
+
+/* =========================================
+   STREAMING
+   ========================================= */
+
+{
+  id: "stream-netflix",
+  category: "Streaming",
+  name: "Netflix",
+  description: "Acceso digital a Netflix.",
+  price: 0,
+  active: true,
+  featured: false,
+  requiresEligibility: false,
+  badge: "STREAMING"
+},
+{
+  id: "stream-spotify",
+  category: "Streaming",
+  name: "Spotify Premium",
+  description: "Spotify Premium con entrega digital.",
+  price: 0,
+  active: true,
+  featured: false,
+  requiresEligibility: false,
+  badge: "STREAMING"
+},
+{
+  id: "stream-max",
+  category: "Streaming",
+  name: "Max",
+  description: "Acceso digital a Max.",
+  price: 0,
+  active: true,
+  featured: false,
+  requiresEligibility: false,
+  badge: "STREAMING"
+},
+{
+  id: "stream-disney",
+  category: "Streaming",
+  name: "Disney+",
+  description: "Acceso digital a Disney+.",
+  price: 0,
+  active: true,
+  featured: false,
+  requiresEligibility: false,
+  badge: "STREAMING"
+},
+{
+  id: "stream-prime",
+  category: "Streaming",
+  name: "Prime Video",
+  description: "Acceso digital a Prime Video.",
+  price: 0,
+  active: true,
+  featured: false,
+  requiresEligibility: false,
+  badge: "STREAMING"
+},
+{
+  id: "stream-crunchyroll",
+  category: "Streaming",
+  name: "Crunchyroll",
+  description: "Acceso digital a Crunchyroll.",
+  price: 0,
+  active: true,
+  featured: false,
+  requiresEligibility: false,
+  badge: "STREAMING"
+}
+
 ];
 
 let filter = "Diamantes 1 vez";
@@ -298,6 +370,52 @@ function artFor(product) {
   const name = product.name || "";
   const category = product.category || "";
 
+   /* =========================================
+   STREAMING
+   ========================================= */
+
+if (category === "Streaming") {
+
+  let image = "";
+
+  if (name.includes("Netflix")) {
+    image = "./assets/streaming/netflix.png";
+  }
+
+  else if (name.includes("Spotify")) {
+    image = "./assets/streaming/spotify.png";
+  }
+
+  else if (name.includes("Max")) {
+    image = "./assets/streaming/max.png";
+  }
+
+  else if (name.includes("Disney")) {
+    image = "./assets/streaming/disney.png";
+  }
+
+  else if (name.includes("Prime")) {
+    image = "./assets/streaming/prime.png";
+  }
+
+  else if (name.includes("Crunchyroll")) {
+    image = "./assets/streaming/crunchyroll.png";
+  }
+
+  if (image) {
+    return `
+      <div class="streaming-product-art">
+        <img
+          src="${image}"
+          alt="${name}"
+          class="streaming-product-img"
+        >
+      </div>
+    `;
+  }
+
+  return "";
+}
   if (!category.includes("Diamantes")) {
     return "";
   }
@@ -380,6 +498,17 @@ function setFilter(category, scroll = true) {
       note.textContent =
         "Estas cantidades pueden comprarse varias veces para el mismo ID.";
     }
+     } else if (category === "Streaming") {
+
+  if (title) {
+    title.innerHTML =
+      'STREAMING <em>PREMIUM</em>';
+  }
+
+  if (note) {
+    note.textContent =
+      "Elige tu plataforma favorita y selecciona el plan disponible.";
+  }
   } else {
     if (title) {
       title.innerHTML =
