@@ -299,119 +299,87 @@ function artFor(product) {
   const category = product.category || "";
 
   if (!category.includes("Diamantes")) {
-    if (category.includes("Pases")) {
-      return `
-        <div class="art-3d pass-card-art">
-          <div class="ticket-3d">
-            <span>★</span>
-          </div>
-        </div>
-      `;
-    }
+    return "";
+  }
 
-    if (category === "Fragmentos") {
-      return `
-        <div class="art-3d fragment-card-art">
-          <div class="crystal-3d"></div>
-        </div>
-      `;
-    }
-
-    if (category === "Cajas") {
-      return `
-        <div class="art-3d box-card-art">
-          <div class="loot-box-3d"></div>
-        </div>
-      `;
-    }
-
-    if (category === "Likes") {
-      return `
-        <div class="art-3d likes-card-art">
-          <div class="heart-3d">♥</div>
-        </div>
-      `;
-    }
-
+  if (name.includes("110")) {
     return `
-      <div class="art-3d generic-art">
-        🎮
+      <div class="product-art product-art-110">
+        <div class="big-diamond"></div>
       </div>
     `;
   }
 
-  let variant = "single";
-
-  if (name.includes("340")) variant = "triple";
-  if (name.includes("572")) variant = "premium";
-  if (name.includes("1,166")) variant = "box-small";
-  if (name.includes("2,398")) variant = "box-medium";
-  if (name.includes("6,160")) variant = "box-large";
-
-  if (variant === "single") {
+  if (name.includes("340")) {
     return `
-      <div class="diamond-scene">
-        <svg viewBox="0 0 200 120" class="diamond-svg">
-          <defs>
-            <linearGradient id="dg1" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#eaffff"/>
-              <stop offset="25%" stop-color="#5ee9ff"/>
-              <stop offset="55%" stop-color="#00aaff"/>
-              <stop offset="100%" stop-color="#0051ff"/>
-            </linearGradient>
-
-            <filter id="glow1">
-              <feGaussianBlur stdDeviation="4" result="b"/>
-              <feMerge>
-                <feMergeNode in="b"/>
-                <feMergeNode in="SourceGraphic"/>
-              </feMerge>
-            </filter>
-          </defs>
-
-          <ellipse
-            cx="100"
-            cy="95"
-            rx="55"
-            ry="12"
-            fill="#008cff"
-            opacity=".22"
-          />
-
-          <g filter="url(#glow1)">
-            <polygon
-              points="100,18 145,48 124,93 76,93 55,48"
-              fill="url(#dg1)"
-            />
-
-            <polygon
-              points="100,18 100,93 55,48"
-              fill="#62ecff"
-              opacity=".85"
-            />
-
-            <polygon
-              points="100,18 145,48 100,48"
-              fill="#cfffff"
-              opacity=".9"
-            />
-
-            <polygon
-              points="55,48 100,48 76,93"
-              fill="#0077ff"
-              opacity=".9"
-            />
-
-            <polygon
-              points="145,48 100,48 124,93"
-              fill="#004bd9"
-              opacity=".85"
-            />
-          </g>
-        </svg>
+      <div class="product-art product-art-340">
+        <div class="diamond gem-a"></div>
+        <div class="diamond gem-b"></div>
+        <div class="diamond gem-c"></div>
       </div>
     `;
   }
+
+  if (name.includes("572")) {
+    return `
+      <div class="product-art product-art-572">
+        <div class="diamond premium-center"></div>
+        <div class="diamond premium-left"></div>
+        <div class="diamond premium-right"></div>
+        <div class="diamond premium-mini-1"></div>
+        <div class="diamond premium-mini-2"></div>
+      </div>
+    `;
+  }
+
+  if (name.includes("1,166") || name.includes("1166")) {
+    return `
+      <div class="product-art product-chest small-chest">
+        <div class="chest-gems">
+          <i></i><i></i><i></i>
+        </div>
+        <div class="chest-lid"></div>
+        <div class="chest-base">
+          <span>ZERO'X</span>
+        </div>
+      </div>
+    `;
+  }
+
+  if (name.includes("2,398") || name.includes("2398")) {
+    return `
+      <div class="product-art product-chest medium-chest">
+        <div class="chest-gems">
+          <i></i><i></i><i></i><i></i>
+        </div>
+        <div class="chest-lid"></div>
+        <div class="chest-base">
+          <span>ZERO'X</span>
+        </div>
+      </div>
+    `;
+  }
+
+  if (name.includes("6,160") || name.includes("6160")) {
+    return `
+      <div class="product-art product-chest large-chest">
+        <div class="chest-gems">
+          <i></i><i></i><i></i><i></i><i></i>
+        </div>
+        <div class="chest-lid"></div>
+        <div class="chest-base">
+          <span>ZERO'X</span>
+        </div>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="product-art">
+      <div class="big-diamond"></div>
+    </div>
+  `;
+}
 
   if (variant === "triple") {
     return `
