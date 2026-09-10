@@ -1070,7 +1070,74 @@ function createOrderId() {
       .slice(-8)
   );
 }
+// =====================================================
+// COMPROBAR CUENTA FREE FIRE
+// =====================================================
 
+async function checkFreeFirePlayer() {
+
+  const playerInput = document.querySelector(
+    '[name="playerId"]'
+  );
+
+  const checkButton = document.querySelector(
+    ".check-player-btn"
+  );
+
+  const profileCard = document.querySelector(
+    "#player-profile-card"
+  );
+
+  if (!playerInput || !checkButton || !profileCard) {
+    return;
+  }
+
+  const uid = playerInput.value.trim();
+
+  if (!uid || !/^\d{5,15}$/.test(uid)) {
+    alert("Ingresa un ID de jugador válido.");
+    return;
+  }
+
+  checkButton.disabled = true;
+  checkButton.textContent = "COMPROBANDO...";
+
+  try {
+
+    /*
+      Próximamente aquí conectaremos
+      nuestro Cloudflare Worker con la API
+      de información de Free Fire.
+    */
+
+    console.log("Comprobando jugador:", uid);
+
+  } catch (error) {
+
+    console.error(
+      "Error comprobando jugador:",
+      error
+    );
+
+  } finally {
+
+    checkButton.disabled = false;
+    checkButton.textContent = "COMPROBAR CUENTA";
+
+  }
+}
+
+document.addEventListener("click", event => {
+
+  const button = event.target.closest(
+    ".check-player-btn"
+  );
+
+  if (!button) return;
+
+  checkFreeFirePlayer();
+
+});
 if ($("#checkout-form")) {
   $("#checkout-form").addEventListener(
     "submit",
