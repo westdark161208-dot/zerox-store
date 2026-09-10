@@ -127,3 +127,4 @@ export default {
     }
   }
 };
+// Activar despliegue automático desde GitHub
