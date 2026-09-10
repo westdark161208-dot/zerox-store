@@ -510,13 +510,7 @@ if (category === "Streaming") {
 
 function setFilter(category, scroll = true) {
   filter = category;
-   
-/* Activa diseño especial de Streaming */
-if (category === "Streaming") {
-    document.body.classList.add("streaming-view");
-} else {
-    document.body.classList.remove("streaming-view");
-}
+
   $$("[data-cat]").forEach(button => {
     button.classList.toggle(
       "active",
@@ -614,6 +608,8 @@ if (filter === "Streaming") {
     const platforms = {};
 
     rows.forEach(product => {
+
+        // Obtiene Netflix, Disney+, Max, Prime Video, etc.
         const platform = product.name.split(" - ")[0];
 
         if (!platforms[platform]) {
@@ -645,161 +641,155 @@ if (filter === "Streaming") {
                         Desde <b>${money(cheapest)}</b>
                     </div>
 
-      <button
-    type="button"
-    class="streaming-open-plans"
-    data-platform="${esc(platform)}"
->
-    VER PLANES
-</button>
+                    <details class="streaming-plans">
+
+                        <summary>
+                            VER PLANES
+                        </summary>
+
+                        <div class="streaming-plan-list">
+
+                            ${plans.map(plan => {
+
+                                const planName =
+                                    plan.name.includes(" - ")
+                                    ? plan.name.split(" - ").slice(1).join(" - ")
+                                    : plan.name;
+
+                                return `
+                                    <div class="streaming-plan">
+
+                                        <div class="streaming-plan-info">
+                                            <strong>
+                                                ${esc(planName)}
+                                            </strong>
+
+                                            <span>
+                                                ${money(plan.price)}
+                                            </span>
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            class="streaming-buy"
+                                            onclick="event.stopPropagation(); addToCart('${plan.id}')"
+                                        >
+                                            🛒
+                                        </button>
+
+                                    </div>
+                                `;
+                            }).join("")}
+
+                        </div>
+
+                    </details>
 
                 </article>
             `;
         })
         .join("");
 
-container.querySelectorAll(".streaming-open-plans").forEach(button => {
-
-    button.addEventListener("click", () => {
-
-        const platform = button.dataset.platform;
-
-        openStreamingPlans(platform);
-
-    });
-
-});
-
-return;
+    return;
 }
-function openStreamingPlans(platform) {
+  container.innerHTML =
+    rows.map(product => `
+      <article class="product-card ${product.featured ? "featured" : ""}">
+        <div class="product-top">
+          <span class="tag">
+            ${esc(product.badge || "Disponible")}
+          </span>
 
-    const plans = PRODUCTS.filter(product => {
-        if (product.category !== "Streaming") return false;
+          <span class="type">
+            ${esc(product.category)}
+          </span>
+        </div>
 
-        const productPlatform = product.name.split(" - ")[0];
+        <div class="diamond-icon">
+          ${artFor(product)}
+        </div>
 
-        return productPlatform === platform && product.active;
-    });
+        <h3>
+          ${esc(product.name)}
+        </h3>
 
-    const oldModal = document.querySelector("#streaming-modal-test");
-    if (oldModal) oldModal.remove();
+        <p>
+          ${esc(product.description || "")}
+        </p>
 
-    const modal = document.createElement("div");
+        <div class="pricing">
+          ${
+            product.price > 0
+              ? `<b>${money(product.price)}</b>`
+              : `<b>PRÓXIMAMENTE</b>`
+          }
 
-    modal.id = "streaming-modal-test";
+          ${
+            currentCurrency !== "MXN" &&
+            product.price > 0
+              ? `
+                <small>
+                  Base:
+                  ${new Intl.NumberFormat(
+                    "es-MX",
+                    {
+                      style: "currency",
+                      currency: "MXN"
+                    }
+                  ).format(product.price)}
+                  MXN
+                </small>
+              `
+              : ""
+          }
+        </div>
 
-    const plansHTML = plans.map(plan => {
+        <div class="product-actions">
 
-        const planName = plan.name.includes(" - ")
-            ? plan.name.split(" - ").slice(1).join(" - ")
-            : plan.name;
-
-        return `
-            <div class="streaming-final-plan">
-
-                <div class="streaming-final-plan-info">
-                    <strong>${esc(planName)}</strong>
-                    <span>${money(plan.price)}</span>
-                </div>
-
+          ${
+            product.price > 0
+              ? `
                 <button
-                    type="button"
-                    class="streaming-final-buy"
-                    data-plan-id="${esc(plan.id)}"
-                >
-                    🛒
+                  class="add-cart"
+                  data-add="${esc(product.id)}"
+                  title="Agregar al carrito">
+                  ＋
                 </button>
 
-            </div>
-        `;
-
-    }).join("");
-
-    modal.innerHTML = `
-        <div class="streaming-final-box">
-
-            <button
-                type="button"
-                class="streaming-final-x"
-            >
-                ×
-            </button>
-
-            <h2>${esc(platform)}</h2>
-
-            <p class="streaming-final-subtitle">
-                Selecciona el plan que deseas
-            </p>
-
-            <div class="streaming-final-list">
-                ${
-                    plansHTML ||
-                    `<p class="streaming-no-plans">
-                        No hay planes disponibles.
-                    </p>`
-                }
-            </div>
-
-            <button
-                type="button"
-                class="streaming-final-close"
-            >
-                CERRAR
-            </button>
+                <button
+  class="buy"
+  data-buy="${esc(product.id)}">
+  <span class="buy-cart-icon" aria-hidden="true"></span>
+  <span>COMPRAR</span>
+</button>
+              `
+              : `
+                <button
+                  class="buy"
+                  disabled>
+                  PRÓXIMAMENTE
+                </button>
+              `
+          }
 
         </div>
-    `;
+      </article>
+    `).join("") ||
+    "<p>No encontramos productos con esos filtros.</p>";
 
-    document.body.appendChild(modal);
+  $$("[data-buy]").forEach(button => {
+    button.onclick = () => {
+      openCheckout(button.dataset.buy);
+    };
+  });
 
-    modal.style.position = "fixed";
-    modal.style.inset = "0";
-    modal.style.zIndex = "999999";
-    modal.style.background = "rgba(0,0,0,.88)";
-    modal.style.display = "flex";
-    modal.style.alignItems = "center";
-    modal.style.justifyContent = "center";
-    modal.style.padding = "20px";
-
-    modal.querySelector(".streaming-final-x")
-        .addEventListener("click", () => {
-            modal.remove();
-        });
-
-    modal.querySelector(".streaming-final-close")
-        .addEventListener("click", () => {
-            modal.remove();
-        });
-
-    modal.querySelectorAll(".streaming-final-buy")
-        .forEach(button => {
-
-            button.addEventListener("click", () => {
-
-                addToCart(button.dataset.planId);
-
-            });
-
-        });
-
-    modal.addEventListener("click", event => {
-        if (event.target === modal) {
-            modal.remove();
-        }
-    });
+  $$("[data-add]").forEach(button => {
+    button.onclick = () => {
+      addToCart(button.dataset.add);
+    };
+  });
 }
 
-function closeStreamingPlans() {
-
-    const modal = document.querySelector("#streaming-modal-test");
-
-    if (modal) {
-        modal.remove();
-    }
-
-    document.body.classList.remove("streaming-modal-open");
-}
 /* =========================================================
    CATEGORÍAS / BÚSQUEDA / MONEDA
    ========================================================= */
