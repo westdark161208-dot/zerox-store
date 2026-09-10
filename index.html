@@ -935,14 +935,54 @@
         >
       </label>
 
-      <label>
-        Nickname
+      <div class="player-check-section">
 
-        <input
-          name="nickname"
-          placeholder="Nombre dentro del juego"
-        >
-      </label>
+  <button
+    type="button"
+    id="check-player-btn"
+    class="check-player-btn"
+  >
+    🔎 COMPROBAR CUENTA
+  </button>
+
+  <div
+    id="player-profile-card"
+    class="player-profile-card"
+    hidden
+  >
+    <div class="player-profile-banner"></div>
+
+    <div class="player-profile-content">
+      <div
+        id="player-avatar"
+        class="player-avatar"
+      ></div>
+
+      <div class="player-profile-info">
+        <strong id="player-nickname">
+          Jugador
+        </strong>
+
+        <span id="player-level">
+          Nivel: --
+        </span>
+
+        <span id="player-region">
+          Región: --
+        </span>
+
+        <span id="player-clan">
+          Clan: --
+        </span>
+      </div>
+    </div>
+
+    <div class="player-profile-status">
+      ✓ CUENTA ENCONTRADA
+    </div>
+  </div>
+
+</div>
 
       <label>
         Contacto
