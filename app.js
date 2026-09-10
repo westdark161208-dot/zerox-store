@@ -662,9 +662,7 @@ container.querySelectorAll(".streaming-open-plans").forEach(button => {
 
     button.addEventListener("click", () => {
 
-        const platform = button.dataset.platform;
-
-        openStreamingPlans(platform);
+       alert("BOTÓN FUNCIONA: " + button.dataset.platform); 
 
     });
 
