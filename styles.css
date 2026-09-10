@@ -5766,3 +5766,112 @@ body::after{
         border-radius: 13px !important;
     }
 }
+/* =====================================================
+   ZERO'X - COMPROBAR CUENTA FREE FIRE
+===================================================== */
+
+.player-check-section{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  margin:10px 0 14px;
+}
+
+.check-player-btn{
+  width:100%;
+  border:none;
+  border-radius:14px;
+  padding:14px 16px;
+  font-weight:900;
+  letter-spacing:.5px;
+  font-size:15px;
+  cursor:pointer;
+  color:#fff;
+  background:
+    linear-gradient(135deg,#ff1717,#8b0000 55%,#ff3b3b);
+  box-shadow:
+    0 0 18px rgba(255,0,0,.28),
+    inset 0 1px 0 rgba(255,255,255,.18);
+  transition:.2s ease;
+}
+
+.check-player-btn:active{
+  transform:scale(.98);
+}
+
+.check-player-btn:disabled{
+  opacity:.65;
+  cursor:not-allowed;
+}
+
+.player-profile-card{
+  position:relative;
+  overflow:hidden;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,.12);
+  background:
+    linear-gradient(180deg,#171717,#090909);
+  box-shadow:
+    0 12px 35px rgba(0,0,0,.45),
+    0 0 22px rgba(255,0,0,.12);
+}
+
+.player-profile-banner{
+  height:92px;
+  background:
+    radial-gradient(circle at 20% 20%,rgba(255,0,0,.45),transparent 35%),
+    linear-gradient(135deg,#2b0000,#090909 65%);
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.player-profile-content{
+  display:flex;
+  gap:14px;
+  align-items:center;
+  padding:14px 16px;
+}
+
+.player-avatar{
+  width:72px;
+  height:72px;
+  min-width:72px;
+  border-radius:18px;
+  border:2px solid #ff2d2d;
+  background:
+    radial-gradient(circle,#2b2b2b,#101010);
+  box-shadow:0 0 18px rgba(255,0,0,.35);
+  background-position:center;
+  background-size:cover;
+  background-repeat:no-repeat;
+}
+
+.player-profile-info{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  min-width:0;
+}
+
+.player-profile-info strong{
+  font-size:18px;
+  color:#fff;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.player-profile-info span{
+  color:#c9c9c9;
+  font-size:13px;
+}
+
+.player-profile-status{
+  padding:11px 16px;
+  text-align:center;
+  font-weight:900;
+  font-size:13px;
+  letter-spacing:.7px;
+  color:#79ff9b;
+  background:rgba(0,255,102,.06);
+  border-top:1px solid rgba(0,255,102,.15);
+}
