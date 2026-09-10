@@ -52,7 +52,59 @@ export default {
       }
 
       const url = new URL(request.url);
+// Consultar información de jugador de Free Fire
+if (url.pathname === "/api/player" && request.method === "GET") {
+  if (!env.FF_INFO_API_KEY) {
+    return json({
+      ok: false,
+      error: "FF_INFO_API_KEY_NOT_CONFIGURED"
+    }, 500);
+  }
 
+  const uid = (url.searchParams.get("uid") || "").trim();
+  const region = (url.searchParams.get("region") || "br").trim().toLowerCase();
+
+  if (!/^\d{5,15}$/.test(uid)) {
+    return json({
+      ok: false,
+      error: "INVALID_UID"
+    }, 400);
+  }
+
+  try {
+    const apiUrl =
+      `https://developers.freefirecommunity.com/api/v1/info?region=${encodeURIComponent(region)}&uid=${encodeURIComponent(uid)}`;
+
+    const response = await fetch(apiUrl, {
+      method: "GET",
+      headers: {
+        "x-api-key": env.FF_INFO_API_KEY
+      }
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return json({
+        ok: false,
+        error: "PLAYER_LOOKUP_FAILED",
+        status: response.status,
+        details: data
+      }, response.status);
+    }
+
+    return json({
+      ok: true,
+      player: data
+    });
+  } catch (error) {
+    return json({
+      ok: false,
+      error: "PLAYER_LOOKUP_ERROR",
+      message: error.message
+    }, 500);
+  }
+}
       // Comprobar que el Worker funciona
       if (url.pathname === "/") {
         return json({
