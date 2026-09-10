@@ -662,8 +662,9 @@ container.querySelectorAll(".streaming-open-plans").forEach(button => {
 
     button.addEventListener("click", () => {
 
-       const platform = button.dataset.platform;
-openStreamingPlans(platform);
+        const platform = button.dataset.platform;
+
+        openStreamingPlans(platform);
 
     });
 
@@ -671,155 +672,127 @@ openStreamingPlans(platform);
 
 return;
 }
-  container.innerHTML =
-    rows.map(product => `
-      <article class="product-card ${product.featured ? "featured" : ""}">
-        <div class="product-top">
-          <span class="tag">
-            ${esc(product.badge || "Disponible")}
-          </span>
-
-          <span class="type">
-            ${esc(product.category)}
-          </span>
-        </div>
-
-        <div class="diamond-icon">
-          ${artFor(product)}
-        </div>
-
-        <h3>
-          ${esc(product.name)}
-        </h3>
-
-        <p>
-          ${esc(product.description || "")}
-        </p>
-
-        <div class="pricing">
-          ${
-            product.price > 0
-              ? `<b>${money(product.price)}</b>`
-              : `<b>PRÓXIMAMENTE</b>`
-          }
-
-          ${
-            currentCurrency !== "MXN" &&
-            product.price > 0
-              ? `
-                <small>
-                  Base:
-                  ${new Intl.NumberFormat(
-                    "es-MX",
-                    {
-                      style: "currency",
-                      currency: "MXN"
-                    }
-                  ).format(product.price)}
-                  MXN
-                </small>
-              `
-              : ""
-          }
-        </div>
-
-        <div class="product-actions">
-
-          ${
-            product.price > 0
-              ? `
-                <button
-                  class="add-cart"
-                  data-add="${esc(product.id)}"
-                  title="Agregar al carrito">
-                  ＋
-                </button>
-
-                <button
-  class="buy"
-  data-buy="${esc(product.id)}">
-  <span class="buy-cart-icon" aria-hidden="true"></span>
-  <span>COMPRAR</span>
-</button>
-              `
-              : `
-                <button
-                  class="buy"
-                  disabled>
-                  PRÓXIMAMENTE
-                </button>
-              `
-          }
-
-        </div>
-      </article>
-    `).join("") ||
-    "<p>No encontramos productos con esos filtros.</p>";
-
-  $$("[data-buy]").forEach(button => {
-    button.onclick = () => {
-      openCheckout(button.dataset.buy);
-    };
-  });
-
-  $$("[data-add]").forEach(button => {
-    button.onclick = () => {
-      addToCart(button.dataset.add);
-    };
-  });
-}
 function openStreamingPlans(platform) {
-    alert("ABRIENDO MODAL DE " + platform);
+
+    const plans = PRODUCTS.filter(product => {
+        if (product.category !== "Streaming") return false;
+
+        const productPlatform = product.name.split(" - ")[0];
+
+        return productPlatform === platform && product.active;
+    });
+
+    const oldModal = document.querySelector("#streaming-modal-test");
+    if (oldModal) oldModal.remove();
 
     const modal = document.createElement("div");
 
-    modal.style.position = "fixed";
-    modal.style.inset = "0";
-    modal.style.zIndex = "999999";
-    modal.style.background = "rgba(0,0,0,.9)";
-    modal.style.display = "flex";
-    modal.style.alignItems = "center";
-    modal.style.justifyContent = "center";
+    modal.id = "streaming-modal-test";
+
+    const plansHTML = plans.map(plan => {
+
+        const planName = plan.name.includes(" - ")
+            ? plan.name.split(" - ").slice(1).join(" - ")
+            : plan.name;
+
+        return `
+            <div class="streaming-final-plan">
+
+                <div class="streaming-final-plan-info">
+                    <strong>${esc(planName)}</strong>
+                    <span>${money(plan.price)}</span>
+                </div>
+
+                <button
+                    type="button"
+                    class="streaming-final-buy"
+                    data-plan-id="${esc(plan.id)}"
+                >
+                    🛒
+                </button>
+
+            </div>
+        `;
+
+    }).join("");
 
     modal.innerHTML = `
-        <div style="
-            background:#111;
-            border:2px solid #ff1744;
-            border-radius:20px;
-            padding:30px;
-            color:white;
-            width:80%;
-            max-width:400px;
-            text-align:center;
-        ">
-            <h2>${platform}</h2>
-            <p>EL MODAL SÍ FUNCIONA</p>
+        <div class="streaming-final-box">
 
             <button
-                id="test-close-modal"
-                style="
-                    background:#ff1744;
-                    color:white;
-                    border:0;
-                    padding:15px 25px;
-                    border-radius:12px;
-                "
+                type="button"
+                class="streaming-final-x"
+            >
+                ×
+            </button>
+
+            <h2>${esc(platform)}</h2>
+
+            <p class="streaming-final-subtitle">
+                Selecciona el plan que deseas
+            </p>
+
+            <div class="streaming-final-list">
+                ${
+                    plansHTML ||
+                    `<p class="streaming-no-plans">
+                        No hay planes disponibles.
+                    </p>`
+                }
+            </div>
+
+            <button
+                type="button"
+                class="streaming-final-close"
             >
                 CERRAR
             </button>
+
         </div>
     `;
 
     document.body.appendChild(modal);
 
-    modal.querySelector("#test-close-modal").onclick = () => {
-        modal.remove();
-    };
+    modal.style.position = "fixed";
+    modal.style.inset = "0";
+    modal.style.zIndex = "999999";
+    modal.style.background = "rgba(0,0,0,.88)";
+    modal.style.display = "flex";
+    modal.style.alignItems = "center";
+    modal.style.justifyContent = "center";
+    modal.style.padding = "20px";
+
+    modal.querySelector(".streaming-final-x")
+        .addEventListener("click", () => {
+            modal.remove();
+        });
+
+    modal.querySelector(".streaming-final-close")
+        .addEventListener("click", () => {
+            modal.remove();
+        });
+
+    modal.querySelectorAll(".streaming-final-buy")
+        .forEach(button => {
+
+            button.addEventListener("click", () => {
+
+                addToCart(button.dataset.planId);
+
+            });
+
+        });
+
+    modal.addEventListener("click", event => {
+        if (event.target === modal) {
+            modal.remove();
+        }
+    });
 }
 
 function closeStreamingPlans() {
 
-    const modal = document.querySelector("#streaming-modal");
+    const modal = document.querySelector("#streaming-modal-test");
 
     if (modal) {
         modal.remove();
