@@ -1074,7 +1074,7 @@ function createOrderId() {
 if ($("#checkout-form")) {
   $("#checkout-form").addEventListener(
     "submit",
-    event => {
+    async event => {
       event.preventDefault();
 
       const form = event.currentTarget;
@@ -1113,7 +1113,84 @@ if ($("#checkout-form")) {
 
         return;
       }
+// =========================================================
+// VALIDACIÓN SIXOFIRE - SOLO DIAMANTES ILIMITADOS
+// NO REALIZA COMPRAS
+// =========================================================
 
+const sixofireProduct = SIXOFIRE_PRODUCT_MAP[product.id];
+
+if (sixofireProduct) {
+  const playerId = String(
+    payload.playerId ||
+    payload.uid ||
+    ""
+  ).trim();
+
+  if (!playerId) {
+    if ($("#checkout-result")) {
+      $("#checkout-result").innerHTML = `
+        <div class="error">
+          Ingresa el ID del jugador.
+        </div>
+      `;
+    }
+
+    if (button) {
+      button.disabled = false;
+      button.textContent = "CREAR PEDIDO";
+    }
+
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      `${ZEROX_API}/api/order/preview`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          productId: sixofireProduct,
+          playerId: playerId
+        })
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok || !result.ok) {
+      throw new Error(
+        result.message ||
+        "No fue posible validar el pedido."
+      );
+    }
+
+    console.log(
+      "SixOfFire preview OK:",
+      result
+    );
+
+  } catch (error) {
+    if ($("#checkout-result")) {
+      $("#checkout-result").innerHTML = `
+        <div class="error">
+          Error al validar con SixOfFire:
+          ${esc(error.message)}
+        </div>
+      `;
+    }
+
+    if (button) {
+      button.disabled = false;
+      button.textContent = "CREAR PEDIDO";
+    }
+
+    return;
+  }
+}
       const coupon =
         (payload.coupon || "")
           .trim()
