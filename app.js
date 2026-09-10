@@ -769,61 +769,52 @@ return;
   });
 }
 function openStreamingPlans(platform) {
-
-    const oldModal = document.querySelector("#streaming-modal");
-
-    if (oldModal) {
-        oldModal.remove();
-    }
+    alert("ABRIENDO MODAL DE " + platform);
 
     const modal = document.createElement("div");
 
-    modal.id = "streaming-modal";
-    modal.className = "streaming-modal";
+    modal.style.position = "fixed";
+    modal.style.inset = "0";
+    modal.style.zIndex = "999999";
+    modal.style.background = "rgba(0,0,0,.9)";
+    modal.style.display = "flex";
+    modal.style.alignItems = "center";
+    modal.style.justifyContent = "center";
 
     modal.innerHTML = `
-        <div class="streaming-modal-backdrop"></div>
-
-        <div class="streaming-modal-box">
-
-            <button
-                type="button"
-                class="streaming-modal-close"
-            >
-                ×
-            </button>
-
-            <h2>${esc(platform)}</h2>
-
-            <p class="streaming-modal-subtitle">
-                PRUEBA DEL MODAL
-            </p>
+        <div style="
+            background:#111;
+            border:2px solid #ff1744;
+            border-radius:20px;
+            padding:30px;
+            color:white;
+            width:80%;
+            max-width:400px;
+            text-align:center;
+        ">
+            <h2>${platform}</h2>
+            <p>EL MODAL SÍ FUNCIONA</p>
 
             <button
-                type="button"
-                class="streaming-modal-bottom-close"
+                id="test-close-modal"
+                style="
+                    background:#ff1744;
+                    color:white;
+                    border:0;
+                    padding:15px 25px;
+                    border-radius:12px;
+                "
             >
                 CERRAR
             </button>
-
         </div>
     `;
 
     document.body.appendChild(modal);
 
-    document.body.classList.add("streaming-modal-open");
-
-    modal
-        .querySelector(".streaming-modal-close")
-        .addEventListener("click", closeStreamingPlans);
-
-    modal
-        .querySelector(".streaming-modal-bottom-close")
-        .addEventListener("click", closeStreamingPlans);
-
-    modal
-        .querySelector(".streaming-modal-backdrop")
-        .addEventListener("click", closeStreamingPlans);
+    modal.querySelector("#test-close-modal").onclick = () => {
+        modal.remove();
+    };
 }
 
 function closeStreamingPlans() {
