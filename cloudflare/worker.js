@@ -105,6 +105,65 @@ if (url.pathname === "/api/player" && request.method === "GET") {
     }, 500);
   }
 }
+      // Obtener imagen de avatar, banner, ropa u otros items de Free Fire
+if (url.pathname === "/api/item-image" && request.method === "GET") {
+  if (!env.FF_INFO_API_KEY) {
+    return json({
+      ok: false,
+      error: "FF_INFO_API_KEY_NOT_CONFIGURED"
+    }, 500);
+  }
+
+  const itemID = (url.searchParams.get("itemID") || "").trim();
+
+  if (!/^\d+$/.test(itemID)) {
+    return json({
+      ok: false,
+      error: "INVALID_ITEM_ID"
+    }, 400);
+  }
+
+  try {
+    const apiUrl =
+      `https://developers.freefirecommunity.com/api/v1/image?itemID=${encodeURIComponent(itemID)}`;
+
+    const response = await fetch(apiUrl, {
+      method: "GET",
+      headers: {
+        "x-api-key": env.FF_INFO_API_KEY
+      }
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+
+      return json({
+        ok: false,
+        error: "ITEM_IMAGE_FAILED",
+        status: response.status,
+        details: errorText
+      }, response.status);
+    }
+
+    const contentType =
+      response.headers.get("content-type") || "image/png";
+
+    return new Response(response.body, {
+      status: 200,
+      headers: {
+        "Content-Type": contentType,
+        "Cache-Control": "public, max-age=86400",
+        ...corsHeaders
+      }
+    });
+  } catch (error) {
+    return json({
+      ok: false,
+      error: "ITEM_IMAGE_ERROR",
+      message: error.message
+    }, 500);
+  }
+}
       // Comprobar que el Worker funciona
       if (url.pathname === "/") {
         return json({
