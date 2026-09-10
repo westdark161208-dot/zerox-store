@@ -99,7 +99,54 @@ export default {
           products: PRODUCT_MAP
         });
       }
+// Vista previa segura del pedido - NO compra nada
+if (
+  url.pathname === "/api/order/preview" &&
+  request.method === "POST"
+) {
+  const body = await request.json();
 
+  const productId = String(body.productId || "").trim();
+  const playerId = String(body.playerId || "").trim();
+
+  if (!productId || !playerId) {
+    return json({
+      ok: false,
+      error: "MISSING_DATA",
+      message: "Falta seleccionar el producto o ingresar el ID del jugador."
+    }, 400);
+  }
+
+  const product = PRODUCT_MAP[productId];
+
+  if (!product) {
+    return json({
+      ok: false,
+      error: "INVALID_PRODUCT",
+      message: "El producto solicitado no está configurado en ZeroX."
+    }, 400);
+  }
+
+  if (!/^[0-9]+$/.test(playerId)) {
+    return json({
+      ok: false,
+      error: "INVALID_PLAYER_ID",
+      message: "El ID del jugador debe contener únicamente números."
+    }, 400);
+  }
+
+  return json({
+    ok: true,
+    status: "PREVIEW_ONLY",
+    message: "Pedido validado. No se realizó ninguna compra.",
+    order: {
+      zeroXProductId: productId,
+      sixofireProductId: product.sixofireProductId,
+      amount: product.amount,
+      playerId: playerId
+    }
+  });
+}
       // Órdenes BLOQUEADAS por seguridad
       if (
         url.pathname === "/api/order" &&
