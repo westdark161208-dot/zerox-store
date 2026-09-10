@@ -662,7 +662,8 @@ container.querySelectorAll(".streaming-open-plans").forEach(button => {
 
     button.addEventListener("click", () => {
 
-       alert("BOTÓN FUNCIONA: " + button.dataset.platform); 
+       const platform = button.dataset.platform;
+openStreamingPlans(platform);
 
     });
 
@@ -769,40 +770,18 @@ return;
 }
 function openStreamingPlans(platform) {
 
-    const plans = PRODUCTS.filter(product => {
-
-        if (product.category !== "Streaming") {
-            return false;
-        }
-
-        const productPlatform =
-            product.name.split(" - ")[0];
-
-        return (
-            productPlatform === platform &&
-            product.active
-        );
-
-    });
-
-
-    const oldModal =
-        document.querySelector("#streaming-modal");
+    const oldModal = document.querySelector("#streaming-modal");
 
     if (oldModal) {
         oldModal.remove();
     }
 
-
-    const modal =
-        document.createElement("div");
+    const modal = document.createElement("div");
 
     modal.id = "streaming-modal";
     modal.className = "streaming-modal";
 
-
     modal.innerHTML = `
-
         <div class="streaming-modal-backdrop"></div>
 
         <div class="streaming-modal-box">
@@ -814,62 +793,11 @@ function openStreamingPlans(platform) {
                 ×
             </button>
 
-
-            <h2>
-                ${esc(platform)}
-            </h2>
-
+            <h2>${esc(platform)}</h2>
 
             <p class="streaming-modal-subtitle">
-                Selecciona el plan que deseas
+                PRUEBA DEL MODAL
             </p>
-
-
-            <div class="streaming-modal-plans">
-
-                ${plans.map(plan => {
-
-                    const planName =
-                        plan.name.includes(" - ")
-                        ? plan.name
-                            .split(" - ")
-                            .slice(1)
-                            .join(" - ")
-                        : plan.name;
-
-                    return `
-
-                        <div class="streaming-modal-plan">
-
-                            <div class="streaming-modal-plan-info">
-
-                                <strong>
-                                    ${esc(planName)}
-                                </strong>
-
-                                <span>
-                                    ${money(plan.price)}
-                                </span>
-
-                            </div>
-
-
-                            <button
-                                type="button"
-                                class="streaming-modal-buy"
-                                data-streaming-buy="${esc(plan.id)}"
-                            >
-                                🛒
-                            </button>
-
-                        </div>
-
-                    `;
-
-                }).join("")}
-
-            </div>
-
 
             <button
                 type="button"
@@ -879,56 +807,24 @@ function openStreamingPlans(platform) {
             </button>
 
         </div>
-
     `;
-
 
     document.body.appendChild(modal);
 
-    document.body.classList.add(
-        "streaming-modal-open"
-    );
-
-
-    /* CERRAR CON LA X */
+    document.body.classList.add("streaming-modal-open");
 
     modal
         .querySelector(".streaming-modal-close")
         .addEventListener("click", closeStreamingPlans);
 
-
-    /* CERRAR CON BOTÓN INFERIOR */
-
     modal
         .querySelector(".streaming-modal-bottom-close")
         .addEventListener("click", closeStreamingPlans);
 
-
-    /* CERRAR TOCANDO EL FONDO */
-
     modal
         .querySelector(".streaming-modal-backdrop")
         .addEventListener("click", closeStreamingPlans);
-
-
-    /* BOTONES DE COMPRA */
-
-    modal
-        .querySelectorAll("[data-streaming-buy]")
-        .forEach(button => {
-
-            button.addEventListener("click", () => {
-
-                addToCart(
-                    button.dataset.streamingBuy
-                );
-
-            });
-
-        });
-
 }
-
 
 function closeStreamingPlans() {
 
