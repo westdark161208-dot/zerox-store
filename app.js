@@ -1354,6 +1354,28 @@ document.addEventListener("click", event => {
   checkFreeFirePlayer();
 
 });
+// ======================================================
+// INVALIDAR CONFIRMACION SI CAMBIA EL UID
+// ======================================================
+
+const playerIdInput =
+  document.querySelector('[name="playerId"]');
+
+if (playerIdInput) {
+  playerIdInput.addEventListener("input", () => {
+
+    const profileCard =
+      document.querySelector("#player-profile-card");
+
+    if (!profileCard) return;
+
+    profileCard.dataset.playerVerified = "false";
+    profileCard.dataset.playerUid = "";
+
+    profileCard.innerHTML = "";
+    profileCard.style.display = "none";
+  });
+}
 if ($("#checkout-form")) {
   $("#checkout-form").addEventListener(
     "submit",
@@ -1396,6 +1418,51 @@ if ($("#checkout-form")) {
 
         return;
       }
+       // ======================================================
+// VALIDAR QUE LA CUENTA FREE FIRE FUE CONFIRMADA
+// ======================================================
+
+const profileCard =
+  document.querySelector("#player-profile-card");
+
+const currentPlayerId = String(
+  payload.playerId ||
+  payload.uid ||
+  ""
+).trim();
+
+if (product.requiresEligibility) {
+
+  const playerVerified =
+    profileCard?.dataset.playerVerified === "true";
+
+  const verifiedUid =
+    String(
+      profileCard?.dataset.playerUid || ""
+    ).trim();
+
+  if (
+    !playerVerified ||
+    !currentPlayerId ||
+    verifiedUid !== currentPlayerId
+  ) {
+
+    if ($("#checkout-result")) {
+      $("#checkout-result").innerHTML = `
+        <div class="error">
+          Primero comprueba y confirma tu cuenta de Free Fire.
+        </div>
+      `;
+    }
+
+    if (button) {
+      button.disabled = false;
+      button.textContent = "CREAR PEDIDO";
+    }
+
+    return;
+  }
+}
 // =========================================================
 // VALIDACIÓN SIXOFIRE - SOLO DIAMANTES ILIMITADOS
 // NO REALIZA COMPRAS
