@@ -1220,30 +1220,31 @@ async function checkFreeFirePlayer() {
     <div class="player-profile-status">
 
       <div>
-        <strong>⭐ ${esc(String(level))}</strong>
-        <small>Nivel</small>
-      </div>
+  <strong><img src="nivel.png" class="ff-stat-icon" alt="Nivel"> ${esc(String(level))}</strong>
+  <small>Nivel</small>
+</div>
 
-      <div>
-        <strong>🌎 ${esc(String(region))}</strong>
-        <small>Región</small>
-      </div>
+<div>
+  <strong><img src="region.png" class="ff-stat-icon" alt="Región"> ${esc(String(region))}</strong>
+  <small>Región</small>
+</div>
 
-      <div>
-        <strong>🏆 ${esc(String(rank))}</strong>
-        <small>Rango</small>
-      </div>
+<div>
+  <strong><img src="rango.png" class="ff-stat-icon" alt="Rango"> ${esc(String(rank))}</strong>
+  <small>Rango</small>
+</div>
 
-      <div>
-        <strong>❤️ ${esc(String(likes))}</strong>
-        <small>Likes</small>
-      </div>
+<div>
+  <strong><img src="likes.png" class="ff-stat-icon" alt="Likes"> ${esc(String(likes))}</strong>
+  <small>Likes</small>
+</div>
 
     </div>
 
     <div class="player-clan">
-      🛡️ ${esc(clanName)}
-    </div>
+  <img src="clan.png" class="ff-clan-icon" alt="Clan">
+  <span>${esc(clanName)}</span>
+</div>
 
     ${
       clothes.length
