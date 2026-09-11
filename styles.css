@@ -5875,3 +5875,375 @@ body::after{
   background:rgba(0,255,102,.06);
   border-top:1px solid rgba(0,255,102,.15);
 }
+/* =========================================================
+   ZERO'X - AURA NEON ANIMADA PARA FICHA FREE FIRE
+   ========================================================= */
+
+.player-profile-card{
+  position:relative;
+  overflow:hidden;
+  border-radius:20px;
+  border:1px solid rgba(255,45,45,.26);
+  background:linear-gradient(180deg,#121212,#070707);
+  box-shadow:
+    0 14px 34px rgba(0,0,0,.55),
+    0 0 24px rgba(255,0,0,.08);
+  isolation:isolate;
+}
+
+.player-profile-card::before{
+  content:"";
+  position:absolute;
+  width:230px;
+  height:230px;
+  top:-70px;
+  left:-60px;
+  border-radius:50%;
+  background:
+    radial-gradient(circle,
+      rgba(0,200,255,.45) 0%,
+      rgba(74,77,255,.28) 35%,
+      rgba(154,40,255,.16) 55%,
+      transparent 72%);
+  filter:blur(24px);
+  opacity:.75;
+  z-index:-2;
+  animation:zeroAuraMove 8s ease-in-out infinite alternate;
+}
+
+.player-profile-card::after{
+  content:"";
+  position:absolute;
+  width:260px;
+  height:260px;
+  right:-80px;
+  top:20px;
+  border-radius:50%;
+  background:
+    radial-gradient(circle,
+      rgba(154,40,255,.34) 0%,
+      rgba(0,155,255,.20) 42%,
+      rgba(255,40,70,.10) 60%,
+      transparent 74%);
+  filter:blur(28px);
+  opacity:.68;
+  z-index:-2;
+  animation:zeroAuraMove2 10s ease-in-out infinite alternate;
+}
+
+@keyframes zeroAuraMove{
+  0%{
+    transform:translate(-10px,0) scale(.95);
+    opacity:.55;
+  }
+
+  50%{
+    transform:translate(80px,35px) scale(1.08);
+    opacity:.82;
+  }
+
+  100%{
+    transform:translate(155px,-5px) scale(.98);
+    opacity:.66;
+  }
+}
+
+@keyframes zeroAuraMove2{
+  0%{
+    transform:translate(0,-15px) scale(.92);
+    opacity:.50;
+  }
+
+  50%{
+    transform:translate(-90px,35px) scale(1.10);
+    opacity:.78;
+  }
+
+  100%{
+    transform:translate(-170px,0) scale(1);
+    opacity:.62;
+  }
+}
+
+.player-profile-banner{
+  height:112px;
+  position:relative;
+  overflow:hidden;
+  background-position:center;
+  background-size:cover;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.player-profile-banner::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(
+      110deg,
+      rgba(0,190,255,.12),
+      transparent 35%,
+      rgba(145,45,255,.13) 65%,
+      rgba(255,30,60,.08)
+    );
+  animation:zeroBannerGlow 6s ease-in-out infinite alternate;
+}
+
+.player-profile-banner::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(0,0,0,.76),
+      rgba(0,0,0,.20),
+      rgba(0,0,0,.68)
+    ),
+    linear-gradient(
+      180deg,
+      transparent,
+      rgba(0,0,0,.62)
+    );
+}
+
+@keyframes zeroBannerGlow{
+  from{
+    transform:translateX(-12%);
+    opacity:.55;
+  }
+
+  to{
+    transform:translateX(12%);
+    opacity:.95;
+  }
+}
+
+.player-profile-content{
+  position:relative;
+  display:flex;
+  gap:14px;
+  align-items:flex-end;
+  padding:0 14px 14px;
+  margin-top:-40px;
+  z-index:2;
+}
+
+.player-avatar{
+  width:90px;
+  height:90px;
+  min-width:90px;
+  border-radius:18px;
+  border:2px solid #ff2d2d;
+  background:#0b0b0b;
+  box-shadow:
+    0 0 0 2px rgba(255,255,255,.04),
+    0 0 14px rgba(255,40,40,.24),
+    0 0 24px rgba(0,170,255,.15);
+}
+
+.player-profile-info{
+  flex:1;
+  min-width:0;
+  padding-bottom:3px;
+}
+
+.player-profile-info strong{
+  display:block;
+  color:#fff;
+  font-size:21px;
+  font-weight:900;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  text-shadow:0 2px 8px rgba(0,0,0,.85);
+}
+
+.player-profile-info span{
+  display:block;
+  margin-top:4px;
+  color:#bcbcbc;
+  font-size:13px;
+}
+
+.player-profile-status{
+  position:relative;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:7px;
+  margin:0 12px 12px;
+  padding:11px;
+  border-radius:14px;
+  background:rgba(4,7,12,.82);
+  border:1px solid rgba(70,150,255,.13);
+  box-shadow:
+    inset 0 0 18px rgba(0,130,255,.025);
+}
+
+.player-profile-status strong{
+  display:block;
+  color:#fff;
+  text-align:center;
+  font-size:14px;
+  font-weight:900;
+}
+
+.player-profile-status small{
+  display:block;
+  margin-top:2px;
+  color:#8f96a3;
+  text-align:center;
+  font-size:9px;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+}
+
+.player-clan{
+  margin:0 12px 12px;
+  padding:10px 12px;
+  border-radius:12px;
+  border-left:3px solid #ff2d2d;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(255,35,55,.10),
+      rgba(40,70,140,.08),
+      rgba(0,0,0,.12)
+    );
+  color:#fff;
+  font-weight:800;
+}
+
+.player-equipment{
+  margin:0 12px 14px;
+  padding:12px;
+  border-radius:15px;
+  background:rgba(7,9,14,.90);
+  border:1px solid rgba(120,80,255,.13);
+}
+
+.player-equipment-title{
+  margin-bottom:10px;
+  color:#fff;
+  font-weight:900;
+  font-size:14px;
+}
+
+.player-equipment-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+}
+
+.player-equipment-grid img{
+  width:100%;
+  aspect-ratio:1/1;
+  object-fit:contain;
+  border-radius:10px;
+  padding:5px;
+  background:
+    radial-gradient(
+      circle at 50% 35%,
+      rgba(25,45,75,.68),
+      #090909 72%
+    );
+  border:1px solid rgba(55,145,255,.24);
+  box-shadow:
+    inset 0 0 16px rgba(80,90,255,.04);
+}
+
+.player-confirm-box{
+  margin:0 12px 12px;
+  padding:13px;
+  border-radius:15px;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(110,40,255,.05),
+      rgba(0,145,255,.04),
+      rgba(255,0,0,.035)
+    );
+  border:1px solid rgba(255,255,255,.07);
+}
+
+.player-confirm-box h4{
+  margin:0 0 5px;
+  color:#fff;
+  font-size:18px;
+  font-weight:900;
+}
+
+.player-confirm-box p{
+  margin:0 0 12px;
+  color:#aaa;
+  font-size:12px;
+}
+
+.player-confirm-actions{
+  display:grid;
+  grid-template-columns:1.25fr 1fr;
+  gap:8px;
+}
+
+.player-confirm-actions button{
+  min-height:46px;
+  border-radius:11px;
+  font-weight:900;
+}
+
+.player-confirm-actions .confirm-player-btn{
+  border:none;
+  color:#fff;
+  background:
+    linear-gradient(135deg,#1fd65b,#00a53d);
+  box-shadow:0 8px 18px rgba(0,210,80,.16);
+}
+
+.player-confirm-actions .change-player-btn{
+  color:#fff;
+  border:1px solid rgba(90,140,255,.16);
+  background:#181b21;
+}
+
+.player-confirm-actions .confirm-player-btn:disabled{
+  opacity:.72;
+  color:#d7d7d7;
+  background:#3d4249;
+  box-shadow:none;
+}
+
+@media(max-width:520px){
+
+  .player-profile-banner{
+    height:102px;
+  }
+
+  .player-profile-content{
+    margin-top:-34px;
+    padding:0 12px 12px;
+  }
+
+  .player-avatar{
+    width:78px;
+    height:78px;
+    min-width:78px;
+  }
+
+  .player-profile-info strong{
+    font-size:19px;
+  }
+
+  .player-profile-status{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .player-profile-card::before{
+    width:190px;
+    height:190px;
+  }
+
+  .player-profile-card::after{
+    width:210px;
+    height:210px;
+  }
+}
