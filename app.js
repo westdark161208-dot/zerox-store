@@ -1183,91 +1183,117 @@ async function checkFreeFirePlayer() {
       "Sin clan";
 
     profileCard.innerHTML = `
-      <div class="ff-player-card">
+  <div class="player-profile-card">
 
-        ${
-          bannerUrl
-            ? `
-              <div class="ff-player-banner">
-                <img
-                  src="${bannerUrl}"
-                  alt="Banner del jugador"
-                >
-              </div>
-            `
-            : ""
-        }
+    <div
+      class="player-profile-banner"
+      ${
+        bannerUrl
+          ? `style="background-image:url('${bannerUrl}')"`
+          : ""
+      }
+    ></div>
 
-        <div class="ff-player-main">
+    <div class="player-profile-content">
 
-          ${
-            avatarUrl
-              ? `
-                <img
-                  class="ff-player-avatar"
-                  src="${avatarUrl}"
-                  alt="Avatar del jugador"
-                >
-              `
-              : ""
-          }
+      ${
+        avatarUrl
+          ? `
+            <img
+              class="player-avatar"
+              src="${avatarUrl}"
+              alt="Avatar de ${esc(nickname)}"
+            >
+          `
+          : `
+            <div class="player-avatar"></div>
+          `
+      }
 
-          <div class="ff-player-data">
-            <h3>${esc(nickname)}</h3>
+      <div class="player-profile-info">
+        <strong>${esc(nickname)}</strong>
+        <span>UID: ${esc(uid)}</span>
+      </div>
 
-            <p>
-              UID: <strong>${esc(uid)}</strong>
-            </p>
+    </div>
 
-            <div class="ff-player-stats">
-              <span>⭐ Nivel ${esc(String(level))}</span>
-              <span>🌎 ${esc(String(region))}</span>
-              <span>🏆 Rango ${esc(String(rank))}</span>
-              <span>❤️ ${esc(String(likes))}</span>
+    <div class="player-profile-status">
+
+      <div>
+        <strong>⭐ ${esc(String(level))}</strong>
+        <small>Nivel</small>
+      </div>
+
+      <div>
+        <strong>🌎 ${esc(String(region))}</strong>
+        <small>Región</small>
+      </div>
+
+      <div>
+        <strong>🏆 ${esc(String(rank))}</strong>
+        <small>Rango</small>
+      </div>
+
+      <div>
+        <strong>❤️ ${esc(String(likes))}</strong>
+        <small>Likes</small>
+      </div>
+
+    </div>
+
+    <div class="player-clan">
+      🛡️ ${esc(clanName)}
+    </div>
+
+    ${
+      clothes.length
+        ? `
+          <div class="player-equipment">
+
+            <div class="player-equipment-title">
+              <span>👕 Equipamiento actual</span>
             </div>
 
-            <p class="ff-player-clan">
-              🛡️ ${esc(clanName)}
-            </p>
+            <div class="player-equipment-grid">
+              ${clothesHtml}
+            </div>
+
           </div>
-        </div>
+        `
+        : ""
+    }
 
-        ${
-          clothes.length
-            ? `
-              <div class="ff-player-equipment">
-                <h4>Equipamiento actual</h4>
-                <div class="ff-equipment-grid">
-                  ${clothesHtml}
-                </div>
-              </div>
-            `
-            : ""
-        }
+    <div class="player-confirm-box">
 
-        <div class="ff-player-confirm">
-          <p>¿Esta es tu cuenta?</p>
+      <h4>¿Esta es tu cuenta?</h4>
 
-          <div class="ff-player-confirm-buttons">
-            <button
-              type="button"
-              class="ff-confirm-account"
-              data-player-verified="true"
-            >
-              SÍ, ES MI CUENTA
-            </button>
+      <p>
+        Verifica que la información sea correcta antes de continuar.
+      </p>
 
-            <button
-              type="button"
-              class="ff-change-account"
-            >
-              CAMBIAR ID
-            </button>
-          </div>
-        </div>
+      <div class="player-confirm-actions">
+
+        <button
+          type="button"
+          class="confirm-player-btn ff-confirm-account"
+          data-player-verified="true"
+        >
+          ✓ SÍ, ES MI CUENTA
+        </button>
+
+        <button
+          type="button"
+          class="change-player-btn ff-change-account"
+        >
+          ↻ CAMBIAR ID
+        </button>
 
       </div>
-    `;
+
+    </div>
+
+  </div>
+`;
 
     profileCard.dataset.playerVerified = "false";
     profileCard.dataset.playerUid = uid;
