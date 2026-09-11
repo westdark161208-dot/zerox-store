@@ -1075,7 +1075,6 @@ function createOrderId() {
 // =====================================================
 
 async function checkFreeFirePlayer() {
-
   const playerInput = document.querySelector(
     '[name="playerId"]'
   );
@@ -1102,28 +1101,218 @@ async function checkFreeFirePlayer() {
   checkButton.disabled = true;
   checkButton.textContent = "COMPROBANDO...";
 
+  profileCard.innerHTML = `
+    <div class="player-loading">
+      Buscando cuenta...
+    </div>
+  `;
+
+  profileCard.style.display = "block";
+
   try {
+    const response = await fetch(
+      `${ZEROX_API}/api/player?uid=${encodeURIComponent(uid)}&region=br`
+    );
 
-    /*
-      Próximamente aquí conectaremos
-      nuestro Cloudflare Worker con la API
-      de información de Free Fire.
-    */
+    const result = await response.json();
 
-    console.log("Comprobando jugador:", uid);
+    if (!response.ok || !result.ok) {
+      throw new Error(
+        result?.error || "No se pudo consultar la cuenta."
+      );
+    }
+
+    const data = result.player;
+
+    const basicInfo = data.basicInfo || {};
+    const profileInfo = data.profileInfo || {};
+    const clanInfo = data.clanBasicInfo || {};
+
+    const avatarId = profileInfo.avatarId || "";
+    const bannerId = basicInfo.bannerId || profileInfo.bannerId || "";
+
+    const clothes = Array.isArray(profileInfo.clothes)
+      ? profileInfo.clothes
+      : [];
+
+    const avatarUrl = avatarId
+      ? `${ZEROX_API}/api/item-image?itemID=${encodeURIComponent(avatarId)}`
+      : "";
+
+    const bannerUrl = bannerId
+      ? `${ZEROX_API}/api/item-image?itemID=${encodeURIComponent(bannerId)}`
+      : "";
+
+    const clothesHtml = clothes
+      .map(
+        itemID => `
+          <img
+            src="${ZEROX_API}/api/item-image?itemID=${encodeURIComponent(itemID)}"
+            alt="Equipamiento"
+            loading="lazy"
+            onerror="this.style.display='none'"
+          >
+        `
+      )
+      .join("");
+
+    const nickname =
+      basicInfo.nickname ||
+      data.nickname ||
+      "Jugador";
+
+    const level =
+      basicInfo.level ??
+      "—";
+
+    const region =
+      basicInfo.region ||
+      "—";
+
+    const rank =
+      basicInfo.rank ??
+      "—";
+
+    const likes =
+      basicInfo.liked ??
+      basicInfo.likes ??
+      "—";
+
+    const clanName =
+      clanInfo.clanName ||
+      "Sin clan";
+
+    profileCard.innerHTML = `
+      <div class="ff-player-card">
+
+        ${
+          bannerUrl
+            ? `
+              <div class="ff-player-banner">
+                <img
+                  src="${bannerUrl}"
+                  alt="Banner del jugador"
+                >
+              </div>
+            `
+            : ""
+        }
+
+        <div class="ff-player-main">
+
+          ${
+            avatarUrl
+              ? `
+                <img
+                  class="ff-player-avatar"
+                  src="${avatarUrl}"
+                  alt="Avatar del jugador"
+                >
+              `
+              : ""
+          }
+
+          <div class="ff-player-data">
+            <h3>${esc(nickname)}</h3>
+
+            <p>
+              UID: <strong>${esc(uid)}</strong>
+            </p>
+
+            <div class="ff-player-stats">
+              <span>⭐ Nivel ${esc(String(level))}</span>
+              <span>🌎 ${esc(String(region))}</span>
+              <span>🏆 Rango ${esc(String(rank))}</span>
+              <span>❤️ ${esc(String(likes))}</span>
+            </div>
+
+            <p class="ff-player-clan">
+              🛡️ ${esc(clanName)}
+            </p>
+          </div>
+        </div>
+
+        ${
+          clothes.length
+            ? `
+              <div class="ff-player-equipment">
+                <h4>Equipamiento actual</h4>
+                <div class="ff-equipment-grid">
+                  ${clothesHtml}
+                </div>
+              </div>
+            `
+            : ""
+        }
+
+        <div class="ff-player-confirm">
+          <p>¿Esta es tu cuenta?</p>
+
+          <div class="ff-player-confirm-buttons">
+            <button
+              type="button"
+              class="ff-confirm-account"
+              data-player-verified="true"
+            >
+              SÍ, ES MI CUENTA
+            </button>
+
+            <button
+              type="button"
+              class="ff-change-account"
+            >
+              CAMBIAR ID
+            </button>
+          </div>
+        </div>
+
+      </div>
+    `;
+
+    profileCard.dataset.playerVerified = "false";
+    profileCard.dataset.playerUid = uid;
+
+    const confirmButton = profileCard.querySelector(
+      ".ff-confirm-account"
+    );
+
+    const changeButton = profileCard.querySelector(
+      ".ff-change-account"
+    );
+
+    if (confirmButton) {
+      confirmButton.addEventListener("click", () => {
+        profileCard.dataset.playerVerified = "true";
+
+        confirmButton.textContent = "✓ CUENTA CONFIRMADA";
+        confirmButton.disabled = true;
+      });
+    }
+
+    if (changeButton) {
+      changeButton.addEventListener("click", () => {
+        profileCard.innerHTML = "";
+        profileCard.style.display = "none";
+        profileCard.dataset.playerVerified = "false";
+        playerInput.focus();
+      });
+    }
 
   } catch (error) {
-
     console.error(
       "Error comprobando jugador:",
       error
     );
 
+    profileCard.innerHTML = `
+      <div class="player-error">
+        No pudimos encontrar esa cuenta.
+        Verifica el ID e inténtalo nuevamente.
+      </div>
+    `;
   } finally {
-
     checkButton.disabled = false;
     checkButton.textContent = "COMPROBAR CUENTA";
-
   }
 }
 
