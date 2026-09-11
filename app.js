@@ -1230,7 +1230,7 @@ async function checkFreeFirePlayer() {
 </div>
 
 <div>
-  <strong><img src="rango.png" class="ff-stat-icon" alt="Rango"> ${esc(String(rank))}</strong>
+  <img src="./rango.png?v=2" class="ff-stat-icon" alt="Rango"> ${esc(String(rank))}</strong>
   <small>Rango</small>
 </div>
 
