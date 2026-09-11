@@ -6369,3 +6369,431 @@ body::after{
     opacity:.72;
   }
 }
+/* =========================================================
+   ZERO'X - ICONOS PERSONALIZADOS PERFIL FREE FIRE
+   ========================================================= */
+
+.ff-stat-icon{
+  width:34px;
+  height:34px;
+  object-fit:contain;
+  vertical-align:middle;
+  margin-right:7px;
+  filter:
+    drop-shadow(0 0 5px rgba(255,255,255,.18))
+    drop-shadow(0 0 8px rgba(255,45,45,.16));
+}
+
+.player-profile-status strong{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+}
+
+.ff-clan-icon{
+  width:36px;
+  height:36px;
+  object-fit:contain;
+  flex:0 0 auto;
+  filter:
+    drop-shadow(0 0 5px rgba(255,255,255,.14))
+    drop-shadow(0 0 9px rgba(255,45,45,.18));
+}
+
+.player-clan{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.player-clan span{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+@media(max-width:520px){
+
+  .ff-stat-icon{
+    width:31px;
+    height:31px;
+    margin-right:5px;
+  }
+
+  .ff-clan-icon{
+    width:32px;
+    height:32px;
+  }
+}
+/* =========================================================
+   ZERO'X - MARCO METALICO 3D Y FICHA COMPACTA
+   ========================================================= */
+
+.player-profile-card{
+  max-width:560px;
+  margin:0 auto;
+  border-radius:22px;
+  border:1px solid rgba(255,60,60,.30);
+
+  background:
+    linear-gradient(180deg,#17191f 0%,#0a0b0f 42%,#050507 100%);
+
+  box-shadow:
+    0 18px 45px rgba(0,0,0,.65),
+    0 0 18px rgba(255,20,20,.12),
+    inset 0 1px 0 rgba(255,255,255,.08),
+    inset 0 -2px 0 rgba(255,0,0,.08);
+}
+
+.player-profile-banner{
+  height:88px;
+  border-radius:20px 20px 0 0;
+}
+
+.player-profile-content{
+  margin-top:-30px;
+  padding:0 14px 10px;
+}
+
+.player-avatar{
+  width:72px;
+  height:72px;
+  min-width:72px;
+  border-radius:16px;
+
+  border:
+    2px solid #ff3434;
+
+  box-shadow:
+    0 0 0 2px rgba(255,255,255,.05),
+    0 0 16px rgba(255,40,40,.40),
+    0 0 24px rgba(0,130,255,.12);
+}
+
+.player-profile-info strong{
+  font-size:18px;
+}
+
+.player-profile-info span{
+  font-size:11px;
+  color:#aab0ba;
+}
+
+.player-profile-status{
+  grid-template-columns:repeat(4,1fr);
+  gap:5px;
+
+  margin:0 10px 9px;
+  padding:9px 6px;
+
+  border-radius:12px;
+
+  background:
+    linear-gradient(180deg,#0d1016,#07090d);
+
+  border:1px solid rgba(110,140,190,.14);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.04),
+    0 4px 12px rgba(0,0,0,.24);
+}
+
+.player-profile-status > div{
+  padding:4px 2px;
+}
+
+.player-profile-status strong{
+  font-size:12px;
+}
+
+.player-profile-status small{
+  font-size:8px;
+  letter-spacing:.4px;
+}
+
+.player-clan{
+  margin:0 10px 10px;
+  padding:8px 10px;
+
+  border-radius:11px;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(255,40,40,.13),
+      rgba(25,28,36,.85),
+      rgba(8,9,12,.95)
+    );
+
+  border-left:3px solid #ff3434;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.03);
+}
+
+/* Marco metalico exterior */
+
+.player-profile-card{
+  outline:
+    1px solid rgba(255,255,255,.04);
+}
+
+.player-profile-card::selection{
+  background:#ff2c2c;
+}
+
+/* Brillo tipo plataforma debajo de la ficha */
+
+.player-profile-card{
+  position:relative;
+}
+
+.player-profile-card .player-confirm-box{
+  margin-bottom:18px;
+}
+
+.player-profile-card{
+  box-shadow:
+    0 18px 45px rgba(0,0,0,.65),
+    0 0 18px rgba(255,20,20,.13),
+    inset 0 1px 0 rgba(255,255,255,.07),
+    inset 0 -3px 0 rgba(255,40,40,.10);
+}
+
+.player-profile-card > .player-confirm-box::after{
+  content:"";
+  position:absolute;
+
+  left:15%;
+  right:15%;
+  bottom:-8px;
+
+  height:12px;
+
+  border-radius:50%;
+
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(255,25,25,.75) 0%,
+      rgba(255,0,0,.35) 35%,
+      transparent 72%
+    );
+
+  filter:blur(7px);
+
+  opacity:.85;
+
+  pointer-events:none;
+
+  animation:
+    zeroPlatformGlow 2.8s ease-in-out infinite alternate;
+}
+
+@keyframes zeroPlatformGlow{
+  from{
+    transform:scaleX(.88);
+    opacity:.48;
+  }
+
+  to{
+    transform:scaleX(1.05);
+    opacity:.90;
+  }
+}
+
+@media(max-width:520px){
+
+  .player-profile-card{
+    border-radius:18px;
+  }
+
+  .player-profile-banner{
+    height:78px;
+  }
+
+  .player-profile-content{
+    margin-top:-26px;
+    padding:0 10px 8px;
+  }
+
+  .player-avatar{
+    width:64px;
+    height:64px;
+    min-width:64px;
+  }
+
+  .player-profile-info strong{
+    font-size:16px;
+  }
+
+  .player-profile-status{
+    grid-template-columns:repeat(4,1fr);
+    padding:7px 4px;
+  }
+
+  .player-profile-status strong{
+    font-size:11px;
+  }
+
+  .ff-stat-icon{
+    width:27px;
+    height:27px;
+  }
+}
+/* =========================================================
+   ZERO'X - BURBUJAS NEON ASCENDENTES
+   ========================================================= */
+
+.player-profile-card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  border-radius:inherit;
+  pointer-events:none;
+  z-index:0;
+
+  background:
+    radial-gradient(circle at 8% 92%,
+      rgba(255,255,255,.65) 0 1px,
+      rgba(255,40,80,.38) 2px,
+      transparent 6px),
+
+    radial-gradient(circle at 23% 78%,
+      rgba(255,255,255,.55) 0 1px,
+      rgba(0,190,255,.34) 2px,
+      transparent 5px),
+
+    radial-gradient(circle at 38% 96%,
+      rgba(255,255,255,.70) 0 1px,
+      rgba(150,70,255,.35) 2px,
+      transparent 7px),
+
+    radial-gradient(circle at 53% 84%,
+      rgba(255,255,255,.52) 0 1px,
+      rgba(255,40,60,.32) 2px,
+      transparent 5px),
+
+    radial-gradient(circle at 68% 93%,
+      rgba(255,255,255,.64) 0 1px,
+      rgba(0,170,255,.34) 2px,
+      transparent 6px),
+
+    radial-gradient(circle at 82% 76%,
+      rgba(255,255,255,.58) 0 1px,
+      rgba(170,60,255,.32) 2px,
+      transparent 5px),
+
+    radial-gradient(circle at 94% 90%,
+      rgba(255,255,255,.62) 0 1px,
+      rgba(255,35,55,.34) 2px,
+      transparent 6px);
+
+  opacity:.78;
+
+  filter:
+    drop-shadow(0 0 4px rgba(255,45,70,.22))
+    drop-shadow(0 0 6px rgba(0,170,255,.16));
+
+  animation:
+    zeroBubblesUpOne 9s linear infinite;
+}
+
+
+.player-profile-card::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  border-radius:inherit;
+  pointer-events:none;
+  z-index:0;
+
+  background:
+    radial-gradient(circle at 15% 98%,
+      rgba(255,255,255,.55) 0 1px,
+      rgba(0,190,255,.26) 2px,
+      transparent 4px),
+
+    radial-gradient(circle at 31% 87%,
+      rgba(255,255,255,.62) 0 1px,
+      rgba(255,30,65,.30) 2px,
+      transparent 5px),
+
+    radial-gradient(circle at 47% 94%,
+      rgba(255,255,255,.48) 0 1px,
+      rgba(140,60,255,.28) 2px,
+      transparent 4px),
+
+    radial-gradient(circle at 61% 79%,
+      rgba(255,255,255,.65) 0 1px,
+      rgba(0,170,255,.28) 2px,
+      transparent 5px),
+
+    radial-gradient(circle at 76% 99%,
+      rgba(255,255,255,.55) 0 1px,
+      rgba(255,45,65,.28) 2px,
+      transparent 4px),
+
+    radial-gradient(circle at 89% 85%,
+      rgba(255,255,255,.62) 0 1px,
+      rgba(150,60,255,.28) 2px,
+      transparent 5px);
+
+  opacity:.58;
+
+  filter:
+    drop-shadow(0 0 3px rgba(255,255,255,.12));
+
+  animation:
+    zeroBubblesUpTwo 13s linear infinite;
+}
+
+
+@keyframes zeroBubblesUpOne{
+
+  0%{
+    transform:translateY(20%);
+    opacity:0;
+  }
+
+  12%{
+    opacity:.78;
+  }
+
+  88%{
+    opacity:.72;
+  }
+
+  100%{
+    transform:translateY(-115%);
+    opacity:0;
+  }
+}
+
+
+@keyframes zeroBubblesUpTwo{
+
+  0%{
+    transform:translateY(35%);
+    opacity:0;
+  }
+
+  15%{
+    opacity:.55;
+  }
+
+  90%{
+    opacity:.48;
+  }
+
+  100%{
+    transform:translateY(-120%);
+    opacity:0;
+  }
+}
