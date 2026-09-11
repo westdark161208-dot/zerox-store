@@ -6247,3 +6247,125 @@ body::after{
     height:210px;
   }
 }
+/* =========================================================
+   ZERO'X - CORRECCION AURA VISIBLE Y ANIMADA
+   ========================================================= */
+
+.player-profile-card{
+  isolation:isolate;
+}
+
+.player-profile-card::before,
+.player-profile-card::after{
+  z-index:0 !important;
+  pointer-events:none;
+}
+
+.player-profile-card > *{
+  position:relative;
+  z-index:1;
+}
+
+.player-profile-card::before{
+  width:320px;
+  height:320px;
+  top:-110px;
+  left:-120px;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(0,220,255,.58) 0%,
+      rgba(0,120,255,.42) 28%,
+      rgba(125,40,255,.30) 48%,
+      transparent 72%
+    );
+
+  filter:blur(35px);
+
+  animation:
+    zeroAuraMobileOne 7s ease-in-out infinite alternate;
+}
+
+.player-profile-card::after{
+  width:330px;
+  height:330px;
+  top:40px;
+  right:-130px;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(170,40,255,.48) 0%,
+      rgba(60,90,255,.35) 32%,
+      rgba(0,210,255,.20) 52%,
+      transparent 73%
+    );
+
+  filter:blur(38px);
+
+  animation:
+    zeroAuraMobileTwo 9s ease-in-out infinite alternate;
+}
+
+@keyframes zeroAuraMobileOne{
+
+  0%{
+    transform:
+      translate(-30px,-20px)
+      scale(.85);
+    opacity:.42;
+  }
+
+  35%{
+    transform:
+      translate(110px,90px)
+      scale(1.12);
+    opacity:.82;
+  }
+
+  70%{
+    transform:
+      translate(40px,260px)
+      scale(.95);
+    opacity:.58;
+  }
+
+  100%{
+    transform:
+      translate(170px,400px)
+      scale(1.18);
+    opacity:.75;
+  }
+}
+
+@keyframes zeroAuraMobileTwo{
+
+  0%{
+    transform:
+      translate(30px,10px)
+      scale(.9);
+    opacity:.40;
+  }
+
+  40%{
+    transform:
+      translate(-130px,180px)
+      scale(1.15);
+    opacity:.78;
+  }
+
+  75%{
+    transform:
+      translate(-50px,390px)
+      scale(.96);
+    opacity:.55;
+  }
+
+  100%{
+    transform:
+      translate(-160px,520px)
+      scale(1.2);
+    opacity:.72;
+  }
+}
