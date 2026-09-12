@@ -1575,10 +1575,12 @@ if (sixofireProduct) {
           payload.contact ||
           payload.email ||
           "",
-        status:
-          product.requiresEligibility
-            ? "PENDIENTE DE VALIDACIÓN"
-            : "PEDIDO RECIBIDO",
+        status: "PENDIENTE DE PAGO",
+paymentStatus: "PENDIENTE",
+paymentConfirmed: false,
+paidAt: null,
+fulfillmentStatus: "NO ENVIADO",
+         
         createdAt:
           new Date().toISOString()
       };
