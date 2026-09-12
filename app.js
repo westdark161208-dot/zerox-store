@@ -1596,26 +1596,38 @@ fulfillmentStatus: "NO ENVIADO",
         $("#checkout-result").innerHTML = `
           <div class="success">
 
-            <b>Pedido creado ✓</b>
+            <b>Pedido recibido ✓</b>
 
-            <br>
+<br><br>
 
-            <span>
-              ${esc(order.id)}
-            </span>
+<span>
+  Folio: ${esc(order.id)}
+</span>
 
-            <br>
+<br><br>
 
-            <small>
-              Estado:
-              ${esc(order.status)}
-            </small>
+<small>
+  Estado: ${esc(order.status)}
+</small>
 
-            <br>
+<br>
 
-            <small>
-              Guarda este folio para rastrearlo.
-            </small>
+<small>
+  Método de pago: ${esc(order.payment)}
+</small>
+
+<br>
+
+<small>
+  Total: $${Number(order.total).toFixed(2)} MXN
+</small>
+
+<br><br>
+
+<small>
+  Tu pedido aún no ha sido pagado ni enviado.
+  Conserva este folio para darle seguimiento.
+</small>
 
           </div>
         `;
