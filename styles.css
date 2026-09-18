@@ -6797,3 +6797,215 @@ body::after{
     opacity:0;
   }
 }
+/* =========================================================
+   ZERO'X STORE — SPLASH / LOADING SCREEN
+   ========================================================= */
+
+.zerox-splash{
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100dvh;
+  z-index: 999999;
+  overflow: hidden;
+  background: #02040a;
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity .75s ease,
+    visibility .75s ease,
+    transform 1s cubic-bezier(.2,.8,.2,1);
+}
+
+.zerox-splash-bg{
+  position: absolute;
+  inset: 0;
+
+  background-image:
+    linear-gradient(
+      180deg,
+      rgba(0,0,0,.02) 0%,
+      rgba(0,0,0,.03) 55%,
+      rgba(0,0,0,.10) 100%
+    ),
+    url("./zerox-loading.jpg");
+
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+
+  transform: scale(1.02);
+  animation: zeroxSplashBreath 5s ease-in-out infinite alternate;
+}
+
+/* Contenedor de la carga */
+.zerox-loader{
+  position: absolute;
+
+  left: 50%;
+  bottom: max(8vh, 60px);
+
+  transform: translateX(-50%);
+
+  width: min(78vw, 520px);
+
+  z-index: 3;
+}
+
+/* CARGANDO + PORCENTAJE */
+.zerox-loader-text{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 10px;
+
+  color: #ffd56a;
+
+  font-size: clamp(12px, 3.2vw, 16px);
+  font-weight: 800;
+  letter-spacing: .18em;
+
+  text-shadow:
+    0 0 7px rgba(255,193,50,.9),
+    0 0 18px rgba(255,158,0,.65);
+}
+
+#zerox-loading-percent{
+  color: #fff2b0;
+
+  font-size: clamp(16px, 4.5vw, 23px);
+
+  text-shadow:
+    0 0 8px #ffb300,
+    0 0 18px rgba(255,179,0,.9);
+}
+
+/* Carril */
+.zerox-loading-track{
+  position: relative;
+
+  width: 100%;
+  height: 12px;
+
+  overflow: hidden;
+
+  border: 1px solid rgba(255,210,100,.85);
+  border-radius: 999px;
+
+  background: rgba(0,0,0,.62);
+
+  box-shadow:
+    0 0 8px rgba(255,190,40,.55),
+    0 0 20px rgba(255,145,0,.28),
+    inset 0 0 8px rgba(0,0,0,.85);
+}
+
+/* Franja dorada */
+.zerox-loading-bar{
+  position: relative;
+
+  width: 0%;
+  height: 100%;
+
+  overflow: hidden;
+
+  border-radius: inherit;
+
+  background:
+    linear-gradient(
+      90deg,
+      #8f5b00 0%,
+      #ff9d00 20%,
+      #ffd75a 48%,
+      #fff1a6 70%,
+      #ffae00 100%
+    );
+
+  box-shadow:
+    0 0 10px #ffb000,
+    0 0 22px rgba(255,174,0,.9),
+    0 0 38px rgba(255,130,0,.45);
+
+  transition: width .12s linear;
+}
+
+/* Destello que recorre la barra */
+.zerox-loading-shine{
+  position: absolute;
+  top: -100%;
+  left: -45%;
+
+  width: 35%;
+  height: 300%;
+
+  transform: rotate(20deg);
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255,255,255,.95),
+      transparent
+    );
+
+  filter: blur(2px);
+
+  animation: zeroxGoldShine 1.15s linear infinite;
+}
+
+/* Respiración muy ligera del fondo */
+@keyframes zeroxSplashBreath{
+  from{
+    transform: scale(1.02);
+    filter: brightness(1);
+  }
+
+  to{
+    transform: scale(1.055);
+    filter: brightness(1.08);
+  }
+}
+
+/* Luz desplazándose */
+@keyframes zeroxGoldShine{
+  from{
+    left: -45%;
+  }
+
+  to{
+    left: 125%;
+  }
+}
+
+/* Salida de la portada */
+.zerox-splash.zerox-splash-out{
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(1.045);
+  pointer-events: none;
+}
+
+/* Ajuste para pantallas horizontales */
+@media (orientation: landscape){
+  .zerox-splash-bg{
+    background-size: cover;
+  }
+
+  .zerox-loader{
+    bottom: 7vh;
+    width: min(58vw, 540px);
+  }
+}
+
+/* Respeta usuarios con animaciones reducidas */
+@media (prefers-reduced-motion: reduce){
+  .zerox-splash-bg,
+  .zerox-loading-shine{
+    animation: none;
+  }
+
+  .zerox-splash{
+    transition: opacity .25s ease;
+  }
+}
