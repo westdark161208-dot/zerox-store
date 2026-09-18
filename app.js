@@ -2055,3 +2055,39 @@ document.querySelectorAll('.feature-row > button').forEach(card => {
     });
 
 });
+
+/* =========================================================
+   ZERO'X STORE · SPLASH SCREEN / LOADING
+   ========================================================= */
+
+(() => {
+  const splash = document.getElementById("zerox-splash");
+  const bar = document.getElementById("zerox-loading-bar");
+  const percent = document.getElementById("zerox-loading-percent");
+
+  if (!splash || !bar || !percent) return;
+
+  let progress = 0;
+
+  const loading = setInterval(() => {
+    const step = Math.floor(Math.random() * 4) + 1;
+    progress = Math.min(progress + step, 100);
+
+    bar.style.width = `${progress}%`;
+    percent.textContent = `${progress}%`;
+
+    if (progress >= 100) {
+      clearInterval(loading);
+
+      percent.textContent = "100%";
+
+      setTimeout(() => {
+        splash.classList.add("zerox-splash-out");
+
+        setTimeout(() => {
+          splash.style.display = "none";
+        }, 700);
+      }, 450);
+    }
+  }, 55);
+})();
