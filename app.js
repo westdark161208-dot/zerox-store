@@ -307,6 +307,62 @@ const PRODUCTS = [
 const ZEROX_API = "https://zerox-sixofire-api.westdark161208.workers.dev";
 
 
+const SIXOFIRE_PRODUCT_MAP = {
+  "d110-u": "ff-110",
+  "d340-u": "ff-340",
+  "d572-u": "ff-572",
+  "d1166-u": "ff-1166",
+  "d2398-u": "ff-2398",
+  "d6160-u": "ff-6160"
+};
+
+let filter = "Diamantes 1 vez";
+let current = null;
+let currentCurrency = "MXN";
+let searchTerm = "";
+
+const RATES = {
+  MXN: 1,
+  USD: 0.055,
+  COP: 215,
+  ARS: 78,
+  BRL: 0.29
+};
+
+const LOCALES = {
+  MXN: "es-MX",
+  USD: "en-US",
+  COP: "es-CO",
+  ARS: "es-AR",
+  BRL: "pt-BR"
+};
+
+const $ = selector => document.querySelector(selector);
+const $$ = selector => [...document.querySelectorAll(selector)];
+
+function esc(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[char]);
+}
+
+function money(value, currency = currentCurrency) {
+  const converted = Number(value) * (RATES[currency] || 1);
+
+  return new Intl.NumberFormat(
+    LOCALES[currency] || "es-MX",
+    {
+      style: "currency",
+      currency,
+      maximumFractionDigits: ["COP", "ARS"].includes(currency) ? 0 : 2
+    }
+  ).format(converted);
+}
+
 /* =========================================================
    ZERO'X ID · CUENTAS
    ========================================================= */
@@ -440,61 +496,6 @@ $("#account-orders")?.addEventListener("click", () => {
 restoreZeroXSession();
 
 
-const SIXOFIRE_PRODUCT_MAP = {
-  "d110-u": "ff-110",
-  "d340-u": "ff-340",
-  "d572-u": "ff-572",
-  "d1166-u": "ff-1166",
-  "d2398-u": "ff-2398",
-  "d6160-u": "ff-6160"
-};
-
-let filter = "Diamantes 1 vez";
-let current = null;
-let currentCurrency = "MXN";
-let searchTerm = "";
-
-const RATES = {
-  MXN: 1,
-  USD: 0.055,
-  COP: 215,
-  ARS: 78,
-  BRL: 0.29
-};
-
-const LOCALES = {
-  MXN: "es-MX",
-  USD: "en-US",
-  COP: "es-CO",
-  ARS: "es-AR",
-  BRL: "pt-BR"
-};
-
-const $ = selector => document.querySelector(selector);
-const $$ = selector => [...document.querySelectorAll(selector)];
-
-function esc(value) {
-  return String(value ?? "").replace(/[&<>"']/g, char => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;"
-  })[char]);
-}
-
-function money(value, currency = currentCurrency) {
-  const converted = Number(value) * (RATES[currency] || 1);
-
-  return new Intl.NumberFormat(
-    LOCALES[currency] || "es-MX",
-    {
-      style: "currency",
-      currency,
-      maximumFractionDigits: ["COP", "ARS"].includes(currency) ? 0 : 2
-    }
-  ).format(converted);
-}
 
 /* =========================================================
    CARRITO
