@@ -306,6 +306,140 @@ const PRODUCTS = [
 
 const ZEROX_API = "https://zerox-sixofire-api.westdark161208.workers.dev";
 
+
+/* =========================================================
+   ZERO'X ID · CUENTAS
+   ========================================================= */
+const ZEROX_SESSION_KEY = "zerox-session";
+let zeroxUser = null;
+
+function getZeroXSession() {
+  try { return JSON.parse(localStorage.getItem(ZEROX_SESSION_KEY) || "null"); }
+  catch { return null; }
+}
+
+function saveZeroXSession(session) {
+  if (session) localStorage.setItem(ZEROX_SESSION_KEY, JSON.stringify(session));
+  else localStorage.removeItem(ZEROX_SESSION_KEY);
+}
+
+async function zeroxAuthRequest(path, options = {}) {
+  const session = getZeroXSession();
+  const headers = { "Content-Type": "application/json", ...(options.headers || {}) };
+  if (session?.token) headers.Authorization = `Bearer ${session.token}`;
+  const response = await fetch(`${ZEROX_API}${path}`, { ...options, headers });
+  const data = await response.json().catch(() => ({ ok:false, error:"INVALID_RESPONSE" }));
+  if (!response.ok) {
+    const error = new Error(data.error || "REQUEST_FAILED");
+    error.data = data;
+    error.status = response.status;
+    throw error;
+  }
+  return data;
+}
+
+function authMessage(error) {
+  const code = error?.data?.error || error?.message;
+  return ({
+    INVALID_CREDENTIALS: "Correo, usuario o contraseña incorrectos.",
+    ACCOUNT_EXISTS: "Ese correo o nombre de usuario ya está registrado.",
+    INVALID_EMAIL: "Escribe un correo válido.",
+    INVALID_USERNAME: "El usuario debe tener entre 3 y 24 caracteres y usar letras, números, punto, guion o guion bajo.",
+    INVALID_PASSWORD: "La contraseña debe tener entre 8 y 128 caracteres.",
+    ACCOUNT_DISABLED: "Esta cuenta está deshabilitada.",
+    MISSING_CREDENTIALS: "Completa tus datos para continuar."
+  })[code] || "No pudimos completar la operación. Intenta de nuevo.";
+}
+
+function renderZeroXAccount() {
+  const guest = $("#account-guest"), user = $("#account-user"), profile = $("#open-account");
+  if (!guest || !user) return;
+  guest.hidden = !!zeroxUser;
+  user.hidden = !zeroxUser;
+  if (profile) profile.classList.toggle("signed-in", !!zeroxUser);
+  if (!zeroxUser) return;
+  const name = zeroxUser.display_name || zeroxUser.displayName || zeroxUser.username || "Jugador";
+  $("#account-name").textContent = name;
+  $("#account-username").textContent = "@" + (zeroxUser.username || "zerox");
+  $("#account-level").textContent = zeroxUser.level ?? 1;
+  $("#account-xp").textContent = zeroxUser.xp ?? 0;
+  $("#account-avatar").textContent = name.trim().slice(0,2).toUpperCase() || "ZX";
+}
+
+async function restoreZeroXSession() {
+  if (!getZeroXSession()?.token) return renderZeroXAccount();
+  try {
+    const data = await zeroxAuthRequest("/api/auth/me");
+    zeroxUser = data.user;
+  } catch (error) {
+    if (error.status === 401) saveZeroXSession(null);
+  }
+  renderZeroXAccount();
+}
+
+function showAuthMode(mode) {
+  const login = mode === "login";
+  $("#login-form").hidden = !login;
+  $("#register-form").hidden = login;
+  $("#auth-login-tab").classList.toggle("active", login);
+  $("#auth-register-tab").classList.toggle("active", !login);
+  $("#auth-result").innerHTML = "";
+}
+
+$("#open-account")?.addEventListener("click", () => $("#account-modal")?.showModal());
+$("#close-account")?.addEventListener("click", () => $("#account-modal")?.close());
+$("#auth-login-tab")?.addEventListener("click", () => showAuthMode("login"));
+$("#auth-register-tab")?.addEventListener("click", () => showAuthMode("register"));
+
+$("#register-form")?.addEventListener("submit", async event => {
+  event.preventDefault();
+  const form = event.currentTarget, button = form.querySelector('button[type="submit"]');
+  button.disabled = true; button.textContent = "CREANDO...";
+  try {
+    const body = Object.fromEntries(new FormData(form).entries());
+    const data = await zeroxAuthRequest("/api/auth/register", { method:"POST", body:JSON.stringify(body) });
+    saveZeroXSession(data.session);
+    zeroxUser = data.user;
+    form.reset();
+    renderZeroXAccount();
+  } catch (error) {
+    $("#auth-result").innerHTML = `<div class="error">${esc(authMessage(error))}</div>`;
+  } finally {
+    button.disabled = false; button.textContent = "CREAR MI CUENTA";
+  }
+});
+
+$("#login-form")?.addEventListener("submit", async event => {
+  event.preventDefault();
+  const form = event.currentTarget, button = form.querySelector('button[type="submit"]');
+  button.disabled = true; button.textContent = "ENTRANDO...";
+  try {
+    const body = Object.fromEntries(new FormData(form).entries());
+    const data = await zeroxAuthRequest("/api/auth/login", { method:"POST", body:JSON.stringify(body) });
+    saveZeroXSession(data.session);
+    zeroxUser = data.user;
+    form.reset();
+    renderZeroXAccount();
+  } catch (error) {
+    $("#auth-result").innerHTML = `<div class="error">${esc(authMessage(error))}</div>`;
+  } finally {
+    button.disabled = false; button.textContent = "ENTRAR A ZERO'X";
+  }
+});
+
+$("#logout-account")?.addEventListener("click", async () => {
+  try { await zeroxAuthRequest("/api/auth/logout", { method:"POST" }); } catch {}
+  saveZeroXSession(null); zeroxUser = null; renderZeroXAccount(); showAuthMode("login");
+});
+
+$("#account-orders")?.addEventListener("click", () => {
+  $("#account-modal")?.close();
+  openStatus();
+});
+
+restoreZeroXSession();
+
+
 const SIXOFIRE_PRODUCT_MAP = {
   "d110-u": "ff-110",
   "d340-u": "ff-340",
