@@ -59,21 +59,21 @@ function sessionToken(){return b64(crypto.getRandomValues(new Uint8Array(32))).r
 async function authSchema(env){
   if(!env.DB) throw new Error("DB_BINDING_NOT_CONFIGURED");
   await env.DB.batch([
-    env.DB.prepare("CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY,email TEXT NOT NULL UNIQUE,username TEXT NOT NULL UNIQUE,password_hash TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'active',created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)"),
-    env.DB.prepare("CREATE TABLE IF NOT EXISTS profiles (user_id TEXT PRIMARY KEY,display_name TEXT,avatar_url TEXT,xp INTEGER NOT NULL DEFAULT 0,level INTEGER NOT NULL DEFAULT 1,FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE)"),
-    env.DB.prepare("CREATE TABLE IF NOT EXISTS sessions (id TEXT PRIMARY KEY,user_id TEXT NOT NULL,token_hash TEXT NOT NULL UNIQUE,expires_at TEXT NOT NULL,created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,revoked_at TEXT,FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE)")
+    env.DB.prepare("CREATE TABLE IF NOT EXISTS zx_users (id TEXT PRIMARY KEY,email TEXT NOT NULL UNIQUE,username TEXT NOT NULL UNIQUE,password_hash TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'active',created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)"),
+    env.DB.prepare("CREATE TABLE IF NOT EXISTS zx_profiles (user_id TEXT PRIMARY KEY,display_name TEXT,avatar_url TEXT,xp INTEGER NOT NULL DEFAULT 0,level INTEGER NOT NULL DEFAULT 1,FOREIGN KEY(user_id) REFERENCES zx_users(id) ON DELETE CASCADE)"),
+    env.DB.prepare("CREATE TABLE IF NOT EXISTS zx_sessions (id TEXT PRIMARY KEY,user_id TEXT NOT NULL,token_hash TEXT NOT NULL UNIQUE,expires_at TEXT NOT NULL,created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,revoked_at TEXT,FOREIGN KEY(user_id) REFERENCES zx_users(id) ON DELETE CASCADE)")
   ]);
 }
 async function newSession(env,userId){
   const raw=sessionToken(), tokenHash=await digest(raw), expiresAt=new Date(Date.now()+30*24*60*60*1000).toISOString();
-  await env.DB.prepare("INSERT INTO sessions(id,user_id,token_hash,expires_at) VALUES(?,?,?,?)").bind(crypto.randomUUID(),userId,tokenHash,expiresAt).run();
+  await env.DB.prepare("INSERT INTO zx_sessions(id,user_id,token_hash,expires_at) VALUES(?,?,?,?)").bind(crypto.randomUUID(),userId,tokenHash,expiresAt).run();
   return {token:raw,expiresAt};
 }
 async function currentUser(request,env){
   const m=(request.headers.get("Authorization")||"").match(/^Bearer\s+(.+)$/i);
   if(!m)return null;
   const tokenHash=await digest(m[1].trim());
-  return env.DB.prepare("SELECT u.id,u.email,u.username,u.status,u.created_at,p.display_name,p.avatar_url,p.xp,p.level FROM sessions s JOIN users u ON u.id=s.user_id LEFT JOIN profiles p ON p.user_id=u.id WHERE s.token_hash=? AND s.revoked_at IS NULL AND s.expires_at>? LIMIT 1").bind(tokenHash,new Date().toISOString()).first();
+  return env.DB.prepare("SELECT u.id,u.email,u.username,u.status,u.created_at,p.display_name,p.avatar_url,p.xp,p.level FROM zx_sessions s JOIN zx_users u ON u.id=s.user_id LEFT JOIN zx_profiles p ON p.user_id=u.id WHERE s.token_hash=? AND s.revoked_at IS NULL AND s.expires_at>? LIMIT 1").bind(tokenHash,new Date().toISOString()).first();
 }
 
 export default {
@@ -92,17 +92,17 @@ export default {
 
       if(url.pathname==="/api/auth/register" && request.method==="POST"){
         const body=await request.json();
-        const email=String(body.email||"").trim().toLowerCase(), username=String(body.username||"").trim(), password=String(body.password||""), displayName=String(body.displayName||username).trim();
+        const email=String(body.email||"").trim().toLowerCase(), username=String(body.username||"").trim().replace(/^@+/,""), password=String(body.password||""), displayName=String(body.displayName||username).trim();
         if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) return json({ok:false,error:"INVALID_EMAIL"},400);
         if(!/^[A-Za-z0-9_.-]{3,24}$/.test(username)) return json({ok:false,error:"INVALID_USERNAME"},400);
         if(password.length<8||password.length>128) return json({ok:false,error:"INVALID_PASSWORD"},400);
-        const exists=await env.DB.prepare("SELECT id FROM users WHERE lower(email)=lower(?) OR lower(username)=lower(?) LIMIT 1").bind(email,username).first();
+        const exists=await env.DB.prepare("SELECT id FROM zx_users WHERE lower(email)=lower(?) OR lower(username)=lower(?) LIMIT 1").bind(email,username).first();
         if(exists) return json({ok:false,error:"ACCOUNT_EXISTS"},409);
         const id=crypto.randomUUID(), hash=await passwordHash(password);
         try{
           await env.DB.batch([
-            env.DB.prepare("INSERT INTO users(id,email,username,password_hash) VALUES(?,?,?,?)").bind(id,email,username,hash),
-            env.DB.prepare("INSERT INTO profiles(user_id,display_name) VALUES(?,?)").bind(id,displayName||username)
+            env.DB.prepare("INSERT INTO zx_users(id,email,username,password_hash) VALUES(?,?,?,?)").bind(id,email,username,hash),
+            env.DB.prepare("INSERT INTO zx_profiles(user_id,display_name) VALUES(?,?)").bind(id,displayName||username)
           ]);
         }catch(e){
           if(String(e.message||"").toLowerCase().includes("unique")) return json({ok:false,error:"ACCOUNT_EXISTS"},409);
@@ -114,7 +114,7 @@ export default {
       if(url.pathname==="/api/auth/login" && request.method==="POST"){
         const body=await request.json(), login=String(body.login||body.email||body.username||"").trim(), password=String(body.password||"");
         if(!login||!password) return json({ok:false,error:"MISSING_CREDENTIALS"},400);
-        const u=await env.DB.prepare("SELECT u.id,u.email,u.username,u.password_hash,u.status,p.display_name,p.avatar_url FROM users u LEFT JOIN profiles p ON p.user_id=u.id WHERE lower(u.email)=lower(?) OR lower(u.username)=lower(?) LIMIT 1").bind(login,login).first();
+        const u=await env.DB.prepare("SELECT u.id,u.email,u.username,u.password_hash,u.status,p.display_name,p.avatar_url FROM users u LEFT JOIN zx_profiles p ON p.user_id=u.id WHERE lower(u.email)=lower(?) OR lower(u.username)=lower(?) LIMIT 1").bind(login,login).first();
         if(!u||!(await passwordOK(password,u.password_hash))) return json({ok:false,error:"INVALID_CREDENTIALS"},401);
         if(u.status!=="active") return json({ok:false,error:"ACCOUNT_DISABLED"},403);
         return json({ok:true,user:{id:u.id,email:u.email,username:u.username,displayName:u.display_name,avatarUrl:u.avatar_url},session:await newSession(env,u.id)});
@@ -127,7 +127,7 @@ export default {
 
       if(url.pathname==="/api/auth/logout" && request.method==="POST"){
         const m=(request.headers.get("Authorization")||"").match(/^Bearer\s+(.+)$/i);
-        if(m) await env.DB.prepare("UPDATE sessions SET revoked_at=CURRENT_TIMESTAMP WHERE token_hash=? AND revoked_at IS NULL").bind(await digest(m[1].trim())).run();
+        if(m) await env.DB.prepare("UPDATE zx_sessions SET revoked_at=CURRENT_TIMESTAMP WHERE token_hash=? AND revoked_at IS NULL").bind(await digest(m[1].trim())).run();
         return json({ok:true});
       }
 
