@@ -122,8 +122,8 @@
 
       <button
         class="icon-btn profile-btn"
-        id="open-status"
-        aria-label="Mis pedidos">
+        id="open-account"
+        aria-label="Mi cuenta">
         ♙
       </button>
 
@@ -1076,6 +1076,67 @@
 
   </dialog>
 
+
+
+  <!-- =====================================================
+       CUENTA ZERO'X
+       ===================================================== -->
+  <dialog id="account-modal" class="modal account-modal">
+    <button class="close" id="close-account" type="button">×</button>
+    <span class="section-kicker">ZERO'X ID</span>
+    <h2 id="account-title">MI CUENTA</h2>
+
+    <div id="account-guest">
+      <div class="auth-tabs">
+        <button type="button" class="active" id="auth-login-tab">INICIAR SESIÓN</button>
+        <button type="button" id="auth-register-tab">CREAR CUENTA</button>
+      </div>
+
+      <form id="login-form" class="auth-form">
+        <label>Correo o usuario
+          <input name="login" autocomplete="username" required placeholder="Tu correo o usuario">
+        </label>
+        <label>Contraseña
+          <input name="password" type="password" autocomplete="current-password" required minlength="8" placeholder="••••••••">
+        </label>
+        <button type="submit">ENTRAR A ZERO'X</button>
+      </form>
+
+      <form id="register-form" class="auth-form" hidden>
+        <label>Nombre
+          <input name="displayName" autocomplete="name" required maxlength="40" placeholder="Cómo quieres que te llamemos">
+        </label>
+        <label>Usuario
+          <input name="username" autocomplete="username" required minlength="3" maxlength="24" pattern="[A-Za-z0-9_.-]+" placeholder="zerox_player">
+        </label>
+        <label>Correo
+          <input name="email" type="email" autocomplete="email" required placeholder="correo@ejemplo.com">
+        </label>
+        <label>Contraseña
+          <input name="password" type="password" autocomplete="new-password" required minlength="8" maxlength="128" placeholder="Mínimo 8 caracteres">
+        </label>
+        <button type="submit">CREAR MI CUENTA</button>
+      </form>
+      <div id="auth-result" aria-live="polite"></div>
+    </div>
+
+    <div id="account-user" hidden>
+      <div class="account-card">
+        <div class="account-avatar" id="account-avatar">ZX</div>
+        <div>
+          <small>ZERO'X ID</small>
+          <strong id="account-name">Jugador</strong>
+          <span id="account-username">@usuario</span>
+        </div>
+      </div>
+      <div class="account-stats">
+        <div><b id="account-level">1</b><span>NIVEL</span></div>
+        <div><b id="account-xp">0</b><span>XP</span></div>
+      </div>
+      <button type="button" id="account-orders">📋 MIS PEDIDOS</button>
+      <button type="button" id="logout-account" class="auth-secondary">CERRAR SESIÓN</button>
+    </div>
+  </dialog>
 
   <!-- =====================================================
        RASTREAR PEDIDO
