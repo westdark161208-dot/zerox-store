@@ -7047,3 +7047,53 @@ body::after{
 #register-form[hidden]{
   display:none !important;
 }
+
+
+/* =========================================================
+   ZEROX AUTH CINEMATIC BANNER · 2.5D
+   ========================================================= */
+.zerox-auth-banner{
+  position:relative;
+  width:100%;
+  aspect-ratio:16/9;
+  margin:0 0 22px;
+  overflow:hidden;
+  border:1px solid rgba(157,42,255,.55);
+  border-radius:18px;
+  background:radial-gradient(circle at 50% 45%,#4a0876 0,#14001f 48%,#050006 100%);
+  box-shadow:0 0 28px rgba(151,26,255,.22),inset 0 0 30px rgba(111,0,180,.25);
+  isolation:isolate;
+  perspective:900px;
+}
+.zerox-auth-banner img{
+  position:absolute;
+  inset:-3%;
+  width:106%;
+  height:106%;
+  object-fit:cover;
+  transform:translate3d(0,0,0) scale(1.035);
+  filter:saturate(1.12) contrast(1.05) brightness(.9);
+  animation:zeroxAuthCamera 8s ease-in-out infinite alternate;
+  will-change:transform,filter;
+}
+.zerox-auth-glow{
+  position:absolute;inset:-25%;z-index:2;pointer-events:none;
+  background:radial-gradient(circle at 52% 58%,rgba(183,75,255,.20),transparent 34%),radial-gradient(circle at 80% 35%,rgba(84,52,255,.16),transparent 25%);
+  mix-blend-mode:screen;
+  animation:zeroxAuthGlow 3.2s ease-in-out infinite alternate;
+}
+.zerox-auth-scan{
+  position:absolute;left:-20%;right:-20%;top:-35%;height:28%;z-index:3;pointer-events:none;
+  background:linear-gradient(180deg,transparent,rgba(201,131,255,.14),transparent);
+  transform:rotate(-7deg);
+  animation:zeroxAuthScan 5.5s linear infinite;
+}
+.zerox-auth-particles{position:absolute;inset:0;z-index:4;pointer-events:none;overflow:hidden}
+.zerox-auth-particles i{position:absolute;width:5px;height:5px;border-radius:50%;background:#d9a7ff;box-shadow:0 0 9px #9f37ff,0 0 18px #731cff;opacity:.55;animation:zeroxAuthParticle 4.8s ease-in-out infinite}
+.zerox-auth-particles i:nth-child(1){left:9%;top:72%;animation-delay:-1s}.zerox-auth-particles i:nth-child(2){left:23%;top:18%;animation-delay:-3s}.zerox-auth-particles i:nth-child(3){left:43%;top:78%;animation-delay:-2s}.zerox-auth-particles i:nth-child(4){left:65%;top:20%;animation-delay:-4s}.zerox-auth-particles i:nth-child(5){left:82%;top:68%;animation-delay:-.5s}.zerox-auth-particles i:nth-child(6){left:92%;top:30%;animation-delay:-2.7s}
+@keyframes zeroxAuthCamera{0%{transform:translate3d(-1.2%,.4%,0) scale(1.035) rotateX(.25deg);filter:saturate(1.06) contrast(1.04) brightness(.86)}100%{transform:translate3d(1.2%,-.5%,24px) scale(1.075) rotateX(-.25deg);filter:saturate(1.2) contrast(1.08) brightness(.98)}}
+@keyframes zeroxAuthGlow{from{opacity:.45;transform:scale(.96) translateY(1%)}to{opacity:1;transform:scale(1.06) translateY(-1%)}}
+@keyframes zeroxAuthScan{0%{top:-38%;opacity:0}12%{opacity:1}78%{opacity:.8}100%{top:120%;opacity:0}}
+@keyframes zeroxAuthParticle{0%,100%{transform:translate3d(0,10px,0) scale(.7);opacity:.2}50%{transform:translate3d(4px,-12px,20px) scale(1.4);opacity:.9}}
+@media (max-width:640px){.account-modal{padding-left:18px;padding-right:18px}.zerox-auth-banner{border-radius:14px;margin-bottom:18px}}
+@media (prefers-reduced-motion:reduce){.zerox-auth-banner img,.zerox-auth-glow,.zerox-auth-scan,.zerox-auth-particles i{animation:none!important}}
