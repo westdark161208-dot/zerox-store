@@ -7038,3 +7038,12 @@ body::after{
 .account-stats b{font-size:22px}.account-stats span{color:var(--muted);font-size:11px;font-weight:900;letter-spacing:.12em}
 #account-orders{margin-bottom:8px}
 #logout-account.auth-secondary{border-color:#35353c;background:#0d0d10;color:#ccc}
+
+/* FIX: hidden auth panels must never participate in layout */
+#account-modal [hidden],
+#account-guest[hidden],
+#account-user[hidden],
+#login-form[hidden],
+#register-form[hidden]{
+  display:none !important;
+}
