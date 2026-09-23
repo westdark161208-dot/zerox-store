@@ -7454,3 +7454,23 @@ body{background:
     font-size:20px!important;
   }
 }
+
+/* La presentación de la portada queda dentro de la fotografía. */
+.hero-copy .hero-tagline{margin:6px 0 12px;color:#f3f0f1;font-size:16px;font-weight:800;text-shadow:0 2px 5px #000,0 0 12px #000}
+@media(max-width:650px){
+  .hero{min-height:100vw!important}
+  .hero::before{display:block!important;background:linear-gradient(180deg,rgba(0,0,0,.86),rgba(0,0,0,.45) 19%,transparent 35%)!important}
+  .hero-content{min-height:100vw!important;padding:14px 16px 0!important}
+  .hero-copy .hero-tagline{display:block!important;margin:4px 0 9px!important;font-size:12px!important;line-height:1.2!important}
+  .hero-title{margin-bottom:0!important}
+  .hero-title .brush-white:first-child{font-size:clamp(24px,7vw,32px)!important}
+  .hero-copy .cta{min-height:36px!important;font-size:11px!important}
+}
+/* Mostrar u ocultar contraseña sin desplazar el formulario. */
+.auth-form .password-field{display:block;position:relative}
+.auth-form .password-field input{padding-right:77px}
+.auth-form .password-field .password-toggle{
+  position:absolute;top:50%;right:6px;transform:translateY(-50%);
+  width:62px;min-height:36px;padding:0 5px;border:1px solid #55545b;
+  border-radius:8px;background:#252329;color:#fff;font-size:12px;cursor:pointer
+}
