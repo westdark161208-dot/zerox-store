@@ -114,7 +114,7 @@ export default {
       if(url.pathname==="/api/auth/login" && request.method==="POST"){
         const body=await request.json(), login=String(body.login||body.email||body.username||"").trim(), password=String(body.password||"");
         if(!login||!password) return json({ok:false,error:"MISSING_CREDENTIALS"},400);
-        const u=await env.DB.prepare("SELECT u.id,u.email,u.username,u.password_hash,u.status,p.display_name,p.avatar_url FROM users u LEFT JOIN zx_profiles p ON p.user_id=u.id WHERE lower(u.email)=lower(?) OR lower(u.username)=lower(?) LIMIT 1").bind(login,login).first();
+        const u=await env.DB.prepare("SELECT u.id,u.email,u.username,u.password_hash,u.status,p.display_name,p.avatar_url FROM zx_users u LEFT JOIN zx_profiles p ON p.user_id=u.id WHERE lower(u.email)=lower(?) OR lower(u.username)=lower(?) LIMIT 1").bind(login,login).first();
         if(!u||!(await passwordOK(password,u.password_hash))) return json({ok:false,error:"INVALID_CREDENTIALS"},401);
         if(u.status!=="active") return json({ok:false,error:"ACCOUNT_DISABLED"},403);
         return json({ok:true,user:{id:u.id,email:u.email,username:u.username,displayName:u.display_name,avatarUrl:u.avatar_url},session:await newSession(env,u.id)});
