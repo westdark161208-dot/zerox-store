@@ -1916,7 +1916,7 @@ if (backdrop) {
     closeDrawer;
 }
 
-$("#drawer-profile")?.addEventListener("click",()=>{closeDrawer();$("#account-modal")?.showModal();});
+$("#drawer-profile")?.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();closeDrawer();$("#account-modal")?.showModal();});
 $("#drawer-search")?.addEventListener("keydown",e=>{if(e.key!=="Enter")return;e.preventDefault();const query=e.target.value.trim();closeDrawer();$("#search").value=query;$("#search").dispatchEvent(new Event("input",{bubbles:true}));$("#catalogo")?.scrollIntoView({behavior:"smooth"});});
 $("#drawer").addEventListener("click",e=>{
   const b=e.target.closest("[data-drawer-zone],[data-drawer-sub],[data-drawer-cat]");if(!b)return;
