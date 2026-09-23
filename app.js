@@ -1921,6 +1921,7 @@ window.addEventListener(
     if (
       installToast &&
       !isStandalone() &&
+      localStorage.getItem("zerox-install-installed") !== "1" &&
       localStorage.getItem(
         "zerox-install-dismissed"
       ) !== "1"
@@ -1965,6 +1966,7 @@ if (dismissInstall) {
 window.addEventListener(
   "appinstalled",
   () => {
+    localStorage.setItem("zerox-install-installed", "1");
     if (installBtn) {
       installBtn.hidden =
         true;
@@ -1976,6 +1978,10 @@ window.addEventListener(
     }
   }
 );
+
+if (isStandalone() || localStorage.getItem("zerox-install-installed") === "1" || localStorage.getItem("zerox-install-dismissed") === "1") {
+  if (installToast) installToast.hidden = true;
+}
 
 /* Service Worker temporarily disabled during storefront stabilization */
 if ("serviceWorker" in navigator) {
