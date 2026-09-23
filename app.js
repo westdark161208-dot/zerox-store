@@ -309,10 +309,10 @@ const ZEROX_API = "https://zerox-sixofire-api.westdark161208.workers.dev";
 /* ZERO'X ADS · editable carousel
    Para cambiar anuncios edita SOLO este arreglo. */
 const ZEROX_ADS = [
-  { kicker:"ZERO'X STORE", title:"DIAMANTES FREE FIRE", text:"Recargas, promociones y paquetes para tu cuenta.", image:"./assets/categories/diamantes-primera-vez.png.png", category:"Diamantes 1 vez" },
-  { kicker:"ZERO'X PREMIUM", title:"CUENTAS", text:"Explora la nueva sección de cuentas disponibles.", image:"./assets/categories/cuentas.png.png", category:"Cuentas" },
-  { kicker:"BOOYAH", title:"PASES Y BENEFICIOS", text:"Encuentra las opciones disponibles en Zero'X Store.", image:"./assets/categories/pase-booyah.png.png", category:"Pases Booyah" },
-  { kicker:"ENTRETENIMIENTO", title:"STREAMING", text:"Tus servicios y cuentas de streaming en una sola sección.", image:"./assets/categories/streaming.png.png", category:"Streaming" }
+  { kicker:"OFERTA ZERO'X", title:"BONO DE FRAGMENTOS", text:"Promociones especiales: compra paquetes seleccionados y recibe beneficios extra cuando la oferta esté activa.", image:"./assets/categories/fragmentos.png.png", category:"Fragmentos" },
+  { kicker:"PROMOCIÓN FREE FIRE", title:"RECARGA Y GANA MÁS", text:"Aquí publicaremos bonos, regalos y promociones temporales de Zero'X Store.", image:"./assets/categories/diamantes-ilimitados.png.png", category:"Diamantes ilimitados" },
+  { kicker:"ZERO'X PREMIUM", title:"OFERTAS DE CUENTAS", text:"Nuevas cuentas y oportunidades destacadas aparecerán aquí.", image:"./assets/categories/cuentas.png.png", category:"Cuentas" },
+  { kicker:"ENTRETENIMIENTO", title:"STREAMING EN OFERTA", text:"Promociones destacadas de tus plataformas favoritas.", image:"./assets/categories/streaming.png.png", category:"Streaming" }
 ];
 let zeroxAdIndex=0, zeroxAdTimer=null;
 function renderZeroXAd(index){
@@ -701,7 +701,38 @@ if (category === "Streaming") {
 function setFilter(category, scroll = true) {
   filter = category;
 
-  $$("[data-cat]").forEach(button => {
+  /* ZERO'X · navegación por secciones */
+function zxShow(el, show){ if(el) el.hidden=!show; }
+function zxOpenCatalog(category){
+  const catalog=$("#catalogo");
+  catalog?.classList.remove("zx-catalog-hidden");
+  setFilter(category,false);
+  catalog?.scrollIntoView({behavior:"smooth"});
+}
+$("[data-zone]").forEach(btn=>btn.addEventListener("click",()=>{
+  zxShow($("#secciones"),false);
+  if(btn.dataset.zone==="freefire") zxShow($("#freefire-menu"),true);
+  if(btn.dataset.zone==="streaming") zxOpenCatalog("Streaming");
+  if(btn.dataset.zone==="accounts") zxOpenCatalog("Cuentas");
+}));
+$("[data-back-zones]").forEach(btn=>btn.addEventListener("click",()=>{zxShow($("#freefire-menu"),false);zxShow($("#zx-id-gate"),false);$("#catalogo")?.classList.add("zx-catalog-hidden");zxShow($("#secciones"),true);}));
+$("[data-back-freefire]").forEach(btn=>btn.addEventListener("click",()=>{zxShow($("#zx-id-gate"),false);zxShow($("#freefire-menu"),true)}));
+$("[data-zx-sub='unlimited']")?.addEventListener("click",()=>zxOpenCatalog("Diamantes ilimitados"));
+$("[data-zx-sub='first']")?.addEventListener("click",()=>{zxShow($("#freefire-menu"),false);zxShow($("#zx-id-gate"),true);$("#zx-id-gate")?.scrollIntoView({behavior:"smooth"})});
+$("#zx-id-form")?.addEventListener("submit",async e=>{
+  e.preventDefault(); const id=$("#zx-player-id").value.trim(), out=$("#zx-id-result");
+  out.innerHTML='<div class="zx-checking">VERIFICANDO JUGADOR...</div>';
+  try{
+    const r=await fetch(`${ZEROX_API}/api/player?uid=${encodeURIComponent(id)}&region=br`);
+    const d=await r.json();
+    if(!r.ok||!d.ok) throw new Error(d.error||"PLAYER_LOOKUP_FAILED");
+    sessionStorage.setItem("zerox-verified-player",id);
+    out.innerHTML='<div class="zx-verified">✓ ID VERIFICADO · Mostrando promociones disponibles.</div>';
+    setTimeout(()=>zxOpenCatalog("Diamantes 1 vez"),450);
+  }catch(err){out.innerHTML=`<div class="error">No pudimos verificar este ID. Código: ${esc(err.message)}</div>`;}
+});
+
+$("[data-cat]").forEach(button => {
     button.classList.toggle(
       "active",
       button.dataset.cat === category
@@ -986,6 +1017,7 @@ if (filter === "Streaming") {
 
 $$("[data-cat]").forEach(button => {
   button.onclick = () => {
+    $("#catalogo")?.classList.remove("zx-catalog-hidden");
     setFilter(button.dataset.cat);
   };
 });
