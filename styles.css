@@ -7549,3 +7549,7 @@ body{background:
 /* Insignia original del fundador */
 .zx-founder-badge{width:46px!important;height:46px!important;padding:0!important;overflow:hidden;border-radius:50%!important;border:2px solid #f7c76d!important;background:#060304!important;box-shadow:0 0 12px #ff9b25a8,0 0 22px #e83326a1!important}
 .zx-founder-badge img{width:100%;height:100%;display:block;object-fit:cover;border-radius:50%}
+
+#creator-link[hidden]{display:none!important}
+.zx-creator-link{display:block;margin:14px 0;padding:14px;border:1px solid #f3d57d;border-radius:12px;background:linear-gradient(100deg,#3c2355,#20101e);color:#fff3c4;text-align:center;font-weight:900;box-shadow:0 0 18px #af6bff55}
+.zx-media-product .zx-catalog-inquiry{display:inline-flex;align-items:center;min-height:40px;padding:8px 12px;border:1px solid #c87eff;border-radius:9px;color:#fff;background:#512776;text-decoration:none;font-weight:800}
