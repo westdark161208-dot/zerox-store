@@ -700,8 +700,15 @@ if (category === "Streaming") {
 
 function setFilter(category, scroll = true) {
   filter = category;
+  render();
+  $$(".category-cards [data-cat], .category-strip [data-cat]").forEach(button => {
+    button.classList.toggle("active", button.dataset.cat === category);
+  });
+  if ($("#catalog-title")) $("#catalog-title").textContent = category;
+  if (scroll) $("#catalogo")?.scrollIntoView({ behavior:"smooth", block:"start" });
+}
 
-  /* ZERO'X · navegación por secciones · delegated/mobile-safe */
+/* ZERO'X · navegación por secciones · delegated/mobile-safe */
 function zxShow(el,show){if(!el)return;el.hidden=!show;el.style.display=show?"":"none"}
 function zxScroll(el){requestAnimationFrame(()=>el?.scrollIntoView({behavior:"smooth",block:"start"}))}
 function zxCloseViews(){["#freefire-menu","#zx-id-gate","#zx-managed","#zx-reseller-panel"].forEach(id=>zxShow($(id),false));$("#catalogo")?.classList.add("zx-catalog-hidden")}
@@ -727,6 +734,7 @@ document.addEventListener("pointerup",event=>{
  const cat=event.target.closest("[data-open-cat]");if(cat){zxOpenCatalog(cat.dataset.openCat);return}
 });
 $("#zx-id-form")?.addEventListener("submit",async e=>{e.preventDefault();const id=$("#zx-player-id").value.trim(),out=$("#zx-id-result");out.innerHTML='<div class="zx-checking">VERIFICANDO JUGADOR...</div>';try{const r=await fetch(`${ZEROX_API}/api/player?uid=${encodeURIComponent(id)}&region=br`);const d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||"PLAYER_LOOKUP_FAILED");sessionStorage.setItem("zerox-verified-player",id);out.innerHTML='<div class="zx-verified">✓ ID VERIFICADO · Mostrando promociones disponibles.</div>';setTimeout(()=>zxOpenCatalog("Diamantes 1 vez"),450)}catch(err){out.innerHTML=`<div class="error">No pudimos verificar este ID. Código: ${esc(err.message)}</div>`}});
+
 $$("[data-cat]").forEach(button => {
   button.onclick = () => {
     $("#catalogo")?.classList.remove("zx-catalog-hidden");
