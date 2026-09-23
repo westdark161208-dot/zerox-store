@@ -698,6 +698,34 @@ if (category === "Streaming") {
   return "";
 }
 
+function render() {
+  const container = document.getElementById("products");
+  if (!container) return;
+  const q = String(searchTerm || "").toLowerCase();
+  const rows = PRODUCTS.filter(product => {
+    if (!product.active) return false;
+    const categoryMatch = filter === "Todos" || product.category === filter;
+    const searchMatch = !q || (product.name + " " + (product.description || "") + " " + product.category).toLowerCase().includes(q);
+    return categoryMatch && searchMatch;
+  });
+  container.innerHTML = rows.length ? rows.map(product => `
+    <article class="product-card">
+      ${artFor(product)}
+      <div class="product-copy">
+        ${product.badge ? `<span class="badge">${esc(product.badge)}</span>` : ""}
+        <h3>${esc(product.name)}</h3>
+        <p>${esc(product.description || "")}</p>
+        <div class="product-bottom">
+          <strong>${money(product.price)}</strong>
+          <button type="button" data-add="${esc(product.id)}" aria-label="Agregar ${esc(product.name)} al carrito">＋</button>
+          <button type="button" data-buy-now="${esc(product.id)}">COMPRAR</button>
+        </div>
+      </div>
+    </article>`).join("") : '<div class="zx-empty"><b>SIN PRODUCTOS</b><span>No hay productos disponibles en esta sección por el momento.</span></div>';
+  container.querySelectorAll("[data-add]").forEach(button => button.onclick = () => addToCart(button.dataset.add));
+  container.querySelectorAll("[data-buy-now]").forEach(button => button.onclick = () => openCheckout(button.dataset.buyNow));
+}
+
 function setFilter(category, scroll = true) {
   filter = category;
   render();
