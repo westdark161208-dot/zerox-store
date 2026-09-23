@@ -32,7 +32,7 @@
     rel="apple-touch-icon"
     href="./apple-touch-icon.png"
   >
-  <link rel="stylesheet" href="./styles.css?v=12">
+  <link rel="stylesheet" href="./styles.css?v=13">
   <style id="zerox-emergency-boot">#zerox-splash{display:none!important}</style>
   <script>
   /* Zero'X emergency cache reset: keep the storefront accessible even if app JS fails */
@@ -1091,18 +1091,34 @@
     </div>
 
     <div id="account-user" hidden>
-      <div class="account-card">
-        <div class="account-avatar" id="account-avatar">ZX</div>
-        <div>
-          <small>ZERO'X ID</small>
-          <strong id="account-name">Jugador</strong>
-          <span id="account-username">@usuario</span>
+      <div class="zx-profile-banner" id="profile-banner">
+        <span class="zx-banner-label">MI ESPACIO · ZERO'X ID</span>
+        <label class="zx-banner-upload">Cambiar banner<input id="profile-banner-file" type="file" accept="image/jpeg,image/png,image/webp" hidden></label>
+      </div>
+      <div class="zx-profile-identity">
+        <div class="account-avatar zx-frame-steel" id="account-avatar">ZX</div>
+        <div><small>MI PERFIL</small><strong id="account-name">Jugador</strong><span id="account-username">@usuario</span></div>
+      </div>
+      <p id="profile-bio-view" class="zx-profile-bio">Personaliza tu presentación ✨</p>
+      <div class="account-stats"><div><b id="account-level">1</b><span>NIVEL</span></div><div><b id="account-xp">0</b><span>XP</span></div></div>
+      <details class="zx-profile-editor"><summary>✦ Personalizar mi perfil</summary>
+        <div class="zx-profile-edit-body">
+          <span class="zx-field-title">Elige un avatar</span>
+          <div class="zx-avatar-choices" id="profile-avatar-choices"></div>
+          <label class="zx-upload-choice">📷 Subir mi foto<input type="file" id="profile-avatar-file" accept="image/jpeg,image/png,image/webp" hidden></label>
+          <label class="zx-field-title" for="profile-bio">Sobre mí</label>
+          <textarea id="profile-bio" maxlength="180" rows="3" placeholder="Cuéntanos algo sobre ti..."></textarea>
+          <span class="zx-field-title">Tus secciones favoritas</span>
+          <div class="zx-favorite-choices" id="profile-favorites"></div>
+          <span class="zx-field-title">Estilo del banner</span>
+          <div class="zx-style-choices" id="profile-banner-choices"></div>
+          <span class="zx-field-title">Marco de avatar</span>
+          <div class="zx-style-choices" id="profile-frame-choices"></div>
+          <button type="button" id="profile-save" class="zx-profile-save">Guardar cambios</button>
+          <div id="profile-result" role="status" aria-live="polite"></div>
         </div>
-      </div>
-      <div class="account-stats">
-        <div><b id="account-level">1</b><span>NIVEL</span></div>
-        <div><b id="account-xp">0</b><span>XP</span></div>
-      </div>
+      </details>
+      <section class="zx-profile-shop"><h3>✨ Vitrina de efectos</h3><p>Marcos de fuego y rayos, y nuevos banners, próximamente.</p><div><span>🔥 Fuego · próximamente</span><span>⚡ Rayos · próximamente</span></div></section>
       <button type="button" id="account-orders">📋 MIS PEDIDOS</button>
       <button type="button" id="logout-account" class="auth-secondary">CERRAR SESIÓN</button>
     </div>
@@ -1167,46 +1183,23 @@
   </div>
 
 
-  <aside
-    class="drawer"
-    id="drawer"
-    aria-hidden="true">
-
-    <button
-      id="close-drawer"
-      class="close">
-      ×
-    </button>
-
-    <div class="brand brand-metal">
-      <strong>ZERO</strong><i>'X</i>
-      <span>STORE</span>
+  <aside class="drawer zx-drawer" id="drawer" aria-hidden="true" aria-label="Menú de Zero'X Store">
+    <div class="zx-drawer-head"><div class="zx-drawer-brand">ZERO<span>'X</span><small>STORE · EXPLORA</small></div><button id="close-drawer" class="zx-drawer-close" type="button" aria-label="Cerrar menú">×</button></div>
+    <button type="button" id="drawer-profile" class="zx-drawer-profile"><span>◈</span><span><b>Mi perfil Zero'X</b><small>Tu espacio personal</small></span><i>→</i></button>
+    <label class="zx-drawer-search">⌕ <input id="drawer-search" type="search" placeholder="Buscar productos..." aria-label="Buscar productos"></label>
+    <div class="zx-drawer-scroll"><span class="zx-drawer-kicker">EXPLORAR</span>
+      <button type="button" data-drawer-zone="home">⌂ <span>Inicio</span></button>
+      <button type="button" data-drawer-zone="freefire">💎 <span>Free Fire</span></button>
+      <div class="zx-drawer-sub"><button type="button" data-drawer-sub="first">Diamantes 1ª vez</button><button type="button" data-drawer-sub="unlimited">Diamantes ilimitados</button><button type="button" data-drawer-cat="Pases Booyah">Pases Booyah</button><button type="button" data-drawer-cat="Cajas y Fragmentos">Cajas y fragmentos</button></div>
+      <button type="button" data-drawer-zone="streaming">▣ <span>Streaming</span></button>
+      <button type="button" data-drawer-zone="accounts">◉ <span>Cuentas</span></button>
+      <button type="button" data-drawer-zone="clans">♛ <span>Venta de clanes</span></button>
+      <button type="button" data-drawer-zone="honor">✦ <span>Honor de clanes</span></button>
+      <button type="button" data-drawer-zone="resellers">◇ <span>Revendedores</span></button>
+      <span class="zx-drawer-kicker">TU CUENTA</span>
+      <button type="button" id="drawer-orders">▤ <span>Mis pedidos</span></button>
+      <a href="https://wa.me/529514754210" target="_blank" rel="noopener">◌ <span>Soporte por WhatsApp</span></a>
     </div>
-
-    <a href="#inicio">
-      🏠 Inicio
-    </a>
-
-    <a href="#catalogo">
-      💎 Diamantes
-    </a>
-
-    <a href="#secciones">
-      👥 Revendedores
-    </a>
-
-    <button id="drawer-orders">
-      📋 Mis pedidos
-    </button>
-
-    <a
-      href="https://wa.me/529514754210"
-      target="_blank">
-
-      💬 WhatsApp
-
-    </a>
-
   </aside>
 
 
@@ -1250,7 +1243,7 @@
     </button>
 
   </div>
-<script src="./app.js?v=14" defer></script>
+<script src="./app.js?v=15" defer></script>
 
 </body>
 </html>
