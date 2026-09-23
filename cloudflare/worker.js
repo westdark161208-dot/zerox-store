@@ -58,11 +58,11 @@ async function passwordOK(password,stored){
 function sessionToken(){return b64(crypto.getRandomValues(new Uint8Array(32))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/g,"")}
 async function authSchema(env){
   if(!env.DB) throw new Error("DB_BINDING_NOT_CONFIGURED");
-  await env.DB.batch([
-    env.DB.prepare("CREATE TABLE IF NOT EXISTS zx_users (id TEXT PRIMARY KEY,email TEXT NOT NULL UNIQUE,username TEXT NOT NULL UNIQUE,password_hash TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'active',created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)"),
-    env.DB.prepare("CREATE TABLE IF NOT EXISTS zx_profiles (user_id TEXT PRIMARY KEY,display_name TEXT,avatar_url TEXT,xp INTEGER NOT NULL DEFAULT 0,level INTEGER NOT NULL DEFAULT 1,FOREIGN KEY(user_id) REFERENCES zx_users(id) ON DELETE CASCADE)"),
-    env.DB.prepare("CREATE TABLE IF NOT EXISTS zx_sessions (id TEXT PRIMARY KEY,user_id TEXT NOT NULL,token_hash TEXT NOT NULL UNIQUE,expires_at TEXT NOT NULL,created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,revoked_at TEXT,FOREIGN KEY(user_id) REFERENCES zx_users(id) ON DELETE CASCADE)")
-  ]);
+  // Execute schema statements individually. This is more reliable across D1
+  // deployments than batching DDL on every auth request.
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS zx_users (id TEXT PRIMARY KEY,email TEXT NOT NULL UNIQUE,username TEXT NOT NULL UNIQUE,password_hash TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'active',created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)").run();
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS zx_profiles (user_id TEXT PRIMARY KEY,display_name TEXT,avatar_url TEXT,xp INTEGER NOT NULL DEFAULT 0,level INTEGER NOT NULL DEFAULT 1,FOREIGN KEY(user_id) REFERENCES zx_users(id) ON DELETE CASCADE)").run();
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS zx_sessions (id TEXT PRIMARY KEY,user_id TEXT NOT NULL,token_hash TEXT NOT NULL UNIQUE,expires_at TEXT NOT NULL,created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,revoked_at TEXT,FOREIGN KEY(user_id) REFERENCES zx_users(id) ON DELETE CASCADE)").run();
 }
 async function newSession(env,userId){
   const raw=sessionToken(), tokenHash=await digest(raw), expiresAt=new Date(Date.now()+30*24*60*60*1000).toISOString();
@@ -100,10 +100,8 @@ export default {
         if(exists) return json({ok:false,error:"ACCOUNT_EXISTS"},409);
         const id=crypto.randomUUID(), hash=await passwordHash(password);
         try{
-          await env.DB.batch([
-            env.DB.prepare("INSERT INTO zx_users(id,email,username,password_hash) VALUES(?,?,?,?)").bind(id,email,username,hash),
-            env.DB.prepare("INSERT INTO zx_profiles(user_id,display_name) VALUES(?,?)").bind(id,displayName||username)
-          ]);
+          await env.DB.prepare("INSERT INTO zx_users(id,email,username,password_hash) VALUES(?,?,?,?)").bind(id,email,username,hash).run();
+          await env.DB.prepare("INSERT INTO zx_profiles(user_id,display_name) VALUES(?,?)").bind(id,displayName||username).run();
         }catch(e){
           if(String(e.message||"").toLowerCase().includes("unique")) return json({ok:false,error:"ACCOUNT_EXISTS"},409);
           throw e;
