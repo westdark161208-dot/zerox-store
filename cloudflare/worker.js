@@ -1,5 +1,5 @@
 // Immutable account ID, assigned only after the account owner verifies it.
-const FOUNDER_USER_ID = "";
+const FOUNDER_USER_ID = "d8573fe7-331f-4248-a0ad-d99288c9a472";
 
 const PRODUCT_MAP = {
   "ff-110": {
