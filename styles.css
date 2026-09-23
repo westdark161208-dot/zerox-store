@@ -7518,3 +7518,13 @@ body{background:
 #account-avatar.zx-frame-aurora{border-color:#5effbe;box-shadow:0 0 0 3px #0d0b12,0 0 24px #3fe6ab,0 0 37px #884af4}
 #account-avatar.zx-frame-prism{border-color:#f397ec;box-shadow:0 0 0 3px #0d0b12,0 0 25px #ff7abb,0 0 43px #8a6cff}
 #account-avatar.zx-frame-sovereign{border-color:#ffdf83;box-shadow:0 0 0 3px #0d0b12,0 0 25px #ffc24a,0 0 48px #ff6e39}
+
+/* Cambio de usuario en el panel personal */
+.zx-username-editor{display:grid;gap:7px;padding:13px;border:1px solid #655075;border-radius:12px;background:#110c18}
+.zx-username-row{display:flex;align-items:center;gap:6px}
+.zx-username-row>span{font-size:20px;font-weight:900;color:#c997fc}
+.zx-username-row input{width:100%;min-width:0;min-height:42px;border:1px solid #59486c;border-radius:9px;background:#0a0810;color:#fff;padding:9px;font:inherit}
+.zx-username-row input:focus{outline:2px solid #aa67ed;outline-offset:1px}
+.zx-username-row button{min-height:42px;border:1px solid #bc83ed;border-radius:9px;background:#7f32ba;color:#fff;font-weight:900;padding:0 11px}
+.zx-username-row button:disabled{opacity:.6}
+#profile-username-status,#register-username-status{display:block;color:#cbb9db;font-size:12px;line-height:1.35}
