@@ -1345,7 +1345,20 @@
   </div>
 
 
-  <script src="./app.js"></script>
+  <script>
+/* Zero'X emergency splash release: HTML-level fail-safe */
+(function(){
+  function release(){
+    var s=document.getElementById('zerox-splash');
+    if(!s)return;
+    s.classList.add('zerox-splash-out');
+    setTimeout(function(){s.style.display='none';s.hidden=true;},450);
+  }
+  window.addEventListener('load',function(){setTimeout(release,700);},{once:true});
+  setTimeout(release,4500);
+})();
+</script>
+<script src="./app.js?v=7"></script>
 
 </body>
 </html>
