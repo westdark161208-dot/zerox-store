@@ -746,12 +746,23 @@ const ZX_MANAGED={
  clans:{title:"VENTA DE CLANES",note:"Catálogo multimedia de clanes disponibles.",category:"Venta Clanes"},
  honor:{title:"HONOR DE CLANES",note:"Servicios de honor de clanes disponibles.",category:"Honor de Clanes"}
 };
-function zxOpenManaged(type){
+async function zxOpenManaged(type){
  const cfg=ZX_MANAGED[type];if(!cfg)return;zxCloseViews();zxShow($("#secciones"),false);zxShow($("#zx-managed"),true);
  $("#zx-managed-title").textContent=cfg.title;$("#zx-managed-note").textContent=cfg.note;
  const rows=PRODUCTS.filter(p=>p.active&&p.category===cfg.category);
  $("#zx-managed-grid").innerHTML=rows.length?rows.map(p=>`<article class="zx-media-product"><div class="zx-media-art">${artFor(p)||'<div class="zx-media-placeholder">ZERO’X</div>'}</div><div><small>${esc(p.category)}</small><h3>${esc(p.name)}</h3><p>${esc(p.description||"Producto disponible en Zero’X Store.")}</p><strong>${money(p.price)}</strong><button type="button" data-buy="${esc(p.id)}">VER PRODUCTO</button></div></article>`).join(""):'<div class="zx-empty"><b>PRÓXIMAMENTE</b><span>Esta sección ya está preparada para recibir productos con fotos, videos, descripción y precio.</span></div>';
  $("#zx-managed-grid").querySelectorAll("[data-buy]").forEach(b=>b.onclick=()=>openCheckout(b.dataset.buy));zxScroll($("#zx-managed"));
+ try {
+   const response=await fetch(`${ZEROX_API}/api/catalog/products?section=${encodeURIComponent(type)}`);
+   if(!response.ok) return; // Storage is not provisioned yet; keep the existing catalog.
+   const data=await response.json();
+   if(!data.ok || !Array.isArray(data.products) || !data.products.length || $("#zx-managed")?.hidden) return;
+   const cards=data.products.map(p=>`<article class="zx-media-product">
+     <div class="zx-media-art">${p.videoUrl?`<video controls playsinline preload="metadata" ${p.imageUrl?`poster="${esc(p.imageUrl)}"`:""} src="${esc(p.videoUrl)}"></video>`:p.imageUrl?`<img loading="lazy" src="${esc(p.imageUrl)}" alt="${esc(p.name)}">`:'<div class="zx-media-placeholder">ZERO’X</div>'}</div>
+     <div><small>${esc(cfg.title)}</small><h3>${esc(p.name)}</h3><p>${esc(p.description)}</p><strong>${money(p.price)}</strong></div>
+   </article>`).join("");
+   $("#zx-managed-grid").innerHTML=(rows.length?$("#zx-managed-grid").innerHTML:"")+cards;
+ } catch { /* The original storefront remains usable if the API is unavailable. */ }
 }
 function zxRenderResellerPreview(){
   const target=$("#zx-reseller-catalog");
