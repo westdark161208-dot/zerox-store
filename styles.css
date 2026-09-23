@@ -7528,3 +7528,20 @@ body{background:
 .zx-username-row button{min-height:42px;border:1px solid #bc83ed;border-radius:9px;background:#7f32ba;color:#fff;font-weight:900;padding:0 11px}
 .zx-username-row button:disabled{opacity:.6}
 #profile-username-status,#register-username-status{display:block;color:#cbb9db;font-size:12px;line-height:1.35}
+
+/* Insignia exclusiva del fundador, activada por ID interno en el servidor. */
+.zx-name-line{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+#founder-badge[hidden],#founder-badge-info[hidden]{display:none!important}
+.zx-founder-name{
+  color:#e9c6ff!important;
+  background:linear-gradient(105deg,#ff9de2,#bd89ff,#85eaff,#87ffc5,#ffe1a1,#ff9de2);
+  background-size:230% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 7px #b44bffb0);animation:zx-founder-glow 9s linear infinite
+}
+@keyframes zx-founder-glow{to{background-position:230% 0}}
+.zx-founder-badge{width:37px;height:37px;flex:none;border:1px solid #f9da7b;border-radius:50%;background:radial-gradient(circle at 30% 20%,#ffeda3,#ad631c 65%,#5c2d0d);color:#fff9cf;font-size:24px;box-shadow:0 0 14px #eeb3478a;cursor:pointer}
+.zx-founder-info{width:max-content;max-width:100%;margin:4px 0 0;padding:6px 9px;border:1px solid #dcac62;border-radius:9px;background:#2b1b0c;color:#ffe4aa;font-size:11px}
+.zx-account-id{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:12px 0;padding:9px 11px;border:1px solid #574264;border-radius:10px;background:#150e1e;color:#cdb5e0;font-size:11px}
+.zx-account-id button{margin-left:auto;border:1px solid #9b6cc4;border-radius:8px;padding:6px 10px;background:#25142e;color:#fff;font-size:11px}
+.zx-account-id small{width:100%;color:#d7c3e5;overflow-wrap:anywhere}
+@media(prefers-reduced-motion:reduce){.zx-founder-name{animation:none}}
