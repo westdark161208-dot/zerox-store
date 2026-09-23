@@ -458,6 +458,9 @@ function renderZeroXAccount() {
   if (!zeroxUser) return;
   const name = zeroxUser.display_name || zeroxUser.displayName || zeroxUser.username || "Jugador";
   $("#account-name").textContent = name;
+  $("#account-name").classList.toggle("zx-founder-name",zeroxUser.isFounder===true);
+  $("#founder-badge").hidden = zeroxUser.isFounder!==true;
+  $("#founder-badge-info").hidden = true;
   $("#account-username").textContent = "@" + (zeroxUser.username || "zerox");
   $("#account-level").textContent = zeroxUser.level ?? 1;
   $("#account-xp").textContent = zeroxUser.xp ?? 0;
@@ -494,6 +497,16 @@ function showAuthMode(mode) {
 
 $("#open-account")?.addEventListener("click", () => $("#account-modal")?.showModal());
 $("#close-account")?.addEventListener("click", () => $("#account-modal")?.close());
+$("#founder-badge")?.addEventListener("click",()=>{
+  const info=$("#founder-badge-info"),open=info.hidden;
+  info.hidden=!open;$("#founder-badge").setAttribute("aria-expanded",String(open));
+});
+$("#copy-account-id")?.addEventListener("click",async()=>{
+  const out=$("#account-id-result");
+  if(!zeroxUser?.id)return;
+  try{await navigator.clipboard.writeText(zeroxUser.id);out.textContent="ID copiado ✓";}
+  catch{out.textContent="Tu ID: "+zeroxUser.id;}
+});
 $("#auth-login-tab")?.addEventListener("click", () => showAuthMode("login"));
 $("#auth-register-tab")?.addEventListener("click", () => showAuthMode("register"));
 
