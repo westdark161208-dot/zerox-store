@@ -1975,37 +1975,35 @@ document.querySelectorAll('.feature-row > button').forEach(card => {
 });
 
 /* =========================================================
-   ZERO'X STORE · SPLASH SCREEN / LOADING
+   ZERO'X STORE · SPLASH SCREEN / LOADING · FAIL-SAFE
    ========================================================= */
-
 (() => {
   const splash = document.getElementById("zerox-splash");
   const bar = document.getElementById("zerox-loading-bar");
   const percent = document.getElementById("zerox-loading-percent");
-
-  if (!splash || !bar || !percent) return;
+  if (!splash) return;
 
   let progress = 0;
+  let finished = false;
+
+  const closeSplash = () => {
+    if (finished) return;
+    finished = true;
+    splash.classList.add("zerox-splash-out");
+    setTimeout(() => { splash.style.display = "none"; }, 450);
+  };
 
   const loading = setInterval(() => {
-    const step = Math.floor(Math.random() * 4) + 1;
-    progress = Math.min(progress + step, 100);
-
-    bar.style.width = `${progress}%`;
-    percent.textContent = `${progress}%`;
-
+    progress = Math.min(progress + 5, 100);
+    if (bar) bar.style.width = progress + "%";
+    if (percent) percent.textContent = progress + "%";
     if (progress >= 100) {
       clearInterval(loading);
-
-      percent.textContent = "100%";
-
-      setTimeout(() => {
-        splash.classList.add("zerox-splash-out");
-
-        setTimeout(() => {
-          splash.style.display = "none";
-        }, 700);
-      }, 450);
+      setTimeout(closeSplash, 180);
     }
-  }, 55);
+  }, 45);
+
+  // Never let a cosmetic loader block access to the store.
+  window.addEventListener("load", () => setTimeout(closeSplash, 350), { once:true });
+  setTimeout(closeSplash, 3500);
 })();
