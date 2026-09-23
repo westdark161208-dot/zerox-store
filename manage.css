@@ -1,0 +1,16 @@
+:root{font-family:system-ui,sans-serif;color-scheme:dark;background:#07080d;color:#f5f2fc}
+*{box-sizing:border-box}body{margin:0}header{display:flex;align-items:center;gap:20px;padding:20px clamp(16px,4vw,42px);border-bottom:1px solid #423052;background:#11121a;flex-wrap:wrap}
+h1{font-size:clamp(20px,4vw,29px);margin:0;flex:1}h2{margin:0 0 20px}a{color:#bda7ff}main{max-width:1180px;margin:auto;padding:24px 16px 60px}
+#message{min-height:2em;color:#c9baf0}#workspace{display:grid;grid-template-columns:minmax(280px,420px) 1fr;gap:26px;align-items:start}
+form,#product-list article{padding:22px;border:1px solid #604a79;border-radius:18px;background:#12131c;box-shadow:0 12px 35px #0007}
+#login-form{max-width:440px}label{display:block;margin:15px 0;font-weight:650}input:not([type=checkbox]),select,textarea{display:block;width:100%;margin-top:6px;border:1px solid #625674;border-radius:10px;padding:12px;background:#0a0b10;color:#fff;font:inherit}
+input[type=file]{max-width:100%}button{padding:11px 15px;margin:8px 7px 0 0;border:1px solid #9b71d8;border-radius:10px;background:#53317a;color:white;font-weight:750;cursor:pointer}
+button:disabled{opacity:.55;cursor:wait}.check{display:flex;align-items:center;gap:8px}form p{font-size:13px;color:#aaa5b4}
+#product-list{display:grid;gap:14px}#product-list article{display:grid;grid-template-columns:110px 1fr;gap:16px}
+#product-list img,#product-list video{width:110px;height:95px;object-fit:cover;border-radius:9px;background:#24202b}
+#product-list h3{margin:0 0 6px;overflow-wrap:anywhere}#product-list p{margin:3px 0;color:#aaa5b4}#product-list small{color:#c79eff}
+@media(max-width:760px){#workspace{grid-template-columns:1fr}#product-list article{grid-template-columns:80px 1fr}#product-list img,#product-list video{width:80px;height:80px}}
+
+[hidden]{display:none!important}
+
+[hidden]{display:none!important}.media-status{grid-column:1/-1;padding:12px;border:1px solid #745895;border-radius:11px;background:#1a1424;color:#dfcaff}.zx-creator-link{display:block}
