@@ -33,6 +33,12 @@
     href="./apple-touch-icon.png"
   >
   <link rel="stylesheet" href="./styles.css">
+  <style id="zerox-emergency-boot">#zerox-splash{display:none!important}</style>
+  <script>
+  /* Zero'X emergency cache reset: keep the storefront accessible even if app JS fails */
+  if ('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister();});}).catch(function(){});
+  if ('caches' in window) caches.keys().then(function(keys){keys.forEach(function(k){caches.delete(k);});}).catch(function(){});
+  </script>
 </head>
 
 <body>
@@ -1358,7 +1364,7 @@
   setTimeout(release,4500);
 })();
 </script>
-<script src="./app.js?v=7"></script>
+<script src="./app.js?v=8"></script>
 
 </body>
 </html>
