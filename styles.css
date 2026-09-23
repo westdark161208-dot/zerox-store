@@ -7168,3 +7168,26 @@ body{background:
 #zx-id-form{display:flex;gap:10px;margin-top:22px}#zx-id-form input{flex:1;min-width:0;border:1px solid #3b3150;border-radius:13px;background:#050509;color:#fff;padding:15px}#zx-id-form button{border:1px solid #a94dff;border-radius:13px;background:linear-gradient(135deg,#5520a0,#9d35e8);color:#fff;font-weight:900;padding:0 20px;box-shadow:0 0 22px rgba(151,53,255,.28)}
 .zx-checking,.zx-verified{margin-top:16px;padding:12px;border-radius:12px}.zx-checking{color:#c59cff}.zx-verified{color:#b5ffce;border:1px solid rgba(80,255,143,.25);background:rgba(30,130,70,.12)}
 @media(max-width:760px){.zx-hub-grid{grid-template-columns:1fr}.zx-hub-card{min-height:270px}.zx-hub-card img{height:185px}.zx-sub-grid{grid-template-columns:repeat(2,1fr)}#zx-id-form{flex-direction:column}#zx-id-form button{padding:14px}.zx-section-hub{padding-top:22px}}
+
+/* ZERO'X · UX PATCH: hero first + compact promo + reliable section navigation */
+.zx-section-hub[hidden],.zx-freefire-menu[hidden],.zx-id-gate[hidden]{display:none!important}
+.zx-hub-card,.zx-sub-grid button{touch-action:manipulation;cursor:pointer;position:relative;z-index:1}
+.zerox-ad-zone{padding-top:12px;padding-bottom:26px}
+.zerox-ad-carousel{max-width:980px;margin-inline:auto;border-radius:19px}
+.ad-stage{min-height:0!important;aspect-ratio:2/1;border-radius:18px}
+.ad-copy{left:clamp(48px,6vw,70px);bottom:clamp(24px,4vw,42px)}
+.ad-copy h2{font-size:clamp(24px,4vw,43px)}
+@media(max-width:680px){
+ .hero{min-height:430px;background-position:center top}
+ .hero-content{min-height:430px}
+ .zerox-ad-zone{padding-inline:16px;padding-top:8px}
+ .zerox-ad-carousel{border-radius:16px}
+ .ad-stage{aspect-ratio:2/1!important;min-height:0!important;border-radius:15px}
+ .ad-copy{left:38px;right:38px;bottom:22px}
+ .ad-copy small{font-size:9px}
+ .ad-copy h2{font-size:21px;margin:5px 0}
+ .ad-copy p{font-size:11px;line-height:1.2;margin:4px 0;max-width:78%}
+ #ad-action{padding:8px 12px;font-size:10px;margin-top:6px}
+ .ad-arrow{width:30px;height:30px;font-size:23px}
+ .ad-dots{bottom:7px}
+}
