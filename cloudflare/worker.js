@@ -1,3 +1,6 @@
+// Immutable account ID, assigned only after the account owner verifies it.
+const FOUNDER_USER_ID = "";
+
 const PRODUCT_MAP = {
   "ff-110": {
     sixofireProductId: "9149",
@@ -75,7 +78,8 @@ async function currentUser(request,env){
   const m=(request.headers.get("Authorization")||"").match(/^Bearer\s+(.+)$/i);
   if(!m)return null;
   const tokenHash=await digest(m[1].trim());
-  return env.DB.prepare("SELECT u.id,u.email,u.username,u.status,u.created_at,p.display_name,p.avatar_url,p.xp,p.level FROM zx_sessions s JOIN zx_users u ON u.id=s.user_id LEFT JOIN zx_profiles p ON p.user_id=u.id WHERE s.token_hash=? AND s.revoked_at IS NULL AND s.expires_at>? LIMIT 1").bind(tokenHash,new Date().toISOString()).first();
+  const user=await env.DB.prepare("SELECT u.id,u.email,u.username,u.status,u.created_at,p.display_name,p.avatar_url,p.xp,p.level FROM zx_sessions s JOIN zx_users u ON u.id=s.user_id LEFT JOIN zx_profiles p ON p.user_id=u.id WHERE s.token_hash=? AND s.revoked_at IS NULL AND s.expires_at>? LIMIT 1").bind(tokenHash,new Date().toISOString()).first();
+  return user ? {...user,isFounder:!!FOUNDER_USER_ID && user.id===FOUNDER_USER_ID} : null;
 }
 
 export default {
