@@ -1966,23 +1966,9 @@ window.addEventListener(
   }
 );
 
-/* Service Worker */
+/* Service Worker temporarily disabled during storefront stabilization */
 if ("serviceWorker" in navigator) {
-  window.addEventListener(
-    "load",
-    () => {
-      navigator.serviceWorker
-        .register(
-          "./service-worker.js"
-        )
-        .catch(error => {
-          console.log(
-            "Service Worker:",
-            error
-          );
-        });
-    }
-  );
+  navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(reg => reg.unregister())).catch(() => {});
 }
 
 /* =========================================================
