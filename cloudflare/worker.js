@@ -61,6 +61,7 @@ async function authSchema(env){
   // Execute schema statements individually. This is more reliable across D1
   // deployments than batching DDL on every auth request.
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS zx_users (id TEXT PRIMARY KEY,email TEXT NOT NULL UNIQUE,username TEXT NOT NULL UNIQUE,password_hash TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'active',created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)").run();
+  await env.DB.prepare("CREATE UNIQUE INDEX IF NOT EXISTS zx_users_username_nocase ON zx_users(username COLLATE NOCASE)").run();
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS zx_profiles (user_id TEXT PRIMARY KEY,display_name TEXT,avatar_url TEXT,xp INTEGER NOT NULL DEFAULT 0,level INTEGER NOT NULL DEFAULT 1,FOREIGN KEY(user_id) REFERENCES zx_users(id) ON DELETE CASCADE)").run();
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS zx_profile_style (user_id TEXT PRIMARY KEY,bio TEXT NOT NULL DEFAULT '',favorites TEXT NOT NULL DEFAULT '[]',avatar TEXT NOT NULL DEFAULT '',banner TEXT NOT NULL DEFAULT 'violet',banner_image TEXT NOT NULL DEFAULT '',frame TEXT NOT NULL DEFAULT 'steel',FOREIGN KEY(user_id) REFERENCES zx_users(id) ON DELETE CASCADE)").run();
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS zx_sessions (id TEXT PRIMARY KEY,user_id TEXT NOT NULL,token_hash TEXT NOT NULL UNIQUE,expires_at TEXT NOT NULL,created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,revoked_at TEXT,FOREIGN KEY(user_id) REFERENCES zx_users(id) ON DELETE CASCADE)").run();
@@ -91,6 +92,13 @@ export default {
 
       if(url.pathname.startsWith("/api/auth/")) await authSchema(env);
 
+      if(url.pathname==="/api/auth/username-available" && request.method==="GET"){
+        const username=String(url.searchParams.get("username")||"").trim().replace(/^@+/,"");
+        if(!/^[A-Za-z0-9_.-]{3,24}$/.test(username))return json({ok:false,error:"INVALID_USERNAME"},400);
+        const existing=await env.DB.prepare("SELECT 1 FROM zx_users WHERE username=? COLLATE NOCASE LIMIT 1").bind(username).first();
+        return json({ok:true,available:!existing});
+      }
+
       if(url.pathname==="/api/auth/register" && request.method==="POST"){
         const body=await request.json();
         const email=String(body.email||"").trim().toLowerCase(), username=String(body.username||"").trim().replace(/^@+/,""), password=String(body.password||""), displayName=String(body.displayName||username).trim();
@@ -108,6 +116,19 @@ export default {
           throw e;
         }
         return json({ok:true,user:{id,email,username,displayName:displayName||username},session:await newSession(env,id)},201);
+      }
+
+      if(url.pathname==="/api/auth/username" && request.method==="POST"){
+        const user=await currentUser(request,env);
+        if(!user || user.status!=="active")return json({ok:false,error:"UNAUTHORIZED"},401);
+        const username=String((await request.json()).username||"").trim().replace(/^@+/,"");
+        if(!/^[A-Za-z0-9_.-]{3,24}$/.test(username))return json({ok:false,error:"INVALID_USERNAME"},400);
+        if(username.toLowerCase()===user.username.toLowerCase())return json({ok:true,username:user.username});
+        const exists=await env.DB.prepare("SELECT id FROM zx_users WHERE username=? COLLATE NOCASE AND id<>? LIMIT 1").bind(username,user.id).first();
+        if(exists)return json({ok:false,error:"USERNAME_TAKEN"},409);
+        try{await env.DB.prepare("UPDATE zx_users SET username=? WHERE id=?").bind(username,user.id).run();}
+        catch(error){if(String(error.message||"").toLowerCase().includes("unique"))return json({ok:false,error:"USERNAME_TAKEN"},409);throw error;}
+        return json({ok:true,username});
       }
 
       if(url.pathname==="/api/auth/profile" && request.method==="POST"){
