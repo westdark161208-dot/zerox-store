@@ -1,5 +1,12 @@
 {
   "name": "zerox-sixofire-api",
   "main": "worker.js",
-  "compatibility_date": "2026-09-10"
+  "compatibility_date": "2026-09-10",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "zerox-store-db",
+      "database_id": "56da67bb-a83e-4b29-8193-eb3baf0cb404"
+    }
+  ]
 }
