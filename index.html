@@ -54,21 +54,7 @@
   </div>
 </div>
 <!-- /ZERO'X STORE · SPLASH SCREEN -->
-
-  <!-- =====================================================
-       FRANJA SUPERIOR
-       ===================================================== -->
-
-  <div class="announcement">
-    ⚡ RECARGAS RÁPIDAS
-    <span>•</span>
-    PRECIOS EN MXN
-    <span>•</span>
-    SOPORTE DIRECTO
-  </div>
-
-
-  <!-- =====================================================
+<!-- =====================================================
        HEADER
        ===================================================== -->
 
@@ -195,6 +181,25 @@
        ===================================================== -->
 
   <main id="inicio">
+
+    <!-- ZERO'X · CARRUSEL EDITABLE: cambia imagen/texto/enlace en app.js (ZEROX_ADS) -->
+    <section class="zerox-ad-zone shell" aria-label="Anuncios Zero'X">
+      <div class="zerox-ad-carousel" id="zerox-ad-carousel">
+        <button class="ad-arrow ad-prev" id="ad-prev" aria-label="Anuncio anterior">‹</button>
+        <div class="ad-stage">
+          <img id="ad-image" src="./assets/categories/diamantes-primera-vez.png.png" alt="">
+          <div class="ad-shade"></div>
+          <div class="ad-copy">
+            <small id="ad-kicker">ZERO'X STORE</small>
+            <h2 id="ad-title">DIAMANTES FREE FIRE</h2>
+            <p id="ad-text">Recargas y promociones en un solo lugar.</p>
+            <button id="ad-action" type="button">VER AHORA →</button>
+          </div>
+        </div>
+        <button class="ad-arrow ad-next" id="ad-next" aria-label="Siguiente anuncio">›</button>
+        <div class="ad-dots" id="ad-dots" aria-label="Seleccionar anuncio"></div>
+      </div>
+    </section>
 
     <section class="hero">
 
@@ -425,6 +430,14 @@
     <span>Revendedores</span>
     <small>Gana más</small>
   </a>
+
+   <button data-cat="Cuentas">
+  <div class="cat-art accounts-art">
+    <img src="./assets/categories/cuentas.png.png" alt="Cuentas">
+  </div>
+  <span>Cuentas</span>
+  <small>Free Fire</small>
+</button>
 
    <button data-cat="Streaming">
 
