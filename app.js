@@ -701,50 +701,32 @@ if (category === "Streaming") {
 function setFilter(category, scroll = true) {
   filter = category;
 
-  /* ZERO'X · navegación por secciones */
-function zxShow(el, show){ if(!el) return; el.hidden=!show; el.style.display=show?"":"none"; }
-function zxScroll(el){ requestAnimationFrame(()=>el?.scrollIntoView({behavior:"smooth",block:"start"})); }
-function zxOpenCatalog(category){
-  const catalog=$("#catalogo");
-  zxShow($("#secciones"),false); zxShow($("#freefire-menu"),false); zxShow($("#zx-id-gate"),false);
-  catalog?.classList.remove("zx-catalog-hidden");
-  setFilter(category,false); zxScroll(catalog);
+  /* ZERO'X · navegación por secciones · delegated/mobile-safe */
+function zxShow(el,show){if(!el)return;el.hidden=!show;el.style.display=show?"":"none"}
+function zxScroll(el){requestAnimationFrame(()=>el?.scrollIntoView({behavior:"smooth",block:"start"}))}
+function zxCloseViews(){["#freefire-menu","#zx-id-gate","#zx-managed","#zx-reseller-panel"].forEach(id=>zxShow($(id),false));$("#catalogo")?.classList.add("zx-catalog-hidden")}
+function zxOpenCatalog(category){zxCloseViews();zxShow($("#secciones"),false);$("#catalogo")?.classList.remove("zx-catalog-hidden");setFilter(category,false);zxScroll($("#catalogo"))}
+const ZX_MANAGED={
+ accounts:{title:"CUENTAS",note:"Catálogo preparado para productos con imágenes, video, descripción y precio editables.",category:"Cuentas"},
+ clans:{title:"VENTA DE CLANES",note:"Catálogo multimedia de clanes disponibles.",category:"Venta Clanes"},
+ honor:{title:"HONOR DE CLANES",note:"Servicios de honor de clanes disponibles.",category:"Honor de Clanes"}
+};
+function zxOpenManaged(type){
+ const cfg=ZX_MANAGED[type];if(!cfg)return;zxCloseViews();zxShow($("#secciones"),false);zxShow($("#zx-managed"),true);
+ $("#zx-managed-title").textContent=cfg.title;$("#zx-managed-note").textContent=cfg.note;
+ const rows=PRODUCTS.filter(p=>p.active&&p.category===cfg.category);
+ $("#zx-managed-grid").innerHTML=rows.length?rows.map(p=>`<article class="zx-media-product"><div class="zx-media-art">${artFor(p)||'<div class="zx-media-placeholder">ZERO’X</div>'}</div><div><small>${esc(p.category)}</small><h3>${esc(p.name)}</h3><p>${esc(p.description||"Producto disponible en Zero’X Store.")}</p><strong>${money(p.price)}</strong><button type="button" data-buy="${esc(p.id)}">VER PRODUCTO</button></div></article>`).join(""):'<div class="zx-empty"><b>PRÓXIMAMENTE</b><span>Esta sección ya está preparada para recibir productos con fotos, videos, descripción y precio.</span></div>';
+ $("#zx-managed-grid").querySelectorAll("[data-buy]").forEach(b=>b.onclick=()=>openCheckout(b.dataset.buy));zxScroll($("#zx-managed"));
 }
-document.addEventListener("click",event=>{
-  const zone=event.target.closest("[data-zone]");
-  if(zone){
-    event.preventDefault();
-    $("#catalogo")?.classList.add("zx-catalog-hidden");
-    zxShow($("#secciones"),false);
-    if(zone.dataset.zone==="freefire"){zxShow($("#freefire-menu"),true);zxScroll($("#freefire-menu"));}
-    else if(zone.dataset.zone==="streaming") zxOpenCatalog("Streaming");
-    else if(zone.dataset.zone==="accounts") zxOpenCatalog("Cuentas");
-    return;
-  }
-  if(event.target.closest("[data-back-zones]")){
-    zxShow($("#freefire-menu"),false);zxShow($("#zx-id-gate"),false);$("#catalogo")?.classList.add("zx-catalog-hidden");zxShow($("#secciones"),true);zxScroll($("#secciones"));return;
-  }
-  if(event.target.closest("[data-back-freefire]")){
-    zxShow($("#zx-id-gate"),false);zxShow($("#freefire-menu"),true);zxScroll($("#freefire-menu"));return;
-  }
-  if(event.target.closest("[data-zx-sub='unlimited']")){zxOpenCatalog("Diamantes ilimitados");return;}
-  if(event.target.closest("[data-zx-sub='first']")){
-    zxShow($("#freefire-menu"),false);zxShow($("#zx-id-gate"),true);zxScroll($("#zx-id-gate"));return;
-  }
+document.addEventListener("pointerup",event=>{
+ const zone=event.target.closest("[data-zone]");if(zone){event.preventDefault();const z=zone.dataset.zone;if(z==="freefire"){zxCloseViews();zxShow($("#secciones"),false);zxShow($("#freefire-menu"),true);zxScroll($("#freefire-menu"))}else if(z==="streaming")zxOpenCatalog("Streaming");else if(z==="resellers"){zxCloseViews();zxShow($("#secciones"),false);zxShow($("#zx-reseller-panel"),true);zxScroll($("#zx-reseller-panel"))}else zxOpenManaged(z);return}
+ if(event.target.closest("[data-back-zones]")){zxCloseViews();zxShow($("#secciones"),true);zxScroll($("#secciones"));return}
+ if(event.target.closest("[data-back-freefire]")){zxCloseViews();zxShow($("#secciones"),false);zxShow($("#freefire-menu"),true);zxScroll($("#freefire-menu"));return}
+ if(event.target.closest("[data-zx-sub='first']")){zxCloseViews();zxShow($("#secciones"),false);zxShow($("#zx-id-gate"),true);zxScroll($("#zx-id-gate"));return}
+ if(event.target.closest("[data-zx-sub='unlimited']")){zxOpenCatalog("Diamantes ilimitados");return}
+ const cat=event.target.closest("[data-open-cat]");if(cat){zxOpenCatalog(cat.dataset.openCat);return}
 });
-$("#zx-id-form")?.addEventListener("submit",async e=>{
-  e.preventDefault(); const id=$("#zx-player-id").value.trim(), out=$("#zx-id-result");
-  out.innerHTML='<div class="zx-checking">VERIFICANDO JUGADOR...</div>';
-  try{
-    const r=await fetch(`${ZEROX_API}/api/player?uid=${encodeURIComponent(id)}&region=br`);
-    const d=await r.json();
-    if(!r.ok||!d.ok) throw new Error(d.error||"PLAYER_LOOKUP_FAILED");
-    sessionStorage.setItem("zerox-verified-player",id);
-    out.innerHTML='<div class="zx-verified">✓ ID VERIFICADO · Mostrando promociones disponibles.</div>';
-    setTimeout(()=>zxOpenCatalog("Diamantes 1 vez"),450);
-  }catch(err){out.innerHTML=`<div class="error">No pudimos verificar este ID. Código: ${esc(err.message)}</div>`;}
-});
-
+$("#zx-id-form")?.addEventListener("submit",async e=>{e.preventDefault();const id=$("#zx-player-id").value.trim(),out=$("#zx-id-result");out.innerHTML='<div class="zx-checking">VERIFICANDO JUGADOR...</div>';try{const r=await fetch(`${ZEROX_API}/api/player?uid=${encodeURIComponent(id)}&region=br`);const d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||"PLAYER_LOOKUP_FAILED");sessionStorage.setItem("zerox-verified-player",id);out.innerHTML='<div class="zx-verified">✓ ID VERIFICADO · Mostrando promociones disponibles.</div>';setTimeout(()=>zxOpenCatalog("Diamantes 1 vez"),450)}catch(err){out.innerHTML=`<div class="error">No pudimos verificar este ID. Código: ${esc(err.message)}</div>`}});
 $$("[data-cat]").forEach(button => {
   button.onclick = () => {
     $("#catalogo")?.classList.remove("zx-catalog-hidden");
