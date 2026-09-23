@@ -438,6 +438,7 @@ function authMessage(error) {
   return ({
     INVALID_CREDENTIALS: "Correo, usuario o contraseña incorrectos.",
     ACCOUNT_EXISTS: "Ese correo o nombre de usuario ya está registrado.",
+    USERNAME_TAKEN: "Ese nombre de usuario ya está ocupado. Elige otro.",
     INVALID_EMAIL: "Escribe un correo válido.",
     INVALID_USERNAME: "El usuario debe tener entre 3 y 24 caracteres y usar letras, números, punto, guion o guion bajo.",
     INVALID_PASSWORD: "La contraseña debe tener entre 8 y 128 caracteres.",
@@ -508,6 +509,40 @@ document.querySelectorAll(".password-toggle").forEach(button => {
   });
 });
 
+async function zxCheckUsername(input,output,own=false){
+  const username=input.value.trim().replace(/^@+/,"");
+  if(!/^[A-Za-z0-9_.-]{3,24}$/.test(username)){
+    output.textContent="Usa de 3 a 24 caracteres: letras, números, punto, guion o guion bajo.";
+    return false;
+  }
+  if(own && username.toLowerCase()===(zeroxUser?.username||"").toLowerCase()){
+    output.textContent="Este es tu nombre de usuario actual.";return true;
+  }
+  try{
+    const result=await zeroxAuthRequest("/api/auth/username-available?username="+encodeURIComponent(username));
+    if(input.value.trim().replace(/^@+/,"")!==username)return false;
+    output.textContent=result.available?"✓ Disponible":"Ese nombre de usuario ya está ocupado.";
+    return result.available;
+  }catch{output.textContent="No se pudo comprobar ahora. Lo verificaremos al guardar.";return false;}
+}
+let zxRegisterUsernameTimer;
+$("#register-form input[name=username]")?.addEventListener("input",e=>{
+  const input=e.currentTarget,out=$("#register-username-status");
+  clearTimeout(zxRegisterUsernameTimer);out.textContent="Comprobando nombre de usuario...";
+  zxRegisterUsernameTimer=setTimeout(()=>zxCheckUsername(input,out),350);
+});
+$("#profile-username")?.addEventListener("blur",e=>zxCheckUsername(e.currentTarget,$("#profile-username-status"),true));
+$("#profile-username-save")?.addEventListener("click",async()=>{
+  const input=$("#profile-username"),out=$("#profile-username-status"),button=$("#profile-username-save");
+  const username=input.value.trim().replace(/^@+/,"");
+  if(!/^[A-Za-z0-9_.-]{3,24}$/.test(username)){out.textContent="El nombre debe tener entre 3 y 24 caracteres válidos.";return;}
+  button.disabled=true;out.textContent="Guardando...";
+  try{
+    const data=await zeroxAuthRequest("/api/auth/username",{method:"POST",body:JSON.stringify({username})});
+    zeroxUser.username=data.username;renderZeroXAccount();$("#profile-username-status").textContent="Nombre de usuario actualizado ✓";
+  }catch(error){out.textContent=authMessage(error);}finally{button.disabled=false;}
+});
+
 $("#register-form")?.addEventListener("submit", async event => {
   event.preventDefault();
   const form = event.currentTarget, button = form.querySelector('button[type="submit"]');
@@ -565,6 +600,8 @@ function zxRenderProfileEditor(){
   if(!avatarBox)return;
   zxDraftAvatar=profile.avatar||"";zxDraftBannerImage=profile.bannerImage||"";zxDraftBanner=profile.banner||"violet";zxDraftFrame=profile.frame||"steel";
   $("#profile-bio").value=profile.bio||"";
+  $("#profile-username").value=zeroxUser.username||"";
+  $("#profile-username-status").textContent="De 3 a 24 caracteres; letras, números, punto, guion o guion bajo.";
   avatarBox.innerHTML=ZX_AVATARS.map(([icon,color],i)=>`<button type="button" class="zx-avatar-option" data-avatar-preset="${i}" style="--avatar-color:${color}" aria-label="Avatar ${i+1}">${icon}</button>`).join("");
   $("#profile-favorites").innerHTML=ZX_FAVS.map(f=>`<label><input type="checkbox" value="${f}" ${(profile.favorites||[]).includes(f)?"checked":""}><span>${f}</span></label>`).join("");
   $("#profile-banner-choices").innerHTML=[["violet","💜 Violeta"],["crimson","❤️ Carmesí"],["electric","⚡ Eléctrico"]].map(([id,label])=>`<button type="button" data-profile-banner="${id}" class="${zxDraftBanner===id?"selected":""}">${label}</button>`).join("")+`<button type="button" data-profile-banner="custom" class="${zxDraftBanner==="custom"?"selected":""}">🖼️ Mi imagen</button>`;
