@@ -7474,3 +7474,19 @@ body{background:
   width:62px;min-height:36px;padding:0 5px;border:1px solid #55545b;
   border-radius:8px;background:#252329;color:#fff;font-size:12px;cursor:pointer
 }
+
+/* Ajuste final de la portada: texto violeta y CTA bajo el logotipo. */
+.hero-copy .hero-tagline{
+  color:#d48aff!important;
+  text-shadow:0 1px 3px #07030f,0 0 9px #9d3af5,0 0 22px rgba(168,61,255,.8)!important;
+}
+@media(max-width:650px){
+  .hero-copy .cta{
+    position:absolute!important;
+    left:16px!important;
+    bottom:18px!important;
+    top:auto!important;
+    z-index:3!important;
+    max-width:calc(100% - 32px)!important;
+  }
+}
