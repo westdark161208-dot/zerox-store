@@ -338,7 +338,7 @@ function initZeroXAds(){
   dots.querySelectorAll("button").forEach((b,i)=>b.addEventListener("click",()=>{renderZeroXAd(i);startZeroXAds()}));
   document.querySelector("#ad-prev")?.addEventListener("click",()=>{renderZeroXAd(zeroxAdIndex-1);startZeroXAds()});
   document.querySelector("#ad-next")?.addEventListener("click",()=>{renderZeroXAd(zeroxAdIndex+1);startZeroXAds()});
-  document.querySelector("#ad-action")?.addEventListener("click",()=>{const ad=ZEROX_ADS[zeroxAdIndex];document.querySelector(`[data-cat="${CSS.escape(ad.category)}"]`)?.click();document.querySelector("#catalogo")?.scrollIntoView({behavior:"smooth"})});
+  document.querySelector("#ad-action")?.addEventListener("click",()=>{const ad=ZEROX_ADS[zeroxAdIndex];if(typeof zxOpenCatalog==="function") zxOpenCatalog(ad.category);});
   renderZeroXAd(0); startZeroXAds();
 }
 
@@ -702,23 +702,36 @@ function setFilter(category, scroll = true) {
   filter = category;
 
   /* ZERO'X · navegación por secciones */
-function zxShow(el, show){ if(el) el.hidden=!show; }
+function zxShow(el, show){ if(!el) return; el.hidden=!show; el.style.display=show?"":"none"; }
+function zxScroll(el){ requestAnimationFrame(()=>el?.scrollIntoView({behavior:"smooth",block:"start"})); }
 function zxOpenCatalog(category){
   const catalog=$("#catalogo");
+  zxShow($("#secciones"),false); zxShow($("#freefire-menu"),false); zxShow($("#zx-id-gate"),false);
   catalog?.classList.remove("zx-catalog-hidden");
-  setFilter(category,false);
-  catalog?.scrollIntoView({behavior:"smooth"});
+  setFilter(category,false); zxScroll(catalog);
 }
-$("[data-zone]").forEach(btn=>btn.addEventListener("click",()=>{
-  zxShow($("#secciones"),false);
-  if(btn.dataset.zone==="freefire") zxShow($("#freefire-menu"),true);
-  if(btn.dataset.zone==="streaming") zxOpenCatalog("Streaming");
-  if(btn.dataset.zone==="accounts") zxOpenCatalog("Cuentas");
-}));
-$("[data-back-zones]").forEach(btn=>btn.addEventListener("click",()=>{zxShow($("#freefire-menu"),false);zxShow($("#zx-id-gate"),false);$("#catalogo")?.classList.add("zx-catalog-hidden");zxShow($("#secciones"),true);}));
-$("[data-back-freefire]").forEach(btn=>btn.addEventListener("click",()=>{zxShow($("#zx-id-gate"),false);zxShow($("#freefire-menu"),true)}));
-$("[data-zx-sub='unlimited']")?.addEventListener("click",()=>zxOpenCatalog("Diamantes ilimitados"));
-$("[data-zx-sub='first']")?.addEventListener("click",()=>{zxShow($("#freefire-menu"),false);zxShow($("#zx-id-gate"),true);$("#zx-id-gate")?.scrollIntoView({behavior:"smooth"})});
+document.addEventListener("click",event=>{
+  const zone=event.target.closest("[data-zone]");
+  if(zone){
+    event.preventDefault();
+    $("#catalogo")?.classList.add("zx-catalog-hidden");
+    zxShow($("#secciones"),false);
+    if(zone.dataset.zone==="freefire"){zxShow($("#freefire-menu"),true);zxScroll($("#freefire-menu"));}
+    else if(zone.dataset.zone==="streaming") zxOpenCatalog("Streaming");
+    else if(zone.dataset.zone==="accounts") zxOpenCatalog("Cuentas");
+    return;
+  }
+  if(event.target.closest("[data-back-zones]")){
+    zxShow($("#freefire-menu"),false);zxShow($("#zx-id-gate"),false);$("#catalogo")?.classList.add("zx-catalog-hidden");zxShow($("#secciones"),true);zxScroll($("#secciones"));return;
+  }
+  if(event.target.closest("[data-back-freefire]")){
+    zxShow($("#zx-id-gate"),false);zxShow($("#freefire-menu"),true);zxScroll($("#freefire-menu"));return;
+  }
+  if(event.target.closest("[data-zx-sub='unlimited']")){zxOpenCatalog("Diamantes ilimitados");return;}
+  if(event.target.closest("[data-zx-sub='first']")){
+    zxShow($("#freefire-menu"),false);zxShow($("#zx-id-gate"),true);zxScroll($("#zx-id-gate"));return;
+  }
+});
 $("#zx-id-form")?.addEventListener("submit",async e=>{
   e.preventDefault(); const id=$("#zx-player-id").value.trim(), out=$("#zx-id-result");
   out.innerHTML='<div class="zx-checking">VERIFICANDO JUGADOR...</div>';
@@ -731,289 +744,6 @@ $("#zx-id-form")?.addEventListener("submit",async e=>{
     setTimeout(()=>zxOpenCatalog("Diamantes 1 vez"),450);
   }catch(err){out.innerHTML=`<div class="error">No pudimos verificar este ID. Código: ${esc(err.message)}</div>`;}
 });
-
-$("[data-cat]").forEach(button => {
-    button.classList.toggle(
-      "active",
-      button.dataset.cat === category
-    );
-  });
-
-  const title = $("#catalog-title");
-  const note = $("#catalog-note");
-
-  if (category === "Diamantes 1 vez") {
-    if (title) {
-      title.innerHTML =
-        "DIAMANTES <em>1 VEZ POR ID</em>";
-    }
-
-    if (note) {
-      note.textContent =
-        "Se revisa primero que el ID sea válido para la promoción. Cada paquete promocional puede usarse una sola vez por ID.";
-    }
-  } else if (category === "Diamantes ilimitados") {
-    if (title) {
-      title.innerHTML =
-        "CANTIDADES <em>ILIMITADAS</em>";
-    }
-
-    if (note) {
-      note.textContent =
-        "Estas cantidades pueden comprarse varias veces para el mismo ID.";
-    }
-     } else if (category === "Streaming") {
-
-  if (title) {
-    title.innerHTML =
-      'STREAMING <em>PREMIUM</em>';
-  }
-
-  if (note) {
-    note.textContent =
-      "Elige tu plataforma favorita y selecciona el plan disponible.";
-  }
-  } else {
-    if (title) {
-      title.innerHTML =
-        category === "Todos"
-          ? "CATÁLOGO <em>ZERO'X</em>"
-          : esc(category).toUpperCase();
-    }
-
-    if (note) {
-      note.textContent =
-        "Elige el producto que necesitas y crea tu pedido.";
-    }
-  }
-
-  render();
-
-  if (scroll && $("#catalogo")) {
-    $("#catalogo").scrollIntoView({
-      behavior: "smooth"
-    });
-  }
-}
-
-function render() {
-  const container = $("#products");
-
-  if (!container) return;
-
-  const rows = PRODUCTS.filter(product => {
-    const matchesCategory =
-      filter === "Todos" ||
-      product.category === filter;
-
-    const text =
-      `${product.name} ${product.description} ${product.category}`
-        .toLowerCase();
-
-    const matchesSearch =
-      !searchTerm ||
-      text.includes(searchTerm);
-
-    return (
-      product.active &&
-      matchesCategory &&
-      matchesSearch
-    );
-  });
-// =====================================================
-// STREAMING AGRUPADO POR PLATAFORMA
-// =====================================================
-
-if (filter === "Streaming") {
-
-    const platforms = {};
-
-    rows.forEach(product => {
-
-        // Obtiene Netflix, Disney+, Max, Prime Video, etc.
-        const platform = product.name.split(" - ")[0];
-
-        if (!platforms[platform]) {
-            platforms[platform] = [];
-        }
-
-        platforms[platform].push(product);
-    });
-
-    container.innerHTML = Object.entries(platforms)
-        .map(([platform, plans]) => {
-
-            const cheapest = Math.min(
-                ...plans.map(plan => Number(plan.price) || 0)
-            );
-
-            return `
-                <article class="streaming-platform-card">
-
-                    <div class="streaming-platform-image">
-                        ${artFor(plans[0])}
-                    </div>
-
-                    <h3 class="streaming-platform-title">
-                        ${esc(platform)}
-                    </h3>
-
-                    <div class="streaming-from">
-                        Desde <b>${money(cheapest)}</b>
-                    </div>
-
-                    <details class="streaming-plans">
-
-                        <summary>
-                            VER PLANES
-                        </summary>
-
-                        <div class="streaming-plan-list">
-
-                            ${plans.map(plan => {
-
-                                const planName =
-                                    plan.name.includes(" - ")
-                                    ? plan.name.split(" - ").slice(1).join(" - ")
-                                    : plan.name;
-
-                                return `
-                                    <div class="streaming-plan">
-
-                                        <div class="streaming-plan-info">
-                                            <strong>
-                                                ${esc(planName)}
-                                            </strong>
-
-                                            <span>
-                                                ${money(plan.price)}
-                                            </span>
-                                        </div>
-
-                                        <button
-                                            type="button"
-                                            class="streaming-buy"
-                                            onclick="event.stopPropagation(); addToCart('${plan.id}')"
-                                        >
-                                            🛒
-                                        </button>
-
-                                    </div>
-                                `;
-                            }).join("")}
-
-                        </div>
-
-                    </details>
-
-                </article>
-            `;
-        })
-        .join("");
-
-    return;
-}
-  container.innerHTML =
-    rows.map(product => `
-      <article class="product-card ${product.featured ? "featured" : ""}">
-        <div class="product-top">
-          <span class="tag">
-            ${esc(product.badge || "Disponible")}
-          </span>
-
-          <span class="type">
-            ${esc(product.category)}
-          </span>
-        </div>
-
-        <div class="diamond-icon">
-          ${artFor(product)}
-        </div>
-
-        <h3>
-          ${esc(product.name)}
-        </h3>
-
-        <p>
-          ${esc(product.description || "")}
-        </p>
-
-        <div class="pricing">
-          ${
-            product.price > 0
-              ? `<b>${money(product.price)}</b>`
-              : `<b>PRÓXIMAMENTE</b>`
-          }
-
-          ${
-            currentCurrency !== "MXN" &&
-            product.price > 0
-              ? `
-                <small>
-                  Base:
-                  ${new Intl.NumberFormat(
-                    "es-MX",
-                    {
-                      style: "currency",
-                      currency: "MXN"
-                    }
-                  ).format(product.price)}
-                  MXN
-                </small>
-              `
-              : ""
-          }
-        </div>
-
-        <div class="product-actions">
-
-          ${
-            product.price > 0
-              ? `
-                <button
-                  class="add-cart"
-                  data-add="${esc(product.id)}"
-                  title="Agregar al carrito">
-                  ＋
-                </button>
-
-                <button
-  class="buy"
-  data-buy="${esc(product.id)}">
-  <span class="buy-cart-icon" aria-hidden="true"></span>
-  <span>COMPRAR</span>
-</button>
-              `
-              : `
-                <button
-                  class="buy"
-                  disabled>
-                  PRÓXIMAMENTE
-                </button>
-              `
-          }
-
-        </div>
-      </article>
-    `).join("") ||
-    "<p>No encontramos productos con esos filtros.</p>";
-
-  $$("[data-buy]").forEach(button => {
-    button.onclick = () => {
-      openCheckout(button.dataset.buy);
-    };
-  });
-
-  $$("[data-add]").forEach(button => {
-    button.onclick = () => {
-      addToCart(button.dataset.add);
-    };
-  });
-}
-
-/* =========================================================
-   CATEGORÍAS / BÚSQUEDA / MONEDA
-   ========================================================= */
 
 $$("[data-cat]").forEach(button => {
   button.onclick = () => {
