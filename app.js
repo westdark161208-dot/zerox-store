@@ -821,7 +821,7 @@ function setFilter(category, scroll = true) {
 function zxShow(el,show){if(!el)return;el.hidden=!show;el.style.display=show?"":"none"}
 function zxScroll(el){requestAnimationFrame(()=>el?.scrollIntoView({behavior:"smooth",block:"start"}))}
 function zxCloseViews(){["#freefire-menu","#zx-id-gate","#zx-managed","#zx-reseller-panel"].forEach(id=>zxShow($(id),false));$("#catalogo")?.classList.add("zx-catalog-hidden")}
-function zxOpenCatalog(category){zxCloseViews();zxShow($("#secciones"),false);$("#catalogo")?.classList.remove("zx-catalog-hidden");setFilter(category,false);zxScroll($("#catalogo"))}
+function zxOpenCatalog(category){zxCloseViews();zxShow($("#secciones"),false);setFilter(category,false);$("#catalogo")?.classList.remove("zx-catalog-hidden");zxScroll($("#catalogo"))}
 const ZX_MANAGED={
  accounts:{title:"CUENTAS",note:"Catálogo preparado para productos con imágenes, video, descripción y precio editables.",category:"Cuentas"},
  clans:{title:"VENTA DE CLANES",note:"Catálogo multimedia de clanes disponibles.",category:"Venta Clanes"},
@@ -1920,10 +1920,16 @@ $("#drawer-profile")?.addEventListener("click",()=>{closeDrawer();$("#account-mo
 $("#drawer-search")?.addEventListener("keydown",e=>{if(e.key!=="Enter")return;e.preventDefault();const query=e.target.value.trim();closeDrawer();$("#search").value=query;$("#search").dispatchEvent(new Event("input",{bubbles:true}));$("#catalogo")?.scrollIntoView({behavior:"smooth"});});
 $("#drawer").addEventListener("click",e=>{
   const b=e.target.closest("[data-drawer-zone],[data-drawer-sub],[data-drawer-cat]");if(!b)return;
-  closeDrawer();
-  if(b.dataset.drawerZone==="home"){zxCloseViews();zxShow($("#secciones"),true);$("#inicio")?.scrollIntoView({behavior:"smooth"});return;}
-  const selector=b.dataset.drawerZone?`[data-zone="${b.dataset.drawerZone}"]`:b.dataset.drawerSub?`[data-zx-sub="${b.dataset.drawerSub}"]`:`[data-open-cat="${b.dataset.drawerCat}"]`;
-  document.querySelector(".zx-section-hub "+selector)?.click() || document.querySelector(".zx-freefire-menu "+selector)?.click();
+  e.preventDefault();e.stopPropagation();closeDrawer();
+  const zone=b.dataset.drawerZone;
+  if(zone==="home"){zxCloseViews();zxShow($("#secciones"),true);$("#inicio")?.scrollIntoView({behavior:"smooth"});return;}
+  if(zone==="freefire"){zxCloseViews();zxShow($("#secciones"),false);zxShow($("#freefire-menu"),true);zxScroll($("#freefire-menu"));return;}
+  if(zone==="streaming"){zxOpenCatalog("Streaming");return;}
+  if(zone==="resellers"){zxCloseViews();zxShow($("#secciones"),false);zxShow($("#zx-reseller-panel"),true);zxRenderResellerPreview();zxScroll($("#zx-reseller-panel"));return;}
+  if(zone){zxOpenManaged(zone);return;}
+  if(b.dataset.drawerSub==="first"){zxCloseViews();zxShow($("#secciones"),false);zxShow($("#zx-id-gate"),true);zxScroll($("#zx-id-gate"));return;}
+  if(b.dataset.drawerSub==="unlimited"){zxOpenCatalog("Diamantes ilimitados");return;}
+  if(b.dataset.drawerCat)zxOpenCatalog(b.dataset.drawerCat);
 });
 
 $$('#drawer a').forEach(
