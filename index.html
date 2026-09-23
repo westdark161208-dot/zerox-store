@@ -327,12 +327,57 @@
     </section>
 
 
+    <!-- ZERO'X · PORTAL DE SECCIONES -->
+    <section class="zx-section-hub shell" id="secciones">
+      <div class="zx-hub-head">
+        <span>EXPLORA ZERO'X</span>
+        <h2>ELIGE TU <em>SECCIÓN</em></h2>
+        <p>Los productos permanecen ocultos hasta que entres a una sección.</p>
+      </div>
+      <div class="zx-hub-grid">
+        <button class="zx-hub-card zx-freefire" data-zone="freefire">
+          <img src="./assets/categories/diamantes-primera-vez.png.png" alt="Free Fire">
+          <div><small>JUEGOS</small><strong>FREE FIRE</strong><span>Diamantes · Booyah · Fragmentos · Cajas</span></div>
+        </button>
+        <button class="zx-hub-card" data-zone="streaming">
+          <img src="./assets/categories/streaming.png.png" alt="Streaming">
+          <div><small>ENTRETENIMIENTO</small><strong>STREAMING</strong><span>Netflix · Disney+ · Max y más</span></div>
+        </button>
+        <button class="zx-hub-card" data-zone="accounts">
+          <img src="./assets/categories/cuentas.png.png" alt="Cuentas">
+          <div><small>MARKET</small><strong>CUENTAS</strong><span>Cuentas y opciones disponibles</span></div>
+        </button>
+      </div>
+    </section>
+
+    <section class="zx-freefire-menu shell" id="freefire-menu" hidden>
+      <button class="zx-back" type="button" data-back-zones>← SECCIONES</button>
+      <div class="zx-hub-head"><span>FREE FIRE</span><h2>¿QUÉ BUSCAS?</h2></div>
+      <div class="zx-sub-grid">
+        <button data-zx-sub="first"><img src="./assets/categories/diamantes-primera-vez.png.png" alt=""><strong>DIAMANTES 1 VEZ</strong><span>Primero verificamos tu ID</span></button>
+        <button data-zx-sub="unlimited"><img src="./assets/categories/diamantes-ilimitados.png.png" alt=""><strong>DIAMANTES ILIMITADOS</strong><span>Ver paquetes disponibles</span></button>
+        <button data-cat="Pases Booyah"><img src="./assets/categories/pase-booyah.png.png" alt=""><strong>PASE BOOYAH</strong><span>Opciones y promociones</span></button>
+        <button data-cat="Fragmentos"><img src="./assets/categories/fragmentos.png.png" alt=""><strong>FRAGMENTOS</strong><span>Fragmentos y cajas EVO</span></button>
+      </div>
+    </section>
+
+    <section class="zx-id-gate shell" id="zx-id-gate" hidden>
+      <button class="zx-back" type="button" data-back-freefire>← FREE FIRE</button>
+      <div class="zx-id-panel">
+        <span class="section-kicker">VERIFICACIÓN FREE FIRE</span>
+        <h2>INTRODUCE TU <em>ID</em></h2>
+        <p>Verificaremos el jugador antes de mostrar los paquetes promocionales disponibles.</p>
+        <form id="zx-id-form"><input id="zx-player-id" inputmode="numeric" pattern="[0-9]{5,15}" required placeholder="ID de jugador"><button type="submit">VERIFICAR ID →</button></form>
+        <div id="zx-id-result" aria-live="polite"></div>
+      </div>
+    </section>
+
     <!-- ===================================================
          CATEGORÍAS 3D
          =================================================== -->
 
     <section
-  class="category-cards shell"
+  class="category-cards shell zx-legacy-categories"
   aria-label="Categorias">
 
   <button
@@ -468,7 +513,7 @@
          =================================================== -->
 
     <section
-      class="catalog shell"
+      class="catalog shell zx-catalog-hidden"
       id="catalogo">
 
       <div class="catalog-head">
