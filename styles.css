@@ -7097,3 +7097,53 @@ body::after{
 @keyframes zeroxAuthParticle{0%,100%{transform:translate3d(0,10px,0) scale(.7);opacity:.2}50%{transform:translate3d(4px,-12px,20px) scale(1.4);opacity:.9}}
 @media (max-width:640px){.account-modal{padding-left:18px;padding-right:18px}.zerox-auth-banner{border-radius:14px;margin-bottom:18px}}
 @media (prefers-reduced-motion:reduce){.zerox-auth-banner img,.zerox-auth-glow,.zerox-auth-scan,.zerox-auth-particles i{animation:none!important}}
+
+/* =========================================================
+   ZERO'X STORE · NEON 3D UI v2
+   ========================================================= */
+.announcement{display:none!important}
+body{background:
+ radial-gradient(circle at 50% 8%,rgba(99,31,185,.16),transparent 27rem),
+ radial-gradient(circle at 8% 45%,rgba(0,132,255,.07),transparent 22rem),
+ #050507}
+.topbar{border-bottom:1px solid rgba(155,67,255,.28);box-shadow:0 12px 42px rgba(0,0,0,.55),0 1px 22px rgba(125,35,255,.10)}
+.brand-metal{filter:drop-shadow(0 0 12px rgba(162,53,255,.35))}
+.category-cards button,.category-cards a,.feature-row button,.product{
+ transform-style:preserve-3d;position:relative;overflow:hidden;
+ border:1px solid rgba(130,76,255,.24)!important;
+ box-shadow:0 16px 34px rgba(0,0,0,.48),inset 0 1px rgba(255,255,255,.06),0 0 18px rgba(91,42,255,.08);
+ transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease
+}
+.category-cards button:active,.category-cards a:active,.feature-row button:active{transform:perspective(700px) rotateX(2deg) scale(.975)}
+.category-cards button::after,.category-cards a::after,.feature-row button::after,.product::after{
+ content:"";position:absolute;inset:-45%;pointer-events:none;
+ background:linear-gradient(115deg,transparent 42%,rgba(255,255,255,.13) 50%,transparent 58%);
+ transform:translateX(-65%) rotate(8deg);transition:transform .65s ease
+}
+.category-cards button:hover::after,.category-cards a:hover::after,.feature-row button:hover::after,.product:hover::after{transform:translateX(65%) rotate(8deg)}
+.cat-art img,.feature-art img{filter:drop-shadow(0 12px 14px rgba(0,0,0,.48));transform:translateZ(20px)}
+.zerox-ad-zone{padding-top:22px;padding-bottom:8px}
+.zerox-ad-carousel{position:relative;isolation:isolate;border-radius:25px;padding:1px;background:linear-gradient(120deg,#3f79ff,#9a2bff,#e22070);box-shadow:0 18px 55px rgba(0,0,0,.58),0 0 34px rgba(114,43,255,.24)}
+.ad-stage{min-height:clamp(235px,37vw,420px);position:relative;overflow:hidden;border-radius:24px;background:#080711;perspective:900px}
+.ad-stage>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.035);transition:opacity .3s ease,transform 5s ease;filter:saturate(1.12) contrast(1.05)}
+.ad-stage.is-changing>img{opacity:.3;transform:scale(1.08)}
+.ad-shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(2,2,8,.92) 0%,rgba(4,2,12,.55) 46%,rgba(4,2,12,.12) 100%),linear-gradient(0deg,rgba(7,2,14,.7),transparent 55%)}
+.ad-copy{position:absolute;z-index:2;left:clamp(24px,6vw,72px);bottom:clamp(25px,6vw,62px);max-width:540px;text-shadow:0 4px 22px #000}
+.ad-copy small{font-weight:900;letter-spacing:.22em;color:#bc78ff}
+.ad-copy h2{font-size:clamp(28px,5vw,56px);line-height:.94;margin:9px 0;color:#fff;filter:drop-shadow(0 0 15px rgba(124,53,255,.4))}
+.ad-copy p{max-width:440px;color:#ded9eb}
+#ad-action{margin-top:12px;border:1px solid #b551ff;border-radius:12px;padding:12px 19px;background:rgba(9,7,18,.78);color:#fff;font-weight:900;box-shadow:0 0 18px rgba(130,48,255,.28)}
+.ad-arrow{position:absolute;z-index:5;top:50%;translate:0 -50%;width:46px;height:46px;border-radius:50%;border:1px solid #9e4cff;background:rgba(4,3,12,.72);color:#fff;font-size:31px;box-shadow:0 0 20px rgba(128,42,255,.38)}
+.ad-prev{left:14px}.ad-next{right:14px}
+.ad-dots{position:absolute;z-index:6;left:50%;bottom:12px;translate:-50% 0;display:flex;gap:8px}
+.ad-dots button{width:8px;height:8px;padding:0;border:1px solid #d7c9ff;border-radius:50%;background:transparent}
+.ad-dots button.active{background:#fff;box-shadow:0 0 10px #a74cff}
+@media(max-width:680px){
+ .zerox-ad-zone{padding-inline:12px}
+ .ad-stage{min-height:260px}
+ .ad-copy{left:26px;right:25px;bottom:34px}
+ .ad-copy p{font-size:13px}
+ .ad-arrow{width:38px;height:38px}.ad-prev{left:8px}.ad-next{right:8px}
+ .category-cards{gap:12px}
+}
+@media(prefers-reduced-motion:reduce){.ad-stage>img,.category-cards button,.category-cards a,.feature-row button,.product{transition:none!important}}
