@@ -62,6 +62,7 @@ async function authSchema(env){
   // deployments than batching DDL on every auth request.
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS zx_users (id TEXT PRIMARY KEY,email TEXT NOT NULL UNIQUE,username TEXT NOT NULL UNIQUE,password_hash TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'active',created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)").run();
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS zx_profiles (user_id TEXT PRIMARY KEY,display_name TEXT,avatar_url TEXT,xp INTEGER NOT NULL DEFAULT 0,level INTEGER NOT NULL DEFAULT 1,FOREIGN KEY(user_id) REFERENCES zx_users(id) ON DELETE CASCADE)").run();
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS zx_profile_style (user_id TEXT PRIMARY KEY,bio TEXT NOT NULL DEFAULT '',favorites TEXT NOT NULL DEFAULT '[]',avatar TEXT NOT NULL DEFAULT '',banner TEXT NOT NULL DEFAULT 'violet',banner_image TEXT NOT NULL DEFAULT '',frame TEXT NOT NULL DEFAULT 'steel',FOREIGN KEY(user_id) REFERENCES zx_users(id) ON DELETE CASCADE)").run();
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS zx_sessions (id TEXT PRIMARY KEY,user_id TEXT NOT NULL,token_hash TEXT NOT NULL UNIQUE,expires_at TEXT NOT NULL,created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,revoked_at TEXT,FOREIGN KEY(user_id) REFERENCES zx_users(id) ON DELETE CASCADE)").run();
 }
 async function newSession(env,userId){
@@ -109,6 +110,20 @@ export default {
         return json({ok:true,user:{id,email,username,displayName:displayName||username},session:await newSession(env,id)},201);
       }
 
+      if(url.pathname==="/api/auth/profile" && request.method==="POST"){
+        const user=await currentUser(request,env);
+        if(!user)return json({ok:false,error:"UNAUTHORIZED"},401);
+        const body=await request.json();
+        const bio=String(body.bio||"").trim(),favorites=body.favorites,avatar=String(body.avatar||""),banner=String(body.banner||"violet"),bannerImage=String(body.bannerImage||""),frame=String(body.frame||"steel");
+        if(bio.length>180 || !Array.isArray(favorites) || favorites.length>6 || favorites.some(x=>typeof x!=="string" || !["Free Fire","Streaming","Cuentas","Venta de clanes","Honor de clanes","Revendedores"].includes(x)))return json({ok:false,error:"INVALID_PROFILE"},400);
+        if(avatar && !/^data:image\/(jpeg|png|webp);base64,[a-zA-Z0-9+/=]+$/.test(avatar))return json({ok:false,error:"INVALID_AVATAR"},400);
+        if(bannerImage && !/^data:image\/(jpeg|png|webp);base64,[a-zA-Z0-9+/=]+$/.test(bannerImage))return json({ok:false,error:"INVALID_BANNER"},400);
+        if(avatar.length>160000 || bannerImage.length>160000 || avatar.length+bannerImage.length>260000 || !["violet","crimson","electric","custom"].includes(banner) || !["steel","chrome","titan"].includes(frame))return json({ok:false,error:"INVALID_PROFILE"},400);
+        if(frame==="chrome" && Number(user.level||1)<3 || frame==="titan" && Number(user.level||1)<5)return json({ok:false,error:"FRAME_LOCKED"},403);
+        await env.DB.prepare("INSERT INTO zx_profile_style(user_id,bio,favorites,avatar,banner,banner_image,frame) VALUES(?,?,?,?,?,?,?) ON CONFLICT(user_id) DO UPDATE SET bio=excluded.bio,favorites=excluded.favorites,avatar=excluded.avatar,banner=excluded.banner,banner_image=excluded.banner_image,frame=excluded.frame").bind(user.id,bio,JSON.stringify(favorites),avatar,banner,bannerImage,frame).run();
+        return json({ok:true,profile:{bio,favorites,avatar,banner,bannerImage,frame}});
+      }
+
       if(url.pathname==="/api/auth/login" && request.method==="POST"){
         const body=await request.json(), login=String(body.login||body.email||body.username||"").trim(), password=String(body.password||"");
         if(!login||!password) return json({ok:false,error:"MISSING_CREDENTIALS"},400);
@@ -120,7 +135,9 @@ export default {
 
       if(url.pathname==="/api/auth/me" && request.method==="GET"){
         const u=await currentUser(request,env);
-        return u?json({ok:true,user:u}):json({ok:false,error:"UNAUTHORIZED"},401);
+        if(!u)return json({ok:false,error:"UNAUTHORIZED"},401);
+        const style=await env.DB.prepare("SELECT bio,favorites,avatar,banner,banner_image AS bannerImage,frame FROM zx_profile_style WHERE user_id=?").bind(u.id).first();
+        return json({ok:true,user:{...u,profile:style?{...style,favorites:JSON.parse(style.favorites||"[]")}:{bio:"",favorites:[],avatar:"",banner:"violet",bannerImage:"",frame:"steel"}}});
       }
 
       if(url.pathname==="/api/auth/logout" && request.method==="POST"){
