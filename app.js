@@ -306,6 +306,43 @@ const PRODUCTS = [
 
 const ZEROX_API = "https://zerox-sixofire-api.westdark161208.workers.dev";
 
+/* ZERO'X ADS · editable carousel
+   Para cambiar anuncios edita SOLO este arreglo. */
+const ZEROX_ADS = [
+  { kicker:"ZERO'X STORE", title:"DIAMANTES FREE FIRE", text:"Recargas, promociones y paquetes para tu cuenta.", image:"./assets/categories/diamantes-primera-vez.png.png", category:"Diamantes 1 vez" },
+  { kicker:"ZERO'X PREMIUM", title:"CUENTAS", text:"Explora la nueva sección de cuentas disponibles.", image:"./assets/categories/cuentas.png.png", category:"Cuentas" },
+  { kicker:"BOOYAH", title:"PASES Y BENEFICIOS", text:"Encuentra las opciones disponibles en Zero'X Store.", image:"./assets/categories/pase-booyah.png.png", category:"Pases Booyah" },
+  { kicker:"ENTRETENIMIENTO", title:"STREAMING", text:"Tus servicios y cuentas de streaming en una sola sección.", image:"./assets/categories/streaming.png.png", category:"Streaming" }
+];
+let zeroxAdIndex=0, zeroxAdTimer=null;
+function renderZeroXAd(index){
+  if(!ZEROX_ADS.length) return;
+  zeroxAdIndex=(index+ZEROX_ADS.length)%ZEROX_ADS.length;
+  const ad=ZEROX_ADS[zeroxAdIndex], stage=document.querySelector(".ad-stage");
+  if(!stage) return;
+  stage.classList.add("is-changing");
+  setTimeout(()=>{
+    document.querySelector("#ad-image").src=ad.image;
+    document.querySelector("#ad-image").alt=ad.title;
+    document.querySelector("#ad-kicker").textContent=ad.kicker;
+    document.querySelector("#ad-title").textContent=ad.title;
+    document.querySelector("#ad-text").textContent=ad.text;
+    document.querySelectorAll("#ad-dots button").forEach((b,i)=>b.classList.toggle("active",i===zeroxAdIndex));
+    stage.classList.remove("is-changing");
+  },150);
+}
+function startZeroXAds(){clearInterval(zeroxAdTimer);zeroxAdTimer=setInterval(()=>renderZeroXAd(zeroxAdIndex+1),6000)}
+function initZeroXAds(){
+  const dots=document.querySelector("#ad-dots"); if(!dots) return;
+  dots.innerHTML=ZEROX_ADS.map((_,i)=>`<button type="button" aria-label="Anuncio ${i+1}"></button>`).join("");
+  dots.querySelectorAll("button").forEach((b,i)=>b.addEventListener("click",()=>{renderZeroXAd(i);startZeroXAds()}));
+  document.querySelector("#ad-prev")?.addEventListener("click",()=>{renderZeroXAd(zeroxAdIndex-1);startZeroXAds()});
+  document.querySelector("#ad-next")?.addEventListener("click",()=>{renderZeroXAd(zeroxAdIndex+1);startZeroXAds()});
+  document.querySelector("#ad-action")?.addEventListener("click",()=>{const ad=ZEROX_ADS[zeroxAdIndex];document.querySelector(`[data-cat="${CSS.escape(ad.category)}"]`)?.click();document.querySelector("#catalogo")?.scrollIntoView({behavior:"smooth"})});
+  renderZeroXAd(0); startZeroXAds();
+}
+
+
 
 const SIXOFIRE_PRODUCT_MAP = {
   "d110-u": "ff-110",
@@ -363,6 +400,8 @@ function money(value, currency = currentCurrency) {
   ).format(converted);
 }
 
+initZeroXAds();
+
 /* =========================================================
    ZERO'X ID · CUENTAS
    ========================================================= */
@@ -404,7 +443,7 @@ function authMessage(error) {
     INVALID_PASSWORD: "La contraseña debe tener entre 8 y 128 caracteres.",
     ACCOUNT_DISABLED: "Esta cuenta está deshabilitada.",
     MISSING_CREDENTIALS: "Completa tus datos para continuar."
-  })[code] || "No pudimos completar la operación. Intenta de nuevo.";
+  })[code] || `No pudimos completar la operación. Código: ${code || "ERROR_DESCONOCIDO"}`;
 }
 
 function renderZeroXAccount() {
