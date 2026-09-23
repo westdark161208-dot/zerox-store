@@ -313,64 +313,60 @@
       <div class="zx-hub-head">
         <span>EXPLORA ZERO'X</span>
         <h2>ELIGE TU <em>SECCIÓN</em></h2>
-        <p>Los productos permanecen ocultos hasta que entres a una sección.</p>
+        <p>Cada placa abre su propia sección. El catálogo se mantiene limpio hasta que elijas.</p>
       </div>
-      <div class="zx-hub-grid">
-        <button class="zx-hub-card zx-freefire" data-zone="freefire">
-          <img src="./assets/categories/diamantes-primera-vez.png.png" alt="Free Fire">
-          <div><small>JUEGOS</small><strong>FREE FIRE</strong><span>Diamantes · Booyah · Fragmentos · Cajas</span></div>
-        </button>
-        <button class="zx-hub-card" data-zone="streaming">
-          <img src="./assets/categories/streaming.png.png" alt="Streaming">
-          <div><small>ENTRETENIMIENTO</small><strong>STREAMING</strong><span>Netflix · Disney+ · Max y más</span></div>
-        </button>
-        <button class="zx-hub-card" data-zone="accounts">
-          <img src="./assets/categories/cuentas.png.png" alt="Cuentas">
-          <div><small>MARKET</small><strong>CUENTAS</strong><span>Cuentas y opciones disponibles</span></div>
-        </button>
+      <div class="zx-hub-grid zx-hub-grid-full">
+        <button type="button" class="zx-hub-card zx-freefire" data-zone="freefire"><img src="./assets/categories/diamantes-primera-vez.png.png" alt="Free Fire"><div><small>JUEGOS</small><strong>FREE FIRE</strong><span>Diamantes · Booyah · Cajas y fragmentos</span></div></button>
+        <button type="button" class="zx-hub-card zx-streaming" data-zone="streaming"><img src="./assets/categories/streaming.png.png" alt="Streaming"><div><small>ENTRETENIMIENTO</small><strong>STREAMING</strong><span>Netflix · Disney+ · Max · Prime · Spotify · Crunchyroll</span></div></button>
+        <button type="button" class="zx-hub-card zx-accounts" data-zone="accounts"><img src="./assets/categories/cuentas.png.png" alt="Cuentas"><div><small>MARKET</small><strong>CUENTAS</strong><span>Fotos, videos, descripción y precio editable</span></div></button>
+        <button type="button" class="zx-hub-card zx-clans" data-zone="clans"><img src="./assets/categories/venta-clanes.png.png" alt="Venta de clanes"><div><small>FREE FIRE</small><strong>VENTA DE CLANES</strong><span>Catálogo multimedia de clanes disponibles</span></div></button>
+        <button type="button" class="zx-hub-card zx-honor" data-zone="honor"><img src="./assets/categories/honor-clanes.png.png" alt="Honor de clanes"><div><small>CLANES</small><strong>HONOR DE CLANES</strong><span>Servicios y opciones de honor</span></div></button>
+        <button type="button" class="zx-hub-card zx-reseller" data-zone="resellers"><img src="./assets/categories/revendedores.png.png" alt="Revendedores"><div><small>ZERO'X PARTNERS</small><strong>REVENDEDORES</strong><span>Subtienda, niveles y precios especiales</span></div></button>
       </div>
     </section>
 
-    <!-- ZERO'X · CARRUSEL EDITABLE: cambia imagen/texto/enlace en app.js (ZEROX_ADS) -->
+    <!-- Publicidad compacta: después de las secciones -->
     <section class="zerox-ad-zone shell" aria-label="Anuncios Zero'X">
       <div class="zerox-ad-carousel" id="zerox-ad-carousel">
         <button class="ad-arrow ad-prev" id="ad-prev" aria-label="Anuncio anterior">‹</button>
-        <div class="ad-stage">
-          <img id="ad-image" src="./assets/categories/diamantes-primera-vez.png.png" alt="">
-          <div class="ad-shade"></div>
-          <div class="ad-copy">
-            <small id="ad-kicker">ZERO'X STORE</small>
-            <h2 id="ad-title">DIAMANTES FREE FIRE</h2>
-            <p id="ad-text">Recargas y promociones en un solo lugar.</p>
-            <button id="ad-action" type="button">VER AHORA →</button>
-          </div>
-        </div>
-        <button class="ad-arrow ad-next" id="ad-next" aria-label="Siguiente anuncio">›</button>
-        <div class="ad-dots" id="ad-dots" aria-label="Seleccionar anuncio"></div>
+        <div class="ad-stage"><img id="ad-image" src="./assets/categories/diamantes-primera-vez.png.png" alt=""><div class="ad-shade"></div><div class="ad-copy"><small id="ad-kicker">ZERO'X STORE</small><h2 id="ad-title">PROMOCIONES ZERO'X</h2><p id="ad-text">Ofertas y beneficios destacados.</p><button id="ad-action" type="button">VER AHORA →</button></div></div>
+        <button class="ad-arrow ad-next" id="ad-next" aria-label="Siguiente anuncio">›</button><div class="ad-dots" id="ad-dots"></div>
       </div>
     </section>
-
 
     <section class="zx-freefire-menu shell" id="freefire-menu" hidden>
       <button class="zx-back" type="button" data-back-zones>← SECCIONES</button>
-      <div class="zx-hub-head"><span>FREE FIRE</span><h2>¿QUÉ BUSCAS?</h2></div>
+      <div class="zx-intro-card"><span>GUÍA RÁPIDA</span><h2>¿CÓMO RECARGAR?</h2><div class="zx-steps"><b>1</b><p>Elige el tipo de recarga.</p><b>2</b><p>En promociones de primera vez, verifica primero tu ID.</p><b>3</b><p>Selecciona el paquete y continúa al pedido.</p></div></div>
+      <div class="zx-hub-head"><span>FREE FIRE</span><h2>ELIGE UNA <em>SUBSECCIÓN</em></h2></div>
       <div class="zx-sub-grid">
-        <button data-zx-sub="first"><img src="./assets/categories/diamantes-primera-vez.png.png" alt=""><strong>DIAMANTES 1 VEZ</strong><span>Primero verificamos tu ID</span></button>
-        <button data-zx-sub="unlimited"><img src="./assets/categories/diamantes-ilimitados.png.png" alt=""><strong>DIAMANTES ILIMITADOS</strong><span>Ver paquetes disponibles</span></button>
-        <button data-cat="Pases Booyah"><img src="./assets/categories/pase-booyah.png.png" alt=""><strong>PASE BOOYAH</strong><span>Opciones y promociones</span></button>
-        <button data-cat="Fragmentos"><img src="./assets/categories/fragmentos.png.png" alt=""><strong>FRAGMENTOS</strong><span>Fragmentos y cajas EVO</span></button>
+        <button type="button" data-zx-sub="first"><img src="./assets/categories/diamantes-primera-vez.png.png" alt=""><strong>DIAMANTES 1ª VEZ</strong><span>Verifica tu ID antes de comprar</span></button>
+        <button type="button" data-zx-sub="unlimited"><img src="./assets/categories/diamantes-ilimitados.png.png" alt=""><strong>DIAMANTES ILIMITADOS</strong><span>Paquetes sin límite por ID</span></button>
+        <button type="button" data-open-cat="Pases Booyah"><img src="./assets/categories/pase-booyah.png.png" alt=""><strong>PASES BOOYAH</strong><span>Ver opciones disponibles</span></button>
+        <button type="button" data-open-cat="Fragmentos"><img src="./assets/categories/fragmentos.png.png" alt=""><strong>CAJAS Y FRAGMENTOS</strong><span>Fragmentos, cajas y EVO</span></button>
       </div>
     </section>
 
-    <section class="zx-id-gate shell" id="zx-id-gate" hidden>
-      <button class="zx-back" type="button" data-back-freefire>← FREE FIRE</button>
-      <div class="zx-id-panel">
-        <span class="section-kicker">VERIFICACIÓN FREE FIRE</span>
-        <h2>INTRODUCE TU <em>ID</em></h2>
-        <p>Verificaremos el jugador antes de mostrar los paquetes promocionales disponibles.</p>
-        <form id="zx-id-form"><input id="zx-player-id" inputmode="numeric" pattern="[0-9]{5,15}" required placeholder="ID de jugador"><button type="submit">VERIFICAR ID →</button></form>
-        <div id="zx-id-result" aria-live="polite"></div>
+    <section class="zx-id-gate shell" id="zx-id-gate" hidden><button class="zx-back" type="button" data-back-freefire>← FREE FIRE</button><div class="zx-id-panel"><span class="section-kicker">VERIFICACIÓN FREE FIRE</span><h2>INTRODUCE TU <em>ID</em></h2><p>Verificaremos el jugador antes de mostrar los paquetes promocionales disponibles.</p><form id="zx-id-form"><input id="zx-player-id" inputmode="numeric" pattern="[0-9]{5,15}" required placeholder="ID de jugador"><button type="submit">VERIFICAR ID →</button></form><div id="zx-id-result" aria-live="polite"></div></div></section>
+
+    <section class="zx-managed shell" id="zx-managed" hidden>
+      <button class="zx-back" type="button" data-back-zones>← SECCIONES</button>
+      <div class="zx-hub-head"><span id="zx-managed-kicker">ZERO'X MARKET</span><h2 id="zx-managed-title">CATÁLOGO</h2><p id="zx-managed-note"></p></div>
+      <div id="zx-managed-grid" class="zx-managed-grid"></div>
+    </section>
+
+    <section class="zx-reseller-panel shell" id="zx-reseller-panel" hidden>
+      <button class="zx-back" type="button" data-back-zones>← SECCIONES</button>
+      <div class="zx-reseller-hero"><span>ZERO'X PARTNERS</span><h2>PANEL DE <em>REVENDEDORES</em></h2><p>Acceso inicial desde $200 MXN. El nivel determina el catálogo y los precios especiales.</p><div class="zx-reseller-entry"><strong>INGRESO MÍNIMO</strong><b>$200 MXN</b><small>El pago y activación del panel se habilitarán cuando configuremos el flujo de cobro.</small></div></div>
+      <div class="zx-level-grid">
+        <article><b>01</b><strong>NOVATO</strong><span>4 ventas / semana</span></article>
+        <article><b>02</b><strong>INICIADO</strong><span>10+ ventas / semana</span></article>
+        <article><b>03</b><strong>ÉLITE</strong><span>30+ ventas / semana</span></article>
+        <article><b>04</b><strong>MAESTRO</strong><span>50+ ventas / semana</span></article>
+        <article><b>05</b><strong>TITÁN</strong><span>100+ ventas / semana</span></article>
+        <article><b>06</b><strong>LEGENDARIO</strong><span>500+ ventas / mes</span></article>
+        <article><b>07</b><strong>ZERO'X SUPREME</strong><span>1000+ ventas / mes</span></article>
       </div>
+      <p class="zx-reseller-foot">Los precios por nivel quedarán editables y los configuraremos después.</p>
     </section>
 
     <!-- ===================================================
@@ -679,37 +675,7 @@
          MÉTODOS DE PAGO
          =================================================== -->
 
-    <section class="payments shell">
-
-      <span class="section-kicker">
-        MÉTODOS DE PAGO
-      </span>
-
-      <h2 class="metal-title">
-        PAGA COMO PREFIERAS
-      </h2>
-
-      <div class="pay-grid">
-
-        <span>
-          🟡 Binance
-        </span>
-
-        <span>
-          🏦 Transferencia
-        </span>
-
-        <span>
-          💵 Depósito
-        </span>
-
-        <span>
-          🅿️ PayPal
-        </span>
-
-      </div>
-
-    </section>
+    
 
 
     <!-- ===================================================
@@ -835,7 +801,38 @@
        FOOTER
        ===================================================== -->
 
-  <footer class="footer">
+  <section class="payments shell">
+
+      <span class="section-kicker">
+        MÉTODOS DE PAGO
+      </span>
+
+      <h2 class="metal-title">
+        PAGA COMO PREFIERAS
+      </h2>
+
+      <div class="pay-grid">
+
+        <span>
+          🟡 Binance
+        </span>
+
+        <span>
+          🏦 Transferencia
+        </span>
+
+        <span>
+          💵 Depósito
+        </span>
+
+        <span>
+          🅿️ PayPal
+        </span>
+
+      </div>
+
+    </section>
+<footer class="footer">
 
     <div class="shell footer-grid">
 
