@@ -704,7 +704,7 @@ function render() {
   const q = String(searchTerm || "").toLowerCase();
   const rows = PRODUCTS.filter(product => {
     if (!product.active) return false;
-    const categoryMatch = filter === "Todos" || product.category === filter;
+    const categoryMatch = filter === "Todos" || product.category === filter || (filter === "Cajas y Fragmentos" && ["Cajas","Fragmentos"].includes(product.category));
     const searchMatch = !q || (product.name + " " + (product.description || "") + " " + product.category).toLowerCase().includes(q);
     return categoryMatch && searchMatch;
   });
