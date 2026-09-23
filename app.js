@@ -753,7 +753,7 @@ function zxOpenManaged(type){
  $("#zx-managed-grid").innerHTML=rows.length?rows.map(p=>`<article class="zx-media-product"><div class="zx-media-art">${artFor(p)||'<div class="zx-media-placeholder">ZERO’X</div>'}</div><div><small>${esc(p.category)}</small><h3>${esc(p.name)}</h3><p>${esc(p.description||"Producto disponible en Zero’X Store.")}</p><strong>${money(p.price)}</strong><button type="button" data-buy="${esc(p.id)}">VER PRODUCTO</button></div></article>`).join(""):'<div class="zx-empty"><b>PRÓXIMAMENTE</b><span>Esta sección ya está preparada para recibir productos con fotos, videos, descripción y precio.</span></div>';
  $("#zx-managed-grid").querySelectorAll("[data-buy]").forEach(b=>b.onclick=()=>openCheckout(b.dataset.buy));zxScroll($("#zx-managed"));
 }
-document.addEventListener("pointerup",event=>{
+document.addEventListener("click",event=>{
  const zone=event.target.closest("[data-zone]");if(zone){event.preventDefault();const z=zone.dataset.zone;if(z==="freefire"){zxCloseViews();zxShow($("#secciones"),false);zxShow($("#freefire-menu"),true);zxScroll($("#freefire-menu"))}else if(z==="streaming")zxOpenCatalog("Streaming");else if(z==="resellers"){zxCloseViews();zxShow($("#secciones"),false);zxShow($("#zx-reseller-panel"),true);zxScroll($("#zx-reseller-panel"))}else zxOpenManaged(z);return}
  if(event.target.closest("[data-back-zones]")){zxCloseViews();zxShow($("#secciones"),true);zxScroll($("#secciones"));return}
  if(event.target.closest("[data-back-freefire]")){zxCloseViews();zxShow($("#secciones"),false);zxShow($("#freefire-menu"),true);zxScroll($("#freefire-menu"));return}
