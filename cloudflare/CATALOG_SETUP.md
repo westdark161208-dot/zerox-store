@@ -7,7 +7,7 @@ precios de revendedores quedan fuera de este cambio.
 
 ## Recursos que faltan
 
-1. Crear una base Cloudflare D1 para Zero'X y un bucket R2 para medios.
+1. Reutilizar la base D1 existente `zerox-store-db` (confirmada en Cloudflare) y crear un bucket R2 para medios. No crear otra D1.
 2. Vincular la base al Worker como `DB` y el bucket como `MEDIA`. Como el Worker
    se despliega desde GitHub con `npx wrangler deploy`, anotar el ID real de D1 y
    el nombre real del bucket en `wrangler.jsonc` antes del despliegue:
