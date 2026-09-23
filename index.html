@@ -27,12 +27,12 @@
 
   <title>Zero'X Store — Tu mundo gamer</title>
 
-  <link rel="manifest" href="./manifest.json">
+  <link rel="manifest" href="./manifest.json?v=9">
   <link
     rel="apple-touch-icon"
     href="./apple-touch-icon.png"
   >
-  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./styles.css?v=9">
   <style id="zerox-emergency-boot">#zerox-splash{display:none!important}</style>
   <script>
   /* Zero'X emergency cache reset: keep the storefront accessible even if app JS fails */
@@ -42,24 +42,6 @@
 </head>
 
 <body>
-  <!-- ZERO'X STORE · SPLASH SCREEN -->
-<div id="zerox-splash" class="zerox-splash">
-  <div class="zerox-splash-bg"></div>
-
-  <div class="zerox-loader">
-    <div class="zerox-loader-text">
-      <span>CARGANDO...</span>
-      <strong id="zerox-loading-percent">0%</strong>
-    </div>
-
-    <div class="zerox-loading-track">
-      <div id="zerox-loading-bar" class="zerox-loading-bar">
-        <span class="zerox-loading-shine"></span>
-      </div>
-    </div>
-  </div>
-</div>
-<!-- /ZERO'X STORE · SPLASH SCREEN -->
 <!-- =====================================================
        HEADER
        ===================================================== -->
@@ -1349,22 +1331,7 @@
     </button>
 
   </div>
-
-
-  <script>
-/* Zero'X emergency splash release: HTML-level fail-safe */
-(function(){
-  function release(){
-    var s=document.getElementById('zerox-splash');
-    if(!s)return;
-    s.classList.add('zerox-splash-out');
-    setTimeout(function(){s.style.display='none';s.hidden=true;},450);
-  }
-  window.addEventListener('load',function(){setTimeout(release,700);},{once:true});
-  setTimeout(release,4500);
-})();
-</script>
-<script src="./app.js?v=8"></script>
+<script src="./app.js?v=9" defer></script>
 
 </body>
 </html>
