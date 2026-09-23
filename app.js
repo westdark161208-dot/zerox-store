@@ -452,13 +452,23 @@ function renderZeroXAccount() {
   guest.hidden = !!zeroxUser;
   user.hidden = !zeroxUser;
   if (profile) profile.classList.toggle("signed-in", !!zeroxUser);
+  const authBanner = $("#account-modal .zerox-auth-banner");
+  if (authBanner) authBanner.hidden = !!zeroxUser;
   if (!zeroxUser) return;
   const name = zeroxUser.display_name || zeroxUser.displayName || zeroxUser.username || "Jugador";
   $("#account-name").textContent = name;
   $("#account-username").textContent = "@" + (zeroxUser.username || "zerox");
   $("#account-level").textContent = zeroxUser.level ?? 1;
   $("#account-xp").textContent = zeroxUser.xp ?? 0;
-  $("#account-avatar").textContent = name.trim().slice(0,2).toUpperCase() || "ZX";
+  const avatar = $("#account-avatar"), p = zeroxUser.profile || {};
+  avatar.textContent = p.avatar ? "" : (name.trim().slice(0,2).toUpperCase() || "ZX");
+  avatar.style.backgroundImage = p.avatar ? `url("${p.avatar}")` : "";
+  avatar.className = "account-avatar zx-frame-" + (["steel","chrome","titan"].includes(p.frame) ? p.frame : "steel");
+  $("#profile-bio-view").textContent = p.bio || "Personaliza tu presentación ✨";
+  const banner = $("#profile-banner");
+  banner.className = "zx-profile-banner zx-banner-" + (["violet","crimson","electric","custom"].includes(p.banner) ? p.banner : "violet");
+  banner.style.backgroundImage = p.banner === "custom" && p.bannerImage ? `linear-gradient(0deg,rgba(5,3,10,.6),transparent),url("${p.bannerImage}")` : "";
+  zxRenderProfileEditor();
 }
 
 async function restoreZeroXSession() {
@@ -508,7 +518,7 @@ $("#register-form")?.addEventListener("submit", async event => {
     saveZeroXSession(data.session);
     zeroxUser = data.user;
     form.reset();
-    renderZeroXAccount();
+    await restoreZeroXSession();
   } catch (error) {
     $("#auth-result").innerHTML = `<div class="error">${esc(authMessage(error))}</div>`;
   } finally {
@@ -542,6 +552,65 @@ $("#logout-account")?.addEventListener("click", async () => {
 $("#account-orders")?.addEventListener("click", () => {
   $("#account-modal")?.close();
   openStatus();
+});
+
+const ZX_FAVS = ["Free Fire","Streaming","Cuentas","Venta de clanes","Honor de clanes","Revendedores"];
+const ZX_AVATARS = [["♛","#5e199d"],["✦","#126b91"],["⚡","#853334"],["◆","#387266"],["★","#9c6119"]];
+let zxDraftAvatar = "";
+let zxDraftBannerImage = "";
+let zxDraftBanner = "violet";
+let zxDraftFrame = "steel";
+function zxRenderProfileEditor(){
+  const profile=zeroxUser?.profile || {}, avatarBox=$("#profile-avatar-choices");
+  if(!avatarBox)return;
+  zxDraftAvatar=profile.avatar||"";zxDraftBannerImage=profile.bannerImage||"";zxDraftBanner=profile.banner||"violet";zxDraftFrame=profile.frame||"steel";
+  $("#profile-bio").value=profile.bio||"";
+  avatarBox.innerHTML=ZX_AVATARS.map(([icon,color],i)=>`<button type="button" class="zx-avatar-option" data-avatar-preset="${i}" style="--avatar-color:${color}" aria-label="Avatar ${i+1}">${icon}</button>`).join("");
+  $("#profile-favorites").innerHTML=ZX_FAVS.map(f=>`<label><input type="checkbox" value="${f}" ${(profile.favorites||[]).includes(f)?"checked":""}><span>${f}</span></label>`).join("");
+  $("#profile-banner-choices").innerHTML=[["violet","💜 Violeta"],["crimson","❤️ Carmesí"],["electric","⚡ Eléctrico"]].map(([id,label])=>`<button type="button" data-profile-banner="${id}" class="${zxDraftBanner===id?"selected":""}">${label}</button>`).join("")+`<button type="button" data-profile-banner="custom" class="${zxDraftBanner==="custom"?"selected":""}">🖼️ Mi imagen</button>`;
+  const level=Number(zeroxUser.level||1);
+  $("#profile-frame-choices").innerHTML=[["steel","🎁 Acero",1],["chrome","✧ Cromo",3],["titan","✦ Titán",5]].map(([id,label,needed])=>`<button type="button" data-profile-frame="${id}" ${level<needed?"disabled":""} class="${zxDraftFrame===id?"selected":""}">${label}${level<needed?` · Nivel ${needed}`:""}</button>`).join("");
+}
+function zxPresetAvatar(icon,color){
+  const canvas=document.createElement("canvas");canvas.width=canvas.height=256;
+  const ctx=canvas.getContext("2d"),grad=ctx.createLinearGradient(0,0,256,256);
+  grad.addColorStop(0,color);grad.addColorStop(1,"#0b0713");ctx.fillStyle=grad;ctx.fillRect(0,0,256,256);
+  ctx.fillStyle="#fff";ctx.font="bold 138px sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(icon,128,135);
+  return canvas.toDataURL("image/png");
+}
+async function zxCompactImage(file,width,height){
+  if(!file || !["image/jpeg","image/png","image/webp"].includes(file.type) || file.size>8*1024*1024)throw Error("Selecciona una imagen JPG, PNG o WebP de hasta 8 MB.");
+  const bitmap=await createImageBitmap(file),canvas=document.createElement("canvas");canvas.width=width;canvas.height=height;
+  const ctx=canvas.getContext("2d");const scale=Math.max(width/bitmap.width,height/bitmap.height);
+  ctx.drawImage(bitmap,(width-bitmap.width*scale)/2,(height-bitmap.height*scale)/2,bitmap.width*scale,bitmap.height*scale);bitmap.close?.();
+  let data=canvas.toDataURL("image/jpeg",.7);
+  if(data.length>155000)data=canvas.toDataURL("image/jpeg",.4);
+  if(data.length>155000)throw Error("La imagen es muy grande; prueba con otra.");
+  return data;
+}
+$("#profile-avatar-choices")?.addEventListener("click",e=>{
+  const button=e.target.closest("[data-avatar-preset]");if(!button)return;
+  const [icon,color]=ZX_AVATARS[Number(button.dataset.avatarPreset)];zxDraftAvatar=zxPresetAvatar(icon,color);
+  $("#profile-avatar-choices").querySelectorAll("button").forEach(b=>b.classList.toggle("selected",b===button));
+  $("#account-avatar").textContent="";$("#account-avatar").style.backgroundImage=`url("${zxDraftAvatar}")`;
+});
+$("#profile-avatar-file")?.addEventListener("change",async e=>{
+  try{zxDraftAvatar=await zxCompactImage(e.target.files[0],256,256);$("#account-avatar").textContent="";$("#account-avatar").style.backgroundImage=`url("${zxDraftAvatar}")`;$("#profile-result").textContent="Foto preparada. Guarda los cambios.";}
+  catch(err){$("#profile-result").textContent=err.message;}
+});
+$("#profile-banner-file")?.addEventListener("change",async e=>{
+  try{zxDraftBannerImage=await zxCompactImage(e.target.files[0],640,220);zxDraftBanner="custom";$("#profile-banner").className="zx-profile-banner zx-banner-custom";$("#profile-banner").style.backgroundImage=`linear-gradient(0deg,rgba(5,3,10,.6),transparent),url("${zxDraftBannerImage}")`;$("#profile-result").textContent="Banner preparado. Guarda los cambios.";}
+  catch(err){$("#profile-result").textContent=err.message;}
+});
+$("#profile-banner-choices")?.addEventListener("click",e=>{const b=e.target.closest("[data-profile-banner]");if(!b)return;zxDraftBanner=b.dataset.profileBanner;$("#profile-banner").className="zx-profile-banner zx-banner-"+zxDraftBanner;$("#profile-banner").style.backgroundImage=zxDraftBanner==="custom"&&zxDraftBannerImage?`linear-gradient(0deg,rgba(5,3,10,.6),transparent),url("${zxDraftBannerImage}")`:"";$("#profile-banner-choices").querySelectorAll("button").forEach(x=>x.classList.toggle("selected",x===b));});
+$("#profile-frame-choices")?.addEventListener("click",e=>{const b=e.target.closest("[data-profile-frame]");if(!b||b.disabled)return;zxDraftFrame=b.dataset.profileFrame;$("#account-avatar").className="account-avatar zx-frame-"+zxDraftFrame;$("#profile-frame-choices").querySelectorAll("button").forEach(x=>x.classList.toggle("selected",x===b));});
+$("#profile-save")?.addEventListener("click",async()=>{
+  const button=$("#profile-save"),out=$("#profile-result");button.disabled=true;out.textContent="Guardando...";
+  try{const favorites=[...$("#profile-favorites").querySelectorAll("input:checked")].map(x=>x.value);if(favorites.length>6)throw Error("Puedes elegir hasta 6 categorías.");
+    const body={bio:$("#profile-bio").value.trim(),favorites,avatar:zxDraftAvatar,banner:zxDraftBanner,bannerImage:zxDraftBannerImage,frame:zxDraftFrame};
+    const data=await zeroxAuthRequest("/api/auth/profile",{method:"POST",body:JSON.stringify(body)});
+    zeroxUser.profile=data.profile;renderZeroXAccount();out.textContent="Perfil guardado ✓";
+  }catch(err){out.textContent=err.status?authMessage(err):err.message;}finally{button.disabled=false;}
 });
 
 restoreZeroXSession();
@@ -1846,6 +1915,16 @@ if (backdrop) {
   backdrop.onclick =
     closeDrawer;
 }
+
+$("#drawer-profile")?.addEventListener("click",()=>{closeDrawer();$("#account-modal")?.showModal();});
+$("#drawer-search")?.addEventListener("keydown",e=>{if(e.key!=="Enter")return;e.preventDefault();const query=e.target.value.trim();closeDrawer();$("#search").value=query;$("#search").dispatchEvent(new Event("input",{bubbles:true}));$("#catalogo")?.scrollIntoView({behavior:"smooth"});});
+$("#drawer").addEventListener("click",e=>{
+  const b=e.target.closest("[data-drawer-zone],[data-drawer-sub],[data-drawer-cat]");if(!b)return;
+  closeDrawer();
+  if(b.dataset.drawerZone==="home"){zxCloseViews();zxShow($("#secciones"),true);$("#inicio")?.scrollIntoView({behavior:"smooth"});return;}
+  const selector=b.dataset.drawerZone?`[data-zone="${b.dataset.drawerZone}"]`:b.dataset.drawerSub?`[data-zx-sub="${b.dataset.drawerSub}"]`:`[data-open-cat="${b.dataset.drawerCat}"]`;
+  document.querySelector(".zx-section-hub "+selector)?.click() || document.querySelector(".zx-freefire-menu "+selector)?.click();
+});
 
 $$('#drawer a').forEach(
   link => {
