@@ -32,7 +32,7 @@
     rel="apple-touch-icon"
     href="./apple-touch-icon.png"
   >
-  <link rel="stylesheet" href="./styles.css?v=10">
+  <link rel="stylesheet" href="./styles.css?v=11">
   <style id="zerox-emergency-boot">#zerox-splash{display:none!important}</style>
   <script>
   /* Zero'X emergency cache reset: keep the storefront accessible even if app JS fails */
@@ -199,6 +199,8 @@
             </span>
 
           </h1>
+
+          <p class="hero-tagline">ZeroX Systems Mejorando para ti</p>
 
           <p>
             Diamantes, Pase Booyah, fragmentos,
@@ -1065,7 +1067,7 @@
           <input name="login" autocomplete="username" required placeholder="Tu correo o usuario">
         </label>
         <label>Contraseña
-          <input name="password" type="password" autocomplete="current-password" required minlength="8" placeholder="••••••••">
+          <span class="password-field"><input name="password" type="password" autocomplete="current-password" required minlength="8" placeholder="••••••••"><button type="button" class="password-toggle" aria-label="Mostrar contraseña" aria-pressed="false">Ver</button></span>
         </label>
         <button type="submit">ENTRAR A ZERO'X</button>
       </form>
@@ -1081,7 +1083,7 @@
           <input name="email" type="email" autocomplete="email" required placeholder="correo@ejemplo.com">
         </label>
         <label>Contraseña
-          <input name="password" type="password" autocomplete="new-password" required minlength="8" maxlength="128" placeholder="Mínimo 8 caracteres">
+          <span class="password-field"><input name="password" type="password" autocomplete="new-password" required minlength="8" maxlength="128" placeholder="Mínimo 8 caracteres"><button type="button" class="password-toggle" aria-label="Mostrar contraseña" aria-pressed="false">Ver</button></span>
         </label>
         <button type="submit">CREAR MI CUENTA</button>
       </form>
@@ -1248,7 +1250,7 @@
     </button>
 
   </div>
-<script src="./app.js?v=13" defer></script>
+<script src="./app.js?v=14" defer></script>
 
 </body>
 </html>
