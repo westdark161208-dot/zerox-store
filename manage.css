@@ -10,3 +10,5 @@ button:disabled{opacity:.55;cursor:wait}.check{display:flex;align-items:center;g
 #product-list img,#product-list video{width:110px;height:95px;object-fit:cover;border-radius:9px;background:#24202b}
 #product-list h3{margin:0 0 6px;overflow-wrap:anywhere}#product-list p{margin:3px 0;color:#aaa5b4}#product-list small{color:#c79eff}
 @media(max-width:760px){#workspace{grid-template-columns:1fr}#product-list article{grid-template-columns:80px 1fr}#product-list img,#product-list video{width:80px;height:80px}}
+
+[hidden]{display:none!important}
