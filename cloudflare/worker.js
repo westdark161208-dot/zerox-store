@@ -118,8 +118,8 @@ export default {
         if(bio.length>180 || !Array.isArray(favorites) || favorites.length>6 || favorites.some(x=>typeof x!=="string" || !["Free Fire","Streaming","Cuentas","Venta de clanes","Honor de clanes","Revendedores"].includes(x)))return json({ok:false,error:"INVALID_PROFILE"},400);
         if(avatar && !/^data:image\/(jpeg|png|webp);base64,[a-zA-Z0-9+/=]+$/.test(avatar))return json({ok:false,error:"INVALID_AVATAR"},400);
         if(bannerImage && !/^data:image\/(jpeg|png|webp);base64,[a-zA-Z0-9+/=]+$/.test(bannerImage))return json({ok:false,error:"INVALID_BANNER"},400);
-        if(avatar.length>160000 || bannerImage.length>160000 || avatar.length+bannerImage.length>260000 || !["violet","crimson","electric","custom"].includes(banner) || !["steel","chrome","titan"].includes(frame))return json({ok:false,error:"INVALID_PROFILE"},400);
-        if(frame==="chrome" && Number(user.level||1)<3 || frame==="titan" && Number(user.level||1)<5)return json({ok:false,error:"FRAME_LOCKED"},403);
+        if(avatar.length>160000 || bannerImage.length>160000 || avatar.length+bannerImage.length>260000 || !["violet","crimson","electric","custom"].includes(banner) || !["steel","chrome","cobalt","titan","aurora","prism","sovereign"].includes(frame))return json({ok:false,error:"INVALID_PROFILE"},400);
+        if(Number(user.level||1)<(["steel","chrome","cobalt","titan","aurora","prism","sovereign"].indexOf(frame)+1))return json({ok:false,error:"FRAME_LOCKED"},403);
         await env.DB.prepare("INSERT INTO zx_profile_style(user_id,bio,favorites,avatar,banner,banner_image,frame) VALUES(?,?,?,?,?,?,?) ON CONFLICT(user_id) DO UPDATE SET bio=excluded.bio,favorites=excluded.favorites,avatar=excluded.avatar,banner=excluded.banner,banner_image=excluded.banner_image,frame=excluded.frame").bind(user.id,bio,JSON.stringify(favorites),avatar,banner,bannerImage,frame).run();
         return json({ok:true,profile:{bio,favorites,avatar,banner,bannerImage,frame}});
       }
