@@ -7545,3 +7545,7 @@ body{background:
 .zx-account-id button{margin-left:auto;border:1px solid #9b6cc4;border-radius:8px;padding:6px 10px;background:#25142e;color:#fff;font-size:11px}
 .zx-account-id small{width:100%;color:#d7c3e5;overflow-wrap:anywhere}
 @media(prefers-reduced-motion:reduce){.zx-founder-name{animation:none}}
+
+/* Insignia original del fundador */
+.zx-founder-badge{width:46px!important;height:46px!important;padding:0!important;overflow:hidden;border-radius:50%!important;border:2px solid #f7c76d!important;background:#060304!important;box-shadow:0 0 12px #ff9b25a8,0 0 22px #e83326a1!important}
+.zx-founder-badge img{width:100%;height:100%;display:block;object-fit:cover;border-radius:50%}
