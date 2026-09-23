@@ -7380,3 +7380,77 @@ body{background:
 .zx-reseller-group li{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-top:1px solid rgba(255,255,255,.08);font-size:13px;color:#eee}
 .zx-reseller-group li small{color:#8dbbad;text-align:right}
 @media(max-width:760px){.zx-reseller-catalog{grid-template-columns:1fr}.zx-reseller-group li{flex-direction:column;gap:2px}.zx-reseller-group li small{text-align:left}}
+
+/* Portada móvil: imagen completa y título legible sobre la foto. */
+@media(max-width:650px){
+  .hero{
+    min-height:calc(100vw + 112px)!important;
+    background-color:#070609!important;
+    background-image:url('./hero-main.png')!important;
+    background-size:100% auto!important;
+    background-position:center bottom!important;
+    background-repeat:no-repeat!important;
+  }
+  .hero::before,.hero-vignette{display:none!important}
+  .hero-content{
+    min-height:calc(100vw + 112px)!important;
+    align-items:flex-start!important;
+    padding:12px 18px 0!important;
+  }
+  .hero-copy{
+    width:100%!important;
+    max-width:none!important;
+    padding:0!important;
+    border:0!important;
+    background:none!important;
+  }
+  .hero-copy .eyebrow,.hero-title .brush-white:not(:first-child),
+  .hero-title .brush-red,.hero-copy p,.hero-badges{display:none!important}
+  .hero-title{margin:0 0 8px!important;max-width:none!important}
+  .hero-title .brush-white:first-child{
+    font-size:clamp(25px,7vw,34px)!important;
+    line-height:1.05!important;
+  }
+  .hero-copy .cta{
+    display:inline-flex!important;
+    width:auto!important;
+    min-height:38px!important;
+    padding:0 13px!important;
+    font-size:12px!important;
+  }
+}
+/* El atributo hidden manda incluso sobre las antiguas reglas !important. */
+#install-toast[hidden]{display:none!important}
+@media(max-width:650px){
+  #install-toast:not([hidden]){
+    left:12px!important;
+    right:12px!important;
+    bottom:82px!important;
+    width:auto!important;
+    height:auto!important;
+    min-height:48px!important;
+    max-height:none!important;
+    padding:6px 8px 6px 11px!important;
+    gap:6px!important;
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto auto!important;
+    align-items:center!important;
+  }
+  #install-toast>div:first-child{min-width:0!important;display:block!important}
+  #install-toast b{display:block!important;font-size:12px!important;line-height:1.15!important}
+  #install-toast span{display:none!important}
+  #install-toast #install-toast-btn{
+    min-width:70px!important;
+    width:auto!important;
+    min-height:36px!important;
+    padding:0 10px!important;
+    font-size:12px!important;
+  }
+  #install-toast #dismiss-install{
+    min-width:36px!important;
+    width:36px!important;
+    min-height:36px!important;
+    padding:0!important;
+    font-size:20px!important;
+  }
+}
