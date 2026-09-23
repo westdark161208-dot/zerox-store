@@ -486,6 +486,18 @@ $("#close-account")?.addEventListener("click", () => $("#account-modal")?.close(
 $("#auth-login-tab")?.addEventListener("click", () => showAuthMode("login"));
 $("#auth-register-tab")?.addEventListener("click", () => showAuthMode("register"));
 
+document.querySelectorAll(".password-toggle").forEach(button => {
+  button.addEventListener("click", () => {
+    const input = button.parentElement.querySelector('input[name="password"]');
+    if (!input) return;
+    const showing = input.type === "password";
+    input.type = showing ? "text" : "password";
+    button.textContent = showing ? "Ocultar" : "Ver";
+    button.setAttribute("aria-label", showing ? "Ocultar contraseña" : "Mostrar contraseña");
+    button.setAttribute("aria-pressed", String(showing));
+  });
+});
+
 $("#register-form")?.addEventListener("submit", async event => {
   event.preventDefault();
   const form = event.currentTarget, button = form.querySelector('button[type="submit"]');
