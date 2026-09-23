@@ -93,7 +93,7 @@ export default {
       if(url.pathname==="/api/auth/register" && request.method==="POST"){
         const body=await request.json();
         const email=String(body.email||"").trim().toLowerCase(), username=String(body.username||"").trim().replace(/^@+/,""), password=String(body.password||""), displayName=String(body.displayName||username).trim();
-        if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) return json({ok:false,error:"INVALID_EMAIL"},400);
+        if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json({ok:false,error:"INVALID_EMAIL"},400);
         if(!/^[A-Za-z0-9_.-]{3,24}$/.test(username)) return json({ok:false,error:"INVALID_USERNAME"},400);
         if(password.length<8||password.length>128) return json({ok:false,error:"INVALID_PASSWORD"},400);
         const exists=await env.DB.prepare("SELECT id FROM zx_users WHERE lower(email)=lower(?) OR lower(username)=lower(?) LIMIT 1").bind(email,username).first();
