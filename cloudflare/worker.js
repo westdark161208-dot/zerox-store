@@ -30,7 +30,7 @@ const PRODUCT_MAP = {
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Methods": "GET, POST, PATCH, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization"
 };
 
@@ -80,6 +80,36 @@ async function currentUser(request,env){
   const tokenHash=await digest(m[1].trim());
   const user=await env.DB.prepare("SELECT u.id,u.email,u.username,u.status,u.created_at,p.display_name,p.avatar_url,p.xp,p.level FROM zx_sessions s JOIN zx_users u ON u.id=s.user_id LEFT JOIN zx_profiles p ON p.user_id=u.id WHERE s.token_hash=? AND s.revoked_at IS NULL AND s.expires_at>? LIMIT 1").bind(tokenHash,new Date().toISOString()).first();
   return user ? {...user,isFounder:!!FOUNDER_USER_ID && user.id===FOUNDER_USER_ID} : null;
+}
+
+const CATALOG_SECTIONS = ["accounts", "clans", "honor"];
+async function catalogSchema(env) {
+  if (!env.DB) throw new Error("DB_BINDING_NOT_CONFIGURED");
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS zx_catalog (id TEXT PRIMARY KEY,section TEXT NOT NULL,name TEXT NOT NULL,description TEXT NOT NULL DEFAULT '',price REAL NOT NULL,image_key TEXT,video_key TEXT,active INTEGER NOT NULL DEFAULT 0,created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)").run();
+}
+function catalogRow(row, base) {
+  return {
+    id: row.id, section: row.section, name: row.name,
+    description: row.description, price: row.price, active: Boolean(row.active),
+    imageUrl: row.image_key ? `${base}/api/catalog/media/${encodeURIComponent(row.image_key)}` : null,
+    videoUrl: row.video_key ? `${base}/api/catalog/media/${encodeURIComponent(row.video_key)}` : null
+  };
+}
+function validCatalog(body) {
+  const section = String(body.section || "");
+  const name = String(body.name || "").trim();
+  const description = String(body.description || "").trim();
+  const price = Number(body.price);
+  if (!CATALOG_SECTIONS.includes(section) || !name || name.length > 120 ||
+      description.length > 3000 || !Number.isFinite(price) || price < 0 || price > 1000000)
+    return null;
+  const key = value => value == null || value === "" ? null :
+    /^[0-9a-f-]{36}\.(jpg|png|webp|mp4|webm)$/.test(String(value)) ? String(value) : false;
+  const imageKey = key(body.imageKey), videoKey = key(body.videoKey);
+  if (imageKey === false || videoKey === false ||
+      (imageKey && !/\.(jpg|png|webp)$/.test(imageKey)) ||
+      (videoKey && !/\.(mp4|webm)$/.test(videoKey))) return null;
+  return { section, name, description, price, imageKey, videoKey, active: body.active === true };
 }
 
 export default {
@@ -169,6 +199,86 @@ export default {
         const m=(request.headers.get("Authorization")||"").match(/^Bearer\s+(.+)$/i);
         if(m) await env.DB.prepare("UPDATE zx_sessions SET revoked_at=CURRENT_TIMESTAMP WHERE token_hash=? AND revoked_at IS NULL").bind(await digest(m[1].trim())).run();
         return json({ok:true});
+      }
+
+      // Managed catalog is separate from the existing checkout and orders.
+      if (url.pathname.startsWith("/api/catalog/") || url.pathname.startsWith("/api/admin/catalog")) {
+        const base = url.origin;
+        const mediaKey = url.pathname.match(/^\/api\/catalog\/media\/([0-9a-f-]{36}\.(?:jpg|png|webp|mp4|webm))$/);
+        if (mediaKey && request.method === "GET") {
+          if (!env.MEDIA) return json({ok:false,error:"MEDIA_BINDING_NOT_CONFIGURED"},503);
+          const object = await env.MEDIA.get(mediaKey[1]);
+          if (!object) return json({ok:false,error:"NOT_FOUND"},404);
+          return new Response(object.body, {
+            headers: {
+              "Content-Type": object.httpMetadata?.contentType || "application/octet-stream",
+              "Cache-Control": "public, max-age=31536000, immutable",
+              "X-Content-Type-Options": "nosniff",
+              ...corsHeaders
+            }
+          });
+        }
+        if (url.pathname === "/api/catalog/products" && request.method === "GET") {
+          if (!env.DB) return json({ok:false,error:"DB_BINDING_NOT_CONFIGURED"},503);
+          await catalogSchema(env);
+          const section = url.searchParams.get("section");
+          if (!CATALOG_SECTIONS.includes(section)) return json({ok:false,error:"INVALID_SECTION"},400);
+          const rows = await env.DB.prepare("SELECT * FROM zx_catalog WHERE section=? AND active=1 ORDER BY created_at DESC LIMIT 100").bind(section).all();
+          return json({ok:true,products:rows.results.map(row=>catalogRow(row,base))});
+        }
+        if (!url.pathname.startsWith("/api/admin/catalog")) return json({ok:false,error:"NOT_FOUND"},404);
+        const user = await currentUser(request,env);
+        if (!user || user.status !== "active" || user.isFounder !== true)
+          return json({ok:false,error:"FORBIDDEN"},403);
+        if (!env.DB) return json({ok:false,error:"DB_BINDING_NOT_CONFIGURED"},503);
+        await catalogSchema(env);
+        if (url.pathname === "/api/admin/catalog/status" && request.method === "GET") return json({ok:true,mediaAvailable:!!env.MEDIA});
+        if (url.pathname === "/api/admin/catalog/products" && request.method === "GET") {
+          const rows = await env.DB.prepare("SELECT * FROM zx_catalog ORDER BY updated_at DESC LIMIT 200").all();
+          return json({ok:true,products:rows.results.map(row=>({
+            ...catalogRow(row,base), imageKey:row.image_key, videoKey:row.video_key
+          }))});
+        }
+        if (url.pathname === "/api/admin/catalog/media" && request.method === "POST") {
+          if (!env.MEDIA) return json({ok:false,error:"MEDIA_BINDING_NOT_CONFIGURED"},503);
+          const length = Number(request.headers.get("content-length") || 0);
+          if (length > 26000000) return json({ok:false,error:"FILE_TOO_LARGE"},413);
+          const form = await request.formData(), file = form.get("file");
+          const types = {
+            "image/jpeg":["jpg",8000000], "image/png":["png",8000000],
+            "image/webp":["webp",8000000], "video/mp4":["mp4",25000000],
+            "video/webm":["webm",25000000]
+          };
+          const spec = file && types[file.type];
+          if (!spec || !file.size || file.size > spec[1]) return json({ok:false,error:"INVALID_MEDIA"},400);
+          const bytes = new Uint8Array(await file.arrayBuffer());
+          const signature = spec[0] === "jpg" ? bytes[0]===255 && bytes[1]===216 && bytes[2]===255 :
+            spec[0] === "png" ? bytes[0]===137 && bytes[1]===80 && bytes[2]===78 && bytes[3]===71 :
+            spec[0] === "webp" ? String.fromCharCode(...bytes.slice(0,4))==="RIFF" && String.fromCharCode(...bytes.slice(8,12))==="WEBP" :
+            spec[0] === "mp4" ? String.fromCharCode(...bytes.slice(4,8))==="ftyp" :
+            bytes[0]===26 && bytes[1]===69 && bytes[2]===223 && bytes[3]===163;
+          if (!signature) return json({ok:false,error:"INVALID_MEDIA"},400);
+          const key = `${crypto.randomUUID()}.${spec[0]}`;
+          await env.MEDIA.put(key,bytes,{httpMetadata:{contentType:file.type}});
+          return json({ok:true,key,url:`${base}/api/catalog/media/${key}`},201);
+        }
+        if (url.pathname === "/api/admin/catalog/products" && request.method === "POST") {
+          const product = validCatalog(await request.json());
+          if (!product) return json({ok:false,error:"INVALID_PRODUCT"},400);
+          const id = crypto.randomUUID();
+          await env.DB.prepare("INSERT INTO zx_catalog(id,section,name,description,price,image_key,video_key,active) VALUES(?,?,?,?,?,?,?,?)")
+            .bind(id,product.section,product.name,product.description,product.price,product.imageKey,product.videoKey,Number(product.active)).run();
+          return json({ok:true,id},201);
+        }
+        const productId = url.pathname.match(/^\/api\/admin\/catalog\/products\/([0-9a-f-]{36})$/);
+        if (productId && request.method === "PATCH") {
+          const product = validCatalog(await request.json());
+          if (!product) return json({ok:false,error:"INVALID_PRODUCT"},400);
+          const result = await env.DB.prepare("UPDATE zx_catalog SET section=?,name=?,description=?,price=?,image_key=?,video_key=?,active=?,updated_at=CURRENT_TIMESTAMP WHERE id=?")
+            .bind(product.section,product.name,product.description,product.price,product.imageKey,product.videoKey,Number(product.active),productId[1]).run();
+          return result.meta.changes ? json({ok:true,id:productId[1]}) : json({ok:false,error:"NOT_FOUND"},404);
+        }
+        return json({ok:false,error:"NOT_FOUND"},404);
       }
 
 // Consultar información de jugador de Free Fire
