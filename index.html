@@ -32,7 +32,7 @@
     rel="apple-touch-icon"
     href="./apple-touch-icon.png"
   >
-  <link rel="stylesheet" href="./styles.css?v=14">
+  <link rel="stylesheet" href="./styles.css?v=15">
   <style id="zerox-emergency-boot">#zerox-splash{display:none!important}</style>
   <script>
   /* Zero'X emergency cache reset: keep the storefront accessible even if app JS fails */
@@ -1078,6 +1078,7 @@
         </label>
         <label>Usuario
           <input name="username" autocomplete="username" required minlength="3" maxlength="24" pattern="@?[A-Za-z0-9_.-]+" placeholder="@zerox_player">
+          <small id="register-username-status" role="status" aria-live="polite"></small>
         </label>
         <label>Correo
           <input name="email" type="email" autocomplete="email" required placeholder="correo@ejemplo.com">
@@ -1103,6 +1104,11 @@
       <div class="account-stats"><div><b id="account-level">1</b><span>NIVEL</span></div><div><b id="account-xp">0</b><span>XP</span></div></div>
       <details class="zx-profile-editor"><summary>✦ Personalizar mi perfil</summary>
         <div class="zx-profile-edit-body">
+          <div class="zx-username-editor">
+            <label class="zx-field-title" for="profile-username">Tu nombre de usuario</label>
+            <div class="zx-username-row"><span>@</span><input id="profile-username" autocomplete="username" maxlength="24" pattern="[A-Za-z0-9_.-]{3,24}" spellcheck="false" aria-describedby="profile-username-status"><button type="button" id="profile-username-save">Cambiar</button></div>
+            <small id="profile-username-status" role="status" aria-live="polite">De 3 a 24 caracteres; letras, números, punto, guion o guion bajo.</small>
+          </div>
           <span class="zx-field-title">Elige un avatar</span>
           <div class="zx-avatar-choices" id="profile-avatar-choices"></div>
           <label class="zx-upload-choice">📷 Subir mi foto<input type="file" id="profile-avatar-file" accept="image/jpeg,image/png,image/webp" hidden></label>
@@ -1243,7 +1249,7 @@
     </button>
 
   </div>
-<script src="./app.js?v=18" defer></script>
+<script src="./app.js?v=19" defer></script>
 
 </body>
 </html>
