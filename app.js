@@ -463,7 +463,7 @@ function renderZeroXAccount() {
   const avatar = $("#account-avatar"), p = zeroxUser.profile || {};
   avatar.textContent = p.avatar ? "" : (name.trim().slice(0,2).toUpperCase() || "ZX");
   avatar.style.backgroundImage = p.avatar ? `url("${p.avatar}")` : "";
-  avatar.className = "account-avatar zx-frame-" + (["steel","chrome","titan"].includes(p.frame) ? p.frame : "steel");
+  avatar.className = "account-avatar zx-frame-" + (["steel","chrome","cobalt","titan","aurora","prism","sovereign"].includes(p.frame) ? p.frame : "steel");
   $("#profile-bio-view").textContent = p.bio || "Personaliza tu presentación ✨";
   const banner = $("#profile-banner");
   banner.className = "zx-profile-banner zx-banner-" + (["violet","crimson","electric","custom"].includes(p.banner) ? p.banner : "violet");
@@ -569,7 +569,7 @@ function zxRenderProfileEditor(){
   $("#profile-favorites").innerHTML=ZX_FAVS.map(f=>`<label><input type="checkbox" value="${f}" ${(profile.favorites||[]).includes(f)?"checked":""}><span>${f}</span></label>`).join("");
   $("#profile-banner-choices").innerHTML=[["violet","💜 Violeta"],["crimson","❤️ Carmesí"],["electric","⚡ Eléctrico"]].map(([id,label])=>`<button type="button" data-profile-banner="${id}" class="${zxDraftBanner===id?"selected":""}">${label}</button>`).join("")+`<button type="button" data-profile-banner="custom" class="${zxDraftBanner==="custom"?"selected":""}">🖼️ Mi imagen</button>`;
   const level=Number(zeroxUser.level||1);
-  $("#profile-frame-choices").innerHTML=[["steel","🎁 Acero",1],["chrome","✧ Cromo",3],["titan","✦ Titán",5]].map(([id,label,needed])=>`<button type="button" data-profile-frame="${id}" ${level<needed?"disabled":""} class="${zxDraftFrame===id?"selected":""}">${label}${level<needed?` · Nivel ${needed}`:""}</button>`).join("");
+  $("#profile-frame-choices").innerHTML=[["steel","🎁 Acero",1],["chrome","✧ Cromo",2],["cobalt","◆ Cobalto",3],["titan","✦ Titán",4],["aurora","❖ Aurora",5],["prism","◇ Prisma",6],["sovereign","♛ Soberano",7]].map(([id,label,needed])=>`<button type="button" data-profile-frame="${id}" ${level<needed?"disabled":""} class="${zxDraftFrame===id?"selected":""}">${label}${level<needed?` · Nivel ${needed}`:""}</button>`).join("");
 }
 function zxPresetAvatar(icon,color){
   const canvas=document.createElement("canvas");canvas.width=canvas.height=256;
