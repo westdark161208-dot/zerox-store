@@ -788,7 +788,7 @@ function artFor(product) {
 
   if (product.id?.startsWith("ff-")) {
     if (category === "Pases Booyah") return `<div class="ff-product-art ff-pass-art"><img src="./assets/products/pase-booyah-silver.jpg" alt="${esc(name)}" loading="lazy"></div>`;
-    if (product.id === "ff-frag-17729") return `<div class="ff-product-art ff-token-art"><img src="./assets/products/fragmento-universal-token.jpg" alt="Token azul de fragmento universal" loading="lazy"></div>`;
+    if (product.id === "ff-frag-17729") return `<div class="ff-product-art ff-token-art"><img src="./assets/products/fragmento-universal-token-transparent.png" alt="Token azul de fragmento universal" loading="lazy"></div>`;
     // Recortes visuales de las imágenes del catálogo SixoFire proporcionadas por el creador.
     return `<div class="ff-product-art ff-provider-art" role="img" aria-label="${esc(name)}"></div>`;
   }
