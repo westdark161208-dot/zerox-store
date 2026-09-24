@@ -7619,3 +7619,10 @@ body{background:
 }
 #account-modal .zx-name-line .zx-founder-badge img{width:100%;height:100%;object-fit:cover}
 @media(max-width:640px){#account-modal.zx-profile-page .zx-profile-banner{height:175px}#account-modal.zx-profile-page .zx-profile-identity{gap:12px;margin-left:8px;margin-right:6px}}
+
+/* Free Fire: precio unitario y cantidad mínima del catálogo */
+.ff-product-art { aspect-ratio: 16 / 10; overflow: hidden; background: #15101e; }
+.ff-product-art img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.ff-quantity { display: grid; gap: 6px; margin: 14px 0 6px; color: #e8d8fb; font-weight: 700; }
+.ff-quantity input { width: min(100%, 180px); padding: 10px 12px; border: 1px solid #b677e1; border-radius: 10px; background: #16101f; color: white; font: inherit; }
+.ff-unit-price { display: block; margin-bottom: 10px; color: #dec9ef; }
