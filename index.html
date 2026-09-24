@@ -32,7 +32,7 @@
     rel="apple-touch-icon"
     href="./apple-touch-icon.png"
   >
-  <link rel="stylesheet" href="./styles.css?v=27">
+  <link rel="stylesheet" href="./styles.css?v=28">
   <script>
   /* Zero'X emergency cache reset: keep the storefront accessible even if app JS fails */
   if ('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister();});}).catch(function(){});
@@ -1104,6 +1104,25 @@
           <div><small>Secciones favoritas</small><strong id="zx-profile-favorites">Elige tus favoritas en Personalizar mi perfil</strong></div>
         </div>
       </section>
+      <section class="zx-account-panel zx-contact-panel" aria-label="Datos privados de la cuenta">
+        <div class="zx-panel-heading"><span class="zx-panel-symbol">✉</span><div><small>SOLO TÚ PUEDES VER ESTO</small><h3>Contacto y seguridad</h3></div></div>
+        <p>Actualiza tu correo o agrega un teléfono de contacto. Confirma con tu contraseña para guardar cambios.</p>
+        <form id="zx-contact-form" class="zx-contact-form">
+          <label>Correo electrónico<input id="zx-contact-email" type="email" autocomplete="email" required maxlength="254"></label>
+          <label>Teléfono (opcional)<input id="zx-contact-phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+52 951 000 0000"></label>
+          <label>Contraseña actual<input id="zx-contact-password" type="password" autocomplete="current-password" required></label>
+          <button type="submit">Guardar datos de contacto <span aria-hidden="true">↗</span></button>
+          <small>El correo y el teléfono no se muestran en el perfil público. La verificación y recuperación automática aún no están disponibles.</small>
+          <output id="zx-contact-status" role="status" aria-live="polite"></output>
+        </form>
+      </section>
+      <section class="zx-account-panel zx-public-panel" aria-label="Perfil para compartir">
+        <div class="zx-panel-heading"><span class="zx-panel-symbol">✦</span><div><small>MI VITRINA ZERO’X</small><h3>Perfil público</h3></div></div>
+        <p>Muestra tu avatar, banner, biografía y nivel. Tus datos de contacto siempre quedan privados.</p>
+        <label class="zx-public-toggle"><input id="zx-public-enabled" type="checkbox"><span>Permitir que otros vean mi perfil</span></label>
+        <div class="zx-public-actions"><a id="zx-public-preview" href="./profile.html">Ver mi presentación ↗</a><button id="zx-public-copy" type="button">Copiar enlace</button></div>
+        <small id="zx-public-status" role="status" aria-live="polite">Activa la visibilidad y guarda los cambios en “Personalizar mi perfil”.</small>
+      </section>
       <a class="zx-creator-link" id="creator-link" href="./manage.html" hidden>✦ Abrir panel creador</a>
       <div class="zx-account-id"><span>Identificador de mi cuenta</span><button type="button" id="copy-account-id">Copiar ID</button><small id="account-id-result" role="status" aria-live="polite"></small></div>
       <details class="zx-profile-editor"><summary>✦ Personalizar mi perfil</summary>
@@ -1253,7 +1272,7 @@
     </button>
 
   </div>
-<script src="./app.js?v=29" defer></script>
+<script src="./app.js?v=30" defer></script>
 
 </body>
 </html>

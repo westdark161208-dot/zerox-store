@@ -67,6 +67,9 @@ async function authSchema(env){
   await env.DB.prepare("CREATE UNIQUE INDEX IF NOT EXISTS zx_users_username_nocase ON zx_users(username COLLATE NOCASE)").run();
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS zx_profiles (user_id TEXT PRIMARY KEY,display_name TEXT,avatar_url TEXT,xp INTEGER NOT NULL DEFAULT 0,level INTEGER NOT NULL DEFAULT 1,FOREIGN KEY(user_id) REFERENCES zx_users(id) ON DELETE CASCADE)").run();
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS zx_profile_style (user_id TEXT PRIMARY KEY,bio TEXT NOT NULL DEFAULT '',favorites TEXT NOT NULL DEFAULT '[]',avatar TEXT NOT NULL DEFAULT '',banner TEXT NOT NULL DEFAULT 'violet',banner_image TEXT NOT NULL DEFAULT '',frame TEXT NOT NULL DEFAULT 'steel',FOREIGN KEY(user_id) REFERENCES zx_users(id) ON DELETE CASCADE)").run();
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS zx_private_contact (user_id TEXT PRIMARY KEY,phone TEXT NOT NULL DEFAULT '',updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,FOREIGN KEY(user_id) REFERENCES zx_users(id) ON DELETE CASCADE)").run();
+  const styleColumns=await env.DB.prepare("PRAGMA table_info(zx_profile_style)").all();
+  if(!styleColumns.results.some(column=>column.name==="is_public")) await env.DB.prepare("ALTER TABLE zx_profile_style ADD COLUMN is_public INTEGER NOT NULL DEFAULT 0").run();
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS zx_sessions (id TEXT PRIMARY KEY,user_id TEXT NOT NULL,token_hash TEXT NOT NULL UNIQUE,expires_at TEXT NOT NULL,created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,revoked_at TEXT,FOREIGN KEY(user_id) REFERENCES zx_users(id) ON DELETE CASCADE)").run();
 }
 async function newSession(env,userId){
@@ -124,7 +127,15 @@ export default {
 
       const url = new URL(request.url);
 
-      if(url.pathname.startsWith("/api/auth/")) await authSchema(env);
+      if(url.pathname.startsWith("/api/auth/") || url.pathname.startsWith("/api/public-profile/")) await authSchema(env);
+
+      const publicHandle=url.pathname.match(/^\/api\/public-profile\/([A-Za-z0-9_.-]{3,24})$/);
+      if(publicHandle && request.method==="GET"){
+        const row=await env.DB.prepare("SELECT u.id,u.username,u.created_at,p.display_name,p.level,p.xp,s.bio,s.favorites,s.avatar,s.banner,s.banner_image AS bannerImage,s.frame FROM zx_users u JOIN zx_profile_style s ON s.user_id=u.id LEFT JOIN zx_profiles p ON p.user_id=u.id WHERE u.username=? COLLATE NOCASE AND u.status='active' AND s.is_public=1 LIMIT 1").bind(publicHandle[1]).first();
+        if(!row)return json({ok:false,error:"NOT_FOUND"},404);
+        let favorites=[];try{favorites=JSON.parse(row.favorites||"[]")}catch{}
+        return json({ok:true,profile:{username:row.username,displayName:row.display_name||row.username,createdAt:row.created_at,level:row.level||1,xp:row.xp||0,bio:row.bio,favorites,avatar:row.avatar,banner:row.banner,bannerImage:row.bannerImage,frame:row.frame,isFounder:row.id===FOUNDER_USER_ID}});
+      }
 
       if(url.pathname==="/api/auth/username-available" && request.method==="GET"){
         const username=String(url.searchParams.get("username")||"").trim().replace(/^@+/,"");
@@ -169,14 +180,31 @@ export default {
         const user=await currentUser(request,env);
         if(!user)return json({ok:false,error:"UNAUTHORIZED"},401);
         const body=await request.json();
-        const bio=String(body.bio||"").trim(),favorites=body.favorites,avatar=String(body.avatar||""),banner=String(body.banner||"violet"),bannerImage=String(body.bannerImage||""),frame=String(body.frame||"steel");
+        const bio=String(body.bio||"").trim(),favorites=body.favorites,avatar=String(body.avatar||""),banner=String(body.banner||"violet"),bannerImage=String(body.bannerImage||""),frame=String(body.frame||"steel"),isPublic=body.isPublic===true;
         if(bio.length>180 || !Array.isArray(favorites) || favorites.length>6 || favorites.some(x=>typeof x!=="string" || !["Free Fire","Streaming","Cuentas","Venta de clanes","Honor de clanes","Revendedores"].includes(x)))return json({ok:false,error:"INVALID_PROFILE"},400);
         if(avatar && !/^data:image\/(jpeg|png|webp);base64,[a-zA-Z0-9+/=]+$/.test(avatar))return json({ok:false,error:"INVALID_AVATAR"},400);
         if(bannerImage && !/^data:image\/(jpeg|png|webp);base64,[a-zA-Z0-9+/=]+$/.test(bannerImage))return json({ok:false,error:"INVALID_BANNER"},400);
         if(avatar.length>160000 || bannerImage.length>160000 || avatar.length+bannerImage.length>260000 || !["violet","crimson","electric","custom"].includes(banner) || !["steel","chrome","cobalt","titan","aurora","prism","sovereign"].includes(frame))return json({ok:false,error:"INVALID_PROFILE"},400);
         if(Number(user.level||1)<(["steel","chrome","cobalt","titan","aurora","prism","sovereign"].indexOf(frame)+1))return json({ok:false,error:"FRAME_LOCKED"},403);
-        await env.DB.prepare("INSERT INTO zx_profile_style(user_id,bio,favorites,avatar,banner,banner_image,frame) VALUES(?,?,?,?,?,?,?) ON CONFLICT(user_id) DO UPDATE SET bio=excluded.bio,favorites=excluded.favorites,avatar=excluded.avatar,banner=excluded.banner,banner_image=excluded.banner_image,frame=excluded.frame").bind(user.id,bio,JSON.stringify(favorites),avatar,banner,bannerImage,frame).run();
-        return json({ok:true,profile:{bio,favorites,avatar,banner,bannerImage,frame}});
+        await env.DB.prepare("INSERT INTO zx_profile_style(user_id,bio,favorites,avatar,banner,banner_image,frame,is_public) VALUES(?,?,?,?,?,?,?,?) ON CONFLICT(user_id) DO UPDATE SET bio=excluded.bio,favorites=excluded.favorites,avatar=excluded.avatar,banner=excluded.banner,banner_image=excluded.banner_image,frame=excluded.frame,is_public=excluded.is_public").bind(user.id,bio,JSON.stringify(favorites),avatar,banner,bannerImage,frame,isPublic?1:0).run();
+        return json({ok:true,profile:{bio,favorites,avatar,banner,bannerImage,frame,isPublic}});
+      }
+
+      if(url.pathname==="/api/auth/contact" && request.method==="POST"){
+        const user=await currentUser(request,env);
+        if(!user || user.status!=="active")return json({ok:false,error:"UNAUTHORIZED"},401);
+        const body=await request.json(),password=String(body.currentPassword||"");
+        const record=await env.DB.prepare("SELECT password_hash FROM zx_users WHERE id=?").bind(user.id).first();
+        if(!password || !record || !(await passwordOK(password,record.password_hash)))return json({ok:false,error:"INVALID_CREDENTIALS"},401);
+        const email=String(body.email||"").trim().toLowerCase(),phone=String(body.phone||"").trim();
+        if(email.length>254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return json({ok:false,error:"INVALID_EMAIL"},400);
+        if(phone && (!/^\+?[0-9 ()-]{8,22}$/.test(phone) || phone.replace(/\D/g,"").length<8 || phone.replace(/\D/g,"").length>15))return json({ok:false,error:"INVALID_PHONE"},400);
+        const exists=await env.DB.prepare("SELECT id FROM zx_users WHERE lower(email)=lower(?) AND id<>? LIMIT 1").bind(email,user.id).first();
+        if(exists)return json({ok:false,error:"ACCOUNT_EXISTS"},409);
+        try{await env.DB.prepare("UPDATE zx_users SET email=? WHERE id=?").bind(email,user.id).run();}
+        catch(error){if(String(error.message||"").toLowerCase().includes("unique"))return json({ok:false,error:"ACCOUNT_EXISTS"},409);throw error;}
+        await env.DB.prepare("INSERT INTO zx_private_contact(user_id,phone) VALUES(?,?) ON CONFLICT(user_id) DO UPDATE SET phone=excluded.phone,updated_at=CURRENT_TIMESTAMP").bind(user.id,phone).run();
+        return json({ok:true,email,phone});
       }
 
       if(url.pathname==="/api/auth/login" && request.method==="POST"){
@@ -191,8 +219,9 @@ export default {
       if(url.pathname==="/api/auth/me" && request.method==="GET"){
         const u=await currentUser(request,env);
         if(!u)return json({ok:false,error:"UNAUTHORIZED"},401);
-        const style=await env.DB.prepare("SELECT bio,favorites,avatar,banner,banner_image AS bannerImage,frame FROM zx_profile_style WHERE user_id=?").bind(u.id).first();
-        return json({ok:true,user:{...u,profile:style?{...style,favorites:JSON.parse(style.favorites||"[]")}:{bio:"",favorites:[],avatar:"",banner:"violet",bannerImage:"",frame:"steel"}}});
+        const style=await env.DB.prepare("SELECT bio,favorites,avatar,banner,banner_image AS bannerImage,frame,is_public AS isPublic FROM zx_profile_style WHERE user_id=?").bind(u.id).first();
+        const contact=await env.DB.prepare("SELECT phone FROM zx_private_contact WHERE user_id=?").bind(u.id).first();
+        return json({ok:true,user:{...u,phone:contact?.phone||"",profile:style?{...style,isPublic:!!style.isPublic,favorites:JSON.parse(style.favorites||"[]")}:{bio:"",favorites:[],avatar:"",banner:"violet",bannerImage:"",frame:"steel",isPublic:false}}});
       }
 
       if(url.pathname==="/api/auth/logout" && request.method==="POST"){

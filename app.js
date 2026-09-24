@@ -455,6 +455,7 @@ function authMessage(error) {
     INVALID_USERNAME: "El usuario debe tener entre 3 y 24 caracteres y usar letras, números, punto, guion o guion bajo.",
     INVALID_PASSWORD: "La contraseña debe tener entre 8 y 128 caracteres.",
     ACCOUNT_DISABLED: "Esta cuenta está deshabilitada.",
+    INVALID_PHONE: "Escribe un teléfono válido con 8 a 15 dígitos.",
     MISSING_CREDENTIALS: "Completa tus datos para continuar."
   })[code] || `No pudimos completar la operación. Código: ${code || "ERROR_DESCONOCIDO"}`;
 }
@@ -488,6 +489,8 @@ function renderZeroXAccount() {
   $("#account-username").textContent = "@" + (zeroxUser.username || "zerox");
   $("#zx-profile-display").textContent = name;
   $("#zx-profile-handle").textContent = "@" + (zeroxUser.username || "zerox");
+  $("#zx-contact-email").value = zeroxUser.email || "";
+  $("#zx-contact-phone").value = zeroxUser.phone || "";
   $("#account-level").textContent = zeroxUser.level ?? 1;
   $("#account-xp").textContent = zeroxUser.xp ?? 0;
   const avatar = $("#account-avatar"), p = zeroxUser.profile || {};
@@ -496,6 +499,11 @@ function renderZeroXAccount() {
   avatar.className = "account-avatar zx-frame-" + (["steel","chrome","cobalt","titan","aurora","prism","sovereign"].includes(p.frame) ? p.frame : "steel");
   $("#profile-bio-view").textContent = p.bio || "Personaliza tu presentación ✨";
   $("#zx-profile-favorites").textContent = Array.isArray(p.favorites) && p.favorites.length ? p.favorites.join(" · ") : "Elige tus favoritas en Personalizar mi perfil";
+  $("#zx-public-enabled").checked = p.isPublic === true;
+  const shareUrl = new URL(`./profile.html?u=${encodeURIComponent(zeroxUser.username || "")}`,location.href).href;
+  $("#zx-public-preview").href = shareUrl;
+  $("#zx-public-copy").disabled = p.isPublic !== true;
+  $("#zx-public-status").textContent = p.isPublic ? "Tu presentación ya se puede consultar mediante este enlace." : "Perfil privado. Activa la visibilidad y guarda los cambios en “Personalizar mi perfil”.";
   const banner = $("#profile-banner");
   banner.className = "zx-profile-banner zx-banner-" + (["violet","crimson","electric","custom"].includes(p.banner) ? p.banner : "violet");
   banner.style.backgroundImage = p.banner === "custom" && p.bannerImage ? `linear-gradient(0deg,rgba(5,3,10,.6),transparent),url("${p.bannerImage}")` : "";
@@ -684,13 +692,29 @@ $("#profile-frame-choices")?.addEventListener("click",e=>{const b=e.target.close
 $("#profile-save")?.addEventListener("click",async()=>{
   const button=$("#profile-save"),out=$("#profile-result");button.disabled=true;out.textContent="Guardando...";
   try{const favorites=[...$("#profile-favorites").querySelectorAll("input:checked")].map(x=>x.value);if(favorites.length>6)throw Error("Puedes elegir hasta 6 categorías.");
-    const body={bio:$("#profile-bio").value.trim(),favorites,avatar:zxDraftAvatar,banner:zxDraftBanner,bannerImage:zxDraftBannerImage,frame:zxDraftFrame};
+    const body={bio:$("#profile-bio").value.trim(),favorites,avatar:zxDraftAvatar,banner:zxDraftBanner,bannerImage:zxDraftBannerImage,frame:zxDraftFrame,isPublic:$("#zx-public-enabled").checked};
     const data=await zeroxAuthRequest("/api/auth/profile",{method:"POST",body:JSON.stringify(body)});
     zeroxUser.profile=data.profile;renderZeroXAccount();out.textContent="Perfil guardado ✓";
   }catch(err){out.textContent=err.status?authMessage(err):err.message;}finally{button.disabled=false;}
 });
 
 restoreZeroXSession();
+
+$("#zx-contact-form")?.addEventListener("submit",async event=>{
+  event.preventDefault();
+  const form=event.currentTarget,button=form.querySelector('button[type="submit"]'),status=$("#zx-contact-status");
+  button.disabled=true;status.textContent="Guardando datos...";
+  try{
+    const data=await zeroxAuthRequest("/api/auth/contact",{method:"POST",body:JSON.stringify({email:$("#zx-contact-email").value,phone:$("#zx-contact-phone").value,currentPassword:$("#zx-contact-password").value})});
+    zeroxUser.email=data.email;zeroxUser.phone=data.phone;$("#zx-contact-password").value="";
+    status.textContent="Datos guardados. La verificación y recuperación automática aún no están disponibles.";
+  }catch(error){status.textContent=authMessage(error)}finally{button.disabled=false}
+});
+$("#zx-public-copy")?.addEventListener("click",async()=>{
+  try{await navigator.clipboard.writeText($("#zx-public-preview").href);$("#zx-public-status").textContent="Enlace copiado ✓"}
+  catch{$("#zx-public-status").textContent="No se pudo copiar el enlace; ábrelo para compartirlo."}
+});
+$("#zx-public-enabled")?.addEventListener("change",()=>{$("#zx-public-status").textContent="Guarda los cambios en “Personalizar mi perfil” para aplicar la visibilidad."});
 
 
 
