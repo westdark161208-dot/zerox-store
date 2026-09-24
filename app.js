@@ -2258,6 +2258,7 @@ document.querySelectorAll('.feature-row > button').forEach(card => {
   const percent = document.getElementById("zerox-loading-percent");
   if (!splash) return;
 
+  const startedAt = Date.now();
   let progress = 0;
   let finished = false;
 
@@ -2265,7 +2266,7 @@ document.querySelectorAll('.feature-row > button').forEach(card => {
     if (finished) return;
     finished = true;
     splash.classList.add("zerox-splash-out");
-    setTimeout(() => { splash.style.display = "none"; }, 450);
+    setTimeout(() => { splash.remove(); }, 800);
   };
 
   const loading = setInterval(() => {
@@ -2274,11 +2275,11 @@ document.querySelectorAll('.feature-row > button').forEach(card => {
     if (percent) percent.textContent = progress + "%";
     if (progress >= 100) {
       clearInterval(loading);
-      setTimeout(closeSplash, 180);
+      setTimeout(closeSplash, Math.max(180, 1400 - (Date.now() - startedAt)));
     }
   }, 45);
 
   // Never let a cosmetic loader block access to the store.
-  window.addEventListener("load", () => setTimeout(closeSplash, 350), { once:true });
+  window.addEventListener("load", () => setTimeout(closeSplash, Math.max(350, 1400 - (Date.now() - startedAt))), { once:true });
   setTimeout(closeSplash, 3500);
 })();
