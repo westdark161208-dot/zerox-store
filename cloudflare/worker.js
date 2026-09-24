@@ -129,6 +129,8 @@ export default {
 
       if(url.pathname.startsWith("/api/auth/") || url.pathname.startsWith("/api/public-profile/")) await authSchema(env);
 
+      if(url.pathname==="/api/auth/features" && request.method==="GET")return json({ok:true,contact:true,publicProfiles:true});
+
       const publicHandle=url.pathname.match(/^\/api\/public-profile\/([A-Za-z0-9_.-]{3,24})$/);
       if(publicHandle && request.method==="GET"){
         const row=await env.DB.prepare("SELECT u.id,u.username,u.created_at,p.display_name,p.level,p.xp,s.bio,s.favorites,s.avatar,s.banner,s.banner_image AS bannerImage,s.frame FROM zx_users u JOIN zx_profile_style s ON s.user_id=u.id LEFT JOIN zx_profiles p ON p.user_id=u.id WHERE u.username=? COLLATE NOCASE AND u.status='active' AND s.is_public=1 LIMIT 1").bind(publicHandle[1]).first();

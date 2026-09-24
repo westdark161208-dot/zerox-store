@@ -508,6 +508,21 @@ function renderZeroXAccount() {
   banner.className = "zx-profile-banner zx-banner-" + (["violet","crimson","electric","custom"].includes(p.banner) ? p.banner : "violet");
   banner.style.backgroundImage = p.banner === "custom" && p.bannerImage ? `linear-gradient(0deg,rgba(5,3,10,.6),transparent),url("${p.bannerImage}")` : "";
   zxRenderProfileEditor();
+  zxCheckProfileFeatures();
+}
+
+let zxProfileFeaturesReady=false;
+async function zxCheckProfileFeatures(){
+  const save=$("#zx-contact-form button[type=submit]"),toggle=$("#zx-public-enabled"),copy=$("#zx-public-copy"),status=$("#zx-contact-status");
+  if(zxProfileFeaturesReady)return;
+  save.disabled=true;toggle.disabled=true;copy.disabled=true;
+  status.textContent="Comprobando el servicio de perfiles...";
+  try{
+    const response=await fetch(`${ZEROX_API}/api/auth/features`),features=await response.json();
+    if(!response.ok||!features.contact||!features.publicProfiles)throw Error("NOT_READY");
+    zxProfileFeaturesReady=true;save.disabled=false;toggle.disabled=false;
+    copy.disabled=zeroxUser?.profile?.isPublic!==true;status.textContent="";
+  }catch{status.textContent="La edición de contacto y el perfil público estarán disponibles cuando se actualice el servicio de cuentas."}
 }
 
 async function restoreZeroXSession() {
