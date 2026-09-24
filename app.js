@@ -139,37 +139,49 @@ const PRODUCTS = [
   },
 
   {
-    id: "booyah-demo",
+    id: "ff-booyah-76828",
     category: "Pases Booyah",
     name: "Pase Booyah",
-    description: "Próximamente más opciones y promociones.",
-    price: 0,
+    description: "Pase Booyah para Free Fire.",
+    price: 35,
     active: true,
     featured: false,
     requiresEligibility: false,
-    badge: "PRÓXIMAMENTE"
+    badge: "PASE"
   },
   {
-    id: "frag-demo",
+    id: "ff-frag-17729",
     category: "Fragmentos",
-    name: "Fragmentos",
-    description: "Consigue tus fragmentos favoritos.",
-    price: 0,
+    name: "Fragmentos universales",
+    description: "$1 MXN por fragmento. Pedido mínimo: 40.",
+    price: 1,
+    minQuantity: 40,
+    maxQuantity: 1400,
     active: true,
     featured: false,
     requiresEligibility: false,
-    badge: "PRÓXIMAMENTE"
+    badge: "DESDE 40"
   },
+  ...[
+    ["ff-runas-4815", "Fragmentos de runas"],
+    ["ff-galaxia-5657", "Fragmentos de hiperlibro Galaxia"],
+    ["ff-revolucion-7649", "Fragmentos de hiperlibro Revolución"]
+  ].map(([id, name]) => ({ id, category: "Fragmentos", name,
+    description: "$1 MXN por fragmento. Pedido mínimo: 40.", price: 1,
+    minQuantity: 40, maxQuantity: 1400, active: true, featured: false,
+    requiresEligibility: false, badge: "DESDE 40" })),
   {
-    id: "cajas-demo",
+    id: "ff-cajas-8816",
     category: "Cajas",
-    name: "Cajas de fragmentos",
-    description: "Variedad y stock próximamente.",
-    price: 0,
+    name: "Cajas de fragmentos universales",
+    description: "$3.50 MXN por caja. Pedido mínimo: 7 cajas.",
+    price: 3.5,
+    minQuantity: 7,
+    maxQuantity: 280,
     active: true,
     featured: false,
     requiresEligibility: false,
-    badge: "PRÓXIMAMENTE"
+    badge: "DESDE 7"
   },
   {
   id: "likes-demo",
@@ -686,12 +698,37 @@ function cart() {
   return JSON.parse(localStorage.getItem("zerox-cart") || "[]");
 }
 
+function selectedProduct(token) {
+  const [id, rawQuantity] = String(token).split("::");
+  const product = PRODUCTS.find(item => item.id === id);
+  if (!product) return null;
+  if (!product.minQuantity) return product;
+  const quantity = Number(rawQuantity);
+  if (!Number.isInteger(quantity) || quantity < product.minQuantity || quantity > product.maxQuantity) return null;
+  return { ...product, name: `${product.name} × ${quantity}`, price: product.price * quantity, quantity };
+}
+
+function productSelection(button) {
+  const product = PRODUCTS.find(item => item.id === (button.dataset.add || button.dataset.buyNow));
+  if (!product?.minQuantity) return product?.id;
+  const input = button.closest(".product-card")?.querySelector("[data-quantity]");
+  const quantity = Number(input?.value);
+  if (!Number.isInteger(quantity) || quantity < product.minQuantity || quantity > product.maxQuantity) {
+    input?.setCustomValidity(`Elige entre ${product.minQuantity} y ${product.maxQuantity} unidades.`);
+    input?.reportValidity();
+    return null;
+  }
+  input.setCustomValidity("");
+  return `${product.id}::${quantity}`;
+}
+
 function saveCart(value) {
   localStorage.setItem("zerox-cart", JSON.stringify(value));
   updateCartUI();
 }
 
 function addToCart(id) {
+  if (!id || !selectedProduct(id)) return;
   const items = cart();
 
   if (!items.includes(id)) {
@@ -728,7 +765,7 @@ function updateCartUI() {
   if (bottomCartCount) bottomCartCount.textContent = items.length;
 
   const total = items
-    .map(id => PRODUCTS.find(product => product.id === id))
+    .map(selectedProduct)
     .filter(Boolean)
     .reduce((sum, product) => sum + product.price, 0);
 
@@ -744,6 +781,11 @@ function updateCartUI() {
 function artFor(product) {
   const name = product.name || "";
   const category = product.category || "";
+
+  if (product.id?.startsWith("ff-")) {
+    const image = category === "Pases Booyah" ? "pase-booyah.png.png" : category === "Cajas" ? "caja-tokens.png.png" : "fragmentos.png.png";
+    return `<div class="ff-product-art"><img src="./assets/categories/${image}" alt="${esc(name)}" loading="lazy"></div>`;
+  }
 
    /* =========================================
    STREAMING
@@ -857,15 +899,23 @@ function render() {
         ${product.badge ? `<span class="badge">${esc(product.badge)}</span>` : ""}
         <h3>${esc(product.name)}</h3>
         <p>${esc(product.description || "")}</p>
+        ${product.minQuantity ? `<label class="ff-quantity">Cantidad (mínimo ${product.minQuantity}) <input data-quantity type="number" inputmode="numeric" min="${product.minQuantity}" max="${product.maxQuantity}" step="1" value="${product.minQuantity}" aria-label="Cantidad de ${esc(product.name)}"></label><small class="ff-unit-price">${money(product.price)} por unidad · total desde ${money(product.price * product.minQuantity)}</small>` : ""}
         <div class="product-bottom">
-          <strong>${money(product.price)}</strong>
+          <strong>${money(product.minQuantity ? product.price * product.minQuantity : product.price)}${product.minQuantity ? " desde" : ""}</strong>
           <button type="button" data-add="${esc(product.id)}" aria-label="Agregar ${esc(product.name)} al carrito">＋</button>
           <button type="button" data-buy-now="${esc(product.id)}">COMPRAR</button>
         </div>
       </div>
     </article>`).join("") : '<div class="zx-empty"><b>SIN PRODUCTOS</b><span>No hay productos disponibles en esta sección por el momento.</span></div>';
-  container.querySelectorAll("[data-add]").forEach(button => button.onclick = () => addToCart(button.dataset.add));
-  container.querySelectorAll("[data-buy-now]").forEach(button => button.onclick = () => openCheckout(button.dataset.buyNow));
+  container.querySelectorAll("[data-add]").forEach(button => button.onclick = () => addToCart(productSelection(button)));
+  container.querySelectorAll("[data-buy-now]").forEach(button => button.onclick = () => { const token = productSelection(button); if (token) openCheckout(token); });
+  container.querySelectorAll("[data-quantity]").forEach(input => input.oninput = () => {
+    input.setCustomValidity("");
+    const product = PRODUCTS.find(item => item.id === input.closest(".product-card")?.querySelector("[data-buy-now]")?.dataset.buyNow);
+    const quantity = Number(input.value);
+    const total = input.closest(".product-card")?.querySelector(".product-bottom strong");
+    if (total && quantity >= product.minQuantity && quantity <= product.maxQuantity && Number.isInteger(quantity)) total.textContent = money(product.price * quantity);
+  });
 }
 
 function setFilter(category, scroll = true) {
@@ -981,9 +1031,7 @@ if ($("#search")) {
 
 function renderCart() {
   const items = cart()
-    .map(id =>
-      PRODUCTS.find(product => product.id === id)
-    )
+    .map(selectedProduct)
     .filter(Boolean);
 
   const container = $("#cart-items");
@@ -1006,7 +1054,7 @@ function renderCart() {
 
             <button
               class="remove-cart"
-              data-remove="${esc(product.id)}">
+              data-remove="${esc(product.quantity ? `${product.id}::${product.quantity}` : product.id)}">
               ×
             </button>
 
@@ -1073,9 +1121,7 @@ if ($("#checkout-cart-first")) {
    ========================================================= */
 
 function openCheckout(id) {
-  current = PRODUCTS.find(
-    product => product.id === id
-  );
+  current = selectedProduct(id);
 
   if (!current) return;
 
@@ -1530,12 +1576,7 @@ if ($("#checkout-form")) {
             .entries()
         );
 
-      const product =
-        PRODUCTS.find(
-          item =>
-            item.id ===
-            payload.productId
-        );
+      const product = current && current.id === payload.productId ? current : null;
 
       if (!product) {
         if ($("#checkout-result")) {
@@ -1766,7 +1807,7 @@ fulfillmentStatus: "NO ENVIADO",
         cart().filter(
           id =>
             id !==
-            product.id
+            (product.quantity ? `${product.id}::${product.quantity}` : product.id)
         )
       );
 
