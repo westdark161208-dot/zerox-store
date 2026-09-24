@@ -7694,3 +7694,35 @@ body{background:
 .products .zx-product-card:has(.character-img){border-color:rgba(var(--zx-neon),.72)!important;box-shadow:inset 0 2px 1px #ffffff70,inset 0 -3px 5px #000b,0 13px 23px #000b,0 10px 32px rgba(var(--zx-neon),.32)!important}
 .products .zx-product-card:has(.character-img):hover,.products .zx-product-card:has(.character-img):focus-within{box-shadow:inset 0 2px 1px #ffffff80,0 18px 30px #000c,0 15px 40px rgba(var(--zx-neon),.46)!important}
 .products .zx-product-card:has(img[alt="SUKUNA"]) .character-img,.products .zx-product-card:has(img[alt="GOJO"]) .character-img{object-fit:contain;background:radial-gradient(circle at 50% 40%,rgba(var(--zx-neon),.18),#10121b 76%)}
+
+/* Arte de Free Fire: token correcto y encuadre completo de los artículos. */
+.products .zx-product-card .ff-token-art img{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
+.products .zx-product-card .ff-provider-art{background-size:180% auto;background-position:0 36%}
+.products .zx-product-card[data-product="ff-cajas-8816"] .ff-provider-art{background-position:0 36%}
+.products .zx-product-card[data-product="ff-runas-4815"] .ff-provider-art{background-position:100% 36%}
+.products .zx-product-card[data-product="ff-galaxia-5657"] .ff-provider-art{background-position:0 78%}
+.products .zx-product-card[data-product="ff-revolucion-7649"] .ff-provider-art{background-position:100% 78%}
+/* Diamantes: recuperamos la placa de personaje como protagonista de la ficha. */
+.products .zx-product-card[data-kind="diamonds"] .character-art{height:clamp(245px,43vw,360px);aspect-ratio:auto;border-radius:16px}
+.products .zx-product-card[data-kind="diamonds"] .character-img{object-fit:cover;background:transparent}
+.products .zx-product-card[data-kind="diamonds"] .character-name{bottom:13px}
+@media(max-width:580px){.products .zx-product-card[data-kind="diamonds"] .character-art{height:245px}}
+/* Perfil: banner de tira y datos personales en tarjetas claras. */
+#account-modal.zx-profile-page .zx-profile-banner{height:clamp(92px,15vw,145px);margin-top:18px;border-radius:15px;background-position:center 43%}
+#account-modal.zx-profile-page .zx-profile-identity{align-items:center;gap:14px;margin:-24px 14px 10px}
+#account-modal.zx-profile-page .zx-profile-identity>div:last-child{min-width:0;padding-top:20px;flex:1}
+#account-modal.zx-profile-page .zx-profile-identity .zx-name-line{max-width:100%}
+#account-modal.zx-profile-page #account-name{font-size:clamp(19px,4.8vw,28px);line-height:1.12;overflow-wrap:anywhere}
+#account-modal.zx-profile-page .zx-profile-bio{margin:16px 14px;color:#c9b8db}
+#account-modal.zx-profile-page .account-stats{margin:14px 0 18px}
+.zx-profile-info{margin:20px 0;padding:clamp(15px,4vw,24px);border:1px solid #3c7089;border-radius:20px;background:linear-gradient(135deg,#113040a8,#11131bdc 62%);box-shadow:inset 0 1px 0 #ffffff24,0 12px 26px #0007}
+.zx-profile-info h3{display:flex;gap:10px;align-items:center;margin:0 0 18px;color:#f3f7ff;font-size:clamp(18px,4.5vw,24px)}
+.zx-profile-info h3 span{display:grid;place-items:center;width:35px;height:35px;border:1px solid #53bce3;border-radius:10px;color:#6ce0ff;background:#0b4155;font-size:24px;box-shadow:0 0 14px #35bbdc53}
+.zx-profile-info-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.zx-profile-info-grid>div{min-width:0;padding:13px;border:1px solid #67809265;border-radius:13px;background:#172831a6}
+.zx-profile-info-grid>div:last-child{grid-column:1/-1}
+.zx-profile-info-grid small,.zx-profile-info-grid strong{display:block;overflow-wrap:anywhere}
+.zx-profile-info-grid small{margin-bottom:7px;color:#adc2cf;font-size:12px}
+.zx-profile-info-grid strong{color:white;font-size:clamp(14px,3.7vw,18px)}
+@media(max-width:640px){#account-modal.zx-profile-page .zx-profile-banner{height:102px}#account-modal.zx-profile-page #account-avatar{width:76px;height:76px}#account-modal.zx-profile-page .zx-profile-identity{gap:11px;margin:-25px 4px 12px}#account-modal.zx-profile-page .zx-profile-identity>div:last-child{padding-top:25px}}
+@media(max-width:390px){.zx-profile-info-grid{grid-template-columns:1fr}.zx-profile-info-grid>div:last-child{grid-column:auto}}

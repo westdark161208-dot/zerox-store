@@ -464,6 +464,7 @@ function renderZeroXAccount() {
   if (!guest || !user) return;
   guest.hidden = !!zeroxUser;
   user.hidden = !zeroxUser;
+  if ($("#account-title")) $("#account-title").textContent = zeroxUser ? "MI PERFIL" : "MI CUENTA";
   if (profile) profile.classList.toggle("signed-in", !!zeroxUser);
   $("#account-modal")?.classList.toggle("zx-profile-page", !!zeroxUser);
   const drawerAvatar=$("#drawer-avatar"),drawerName=$("#drawer-profile-name"),drawerHandle=$("#drawer-profile-handle");
@@ -485,6 +486,8 @@ function renderZeroXAccount() {
   $("#creator-link").hidden = zeroxUser.isFounder!==true;
   $("#founder-badge-info").hidden = true;
   $("#account-username").textContent = "@" + (zeroxUser.username || "zerox");
+  $("#zx-profile-display").textContent = name;
+  $("#zx-profile-handle").textContent = "@" + (zeroxUser.username || "zerox");
   $("#account-level").textContent = zeroxUser.level ?? 1;
   $("#account-xp").textContent = zeroxUser.xp ?? 0;
   const avatar = $("#account-avatar"), p = zeroxUser.profile || {};
@@ -492,6 +495,7 @@ function renderZeroXAccount() {
   avatar.style.backgroundImage = p.avatar ? `url("${p.avatar}")` : "";
   avatar.className = "account-avatar zx-frame-" + (["steel","chrome","cobalt","titan","aurora","prism","sovereign"].includes(p.frame) ? p.frame : "steel");
   $("#profile-bio-view").textContent = p.bio || "Personaliza tu presentación ✨";
+  $("#zx-profile-favorites").textContent = Array.isArray(p.favorites) && p.favorites.length ? p.favorites.join(" · ") : "Elige tus favoritas en Personalizar mi perfil";
   const banner = $("#profile-banner");
   banner.className = "zx-profile-banner zx-banner-" + (["violet","crimson","electric","custom"].includes(p.banner) ? p.banner : "violet");
   banner.style.backgroundImage = p.banner === "custom" && p.bannerImage ? `linear-gradient(0deg,rgba(5,3,10,.6),transparent),url("${p.bannerImage}")` : "";
@@ -784,6 +788,7 @@ function artFor(product) {
 
   if (product.id?.startsWith("ff-")) {
     if (category === "Pases Booyah") return `<div class="ff-product-art ff-pass-art"><img src="./assets/products/pase-booyah-silver.jpg" alt="${esc(name)}" loading="lazy"></div>`;
+    if (product.id === "ff-frag-17729") return `<div class="ff-product-art ff-token-art"><img src="./assets/products/fragmento-universal-token.jpg" alt="Token azul de fragmento universal" loading="lazy"></div>`;
     // Recortes visuales de las imágenes del catálogo SixoFire proporcionadas por el creador.
     return `<div class="ff-product-art ff-provider-art" role="img" aria-label="${esc(name)}"></div>`;
   }
