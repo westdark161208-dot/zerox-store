@@ -32,7 +32,7 @@
     rel="apple-touch-icon"
     href="./apple-touch-icon.png"
   >
-  <link rel="stylesheet" href="./styles.css?v=28">
+  <link rel="stylesheet" href="./styles.css?v=29">
   <script>
   /* Zero'X emergency cache reset: keep the storefront accessible even if app JS fails */
   if ('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister();});}).catch(function(){});
@@ -707,7 +707,7 @@
       </span>
 
       <h2 class="metal-title">
-        PAGA COMO PREFIERAS
+        PAGOS Y OPCIONES
       </h2>
 
       <div class="pay-grid">
@@ -729,6 +729,8 @@
         </span>
 
       </div>
+
+      <p class="zx-payments-note">Las opciones elegidas en el pedido quedan pendientes de confirmación. Próximamente: tarjetas, SPEI y OXXO mediante una pasarela de pago mexicana; aún no son métodos de cobro automático.</p>
 
     </section>
 <footer class="footer">
@@ -1123,6 +1125,12 @@
         <div class="zx-public-actions"><a id="zx-public-preview" href="./profile.html">Ver mi presentación ↗</a><button id="zx-public-copy" type="button">Copiar enlace</button></div>
         <small id="zx-public-status" role="status" aria-live="polite">Activa la visibilidad y guarda los cambios en “Personalizar mi perfil”.</small>
       </section>
+      <section class="zx-account-panel zx-ff-panel" aria-label="Consultar mi perfil de Free Fire">
+        <div class="zx-panel-heading"><span class="zx-panel-symbol">◆</span><div><small>FREE FIRE · CONSULTA DE JUGADOR</small><h3>Mi perfil de Free Fire</h3></div></div>
+        <p>Consulta tu personaje mediante su ID. Los datos vienen de la API al momento; escribir un ID no demuestra que la cuenta te pertenezca.</p>
+        <form id="zx-ff-form" class="zx-ff-form"><label for="zx-ff-uid">ID de jugador</label><div><input id="zx-ff-uid" type="text" inputmode="numeric" pattern="[0-9]{5,15}" minlength="5" maxlength="15" placeholder="Escribe tu UID" required><select id="zx-ff-region" aria-label="Región de Free Fire"><option value="br">BR</option><option value="sg">SG</option><option value="ind">IND</option></select><button type="submit">Consultar ↗</button></div><small>La API actual documenta BR, SG e IND. Si tu cuenta pertenece a otra región, puede no aparecer.</small></form>
+        <div id="zx-ff-result" class="zx-ff-result" role="status" aria-live="polite"></div>
+      </section>
       <a class="zx-creator-link" id="creator-link" href="./manage.html" hidden>✦ Abrir panel creador</a>
       <div class="zx-account-id"><span>Identificador de mi cuenta</span><button type="button" id="copy-account-id">Copiar ID</button><small id="account-id-result" role="status" aria-live="polite"></small></div>
       <details class="zx-profile-editor"><summary>✦ Personalizar mi perfil</summary>
@@ -1272,7 +1280,7 @@
     </button>
 
   </div>
-<script src="./app.js?v=31" defer></script>
+<script src="./app.js?v=32" defer></script>
 
 </body>
 </html>

@@ -731,6 +731,31 @@ $("#zx-public-copy")?.addEventListener("click",async()=>{
 });
 $("#zx-public-enabled")?.addEventListener("change",()=>{$("#zx-public-status").textContent="Guarda los cambios en “Personalizar mi perfil” para aplicar la visibilidad."});
 
+$("#zx-ff-form")?.addEventListener("submit",async event=>{
+  event.preventDefault();
+  const uid=$("#zx-ff-uid").value.trim(),region=$("#zx-ff-region").value;
+  const out=$("#zx-ff-result"),button=event.currentTarget.querySelector("button");
+  if(!/^\d{5,15}$/.test(uid)||!["br","sg","ind"].includes(region))return;
+  button.disabled=true;out.textContent="Consultando jugador...";
+  try{
+    const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);
+    let response;
+    try{response=await fetch(`${ZEROX_API}/api/player?uid=${encodeURIComponent(uid)}&region=${region}`,{signal:controller.signal})}
+    finally{clearTimeout(timer)}
+    const result=await response.json();
+    if(!response.ok||!result.ok||!result.player)throw Error("No encontramos información para ese ID y región. Revisa los datos e inténtalo de nuevo.");
+    const player=result.player,b=player.basicInfo||{},clan=player.clanBasicInfo||{},score=player.creditScoreInfo||{},pet=player.petInfo||{},profile=player.profileInfo||{},social=player.socialInfo||{};
+    const itemImage=id=>/^\d{4,18}$/.test(String(id||""))?`${ZEROX_API}/api/item-image?itemID=${encodeURIComponent(id)}`:"";
+    const avatar=itemImage(profile.avatarId),banner=itemImage(b.bannerId||profile.bannerId);
+    const stat=(label,value)=>value===undefined||value===null||value===""?"":`<div class="zx-ff-stat"><small>${esc(label)}</small><strong>${esc(String(value))}</strong></div>`;
+    const date=Number(b.createAt||b.createTime||0);
+    const since=date>1000000000&&date<3000000000?new Intl.DateTimeFormat("es-MX",{dateStyle:"medium"}).format(new Date(date*1000)):"";
+    const clothes=Array.isArray(profile.clothes)?profile.clothes.map(itemImage).filter(Boolean).slice(0,6):[];
+    out.innerHTML=`<article class="zx-ff-card"><div class="zx-ff-banner" ${banner?`style="background-image:linear-gradient(0deg,#101523bb,#10152322),url('${banner}')"`:""}></div><div class="zx-ff-identity">${avatar?`<img src="${avatar}" alt="Avatar del jugador" loading="lazy">`:`<span aria-hidden="true">◆</span>`}<div><small>PERFIL FREE FIRE · ${esc(String(b.region||region).toUpperCase())}</small><h4>${esc(b.nickname||player.nickname||"Jugador Free Fire")}</h4><span>ID ${esc(uid)}</span></div></div><div class="zx-ff-stats">${stat("Nivel",b.level)}${stat("Rango",b.rank)}${stat("Likes",b.liked??b.likes)}${stat("Prime",b.primePrivilegeDetail?.primeLevel??b.primeLevel??player.primeLevel)}${stat("Honor",score.creditScore)}${stat("Desde",since)}</div>${clan.clanName?`<div class="zx-ff-detail"><small>CLAN</small><strong>${esc(clan.clanName)}</strong><span>${esc(clan.clanLevel?`Nivel ${clan.clanLevel}`:"")}${clan.memberNum!=null&&clan.capacity!=null?` · ${esc(String(clan.memberNum))}/${esc(String(clan.capacity))} miembros`:""}</span></div>`:""}${social.signature?`<div class="zx-ff-detail"><small>FIRMA DEL JUGADOR</small><p>${esc(social.signature)}</p></div>`:""}${pet.id?`<div class="zx-ff-detail"><small>MASCOTA EQUIPADA</small><strong>ID ${esc(pet.id)}</strong>${pet.level?`<span> · Nivel ${esc(String(pet.level))}</span>`:""}</div>`:""}${clothes.length?`<div class="zx-ff-detail"><small>OBJETOS EQUIPADOS</small><div class="zx-ff-outfit">${clothes.map(url=>`<img src="${url}" alt="Objeto equipado" loading="lazy">`).join("")}</div></div>`:""}<small class="zx-ff-disclaimer">Consulta informativa de una API externa. La imagen o algún dato pueden no estar disponibles.</small></article>`;
+  }catch(error){out.textContent=error.name==="AbortError"?"La consulta tardó demasiado. Inténtalo de nuevo.":error.message}
+  finally{button.disabled=false}
+});
+
 
 
 /* =========================================================
