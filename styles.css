@@ -7626,3 +7626,5 @@ body{background:
 .ff-quantity { display: grid; gap: 6px; margin: 14px 0 6px; color: #e8d8fb; font-weight: 700; }
 .ff-quantity input { width: min(100%, 180px); padding: 10px 12px; border: 1px solid #b677e1; border-radius: 10px; background: #16101f; color: white; font: inherit; }
 .ff-unit-price { display: block; margin-bottom: 10px; color: #dec9ef; }
+.zx-reseller-selector { display: grid; gap: 8px; max-width: 340px; margin: 20px 0; color: #e9d7ff; font-weight: 700; }
+.zx-reseller-selector select { width: 100%; padding: 12px; border: 1px solid #9e6fc9; border-radius: 12px; background: #1c1524; color: #fff; font: inherit; }
