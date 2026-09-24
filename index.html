@@ -33,7 +33,6 @@
     href="./apple-touch-icon.png"
   >
   <link rel="stylesheet" href="./styles.css?v=22">
-  <style id="zerox-emergency-boot">#zerox-splash{display:none!important}</style>
   <script>
   /* Zero'X emergency cache reset: keep the storefront accessible even if app JS fails */
   if ('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister();});}).catch(function(){});
@@ -42,6 +41,20 @@
 </head>
 
 <body>
+  <div class="zerox-splash" id="zerox-splash" role="status" aria-label="Cargando Zero'X Store">
+    <div class="zerox-splash-bg" aria-hidden="true"></div>
+    <div class="zerox-loader">
+      <div class="zerox-loader-text"><span>CARGANDO</span><span id="zerox-loading-percent">0%</span></div>
+      <div class="zerox-loading-track"><div class="zerox-loading-bar" id="zerox-loading-bar"><span class="zerox-loading-shine"></span></div></div>
+    </div>
+  </div>
+  <script>
+    /* Cierre independiente: la portada no puede bloquear la tienda si falla app.js. */
+    setTimeout(function () {
+      var splash = document.getElementById('zerox-splash');
+      if (splash) { splash.classList.add('zerox-splash-out'); setTimeout(function () { splash.remove(); }, 800); }
+    }, 4000);
+  </script>
 <!-- =====================================================
        HEADER
        ===================================================== -->
@@ -1252,7 +1265,7 @@
     </button>
 
   </div>
-<script src="./app.js?v=25" defer></script>
+<script src="./app.js?v=26" defer></script>
 
 </body>
 </html>
