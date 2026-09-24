@@ -7690,3 +7690,6 @@ body{background:
 @media(max-width:580px){.products{gap:12px}.products .zx-product-card{padding:8px!important}.products .zx-product-card .product-copy{padding:9px 2px 2px}.products .zx-product-card h3{font-size:17px!important}.products .zx-product-card .product-bottom{grid-template-columns:minmax(0,1fr) 37px;gap:5px}.products .zx-product-card .product-bottom [data-add]{width:37px;height:37px}}
 @media(max-width:365px){.products{grid-template-columns:1fr 1fr;gap:8px}.products .zx-product-card h3{font-size:15px!important}.products .zx-product-card .product-bottom strong{font-size:16px}}
 @media(prefers-reduced-motion:reduce){.products .zx-product-card{transition:none;transform:none!important}}
+/* Las reglas históricas de personajes no deben apagar el marco metálico nuevo. */
+.products .zx-product-card:has(.character-img){border-color:rgba(var(--zx-neon),.72)!important;box-shadow:inset 0 2px 1px #ffffff70,inset 0 -3px 5px #000b,0 13px 23px #000b,0 10px 32px rgba(var(--zx-neon),.32)!important}
+.products .zx-product-card:has(.character-img):hover,.products .zx-product-card:has(.character-img):focus-within{box-shadow:inset 0 2px 1px #ffffff80,0 18px 30px #000c,0 15px 40px rgba(var(--zx-neon),.46)!important}
