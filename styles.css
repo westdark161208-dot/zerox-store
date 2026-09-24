@@ -7628,3 +7628,65 @@ body{background:
 .ff-unit-price { display: block; margin-bottom: 10px; color: #dec9ef; }
 .zx-reseller-selector { display: grid; gap: 8px; max-width: 340px; margin: 20px 0; color: #e9d7ff; font-weight: 700; }
 .zx-reseller-selector select { width: 100%; padding: 12px; border: 1px solid #9e6fc9; border-radius: 12px; background: #1c1524; color: #fff; font: inherit; }
+
+/* Vitrina Free Fire: metal en perspectiva y brillo del artículo. */
+.products .zx-product-card{
+  --zx-neon:99,204,255; isolation:isolate; overflow:hidden; padding:10px!important;
+  border:1px solid rgba(var(--zx-neon),.72)!important; border-radius:21px!important;
+  background:linear-gradient(145deg,#858a98 0%,#282b35 3%,#10121b 24%,#242832 62%,#0b0c12 96%)!important;
+  box-shadow:inset 0 2px 1px #ffffff70,inset 0 -3px 5px #000b,0 13px 23px #000b,0 10px 32px rgba(var(--zx-neon),.32)!important;
+  transform:perspective(850px) rotateX(2deg) translateZ(0); transition:transform .25s ease,box-shadow .25s ease;
+}
+.products .zx-product-card:hover,.products .zx-product-card:focus-within{transform:perspective(850px) rotateX(0) translateY(-4px);box-shadow:inset 0 2px 1px #ffffff80,0 18px 30px #000c,0 15px 40px rgba(var(--zx-neon),.46)!important}
+.products .zx-product-card::after{inset:4px;border:1px solid #ffffff1e;border-radius:17px;background:none}
+.zx-product-card[data-kind="pass"]{--zx-neon:255,187,46}
+.zx-product-card[data-kind="box"]{--zx-neon:55,230,209}
+.zx-product-card[data-kind="fragments"]{--zx-neon:74,227,226}
+.zx-product-card[data-product="ff-runas-4815"]{--zx-neon:73,233,204}
+.zx-product-card[data-product="ff-galaxia-5657"]{--zx-neon:76,156,255}
+.zx-product-card[data-product="ff-revolucion-7649"]{--zx-neon:255,158,107}
+.zx-product-card:has(img[alt="EREN"]){--zx-neon:72,232,131}
+.zx-product-card:has(img[alt="SUKUNA"]){--zx-neon:239,65,89}
+.zx-product-card:has(img[alt="NAMI"]){--zx-neon:255,164,61}
+.zx-product-card:has(img[alt="ZORO"]){--zx-neon:73,229,119}
+.zx-product-card:has(img[alt="GOJO"]){--zx-neon:111,136,255}
+.zx-product-card:has(img[alt="LUFFY"]){--zx-neon:253,102,99}
+.products .zx-product-card .ff-product-art,.products .zx-product-card .character-art{
+  width:100%; height:auto; aspect-ratio:4/3; border-radius:14px; overflow:hidden;
+  border:1px solid rgba(var(--zx-neon),.45); background-color:#151620;
+  box-shadow:inset 0 0 14px rgba(var(--zx-neon),.25),0 0 12px rgba(var(--zx-neon),.27)
+}
+.products .zx-product-card .ff-pass-art img{width:100%;height:100%;display:block;object-fit:cover;object-position:center}
+/* Se conserva el diseño exacto de cada icono de las capturas del catálogo del proveedor. */
+.ff-provider-art{background-repeat:no-repeat;background-size:247.86% auto}
+[data-product="ff-frag-17729"] .ff-provider-art{background-image:url('./assets/products/sixofire-products-top.jpg');background-position:13% 17%}
+[data-product="ff-cajas-8816"] .ff-provider-art{background-image:url('./assets/products/sixofire-products-bottom.jpg');background-position:15% 36%}
+[data-product="ff-runas-4815"] .ff-provider-art{background-image:url('./assets/products/sixofire-products-bottom.jpg');background-position:93% 36%}
+[data-product="ff-galaxia-5657"] .ff-provider-art{background-image:url('./assets/products/sixofire-products-bottom.jpg');background-position:16% 74%}
+[data-product="ff-revolucion-7649"] .ff-provider-art{background-image:url('./assets/products/sixofire-products-bottom.jpg');background-position:93% 74%}
+.products .zx-product-card .character-img{width:100%;height:100%;object-fit:cover;object-position:center 34%}
+.products .zx-product-card:has(img[alt="EREN"]) .character-img{object-position:center 49%}
+.products .zx-product-card:has(img[alt="SUKUNA"]) .character-img{object-position:center 39%}
+.products .zx-product-card:has(img[alt="NAMI"]) .character-img{object-position:center 43%}
+.products .zx-product-card:has(img[alt="ZORO"]) .character-img{object-position:center 40%}
+.products .zx-product-card:has(img[alt="GOJO"]) .character-img{object-position:center 42%}
+.products .zx-product-card:has(img[alt="LUFFY"]) .character-img{object-position:center 38%}
+.products .zx-product-card .product-copy{position:relative;z-index:2;display:flex;flex-direction:column;min-width:0;min-height:195px;padding:11px 5px 5px}
+.products .zx-product-card .badge{align-self:flex-start;margin-bottom:7px;padding:5px 9px;border:1px solid rgba(var(--zx-neon),.58);border-radius:7px;background:rgba(var(--zx-neon),.14);color:#fff;letter-spacing:.08em;font-size:10px}
+.products .zx-product-card h3{margin:0 0 8px!important;min-height:0!important;font-size:clamp(17px,2.6vw,24px)!important;line-height:1.18!important;text-align:left;filter:none}
+.products .zx-product-card p{display:block;margin:0 0 12px;color:#c9c5d0;font-size:clamp(11px,1.7vw,14px);line-height:1.4}
+.products .zx-product-card .ff-quantity{margin-top:auto;font-size:12px}
+.products .zx-product-card .ff-quantity span{color:#b9b3c1;font-size:11px;font-weight:500}
+.products .zx-product-card .ff-quantity input{width:100%;min-height:42px;box-sizing:border-box;border-color:rgba(var(--zx-neon),.55)}
+.products .zx-product-card .ff-unit-price{font-size:11px;margin:2px 0 7px}
+.products .zx-product-card .product-bottom{display:grid;grid-template-columns:minmax(0,1fr) 40px;gap:8px;margin-top:auto;align-items:center}
+.products .zx-product-card .product-bottom strong{min-width:0;color:#fff;font-size:clamp(17px,3vw,23px);text-shadow:0 0 12px rgba(var(--zx-neon),.55)}
+.products .zx-product-card .product-bottom button{cursor:pointer;font-family:inherit;font-weight:900}
+.products .zx-product-card .product-bottom [data-add]{width:40px;height:40px;border:1px solid rgba(var(--zx-neon),.78);border-radius:11px;background:#1d1e28;color:#fff;font-size:27px;box-shadow:inset 0 1px 0 #fff4,0 0 12px rgba(var(--zx-neon),.22)}
+.products .zx-product-card .product-bottom [data-buy-now]{grid-column:1/-1;width:100%;min-height:45px;padding:8px;border:1px solid rgba(var(--zx-neon),.92);border-radius:11px;background:linear-gradient(115deg,rgba(var(--zx-neon),.70),rgba(var(--zx-neon),.23) 68%,#141621);color:#fff;font-size:clamp(13px,2vw,17px);letter-spacing:.06em;text-shadow:0 1px 4px #000b;box-shadow:inset 0 1px 0 #fff7,0 7px 16px rgba(var(--zx-neon),.25)}
+.products .zx-product-card .product-bottom [data-buy-now] span{margin-left:7px;font-size:18px}
+.products .zx-product-card .product-bottom button:focus-visible{outline:2px solid white;outline-offset:3px}
+.zx-sub-grid [data-open-cat="Pases Booyah"] img{object-fit:cover;object-position:center}
+@media(max-width:580px){.products{gap:12px}.products .zx-product-card{padding:8px!important}.products .zx-product-card .product-copy{padding:9px 2px 2px}.products .zx-product-card h3{font-size:17px!important}.products .zx-product-card .product-bottom{grid-template-columns:minmax(0,1fr) 37px;gap:5px}.products .zx-product-card .product-bottom [data-add]{width:37px;height:37px}}
+@media(max-width:365px){.products{grid-template-columns:1fr 1fr;gap:8px}.products .zx-product-card h3{font-size:15px!important}.products .zx-product-card .product-bottom strong{font-size:16px}}
+@media(prefers-reduced-motion:reduce){.products .zx-product-card{transition:none;transform:none!important}}

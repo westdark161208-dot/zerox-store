@@ -783,8 +783,9 @@ function artFor(product) {
   const category = product.category || "";
 
   if (product.id?.startsWith("ff-")) {
-    const image = category === "Pases Booyah" ? "pase-booyah.png.png" : category === "Cajas" ? "caja-tokens.png.png" : "fragmentos.png.png";
-    return `<div class="ff-product-art"><img src="./assets/categories/${image}" alt="${esc(name)}" loading="lazy"></div>`;
+    if (category === "Pases Booyah") return `<div class="ff-product-art ff-pass-art"><img src="./assets/products/pase-booyah-silver.jpg" alt="${esc(name)}" loading="lazy"></div>`;
+    // Recortes visuales de las imágenes del catálogo SixoFire proporcionadas por el creador.
+    return `<div class="ff-product-art ff-provider-art" role="img" aria-label="${esc(name)}"></div>`;
   }
 
    /* =========================================
@@ -893,17 +894,17 @@ function render() {
     return categoryMatch && searchMatch;
   });
   container.innerHTML = rows.length ? rows.map(product => `
-    <article class="product-card">
+    <article class="product-card zx-product-card" data-product="${esc(product.id)}" data-kind="${product.category.includes("Diamantes") ? "diamonds" : product.category === "Pases Booyah" ? "pass" : product.category === "Cajas" ? "box" : product.category === "Fragmentos" ? "fragments" : "other"}">
       ${artFor(product)}
       <div class="product-copy">
         ${product.badge ? `<span class="badge">${esc(product.badge)}</span>` : ""}
         <h3>${esc(product.name)}</h3>
         <p>${esc(product.description || "")}</p>
-        ${product.minQuantity ? `<label class="ff-quantity">Cantidad (mínimo ${product.minQuantity}) <input data-quantity type="number" inputmode="numeric" min="${product.minQuantity}" max="${product.maxQuantity}" step="1" value="${product.minQuantity}" aria-label="Cantidad de ${esc(product.name)}"></label><small class="ff-unit-price">${money(product.price)} por unidad · total desde ${money(product.price * product.minQuantity)}</small>` : ""}
+        ${product.minQuantity ? `<label class="ff-quantity">Cantidad <span>Mínimo ${product.minQuantity}</span><input data-quantity type="number" inputmode="numeric" min="${product.minQuantity}" max="${product.maxQuantity}" step="1" value="${product.minQuantity}" aria-label="Cantidad de ${esc(product.name)}"></label><small class="ff-unit-price">${money(product.price)} por unidad</small>` : ""}
         <div class="product-bottom">
           <strong>${money(product.minQuantity ? product.price * product.minQuantity : product.price)}${product.minQuantity ? " desde" : ""}</strong>
-          <button type="button" data-add="${esc(product.id)}" aria-label="Agregar ${esc(product.name)} al carrito">＋</button>
-          <button type="button" data-buy-now="${esc(product.id)}">COMPRAR</button>
+          <button type="button" data-add="${esc(product.id)}" aria-label="Agregar ${esc(product.name)} al carrito" title="Agregar al carrito">＋</button>
+          <button type="button" data-buy-now="${esc(product.id)}">COMPRAR <span aria-hidden="true">→</span></button>
         </div>
       </div>
     </article>`).join("") : '<div class="zx-empty"><b>SIN PRODUCTOS</b><span>No hay productos disponibles en esta sección por el momento.</span></div>';
@@ -925,6 +926,10 @@ function setFilter(category, scroll = true) {
     button.classList.toggle("active", button.dataset.cat === category);
   });
   if ($("#catalog-title")) $("#catalog-title").textContent = category;
+  if ($("#catalog-note")) {
+    const note = category === "Diamantes 1 vez" ? "Cada paquete promocional se usa una sola vez por ID. Verificamos tu ID antes de continuar." : category === "Diamantes ilimitados" ? "Paquetes disponibles para comprar más de una vez con el mismo ID." : category === "Cajas y Fragmentos" || category === "Fragmentos" || category === "Cajas" ? "Elige el tipo y la cantidad. El precio total se actualiza antes de continuar." : "Elige tu producto y consulta los detalles antes de continuar.";
+    $("#catalog-note").textContent = note;
+  }
   if (scroll) $("#catalogo")?.scrollIntoView({ behavior:"smooth", block:"start" });
 }
 
