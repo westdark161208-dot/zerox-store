@@ -7590,3 +7590,32 @@ body{background:
 .zx-managed-grid .zx-managed-price{font-size:clamp(22px,3vw,30px);color:#fff;text-shadow:0 0 14px rgba(var(--zx-glow),.85)}
 @media(max-width:760px){.zx-managed-grid .zx-media-product{transform:translateZ(0) rotateX(1deg)}}
 @media(prefers-reduced-motion:reduce){.zx-managed-grid .zx-media-product{transition:none;transform:none!important}}
+
+/* Cuenta en pantalla completa y avatar real en el menú. */
+#account-modal.zx-profile-page{
+ position:fixed;inset:0;width:100vw;max-width:none;height:100dvh;max-height:none;
+ margin:0;padding:calc(16px + env(safe-area-inset-top,0px)) max(18px,env(safe-area-inset-right,0px)) calc(28px + env(safe-area-inset-bottom,0px)) max(18px,env(safe-area-inset-left,0px));
+ border:0;border-radius:0;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;
+ background:radial-gradient(ellipse at 50% -10%,#421967 0%,transparent 42%),linear-gradient(155deg,#0d0a13,#15101b 55%,#09080e);
+}
+#account-modal.zx-profile-page #account-user{max-width:850px;margin:0 auto;padding:0 0 34px}
+#account-modal.zx-profile-page>.section-kicker,#account-modal.zx-profile-page>#account-title{display:block;max-width:850px;margin-left:auto;margin-right:auto}
+#account-modal.zx-profile-page>.close{position:sticky;top:4px;z-index:12;float:right;display:grid;place-items:center;width:42px;height:42px;border:1px solid #a86dd4;border-radius:12px;background:#1b1027;color:#fff;box-shadow:0 6px 18px #0009}
+#account-modal.zx-profile-page .zx-profile-banner{height:clamp(160px,30vw,270px);margin-top:20px}
+#account-modal.zx-profile-page .zx-profile-identity{margin-top:-44px}
+#account-modal.zx-profile-page #account-avatar{width:clamp(82px,15vw,112px);height:clamp(82px,15vw,112px)}
+#account-modal.zx-profile-page .zx-profile-bio{margin-top:16px}
+#account-modal.zx-profile-page .account-stats{gap:14px}
+#account-modal.zx-profile-page .zx-profile-editor,#account-modal.zx-profile-page .zx-profile-shop{margin-top:22px}
+.zx-drawer-profile .zx-drawer-avatar{display:grid;place-items:center;flex:none;width:44px;height:44px;border:2px solid #cba6ef;border-radius:50%;font-size:18px;font-weight:900;color:#fff;background:#241530 center/cover no-repeat;box-shadow:0 0 10px #b45bea66}
+.zx-drawer-profile .zx-drawer-avatar.has-image{font-size:0}
+.zx-drawer-profile>span:nth-child(2){min-width:0}.zx-drawer-profile b,.zx-drawer-profile small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.zx-name-line{position:relative;display:inline-flex;max-width:calc(100% - 14px);padding-right:14px;align-items:center;flex-wrap:nowrap}
+#account-modal .zx-name-line .zx-founder-badge{
+ position:absolute;left:calc(100% - 27px);top:-10px;z-index:3;
+ width:24px!important;height:24px!important;min-width:24px;padding:0!important;
+ border:1px solid #ffe29c!important;border-radius:50%!important;
+ box-shadow:0 0 8px #ffad48cc,0 0 13px #ff4f3777!important;
+}
+#account-modal .zx-name-line .zx-founder-badge img{width:100%;height:100%;object-fit:cover}
+@media(max-width:640px){#account-modal.zx-profile-page .zx-profile-banner{height:175px}#account-modal.zx-profile-page .zx-profile-identity{gap:12px;margin-left:8px;margin-right:6px}}
