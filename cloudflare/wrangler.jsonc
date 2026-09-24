@@ -8,5 +8,11 @@
       "database_name": "zerox-store-db",
       "database_id": "56da67bb-a83e-4b29-8193-eb3baf0cb404"
     }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "MEDIA",
+      "bucket_name": "zerox-store-media"
+    }
   ]
 }
