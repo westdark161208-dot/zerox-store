@@ -32,7 +32,7 @@
     rel="apple-touch-icon"
     href="./apple-touch-icon.png"
   >
-  <link rel="stylesheet" href="./styles.css?v=19">
+  <link rel="stylesheet" href="./styles.css?v=20">
   <style id="zerox-emergency-boot">#zerox-splash{display:none!important}</style>
   <script>
   /* Zero'X emergency cache reset: keep the storefront accessible even if app JS fails */
@@ -1193,7 +1193,7 @@
 
   <aside class="drawer zx-drawer" id="drawer" aria-hidden="true" aria-label="Menú de Zero'X Store">
     <div class="zx-drawer-head"><div class="zx-drawer-brand">ZERO<span>'X</span><small>STORE · EXPLORA</small></div><button id="close-drawer" class="zx-drawer-close" type="button" aria-label="Cerrar menú">×</button></div>
-    <button type="button" id="drawer-profile" class="zx-drawer-profile"><span>◈</span><span><b>Mi perfil Zero'X</b><small>Tu espacio personal</small></span><i>→</i></button>
+    <button type="button" id="drawer-profile" class="zx-drawer-profile"><span id="drawer-avatar" class="zx-drawer-avatar" aria-hidden="true">◈</span><span><b id="drawer-profile-name">Mi perfil Zero’X</b><small id="drawer-profile-handle">Tu espacio personal</small></span><i aria-hidden="true">→</i></button>
     <label class="zx-drawer-search">⌕ <input id="drawer-search" type="search" placeholder="Buscar productos..." aria-label="Buscar productos"></label>
     <div class="zx-drawer-scroll"><span class="zx-drawer-kicker">EXPLORAR</span>
       <button type="button" data-drawer-zone="home">⌂ <span>Inicio</span></button>
@@ -1251,7 +1251,7 @@
     </button>
 
   </div>
-<script src="./app.js?v=22" defer></script>
+<script src="./app.js?v=23" defer></script>
 
 </body>
 </html>
