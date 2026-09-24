@@ -880,21 +880,31 @@ const ZX_MANAGED={
 };
 async function zxOpenManaged(type){
  const cfg=ZX_MANAGED[type];if(!cfg)return;zxCloseViews();zxShow($("#secciones"),false);zxShow($("#zx-managed"),true);
- $("#zx-managed-title").textContent=cfg.title;$("#zx-managed-note").textContent=cfg.note;
+ $("#zx-managed-title").textContent=cfg.title;$("#zx-managed").dataset.currentSection=type;zxUpdateManagedCurrency();
  const rows=PRODUCTS.filter(p=>p.active&&p.category===cfg.category);
- $("#zx-managed-grid").innerHTML=rows.length?rows.map(p=>`<article class="zx-media-product"><div class="zx-media-art">${artFor(p)||'<div class="zx-media-placeholder">ZERO’X</div>'}</div><div><small>${esc(p.category)}</small><h3>${esc(p.name)}</h3><p>${esc(p.description||"Producto disponible en Zero’X Store.")}</p><strong>${money(p.price)}</strong><button type="button" data-buy="${esc(p.id)}">VER PRODUCTO</button></div></article>`).join(""):'<div class="zx-empty"><b>PRÓXIMAMENTE</b><span>Esta sección ya está preparada para recibir productos con fotos, videos, descripción y precio.</span></div>';
+ $("#zx-managed-grid").innerHTML=rows.length?rows.map(p=>`<article class="zx-media-product" data-section="${esc(type)}"><div class="zx-media-art">${artFor(p)||'<div class="zx-media-placeholder">ZERO’X</div>'}</div><div><small>${esc(p.category)}</small><h3>${esc(p.name)}</h3><p>${esc(p.description||"Producto disponible en Zero’X Store.")}</p><strong class="zx-managed-price" data-zx-base-price="${Number(p.price)}">${money(p.price)}</strong><button type="button" data-buy="${esc(p.id)}">VER PRODUCTO</button></div></article>`).join(""):'<div class="zx-empty"><b>PRÓXIMAMENTE</b><span>Esta sección ya está preparada para recibir productos con fotos, videos, descripción y precio.</span></div>';
  $("#zx-managed-grid").querySelectorAll("[data-buy]").forEach(b=>b.onclick=()=>openCheckout(b.dataset.buy));zxScroll($("#zx-managed"));
  try{
    const response=await fetch(`${ZEROX_API}/api/catalog/products?section=${encodeURIComponent(type)}`);
    if(!response.ok)return;
    const data=await response.json();
    if(!data.ok || !Array.isArray(data.products) || !data.products.length || $("#zx-managed")?.hidden)return;
-   const cards=data.products.map(p=>`<article class="zx-media-product">
+   const cards=data.products.map(p=>`<article class="zx-media-product" data-section="${esc(type)}">
      <div class="zx-media-art">${p.videoUrl?`<video controls playsinline preload="metadata" ${p.imageUrl?`poster="${esc(p.imageUrl)}"`:""} src="${esc(p.videoUrl)}"></video>`:p.imageUrl?`<img loading="lazy" src="${esc(p.imageUrl)}" alt="${esc(p.name)}">`:'<div class="zx-media-placeholder">ZERO’X</div>'}</div>
-     <div><small>${esc(cfg.title)}</small><h3>${esc(p.name)}</h3><p>${esc(p.description)}</p><strong>${money(p.price)}</strong><a class="zx-catalog-inquiry" href="https://wa.me/529514754210?text=${encodeURIComponent("Hola, quiero consultar "+p.name)}" target="_blank" rel="noopener">CONSULTAR DISPONIBILIDAD</a></div>
+     <div><small>${esc(cfg.title)}</small><h3>${esc(p.name)}</h3><p>${esc(p.description)}</p><strong class="zx-managed-price" data-zx-base-price="${Number(p.price)}">${money(p.price)}</strong><a class="zx-catalog-inquiry" href="https://wa.me/529514754210?text=${encodeURIComponent("Hola, quiero consultar "+p.name)}" target="_blank" rel="noopener">CONSULTAR DISPONIBILIDAD</a></div>
    </article>`).join("");
    $("#zx-managed-grid").innerHTML=(rows.length?$("#zx-managed-grid").innerHTML:"")+cards;
  }catch{}
+}
+function zxUpdateManagedCurrency(){
+ document.querySelectorAll("#zx-managed-grid [data-zx-base-price]").forEach(el=>{
+  el.textContent=money(Number(el.dataset.zxBasePrice));
+ });
+ const note=$("#zx-managed-note");
+ if(note && !$("#zx-managed")?.hidden){
+  const type=$("#zx-managed").dataset.currentSection;
+  if(ZX_MANAGED[type])note.textContent=ZX_MANAGED[type].note+(currentCurrency==="MXN"?" Precios base en MXN.":` Precios aproximados en ${currentCurrency}, convertidos desde MXN; el cobro final puede variar.`);
+ }
 }
 function zxRenderResellerPreview(){
   const target=$("#zx-reseller-catalog");
@@ -936,6 +946,7 @@ if ($("#currency")) {
     }
 
     render();
+    zxUpdateManagedCurrency();
     updateCartUI();
   };
 }
