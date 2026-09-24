@@ -453,6 +453,16 @@ function renderZeroXAccount() {
   guest.hidden = !!zeroxUser;
   user.hidden = !zeroxUser;
   if (profile) profile.classList.toggle("signed-in", !!zeroxUser);
+  $("#account-modal")?.classList.toggle("zx-profile-page", !!zeroxUser);
+  const drawerAvatar=$("#drawer-avatar"),drawerName=$("#drawer-profile-name"),drawerHandle=$("#drawer-profile-handle");
+  if(drawerAvatar){
+    const saved=zeroxUser?.profile?.avatar || "";
+    drawerAvatar.style.backgroundImage=saved ? `url("${saved}")` : "";
+    drawerAvatar.textContent=saved ? "" : zeroxUser ? (zeroxUser.display_name || zeroxUser.displayName || zeroxUser.username || "ZX").trim().slice(0,2).toUpperCase() : "◈";
+    drawerAvatar.classList.toggle("has-image",!!saved);
+  }
+  if(drawerName)drawerName.textContent=zeroxUser ? (zeroxUser.display_name || zeroxUser.displayName || zeroxUser.username || "Mi perfil") : "Mi perfil Zero’X";
+  if(drawerHandle)drawerHandle.textContent=zeroxUser ? "@"+(zeroxUser.username || "zerox") : "Inicia sesión o crea tu cuenta";
   const authBanner = $("#account-modal .zerox-auth-banner");
   if (authBanner) authBanner.hidden = !!zeroxUser;
   if (!zeroxUser) return;
