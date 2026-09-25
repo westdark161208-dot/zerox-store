@@ -32,7 +32,7 @@
     rel="apple-touch-icon"
     href="./apple-touch-icon.png"
   >
-  <link rel="stylesheet" href="./styles.css?v=29">
+  <link rel="stylesheet" href="./styles.css?v=30">
   <script>
   /* Zero'X emergency cache reset: keep the storefront accessible even if app JS fails */
   if ('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister();});}).catch(function(){});
@@ -1155,7 +1155,7 @@
           <div id="profile-result" role="status" aria-live="polite"></div>
         </div>
       </details>
-      <section class="zx-profile-shop"><h3>✨ Vitrina de efectos</h3><p>Marcos de fuego y rayos, y nuevos banners, próximamente.</p><div><span>🔥 Fuego · próximamente</span><span>⚡ Rayos · próximamente</span></div></section>
+      <section class="zx-profile-shop zx-style-gallery"><h3>✦ Banners y marcos</h3><p>Elige tu estilo. Puedes combinar un banner con tu foto y un marco desbloqueado.</p><h4>Banners</h4><div id="zx-banner-gallery" class="zx-banner-gallery"></div><h4>Avatares</h4><div id="zx-avatar-gallery" class="zx-avatar-gallery"></div><h4>Marcos por nivel</h4><div id="zx-frame-gallery" class="zx-frame-gallery"></div><button type="button" id="zx-gallery-save" class="zx-profile-save">Guardar mi estilo</button><p id="zx-gallery-status" role="status" aria-live="polite"></p></section>
       <button type="button" id="account-orders">📋 MIS PEDIDOS</button>
       <button type="button" id="logout-account" class="auth-secondary">CERRAR SESIÓN</button>
     </div>
@@ -1280,7 +1280,8 @@
     </button>
 
   </div>
-<script src="./app.js?v=32" defer></script>
+<script src="./payments-config.js?v=1" defer></script>
+<script src="./app.js?v=33" defer></script>
 
 </body>
 </html>

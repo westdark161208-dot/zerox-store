@@ -669,8 +669,38 @@ function zxRenderProfileEditor(){
   $("#profile-favorites").innerHTML=ZX_FAVS.map(f=>`<label><input type="checkbox" value="${f}" ${(profile.favorites||[]).includes(f)?"checked":""}><span>${f}</span></label>`).join("");
   $("#profile-banner-choices").innerHTML=[["violet","💜 Violeta"],["crimson","❤️ Carmesí"],["electric","⚡ Eléctrico"]].map(([id,label])=>`<button type="button" data-profile-banner="${id}" class="${zxDraftBanner===id?"selected":""}">${label}</button>`).join("")+`<button type="button" data-profile-banner="custom" class="${zxDraftBanner==="custom"?"selected":""}">🖼️ Mi imagen</button>`;
   const level=Number(zeroxUser.level||1);
+  zxRenderStyleGallery(level);
   $("#profile-frame-choices").innerHTML=[["steel","🎁 Acero",1],["chrome","✧ Cromo",2],["cobalt","◆ Cobalto",3],["titan","✦ Titán",4],["aurora","❖ Aurora",5],["prism","◇ Prisma",6],["sovereign","♛ Soberano",7]].map(([id,label,needed])=>`<button type="button" data-profile-frame="${id}" ${level<needed?"disabled":""} class="${zxDraftFrame===id?"selected":""}">${label}${level<needed?` · Nivel ${needed}`:""}</button>`).join("");
 }
+function zxRenderStyleGallery(level){
+  const banners=[["crimson","Carmesí"],["shadow","Sombra roja"],["angel","Ángel oscuro"]];
+  $("#zx-banner-gallery").innerHTML=banners.map(([id,name])=>`<button type="button" data-zx-banner="${id}"><span style="background-image:url('./assets/profile/banner-${id}.jpg')"></span><b>${name}</b></button>`).join("");
+  $("#zx-avatar-gallery").innerHTML=[["silver","Plata"],["ruby","Rubí"]].map(([id,name])=>`<button type="button" data-zx-avatar="${id}"><img src="./assets/profile/avatar-${id}.jpg" alt="Avatar ${name}" loading="lazy"><b>${name}</b></button>`).join("");
+  $("#zx-frame-gallery").innerHTML=[["steel","Acero",1],["chrome","Plata",2],["cobalt","Neón azul",3],["titan","Circuito",4],["aurora","Energía verde",5],["prism","Multicolor",6],["sovereign","Fuego dorado",7]].map(([id,name,needed])=>`<button type="button" data-zx-frame="${id}" ${level<needed?"disabled":""} class="${zxDraftFrame===id?"selected":""}"><span class="zx-frame-preview zx-frame-${id}">ZX</span><b>${name}</b><small>${level<needed?`Nivel ${needed}`:"Disponible"}</small></button>`).join("");
+}
+$("#zx-banner-gallery")?.addEventListener("click",async event=>{
+  const button=event.target.closest("[data-zx-banner]");if(!button)return;
+  const status=$("#zx-gallery-status");button.disabled=true;
+  try{
+    const response=await fetch(`./assets/profile/banner-${button.dataset.zxBanner}.jpg`);if(!response.ok)throw Error("No se pudo cargar el banner.");
+    zxDraftBannerImage=await zxCompactImage(await response.blob(),640,220);zxDraftBanner="custom";
+    $("#profile-banner").className="zx-profile-banner zx-banner-custom";$("#profile-banner").style.backgroundImage=`url("${zxDraftBannerImage}")`;
+    $("#zx-banner-gallery").querySelectorAll("button").forEach(item=>item.classList.toggle("selected",item===button));
+    status.textContent="Banner preparado. Pulsa Guardar mi estilo.";
+  }catch(error){status.textContent=error.message}finally{button.disabled=false}
+});
+$("#zx-avatar-gallery")?.addEventListener("click",async event=>{
+  const button=event.target.closest("[data-zx-avatar]");if(!button)return;button.disabled=true;
+  try{const response=await fetch(`./assets/profile/avatar-${button.dataset.zxAvatar}.jpg`);if(!response.ok)throw Error("No se pudo cargar el avatar.");zxDraftAvatar=await zxCompactImage(await response.blob(),256,256);$("#account-avatar").textContent="";$("#account-avatar").style.backgroundImage=`url("${zxDraftAvatar}")`;$("#zx-gallery-status").textContent="Avatar preparado. Pulsa Guardar mi estilo."}
+  catch(error){$("#zx-gallery-status").textContent=error.message}finally{button.disabled=false}
+});
+$("#zx-frame-gallery")?.addEventListener("click",event=>{
+  const button=event.target.closest("[data-zx-frame]");if(!button||button.disabled)return;
+  zxDraftFrame=button.dataset.zxFrame;$("#account-avatar").className="account-avatar zx-frame-"+zxDraftFrame;
+  $("#zx-frame-gallery").querySelectorAll("button").forEach(item=>item.classList.toggle("selected",item===button));
+  $("#zx-gallery-status").textContent="Marco preparado. Pulsa Guardar mi estilo.";
+});
+$("#zx-gallery-save")?.addEventListener("click",()=>{$("#profile-save").click()});
 function zxPresetAvatar(icon,color){
   const canvas=document.createElement("canvas");canvas.width=canvas.height=256;
   const ctx=canvas.getContext("2d"),grad=ctx.createLinearGradient(0,0,256,256);
@@ -709,8 +739,8 @@ $("#profile-save")?.addEventListener("click",async()=>{
   try{const favorites=[...$("#profile-favorites").querySelectorAll("input:checked")].map(x=>x.value);if(favorites.length>6)throw Error("Puedes elegir hasta 6 categorías.");
     const body={bio:$("#profile-bio").value.trim(),favorites,avatar:zxDraftAvatar,banner:zxDraftBanner,bannerImage:zxDraftBannerImage,frame:zxDraftFrame,isPublic:$("#zx-public-enabled").checked};
     const data=await zeroxAuthRequest("/api/auth/profile",{method:"POST",body:JSON.stringify(body)});
-    zeroxUser.profile=data.profile;renderZeroXAccount();out.textContent="Perfil guardado ✓";
-  }catch(err){out.textContent=err.status?authMessage(err):err.message;}finally{button.disabled=false;}
+    zeroxUser.profile=data.profile;renderZeroXAccount();out.textContent="Perfil guardado ✓";$("#zx-gallery-status").textContent="Estilo guardado en tu cuenta ✓";
+  }catch(err){out.textContent=err.status?authMessage(err):err.message;$("#zx-gallery-status").textContent=out.textContent;}finally{button.disabled=false;}
 });
 
 restoreZeroXSession();
@@ -1334,6 +1364,14 @@ function createOrderId() {
       .slice(-8)
   );
 }
+function zxPaymentAction(order){
+  const configured=window.ZEROX_PAYMENT_LINKS?.[order.payment];
+  let paymentUrl="";
+  try{const url=new URL(configured||"");if(url.protocol==="https:"&&["mpago.la","link.mercadopago.com.mx","www.mercadopago.com.mx","www.paypal.com","paypal.me","www.paypal.me","pay.binance.com"].includes(url.hostname))paymentUrl=url.href}catch{}
+  if(paymentUrl)return `<a class="zx-order-payment-link" href="${esc(paymentUrl)}" target="_blank" rel="noopener noreferrer">Abrir ${esc(order.payment)} para pagar ↗</a><p>Revisa el importe y conserva el comprobante. El pedido seguirá pendiente hasta confirmar el pago.</p>`;
+  const message=`Hola, quiero pagar mi pedido ${order.id}. Producto: ${order.productName}. Total: $${Number(order.total).toFixed(2)} MXN. Método: ${order.payment}. ¿Me compartes los datos de pago?`;
+  return `<a class="zx-order-payment-link" href="https://wa.me/529514754210?text=${encodeURIComponent(message)}" target="_blank" rel="noopener noreferrer">Solicitar datos para pagar por ${esc(order.payment)} ↗</a>`;
+}
 // =====================================================
 // COMPROBAR CUENTA FREE FIRE
 // =====================================================
@@ -1887,6 +1925,8 @@ fulfillmentStatus: "NO ENVIADO",
   Tu pedido aún no ha sido pagado ni enviado.
   Conserva este folio para darle seguimiento.
 </small>
+
+${zxPaymentAction(order)}
 
           </div>
         `;
