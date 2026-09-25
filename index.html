@@ -32,7 +32,7 @@
     rel="apple-touch-icon"
     href="./apple-touch-icon.png"
   >
-  <link rel="stylesheet" href="./styles.css?v=32">
+  <link rel="stylesheet" href="./styles.css?v=33">
   <script>
   /* Zero'X emergency cache reset: keep the storefront accessible even if app JS fails */
   if ('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister();});}).catch(function(){});
@@ -1098,7 +1098,7 @@
       </div>
       <p id="profile-bio-view" class="zx-profile-bio">Personaliza tu presentación ✨</p>
       <div class="account-stats"><div><b id="account-level">1</b><span>NIVEL</span></div><div><b id="account-xp">0</b><span>XP</span></div></div>
-      <section class="zx-profile-info" aria-label="Información personal">
+      <details class="level-help"><summary>¿Cómo funcionan los niveles?</summary><p>Tu nivel Zero’X es independiente del nivel de Free Fire. Las cuentas nuevas comienzan en nivel 1 con 0 XP.</p><p>La acumulación de XP por compras aún no está activa. Publicaremos aquí las acciones que dan puntos y los requisitos para subir de nivel cuando estén habilitados.</p><p>Marcos por nivel: 1 Acero · 2 Plata · 3 Neón azul · 4 Circuito · 5 Energía verde · 6 Multicolor · 7 Fuego dorado. La insignia y el marco de Fundador son exclusivos.</p></details><section class="zx-profile-info" aria-label="Información personal">
         <h3><span aria-hidden="true">◇</span> Información personal</h3>
         <div class="zx-profile-info-grid">
           <div><small>Nombre visible</small><strong id="zx-profile-display">Jugador</strong></div>
@@ -1281,7 +1281,7 @@
 
   </div>
 <script src="./payments-config.js?v=1" defer></script>
-<script src="./app.js?v=36" defer></script>
+<script src="./app.js?v=37" defer></script>
 
 </body>
 </html>

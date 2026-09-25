@@ -7799,3 +7799,13 @@ body{background:
 #account-modal .zx-avatar-wrap.is-founder #account-avatar{border:8px solid #e8b747!important;border-top-color:#fff0a6!important;border-left-color:#f6d46b!important;border-right-color:#af701b!important;border-bottom-color:#986019!important;border-radius:17px!important;box-shadow:inset 0 0 0 2px #563408,0 0 0 2px #5e3308,0 0 0 4px #edba55,0 6px 0 4px #4b160d,0 10px 17px #9f001bcc,0 0 25px #ff203f88!important}
 #account-modal .zx-avatar-wrap .zx-founder-badge{position:absolute!important;top:-13px;left:-13px;right:auto;bottom:auto;z-index:5;width:32px!important;height:32px!important;margin:0!important;transform:none!important;border:2px solid #ffdf8d!important;box-shadow:0 3px 7px #170000,0 0 12px #ff263b99!important}
 #account-modal .zx-avatar-wrap .zx-founder-badge:focus-visible{outline:3px solid white;outline-offset:3px}
+
+/* Deep blue neon profile surfaces. */
+#account-modal.zx-profile-page .zx-contact-panel,#account-modal.zx-profile-page .zx-ff-panel,#account-modal.zx-profile-page .zx-profile-info-grid>div{background:linear-gradient(138deg,#142b53,#15213c 52%,#0c1225);border-color:#476dd4;box-shadow:inset 0 2px #94b5ff33,0 12px 0 -7px #080e20,0 18px 30px #000a,0 0 25px #245dff60}
+#account-modal .zx-panel-symbol,#account-modal .zx-profile-info h3 span{background:#14327b;border-color:#7195ff;color:#dce6ff;box-shadow:inset 0 1px #fff5,0 0 18px #3267ff80}
+#account-modal .zx-panel-heading small{color:#b7caff}
+#account-modal .zx-contact-form input,#account-modal .zx-ff-form input,#account-modal .zx-ff-form select{background:#0a142b;border-color:#587ede;color:white}
+#account-modal .zx-contact-form input:focus{border-color:#91aeff;box-shadow:0 0 0 3px #3267ff44}
+#account-modal .zx-contact-form button{background:linear-gradient(135deg,#2856b5,#162d65);border-color:#85a5ff;box-shadow:0 0 15px #3267ff66}
+#account-modal .level-help{margin:18px 0;padding:16px;border:1px solid #456de0;border-radius:16px;background:#101a31;box-shadow:0 0 18px #245dff40;color:#dce5ff}
+#account-modal .level-help summary{font-weight:800;cursor:pointer}#account-modal .level-help p{color:#c4d2ef;font-size:14px;line-height:1.5}
