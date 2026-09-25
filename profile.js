@@ -15,6 +15,7 @@ async function loadProfile(name){
     if(!data.ok||!p)throw Error("No pudimos cargar el perfil.");
     document.title=`${p.displayName} · Zero’X Store`;
     $("#public-name").textContent=p.displayName||p.username;
+    $("#public-name").classList.toggle("founder-name",p.isFounder===true);
     $("#public-handle").textContent="@"+p.username;
     $("#public-bio").textContent=p.bio||"Este miembro todavía no ha escrito su presentación.";
     $("#public-level").textContent=p.level||1;
