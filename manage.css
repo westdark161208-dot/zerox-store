@@ -14,3 +14,4 @@ button:disabled{opacity:.55;cursor:wait}.check{display:flex;align-items:center;g
 [hidden]{display:none!important}
 
 [hidden]{display:none!important}.media-status{grid-column:1/-1;padding:12px;border:1px solid #745895;border-radius:11px;background:#1a1424;color:#dfcaff}.zx-creator-link{display:block}
+.content-admin{margin-top:40px;border-top:1px solid #9167b9;padding-top:20px}.content-admin article{padding:14px;margin:12px 0;border:1px solid #446878;border-radius:14px;background:#101e27}.content-admin form{margin-bottom:22px}.content-admin h2{margin-top:35px}#content-status{padding:14px;border:1px solid #5b8b9f;border-radius:12px;color:#c7f5ed}input[type=datetime-local]{color-scheme:dark}

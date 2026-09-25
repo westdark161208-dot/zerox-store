@@ -115,6 +115,59 @@ function validCatalog(body) {
   return { section, name, description, price, imageKey, videoKey, active: body.active === true };
 }
 
+async function contentSchema(env){
+ await env.DB.prepare("CREATE TABLE IF NOT EXISTS zx_streaming (id TEXT PRIMARY KEY,name TEXT NOT NULL,description TEXT NOT NULL DEFAULT '',kind TEXT NOT NULL,duration INTEGER NOT NULL,price REAL NOT NULL,stock INTEGER NOT NULL DEFAULT 0,threshold INTEGER NOT NULL DEFAULT 2,image_key TEXT,active INTEGER NOT NULL DEFAULT 0)").run();
+ await env.DB.prepare("CREATE TABLE IF NOT EXISTS zx_stream_sales (id TEXT PRIMARY KEY,reference TEXT NOT NULL UNIQUE,product_id TEXT NOT NULL,quantity INTEGER NOT NULL,created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)").run();
+ await env.DB.prepare("CREATE TABLE IF NOT EXISTS zx_ads (id TEXT PRIMARY KEY,title TEXT NOT NULL,kicker TEXT NOT NULL DEFAULT '',description TEXT NOT NULL DEFAULT '',image_key TEXT NOT NULL,target TEXT NOT NULL,position INTEGER NOT NULL DEFAULT 0,active INTEGER NOT NULL DEFAULT 0,starts TEXT,ends TEXT)").run();
+}
+async function contentRoutes(request,env,url){
+ const admin=url.pathname.startsWith('/api/admin/content/');
+ if(admin){await authSchema(env);const u=await currentUser(request,env);if(!u||u.status!=='active'||!u.isFounder)return json({ok:false,error:'FORBIDDEN'},403)}
+ await contentSchema(env);
+ const base=admin?'/api/admin/content/':'/api/content/',path=url.pathname.slice(base.length);
+ const media=k=>k?url.origin+'/api/catalog/media/'+encodeURIComponent(k):null;
+ if(request.method==='GET'&&path==='streaming'){
+ const rows=await env.DB.prepare('SELECT * FROM zx_streaming'+(admin?'': ' WHERE active=1')+' ORDER BY name').all();
+ return json({ok:true,products:rows.results.map(p=>({id:p.id,name:p.name,description:p.description,kind:p.kind,duration:p.duration,price:p.price,stock:p.stock,imageUrl:media(p.image_key),...(admin?{imageKey:p.image_key,threshold:p.threshold,active:!!p.active}:{})}))});
+ }
+ if(request.method==='GET'&&path==='ads'){
+ const now=new Date().toISOString();
+ const stmt=env.DB.prepare('SELECT * FROM zx_ads'+(admin?'': ' WHERE active=1 AND (starts IS NULL OR starts<=?) AND (ends IS NULL OR ends>?)')+' ORDER BY position,id');
+ const rows=await (admin?stmt:stmt.bind(now,now)).all();
+ return json({ok:true,ads:rows.results.map(a=>({...a,image:media(a.image_key)}))});
+ }
+ if(!admin)return json({ok:false,error:'NOT_FOUND'},404);
+ if(request.method==='POST'&&path==='sale'){
+ const b=await request.json(),quantity=Number(b.quantity),reference=String(b.reference||'').trim();
+ if(b.paymentConfirmed!==true||!Number.isInteger(quantity)||quantity<1||quantity>100||reference.length<3||reference.length>100)return json({ok:false,error:'INVALID_SALE'},400);
+ const id=crypto.randomUUID();
+ try{const result=await env.DB.batch([
+ env.DB.prepare('INSERT INTO zx_stream_sales(id,reference,product_id,quantity) SELECT ?,?,?,? WHERE EXISTS(SELECT 1 FROM zx_streaming WHERE id=? AND stock>=?)').bind(id,reference,b.productId,quantity,b.productId,quantity),
+ env.DB.prepare('UPDATE zx_streaming SET stock=stock-? WHERE id=? AND EXISTS(SELECT 1 FROM zx_stream_sales WHERE id=?)').bind(quantity,b.productId,id)
+ ]);if(!result[0].meta.changes)return json({ok:false,error:'INSUFFICIENT_STOCK'},409)}catch(e){if(String(e.message).toLowerCase().includes('unique'))return json({ok:false,error:'REFERENCE_ALREADY_USED'},409);throw e}
+ return json({ok:true,id});
+ }
+ if(request.method==='POST'&&(path==='streaming'||path==='ads')){
+ const b=await request.json(),id=b.id||crypto.randomUUID();
+ if(!/^[a-f0-9-]{36}$/.test(id))return json({ok:false,error:'INVALID_ID'},400);
+ const key=b.imageKey||null;
+ if(key&&!/^[a-f0-9-]{36}\.(jpg|png|webp)$/.test(key))return json({ok:false,error:'INVALID_IMAGE'},400);
+ if(path==='streaming'){
+ const name=String(b.name||'').trim(),description=String(b.description||'').trim();
+ if(!name||name.length>120||description.length>2000||!['account','profile','invite'].includes(b.kind)||!Number.isInteger(b.duration)||b.duration<1||b.duration>730||!Number.isFinite(b.price)||b.price<0||b.price>1000000||!Number.isInteger(b.stock)||b.stock<0||b.stock>10000||!Number.isInteger(b.threshold)||b.threshold<0||b.threshold>10000)return json({ok:false,error:'INVALID_PRODUCT'},400);
+ const saved=await env.DB.prepare('INSERT INTO zx_streaming(id,name,description,kind,duration,price,stock,threshold,image_key,active) VALUES(?,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET name=excluded.name,description=excluded.description,kind=excluded.kind,duration=excluded.duration,price=excluded.price,stock=excluded.stock,threshold=excluded.threshold,image_key=excluded.image_key,active=excluded.active WHERE zx_streaming.stock=?').bind(id,name,description,b.kind,b.duration,b.price,b.stock,b.threshold,key,b.active?1:0,Number.isInteger(b.expectedStock)?b.expectedStock:-1).run();
+ if(!saved.meta.changes)return json({ok:false,error:'STOCK_CHANGED_REFRESH_FIRST'},409);
+ }else{
+ const title=String(b.title||'').trim(),kicker=String(b.kicker||''),description=String(b.description||'');
+ const targets=['Streaming','Cuentas','Venta Clanes','Honor de Clanes','Fragmentos','Pases Booyah','Diamantes ilimitados','Diamantes 1 vez'];
+ const validDate=d=>!d||(!isNaN(Date.parse(d))&&new Date(d).toISOString()===d);
+ if(!title||title.length>120||kicker.length>70||description.length>400||!key||!targets.includes(b.target)||!Number.isInteger(b.position)||b.position<0||b.position>9999||!validDate(b.starts)||!validDate(b.ends)||(b.starts&&b.ends&&b.starts>=b.ends))return json({ok:false,error:'INVALID_AD'},400);
+ await env.DB.prepare('INSERT INTO zx_ads(id,title,kicker,description,image_key,target,position,active,starts,ends) VALUES(?,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET title=excluded.title,kicker=excluded.kicker,description=excluded.description,image_key=excluded.image_key,target=excluded.target,position=excluded.position,active=excluded.active,starts=excluded.starts,ends=excluded.ends').bind(id,title,kicker,description,key,b.target,b.position,b.active?1:0,b.starts||null,b.ends||null).run();
+ }return json({ok:true,id});
+ }
+ return json({ok:false,error:'NOT_FOUND'},404);
+}
+
 export default {
   async fetch(request, env) {
     try {
@@ -126,6 +179,7 @@ export default {
       }
 
       const url = new URL(request.url);
+      if(url.pathname.startsWith("/api/content/")||url.pathname.startsWith("/api/admin/content/"))return await contentRoutes(request,env,url);
 
       if(url.pathname.startsWith("/api/auth/") || url.pathname.startsWith("/api/public-profile/")) await authSchema(env);
 

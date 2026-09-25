@@ -326,14 +326,15 @@ const ZEROX_ADS = [
   { kicker:"ZERO'X PREMIUM", title:"OFERTAS DE CUENTAS", text:"Nuevas cuentas y oportunidades destacadas aparecerán aquí.", image:"./assets/categories/cuentas.png.png", category:"Cuentas" },
   { kicker:"ENTRETENIMIENTO", title:"STREAMING EN OFERTA", text:"Promociones destacadas de tus plataformas favoritas.", image:"./assets/categories/streaming.png.png", category:"Streaming" }
 ];
-let zeroxAdIndex=0, zeroxAdTimer=null;
+let zeroxAdIndex=0, zeroxAdTimer=null, zeroxAdTransition=null;
 function renderZeroXAd(index){
   if(!ZEROX_ADS.length) return;
   zeroxAdIndex=(index+ZEROX_ADS.length)%ZEROX_ADS.length;
   const ad=ZEROX_ADS[zeroxAdIndex], stage=document.querySelector(".ad-stage");
   if(!stage) return;
   stage.classList.add("is-changing");
-  setTimeout(()=>{
+  clearTimeout(zeroxAdTransition);
+  zeroxAdTransition=setTimeout(()=>{
     document.querySelector("#ad-image").src=ad.image;
     document.querySelector("#ad-image").alt=ad.title;
     document.querySelector("#ad-kicker").textContent=ad.kicker;
@@ -344,13 +345,20 @@ function renderZeroXAd(index){
   },150);
 }
 function startZeroXAds(){clearInterval(zeroxAdTimer);zeroxAdTimer=setInterval(()=>renderZeroXAd(zeroxAdIndex+1),6000)}
+function buildAdDots(){
+ const dots=document.querySelector("#ad-dots");if(!dots)return;
+ dots.replaceChildren();ZEROX_ADS.forEach((_,i)=>{const b=document.createElement("button");b.type="button";b.setAttribute("aria-label",`Anuncio ${i+1}`);b.onclick=()=>{renderZeroXAd(i);startZeroXAds()};dots.append(b)});
+}
+async function loadPublishedAds(){
+ try{const r=await fetch(`${ZEROX_API}/api/content/ads`);if(!r.ok)return;const d=await r.json();if(!d.ok||!Array.isArray(d.ads))return;clearInterval(zeroxAdTimer);clearTimeout(zeroxAdTransition);ZEROX_ADS.splice(0,ZEROX_ADS.length,...d.ads.map(a=>({kicker:a.kicker,title:a.title,text:a.description,image:a.image,category:a.target})));const zone=document.querySelector(".zerox-ad-zone");if(zone)zone.style.display=ZEROX_ADS.length?"":"none";buildAdDots();if(ZEROX_ADS.length){renderZeroXAd(0);startZeroXAds()}}catch{}
+}
 function initZeroXAds(){
   const dots=document.querySelector("#ad-dots"); if(!dots) return;
   dots.innerHTML=ZEROX_ADS.map((_,i)=>`<button type="button" aria-label="Anuncio ${i+1}"></button>`).join("");
   dots.querySelectorAll("button").forEach((b,i)=>b.addEventListener("click",()=>{renderZeroXAd(i);startZeroXAds()}));
   document.querySelector("#ad-prev")?.addEventListener("click",()=>{renderZeroXAd(zeroxAdIndex-1);startZeroXAds()});
   document.querySelector("#ad-next")?.addEventListener("click",()=>{renderZeroXAd(zeroxAdIndex+1);startZeroXAds()});
-  document.querySelector("#ad-action")?.addEventListener("click",()=>{const ad=ZEROX_ADS[zeroxAdIndex];if(typeof zxOpenCatalog==="function") zxOpenCatalog(ad.category);});
+  document.querySelector("#ad-action")?.addEventListener("click",()=>{const ad=ZEROX_ADS[zeroxAdIndex];if(ad) {const managed={Cuentas:"accounts","Venta Clanes":"clans","Honor de Clanes":"honor"}[ad.category];managed?zxOpenManaged(managed):zxOpenCatalog(ad.category);}});
   renderZeroXAd(0); startZeroXAds();
 }
 
@@ -1036,8 +1044,9 @@ function setFilter(category, scroll = true) {
 function zxShow(el,show){if(!el)return;el.hidden=!show;el.style.display=show?"":"none"}
 function zxScroll(el){requestAnimationFrame(()=>el?.scrollIntoView({behavior:"smooth",block:"start"}))}
 function zxCloseViews(){["#freefire-menu","#zx-id-gate","#zx-managed","#zx-reseller-panel"].forEach(id=>zxShow($(id),false));$("#catalogo")?.classList.add("zx-catalog-hidden")}
-function zxOpenCatalog(category){zxCloseViews();zxShow($("#secciones"),false);setFilter(category,false);$("#catalogo")?.classList.remove("zx-catalog-hidden");zxScroll($("#catalogo"))}
+function zxOpenCatalog(category){if(category==="Streaming"){zxOpenStreaming();return}zxCloseViews();zxShow($("#secciones"),false);setFilter(category,false);$("#catalogo")?.classList.remove("zx-catalog-hidden");zxScroll($("#catalogo"))}
 const ZX_MANAGED={
+ streaming:{title:"STREAMING",note:"Disponibilidad limitada. Confirma tu pedido y recibe la entrega por atención privada.",category:"Streaming"},
  accounts:{title:"CUENTAS",note:"Catálogo preparado para productos con imágenes, video, descripción y precio editables.",category:"Cuentas"},
  clans:{title:"VENTA DE CLANES",note:"Catálogo multimedia de clanes disponibles.",category:"Venta Clanes"},
  honor:{title:"HONOR DE CLANES",note:"Servicios de honor de clanes disponibles.",category:"Honor de Clanes"}
@@ -2397,3 +2406,12 @@ document.querySelectorAll('.feature-row > button').forEach(card => {
   window.addEventListener("load", () => setTimeout(closeSplash, Math.max(350, 1400 - (Date.now() - startedAt))), { once:true });
   setTimeout(closeSplash, 3500);
 })();
+
+let streamingViewRequest=0;
+async function zxOpenStreaming(){
+ const request=++streamingViewRequest;zxCloseViews();zxShow($("#secciones"),false);zxShow($("#zx-managed"),true);$("#zx-managed").dataset.currentSection="streaming";$("#zx-managed-title").textContent="STREAMING";zxUpdateManagedCurrency();const grid=$("#zx-managed-grid");grid.textContent="Consultando disponibilidad…";zxScroll($("#zx-managed"));
+ try{const r=await fetch(`${ZEROX_API}/api/content/streaming`);const d=await r.json();if(!r.ok||!d.ok||!Array.isArray(d.products))throw Error("UNAVAILABLE");if(request!==streamingViewRequest||$("#zx-managed").hidden||$("#zx-managed").dataset.currentSection!=="streaming")return;
+ grid.innerHTML=d.products.length?d.products.map(p=>`<article class="zx-media-product"><div class="zx-media-art">${p.imageUrl?`<img loading="lazy" src="${esc(p.imageUrl)}" alt="${esc(p.name)}">`:'<div class="zx-media-placeholder">ZERO’X</div>'}</div><div><small>${esc({account:"Cuenta completa",profile:"Perfil",invite:"Invitación"}[p.kind]||p.kind)} · ${Number(p.duration)} días</small><h3>${esc(p.name)}</h3><p>${esc(p.description)}</p><strong class="zx-managed-price" data-zx-base-price="${Number(p.price)}">${money(p.price)}</strong><p>${p.stock>0?`${Number(p.stock)} disponibles`:"Agotado"}</p>${p.stock>0?`<a class="zx-catalog-inquiry" href="https://wa.me/529514754210?text=${encodeURIComponent(`Hola, quiero solicitar ${p.name} (${p.duration} días). Referencia de producto: ${p.id}. ¿Me confirmas disponibilidad y pago?`)}" target="_blank" rel="noopener">SOLICITAR PEDIDO</a>`:'<button disabled type="button">AGOTADO</button>'}</div></article>`).join(""):"No hay productos de Streaming publicados por el momento.";
+ }catch{if(request===streamingViewRequest&&!$("#zx-managed").hidden&&$("#zx-managed").dataset.currentSection==="streaming")grid.textContent="No pudimos consultar el stock. Intenta abrir esta sección nuevamente."}
+}
+loadPublishedAds();

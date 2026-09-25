@@ -63,6 +63,7 @@ async function refresh() {
   for(const file of ["image","video"])$("#product-form").elements[file].disabled = !status.mediaAvailable;
   $("#media-status").textContent=status.mediaAvailable ? "Fotos y videos disponibles." : "Fotos y videos pendientes: falta conectar el bucket R2. Ya puedes guardar nombres, precios y descripciones.";
   render();
+  await refreshContent();
 }
 async function upload(file, maxSize) {
   if (file.size > maxSize) throw new Error("FILE_TOO_LARGE");
@@ -145,3 +146,26 @@ $("#logout").addEventListener("click", async () => {
     message("Panel creador listo. Los productos nuevos comienzan como borrador.");
   }catch{token=null;}
 })();
+
+let streamProducts=[],adProducts=[];
+const contentMessage=text=>{$('#content-status').textContent=text};
+const fieldsToObject=form=>Object.fromEntries(new FormData(form));
+function fillContent(form,row){form.reset();form.dataset.expectedStock=row.stock??"";for(const [key,value] of Object.entries(row)){const input=form.elements.namedItem(key);if(!input||input.type==='file')continue;if(input.type==='checkbox')input.checked=!!value;else if(input.type==='datetime-local')input.value=value?new Date(new Date(value).getTime()-new Date(value).getTimezoneOffset()*60000).toISOString().slice(0,16):'';else input.value=value??''}form.scrollIntoView({behavior:'smooth'})}
+async function refreshContent(){
+ try{const [streams,ads]=await Promise.all([api('/api/admin/content/streaming'),api('/api/admin/content/ads')]);streamProducts=streams.products;adProducts=ads.ads;
+ for(const [selector,rows,form,isAd] of [['#stream-list',streamProducts,$('#stream-form'),false],['#ad-list',adProducts,$('#ad-form'),true]]){
+ const list=$(selector);list.replaceChildren();for(const row of rows){const article=document.createElement('article'),text=document.createElement('p'),edit=document.createElement('button');text.textContent=isAd?`${row.position} · ${row.title} · ${row.active?'Activado':'Oculto'}`:`${row.name} · ${row.kind} · ${row.duration} días · $${row.price} MXN · Stock: ${row.stock}${row.stock<=row.threshold?' · STOCK BAJO':''} · ${row.active?'Publicado':'Borrador'}`;edit.textContent='Editar';edit.type='button';edit.onclick=()=>fillContent(form,row);article.append(text,edit);list.append(article)}}
+ const select=$('#stream-sale').elements.productId;select.replaceChildren();for(const p of streamProducts){const option=document.createElement('option');option.value=p.id;option.textContent=`${p.name} (${p.stock} disponibles)`;option.disabled=p.stock<1;select.append(option)}
+ contentMessage('Inventario y anuncios sincronizados.');
+ }catch(error){contentMessage('Inventario y anuncios no disponibles: '+error.message)}
+}
+for(const [selector,path] of [['#stream-form','streaming'],['#ad-form','ads']]){
+ $(selector).addEventListener('submit',async event=>{event.preventDefault();const form=event.currentTarget,button=event.submitter;button.disabled=true;
+ try{const b=fieldsToObject(form),previous=(path==='streaming'?streamProducts:adProducts).find(p=>p.id===b.id);const file=form.elements.image.files[0];b.imageKey=file?await upload(file,8000000):(previous?.imageKey||previous?.image_key||null);delete b.image;b.active=form.elements.active.checked;if(!b.id)delete b.id;
+ if(path==='streaming'){for(const key of ['duration','price','stock','threshold'])b[key]=Number(b[key]);if(b.id)b.expectedStock=Number(form.dataset.expectedStock)}else{b.position=Number(b.position);for(const key of ['starts','ends'])b[key]=b[key]?new Date(b[key]).toISOString():null}
+ await api('/api/admin/content/'+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});form.reset();form.elements.id.value='';await refreshContent();contentMessage('Cambios guardados.');
+ }catch(error){contentMessage('No se guardó: '+error.message)}finally{button.disabled=false}});
+}
+$('#stream-new').onclick=()=>{$('#stream-form').reset();$('#stream-form').elements.id.value=''};
+$('#ad-new').onclick=()=>{$('#ad-form').reset();$('#ad-form').elements.id.value=''};
+$('#stream-sale').onsubmit=async event=>{event.preventDefault();const form=event.currentTarget,button=event.submitter;button.disabled=true;try{const b=fieldsToObject(form);b.quantity=Number(b.quantity);b.paymentConfirmed=form.elements.paymentConfirmed.checked;await api('/api/admin/content/sale',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});form.reset();await refreshContent();contentMessage('Entrega registrada y stock descontado.')}catch(error){contentMessage('No se registró: '+error.message)}finally{button.disabled=false}};
