@@ -64,6 +64,7 @@ async function refresh() {
   $("#media-status").textContent=status.mediaAvailable ? "Fotos y videos disponibles." : "Fotos y videos pendientes: falta conectar el bucket R2. Ya puedes guardar nombres, precios y descripciones.";
   render();
   await refreshContent();
+  await window.zxResellerAdminRefresh?.();
 }
 async function upload(file, maxSize) {
   if (file.size > maxSize) throw new Error("FILE_TOO_LARGE");
@@ -124,6 +125,7 @@ $("#reset-form").addEventListener("click",resetForm);
 $("#logout").addEventListener("click", async () => {
   try { await api("/api/auth/logout",{method:"POST"}); } catch {}
   token = null;
+  window.zxResellerAdminClear?.();
   products = [];
   $("#product-list").replaceChildren();
   $("#workspace").hidden = true;

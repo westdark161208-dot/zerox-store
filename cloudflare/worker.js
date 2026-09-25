@@ -1,3 +1,4 @@
+import { resellerRoute } from "./resellers.js";
 // Immutable account ID, assigned only after the account owner verifies it.
 const FOUNDER_USER_ID = "d8573fe7-331f-4248-a0ad-d99288c9a472";
 
@@ -194,6 +195,7 @@ export default {
       }
 
       const url = new URL(request.url);
+      if(url.pathname.startsWith("/api/resellers/")||url.pathname.startsWith("/api/admin/resellers")){await authSchema(env);return await resellerRoute(request,env,url,await currentUser(request,env),json);}
       if(url.pathname.startsWith("/api/content/")||url.pathname.startsWith("/api/admin/content/"))return await contentRoutes(request,env,url);
 
       if(url.pathname.startsWith("/api/auth/") || url.pathname.startsWith("/api/public-profile/")) await authSchema(env);

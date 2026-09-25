@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Catálogo · Zero'X Store</title>
-  <link rel="stylesheet" href="./manage.css?v=2">
-  <script src="./manage.js?v=3" defer></script>
+  <link rel="stylesheet" href="./manage.css?v=3">
+  <script src="./manage.js?v=4" defer></script>
 </head>
 <body>
   <header><a href="./">← Tienda</a><h1>ZERO'X · CATÁLOGO</h1><button id="logout" type="button" hidden>Cerrar sesión</button></header>
@@ -42,6 +42,6 @@
 <form id="stream-sale"><h3>Registrar entrega pagada</h3><p>Confirma el pago y prepara el acceso antes de descontarlo. Los datos de acceso se entregan manualmente por tu canal privado.</p><label>Producto<select name="productId" required></select></label><label>Folio único del pedido o venta<input name="reference" required minlength="3" maxlength="100"></label><label>Unidades<input name="quantity" type="number" min="1" max="100" value="1" required></label><label class="check"><input name="paymentConfirmed" type="checkbox" required> Ya confirmé el pago y la entrega</label><button>Registrar entrega y descontar stock</button></form>
 <h2>Carrusel de anuncios</h2><form id="ad-form"><input name="id" type="hidden"><label>Título<input name="title" maxlength="120" required></label><label>Etiqueta<input name="kicker" maxlength="70"></label><label>Texto<textarea name="description" maxlength="400"></textarea></label><label>Imagen<input name="image" type="file" accept="image/jpeg,image/png,image/webp"></label><label>Sección al pulsar el anuncio<select name="target"><option>Streaming</option><option>Cuentas</option><option>Venta Clanes</option><option>Honor de Clanes</option><option>Fragmentos</option><option>Pases Booyah</option><option>Diamantes ilimitados</option><option>Diamantes 1 vez</option></select></label><label>Orden (menor primero)<input name="position" type="number" min="0" max="9999" value="0" required></label><label>Inicio (hora de tu dispositivo, opcional)<input name="starts" type="datetime-local"></label><label>Fin (opcional)<input name="ends" type="datetime-local"></label><label class="check"><input name="active" type="checkbox"> Activado</label><button>Guardar anuncio</button><button type="button" id="ad-new">Nuevo</button></form><div id="ad-list"></div></section>
 </section>
-  </main>
-</body>
+  <section id="reseller-admin" hidden><h2>Revendedores · pagos y pedidos</h2><p>Confirma depósitos únicamente después de ver el abono real en tu cuenta. El importe se suma completo al saldo del cliente.</p><button id="r-admin-refresh" type="button">Actualizar pendientes</button><p id="r-admin-status" role="status"></p><h3>Depósitos por verificar</h3><div id="r-admin-topups"></div><h3>Pedidos pagados con saldo · entrega manual</h3><div id="r-admin-orders"></div></section></main>
+<script src="./resellers-admin.js?v=1" defer></script></body>
 </html>

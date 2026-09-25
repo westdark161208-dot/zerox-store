@@ -1080,32 +1080,7 @@ function zxUpdateManagedCurrency(){
   if(ZX_MANAGED[type])note.textContent=ZX_MANAGED[type].note+(currentCurrency==="MXN"?" Precios base en MXN.":` Precios aproximados en ${currentCurrency}, convertidos desde MXN; el cobro final puede variar.`);
  }
 }
-// Precios base MXN. Vista informativa hasta activar pagos y niveles verificados.
-const ZX_RESELLER_PRICES = {
-  "ff-booyah-76828": [32,31,30,29,28,27,26],
-  "ff-frag-17729": [.95,.90,.85,.80,.75,.70,.65],
-  "ff-runas-4815": [.95,.90,.85,.80,.75,.70,.65],
-  "ff-galaxia-5657": [.95,.90,.85,.80,.75,.70,.65],
-  "ff-revolucion-7649": [.95,.90,.85,.80,.75,.70,.65],
-  "ff-cajas-8816": [3.45,3.40,3.35,3.30,3.25,3.20,3.15]
-};
-function zxRenderResellerPreview(){
-  const target=$("#zx-reseller-catalog");
-  if(!target)return;
-  const level=Math.max(0,Math.min(6,Number($("#zx-reseller-level")?.value)||0));
-  const groups=new Map();
-  PRODUCTS.filter(p=>p.active).forEach(p=>{
-    const section=p.category==="Streaming"?"Streaming":p.category.startsWith("Diamantes")||["Pases Booyah","Fragmentos","Cajas","Likes"].includes(p.category)?"Free Fire":p.category;
-    if(!groups.has(section))groups.set(section,[]);
-    groups.get(section).push(p);
-  });
-  target.innerHTML=[...groups].map(([section,items])=>`<article class="zx-reseller-group"><h4>${esc(section)} <small>${items.length} productos</small></h4><ul>${items.map(p=>{
-    const prices=ZX_RESELLER_PRICES[p.id];
-    const detail=prices ? `${money(prices[level])} / unidad · mínimo ${p.minQuantity||1} · desde ${money(prices[level]*(p.minQuantity||1))}` : "Precio por nivel pendiente";
-    return `<li><span>${esc(p.name)}</span><small>${detail}</small></li>`;
-  }).join("")}</ul></article>`).join("");
-}
-$("#zx-reseller-level")?.addEventListener("change",zxRenderResellerPreview);
+function zxRenderResellerPreview(){window.zxResellerOpen?.()}
 document.addEventListener("click",event=>{
  const zone=event.target.closest("[data-zone]");if(zone){event.preventDefault();const z=zone.dataset.zone;if(z==="freefire"){zxCloseViews();zxShow($("#secciones"),false);zxShow($("#freefire-menu"),true);zxScroll($("#freefire-menu"))}else if(z==="streaming")zxOpenCatalog("Streaming");else if(z==="resellers"){zxCloseViews();zxShow($("#secciones"),false);zxShow($("#zx-reseller-panel"),true);zxRenderResellerPreview();zxScroll($("#zx-reseller-panel"))}else zxOpenManaged(z);return}
  if(event.target.closest("[data-back-zones]")){zxCloseViews();zxShow($("#secciones"),true);zxScroll($("#secciones"));return}
