@@ -162,7 +162,7 @@ async function refreshContent(){
 for(const [selector,path] of [['#stream-form','streaming'],['#ad-form','ads']]){
  $(selector).addEventListener('submit',async event=>{event.preventDefault();const form=event.currentTarget,button=event.submitter;button.disabled=true;
  try{const b=fieldsToObject(form),previous=(path==='streaming'?streamProducts:adProducts).find(p=>p.id===b.id);const file=form.elements.image.files[0];b.imageKey=file?await upload(file,8000000):(previous?.imageKey||previous?.image_key||null);delete b.image;b.active=form.elements.active.checked;if(!b.id)delete b.id;
- if(path==='streaming'){for(const key of ['duration','price','stock','threshold'])b[key]=Number(b[key]);if(b.id)b.expectedStock=Number(form.dataset.expectedStock)}else{b.position=Number(b.position);for(const key of ['starts','ends'])b[key]=b[key]?new Date(b[key]).toISOString():null}
+ if(path==='streaming'){for(const key of ['duration','price','stock','threshold'])b[key]=Number(b[key]);if(b.id)b.expectedStock=Number(form.dataset.expectedStock);for(const key of ['offerStarts','offerEnds'])b[key]=b[key]?new Date(b[key]).toISOString():null}else{b.position=Number(b.position);for(const key of ['starts','ends'])b[key]=b[key]?new Date(b[key]).toISOString():null}
  await api('/api/admin/content/'+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});form.reset();form.elements.id.value='';await refreshContent();contentMessage('Cambios guardados.');
  }catch(error){contentMessage('No se guardó: '+error.message)}finally{button.disabled=false}});
 }

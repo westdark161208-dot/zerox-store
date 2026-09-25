@@ -7774,3 +7774,21 @@ body{background:
 #zx-gallery-status{min-height:1.4em;color:#bceada;font-size:13px}
 .zx-order-payment-link{display:inline-block;margin-top:15px;padding:12px 18px;border-radius:12px;background:#175245;color:#fff;border:1px solid #6acfae;font-weight:800;text-decoration:none}
 @media(max-width:480px){#account-modal .zx-banner-gallery{grid-template-columns:1fr}#account-modal .zx-banner-gallery button>span{height:90px}#account-modal .zx-frame-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* Full artwork, separate readable caption and controls. */
+.zerox-ad-zone{padding-inline:12px}
+.zerox-ad-carousel{max-width:1100px;padding:2px;background:linear-gradient(125deg,#3d85df,#9747db,#d62b72)}
+.zerox-ad-carousel .ad-stage{aspect-ratio:auto!important;min-height:0!important;display:flex;flex-direction:column;background:#090c12}
+.zerox-ad-carousel .ad-stage>img{position:relative;inset:auto;display:block;width:100%;height:auto;object-fit:contain;transform:none;filter:none;opacity:1}
+.zerox-ad-carousel .ad-shade{display:none}
+.zerox-ad-carousel .ad-copy{position:relative;inset:auto;max-width:none;padding:16px 18px 20px;text-shadow:none}
+.zerox-ad-carousel .ad-copy small{font-size:11px;letter-spacing:.12em}
+.zerox-ad-carousel .ad-copy h2{font-size:clamp(24px,4vw,36px);line-height:1.12;margin:8px 0}
+.zerox-ad-carousel .ad-copy p{max-width:none;font-size:15px;line-height:1.4}
+.zerox-ad-carousel .ad-copy p:empty{display:none}
+.zerox-ad-carousel .ad-arrow{top:auto;bottom:14px;translate:none;width:36px;height:36px}
+.zerox-ad-carousel .ad-prev{left:auto;right:58px}
+.zerox-ad-carousel .ad-next{right:14px}
+.zerox-ad-carousel .ad-dots{position:relative;left:auto;bottom:auto;translate:none;justify-content:center;padding:10px;background:#090c12}
+.zerox-ad-carousel [hidden]{display:none!important}
+.zerox-ad-carousel #ad-action{margin-top:8px;max-width:calc(100% - 92px)}

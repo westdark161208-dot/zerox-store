@@ -119,6 +119,16 @@ async function contentSchema(env){
  await env.DB.prepare("CREATE TABLE IF NOT EXISTS zx_streaming (id TEXT PRIMARY KEY,name TEXT NOT NULL,description TEXT NOT NULL DEFAULT '',kind TEXT NOT NULL,duration INTEGER NOT NULL,price REAL NOT NULL,stock INTEGER NOT NULL DEFAULT 0,threshold INTEGER NOT NULL DEFAULT 2,image_key TEXT,active INTEGER NOT NULL DEFAULT 0)").run();
  await env.DB.prepare("CREATE TABLE IF NOT EXISTS zx_stream_sales (id TEXT PRIMARY KEY,reference TEXT NOT NULL UNIQUE,product_id TEXT NOT NULL,quantity INTEGER NOT NULL,created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)").run();
  await env.DB.prepare("CREATE TABLE IF NOT EXISTS zx_ads (id TEXT PRIMARY KEY,title TEXT NOT NULL,kicker TEXT NOT NULL DEFAULT '',description TEXT NOT NULL DEFAULT '',image_key TEXT NOT NULL,target TEXT NOT NULL,position INTEGER NOT NULL DEFAULT 0,active INTEGER NOT NULL DEFAULT 0,starts TEXT,ends TEXT)").run();
+ await env.DB.prepare("CREATE TABLE IF NOT EXISTS zx_stream_offers (product_id TEXT PRIMARY KEY,starts TEXT,ends TEXT)").run();
+ await env.DB.prepare("CREATE TABLE IF NOT EXISTS zx_content_migrations (id TEXT PRIMARY KEY)").run();
+ // One-time, owner-authorized launch. Never replenish stock on subsequent requests.
+ await env.DB.batch([
+ env.DB.prepare("INSERT OR IGNORE INTO zx_streaming(id,name,description,kind,duration,price,stock,threshold,image_key,active) SELECT ?,?,?,?,?,?,?,?,?,? WHERE NOT EXISTS(SELECT 1 FROM zx_content_migrations WHERE id=?)").bind('831931b7-422c-4fd9-9c94-3fe7046d063a','Combo Zero’X Streaming','Netflix + Disney+ + HBO Max + Prime Video. Un perfil por plataforma para un dispositivo. Acceso por aproximadamente 30 días. Promoción limitada a 5 combos.','profile',30,149,5,2,'ca1cf69f-c076-485a-92dc-56325270297b.png',1,'streaming-launch-20260924'),
+ env.DB.prepare("INSERT OR IGNORE INTO zx_stream_offers(product_id,starts,ends) SELECT ?,?,? WHERE NOT EXISTS(SELECT 1 FROM zx_content_migrations WHERE id=?)").bind('831931b7-422c-4fd9-9c94-3fe7046d063a','2026-09-25T03:08:00.000Z','2026-10-09T03:08:00.000Z','streaming-launch-20260924'),
+ env.DB.prepare("UPDATE zx_ads SET ends=? WHERE id=? AND NOT EXISTS(SELECT 1 FROM zx_content_migrations WHERE id=?)").bind('2026-10-09T03:08:00.000Z','da7522a8-7530-4b21-a072-9c84ff0d57c9','streaming-launch-20260924'),
+ env.DB.prepare("INSERT OR IGNORE INTO zx_content_migrations(id) VALUES(?)").bind('streaming-launch-20260924')
+ ]);
+
 }
 async function contentRoutes(request,env,url){
  const admin=url.pathname.startsWith('/api/admin/content/');
@@ -127,8 +137,10 @@ async function contentRoutes(request,env,url){
  const base=admin?'/api/admin/content/':'/api/content/',path=url.pathname.slice(base.length);
  const media=k=>k?url.origin+'/api/catalog/media/'+encodeURIComponent(k):null;
  if(request.method==='GET'&&path==='streaming'){
- const rows=await env.DB.prepare('SELECT * FROM zx_streaming'+(admin?'': ' WHERE active=1')+' ORDER BY name').all();
- return json({ok:true,products:rows.results.map(p=>({id:p.id,name:p.name,description:p.description,kind:p.kind,duration:p.duration,price:p.price,stock:p.stock,imageUrl:media(p.image_key),...(admin?{imageKey:p.image_key,threshold:p.threshold,active:!!p.active}:{})}))});
+ const now=new Date().toISOString();
+ const query=env.DB.prepare('SELECT s.*,o.starts AS offerStarts,o.ends AS offerEnds FROM zx_streaming s LEFT JOIN zx_stream_offers o ON o.product_id=s.id'+(admin?'': ' WHERE s.active=1 AND (o.starts IS NULL OR o.starts<=?) AND (o.ends IS NULL OR o.ends>?)')+' ORDER BY s.name');
+ const rows=await (admin?query:query.bind(now,now)).all();
+ return json({ok:true,products:rows.results.map(p=>({id:p.id,name:p.name,description:p.description,kind:p.kind,duration:p.duration,price:p.price,stock:p.stock,offerStarts:p.offerStarts,offerEnds:p.offerEnds,imageUrl:media(p.image_key),...(admin?{imageKey:p.image_key,threshold:p.threshold,active:!!p.active}:{})}))});
  }
  if(request.method==='GET'&&path==='ads'){
  const now=new Date().toISOString();
@@ -154,9 +166,12 @@ async function contentRoutes(request,env,url){
  if(key&&!/^[a-f0-9-]{36}\.(jpg|png|webp)$/.test(key))return json({ok:false,error:'INVALID_IMAGE'},400);
  if(path==='streaming'){
  const name=String(b.name||'').trim(),description=String(b.description||'').trim();
+ const validOffer=d=>!d||(typeof d==='string'&&!isNaN(Date.parse(d))&&new Date(d).toISOString()===d);
+ if(!validOffer(b.offerStarts)||!validOffer(b.offerEnds)||(b.offerStarts&&b.offerEnds&&b.offerStarts>=b.offerEnds))return json({ok:false,error:'INVALID_OFFER_DATES'},400);
  if(!name||name.length>120||description.length>2000||!['account','profile','invite'].includes(b.kind)||!Number.isInteger(b.duration)||b.duration<1||b.duration>730||!Number.isFinite(b.price)||b.price<0||b.price>1000000||!Number.isInteger(b.stock)||b.stock<0||b.stock>10000||!Number.isInteger(b.threshold)||b.threshold<0||b.threshold>10000)return json({ok:false,error:'INVALID_PRODUCT'},400);
  const saved=await env.DB.prepare('INSERT INTO zx_streaming(id,name,description,kind,duration,price,stock,threshold,image_key,active) VALUES(?,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET name=excluded.name,description=excluded.description,kind=excluded.kind,duration=excluded.duration,price=excluded.price,stock=excluded.stock,threshold=excluded.threshold,image_key=excluded.image_key,active=excluded.active WHERE zx_streaming.stock=?').bind(id,name,description,b.kind,b.duration,b.price,b.stock,b.threshold,key,b.active?1:0,Number.isInteger(b.expectedStock)?b.expectedStock:-1).run();
  if(!saved.meta.changes)return json({ok:false,error:'STOCK_CHANGED_REFRESH_FIRST'},409);
+ await env.DB.prepare('INSERT INTO zx_stream_offers(product_id,starts,ends) VALUES(?,?,?) ON CONFLICT(product_id) DO UPDATE SET starts=excluded.starts,ends=excluded.ends').bind(id,b.offerStarts||null,b.offerEnds||null).run();
  }else{
  const title=String(b.title||'').trim(),kicker=String(b.kicker||''),description=String(b.description||'');
  const targets=['Streaming','Cuentas','Venta Clanes','Honor de Clanes','Fragmentos','Pases Booyah','Diamantes ilimitados','Diamantes 1 vez'];
