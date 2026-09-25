@@ -27,6 +27,7 @@ async function loadProfile(name){
     avatar.style.backgroundImage=picture?`url("${picture}")`:"";avatar.textContent=picture?"":(p.displayName||p.username).slice(0,2).toUpperCase();
     avatar.className="avatar frame-"+(["steel","chrome","cobalt","titan","aurora","prism","sovereign"].includes(p.frame)?p.frame:"steel");
     $("#public-founder").hidden=!p.isFounder;
+    $("#public-avatar-wrap").classList.toggle("is-founder",p.isFounder===true);
     const favorites=Array.isArray(p.favorites)?p.favorites.filter(x=>typeof x==="string").slice(0,6):[];
     $("#public-favorites-panel").hidden=!favorites.length;
     $("#public-favorites").replaceChildren(...favorites.map(label=>{const span=document.createElement("span");span.textContent=label;return span}));

@@ -32,7 +32,7 @@
     rel="apple-touch-icon"
     href="./apple-touch-icon.png"
   >
-  <link rel="stylesheet" href="./styles.css?v=31">
+  <link rel="stylesheet" href="./styles.css?v=32">
   <script>
   /* Zero'X emergency cache reset: keep the storefront accessible even if app JS fails */
   if ('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister();});}).catch(function(){});
@@ -1093,8 +1093,8 @@
         <label class="zx-banner-upload">Cambiar banner<input id="profile-banner-file" type="file" accept="image/jpeg,image/png,image/webp" hidden></label>
       </div>
       <div class="zx-profile-identity">
-        <div class="account-avatar zx-frame-steel" id="account-avatar">ZX</div>
-        <div><small>MI PERFIL</small><div class="zx-name-line"><strong id="account-name">Jugador</strong><button type="button" id="founder-badge" class="zx-founder-badge" aria-label="Insignia de Fundador" aria-expanded="false" hidden><img src="./assets/badges/founder.svg" alt="" width="42" height="42" loading="lazy"></button></div><span id="account-username">@usuario</span><span id="founder-badge-info" class="zx-founder-info" hidden>Fundador</span></div>
+        <div class="zx-avatar-wrap" id="account-avatar-wrap"><div class="account-avatar zx-frame-steel" id="account-avatar">ZX</div><button type="button" id="founder-badge" class="zx-founder-badge" aria-label="Insignia de Fundador" aria-expanded="false" hidden><img src="./assets/badges/founder.svg" alt="" width="42" height="42" loading="lazy"></button></div>
+        <div><small>MI PERFIL</small><div class="zx-name-line"><strong id="account-name">Jugador</strong></div><span id="account-username">@usuario</span><span id="founder-badge-info" class="zx-founder-info" hidden>Fundador</span></div>
       </div>
       <p id="profile-bio-view" class="zx-profile-bio">Personaliza tu presentación ✨</p>
       <div class="account-stats"><div><b id="account-level">1</b><span>NIVEL</span></div><div><b id="account-xp">0</b><span>XP</span></div></div>
@@ -1281,7 +1281,7 @@
 
   </div>
 <script src="./payments-config.js?v=1" defer></script>
-<script src="./app.js?v=35" defer></script>
+<script src="./app.js?v=36" defer></script>
 
 </body>
 </html>

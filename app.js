@@ -487,6 +487,7 @@ function renderZeroXAccount() {
   if(drawerHandle)drawerHandle.textContent=zeroxUser ? "@"+(zeroxUser.username || "zerox") : "Inicia sesión o crea tu cuenta";
   const authBanner = $("#account-modal .zerox-auth-banner");
   if (authBanner) authBanner.hidden = !!zeroxUser;
+  $("#account-avatar-wrap")?.classList.toggle("is-founder",zeroxUser?.isFounder===true);
   if (!zeroxUser) return;
   const name = zeroxUser.display_name || zeroxUser.displayName || zeroxUser.username || "Jugador";
   $("#account-name").textContent = name;

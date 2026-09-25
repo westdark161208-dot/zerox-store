@@ -7792,3 +7792,10 @@ body{background:
 .zerox-ad-carousel .ad-dots{position:relative;left:auto;bottom:auto;translate:none;justify-content:center;padding:10px;background:#090c12}
 .zerox-ad-carousel [hidden]{display:none!important}
 .zerox-ad-carousel #ad-action{margin-top:8px;max-width:calc(100% - 92px)}
+
+/* Founder portrait: raised gold frame and badge on the portrait corner. */
+#account-modal .zx-avatar-wrap{position:relative;flex:none;align-self:flex-end;isolation:isolate}
+#account-modal .zx-avatar-wrap #account-avatar{margin:0;box-sizing:border-box}
+#account-modal .zx-avatar-wrap.is-founder #account-avatar{border:8px solid #e8b747!important;border-top-color:#fff0a6!important;border-left-color:#f6d46b!important;border-right-color:#af701b!important;border-bottom-color:#986019!important;border-radius:17px!important;box-shadow:inset 0 0 0 2px #563408,0 0 0 2px #5e3308,0 0 0 4px #edba55,0 6px 0 4px #4b160d,0 10px 17px #9f001bcc,0 0 25px #ff203f88!important}
+#account-modal .zx-avatar-wrap .zx-founder-badge{position:absolute!important;top:-13px;left:-13px;right:auto;bottom:auto;z-index:5;width:32px!important;height:32px!important;margin:0!important;transform:none!important;border:2px solid #ffdf8d!important;box-shadow:0 3px 7px #170000,0 0 12px #ff263b99!important}
+#account-modal .zx-avatar-wrap .zx-founder-badge:focus-visible{outline:3px solid white;outline-offset:3px}
