@@ -16,7 +16,6 @@ async function loadProfile(name){
     document.title=`${p.displayName} · Zero’X Store`;
     $("#public-name").textContent=p.displayName||p.username;
     $("#public-name").classList.toggle("founder-name",p.isFounder===true);
-    if(p.isFounder===true){const palette=['#ff9de2','#bd89ff','#85baff','#9eafff','#ffe1a1'];$("#public-name").replaceChildren(...Array.from(p.displayName||p.username).map((letter,i)=>{const span=document.createElement('span');span.textContent=letter;span.style.color=palette[i%palette.length];return span}))}
     $("#public-handle").textContent="@"+p.username;
     $("#public-bio").textContent=p.bio||"Este miembro todavía no ha escrito su presentación.";
     $("#public-level").textContent=p.level||1;

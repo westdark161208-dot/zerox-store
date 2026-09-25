@@ -509,7 +509,7 @@ function renderZeroXAccount() {
   $("#profile-bio-view").textContent = p.bio || "Personaliza tu presentación ✨";
   $("#zx-profile-favorites").textContent = Array.isArray(p.favorites) && p.favorites.length ? p.favorites.join(" · ") : "Elige tus favoritas en Personalizar mi perfil";
   $("#zx-public-enabled").checked = p.isPublic === true;
-  const shareUrl = new URL(`./profile.html?v=5&u=${encodeURIComponent(zeroxUser.username || "")}`,location.href).href;
+  const shareUrl = new URL(`./profile.html?v=6&u=${encodeURIComponent(zeroxUser.username || "")}`,location.href).href;
   $("#zx-public-preview").href = shareUrl;
   $("#zx-public-copy").disabled = p.isPublic !== true;
   $("#zx-public-status").textContent = p.isPublic ? "Tu presentación ya se puede consultar mediante este enlace." : "Perfil privado. Activa la visibilidad y guarda los cambios en “Personalizar mi perfil”.";
