@@ -896,6 +896,8 @@ function updateCartUI() {
    ========================================================= */
 
 function artFor(product) {
+  const collectionArt = globalThis.ZXCollection?.art(product);
+  if (collectionArt) return collectionArt;
   if(product.id?.startsWith("combo-"))return `<div class="product-art character-art zx-combo-art"><div class="character-glow"></div><img src="file_000000005b2081fd8514a17c052ac79f.png" alt="LUFFY" class="character-img"><div class="character-name">COMBO ${esc(product.name.split(" ")[0])}</div></div>`;
   const name = product.name || "";
   const category = product.category || "";
@@ -1013,12 +1015,12 @@ function render() {
     return categoryMatch && searchMatch;
   });
   container.innerHTML = rows.length ? rows.map(product => `
-    <article class="product-card zx-product-card" data-product="${esc(product.id)}" data-kind="${product.category.includes("Diamantes") ? "diamonds" : product.category === "Pases Booyah" ? "pass" : product.category === "Cajas" ? "box" : product.category === "Fragmentos" ? "fragments" : "other"}">
+    <article class="product-card zx-product-card" ${globalThis.ZXCollection?.attributes(product) || ""} data-product="${esc(product.id)}" data-kind="${product.category.includes("Diamantes") ? "diamonds" : product.category === "Pases Booyah" ? "pass" : product.category === "Cajas" ? "box" : product.category === "Fragmentos" ? "fragments" : "other"}">
       ${artFor(product)}
       <div class="product-copy">
         ${product.badge ? `<span class="badge">${esc(product.badge)}</span>` : ""}
         <h3>${esc(product.name)}</h3>
-        <p>${esc(product.description || "")}</p>
+        ${globalThis.ZXCollection?.forProduct(product) ? `<details class="zx-collection-details"><summary>Detalle del paquete</summary><p>${esc(product.description || "")}</p></details>` : `<p>${esc(product.description || "")}</p>`}
         ${product.minQuantity ? `<label class="ff-quantity">Cantidad <span>Mínimo ${product.minQuantity}</span><input data-quantity type="number" inputmode="numeric" min="${product.minQuantity}" max="${product.maxQuantity}" step="1" value="${product.minQuantity}" aria-label="Cantidad de ${esc(product.name)}"></label><small class="ff-unit-price">${money(product.price)} por unidad</small>` : ""}
         <div class="product-bottom">
           <strong>${money(product.minQuantity ? product.price * product.minQuantity : product.price)}${product.minQuantity ? " desde" : ""}</strong>
