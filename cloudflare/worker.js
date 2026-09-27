@@ -559,6 +559,11 @@ if (
     }, 400);
   }
 
+  const combo=ZXDiamonds.combos.find(p=>p.id===productId);
+  if(combo){
+    if(!/^[0-9]{5,15}$/.test(playerId))return json({ok:false,error:"INVALID_PLAYER_ID"},400);
+    return json({ok:true,status:"PREVIEW_ONLY",message:"Combinación preparada. El pago y la entrega están pendientes de confirmación.",order:{zeroXProductId:combo.id,playerId,diamonds:combo.amount,priceCents:combo.publicCents,plan:combo.plan.map(p=>({productId:p.id,sixofireProductId:p.providerId,diamonds:p.amount,quantity:p.count}))}});
+  }
   const product = PRODUCT_MAP[productId];
 
   if (!product) {

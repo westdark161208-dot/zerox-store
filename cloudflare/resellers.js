@@ -1,3 +1,4 @@
+import "../diamonds.js";
 // All monetary values are integer MXN cents. Prices and permissions are server-owned.
 export const LEVELS=['Novato','Principiante','Élite','Maestro','Titán','Legendario','Zero’X Supreme'];
 const CATALOG=[
@@ -9,6 +10,7 @@ const CATALOG=[
  ['ff-cajas-8816','Cajas de fragmentos universales','Cajas',7,280,[345,340,335,330,325,320,315]]
 ];
 const uuid=v=>typeof v==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v);
+for(const p of ZXDiamonds.products)CATALOG.push([p.id,p.amount.toLocaleString('en-US')+' Diamantes','Diamantes',1,1,Array.from({length:7},(_,i)=>ZXDiamonds.price(p.publicCents,i+1)),p.plan]);
 export async function schema(env){
  for(const sql of [
  'CREATE TABLE IF NOT EXISTS zx_r_members(user_id TEXT PRIMARY KEY,tier INTEGER NOT NULL DEFAULT 0)',
@@ -18,6 +20,9 @@ export async function schema(env){
  'CREATE INDEX IF NOT EXISTS zx_r_ledger_user ON zx_r_ledger(user_id)',
  'CREATE INDEX IF NOT EXISTS zx_r_orders_user ON zx_r_orders(user_id,status,completed_at)'
  ])await env.DB.prepare(sql).run();
+ const columns=await env.DB.prepare('PRAGMA table_info(zx_r_orders)').all();
+ if(!columns.results.some(c=>c.name==='plan')){try{await env.DB.prepare("ALTER TABLE zx_r_orders ADD COLUMN plan TEXT NOT NULL DEFAULT '[]'").run()}catch(e){if(!String(e).includes('duplicate column'))throw e}}
+
 }
 export async function state(env,user){
  const money=await env.DB.prepare("SELECT COALESCE(SUM(amount),0) balance,COALESCE(SUM(CASE WHEN kind='credit' THEN amount ELSE 0 END),0) deposits FROM zx_r_ledger WHERE user_id=?").bind(user.id).first();
@@ -49,7 +54,7 @@ export async function resellerRoute(request,env,url,user,json){
  if(request.method==='GET'&&!admin&&path==='/catalog'){
  const tier=Number(url.searchParams.get('tier')),s=await state(env,user);
  if(!Number.isInteger(tier)||tier<1||tier>7||tier>s.tier)return json({ok:false,error:'LEVEL_LOCKED'},403);
- return json({ok:true,tier,name:LEVELS[tier-1],products:CATALOG.map(([id,name,category,min,max,prices])=>({id,name,category,min,max,unitCents:prices[tier-1]}))});
+ return json({ok:true,tier,name:LEVELS[tier-1],products:CATALOG.map(([id,name,category,min,max,prices,plan])=>({id,name,category,min,max,unitCents:prices[tier-1],plan:plan||null}))});
  }
  if(request.method!=='POST')return json({ok:false,error:'NOT_FOUND'},404);
  const b=await request.json();
@@ -86,7 +91,7 @@ export async function resellerRoute(request,env,url,user,json){
  const id=crypto.randomUUID(),ledgerId=crypto.randomUUID();
  try{const out=await env.DB.batch([
  env.DB.prepare("INSERT INTO zx_r_ledger(id,user_id,amount,kind,reference) SELECT ?,?,?,'purchase',? WHERE (SELECT COALESCE(SUM(amount),0) FROM zx_r_ledger WHERE user_id=?)>=?").bind(ledgerId,user.id,-total,'order:'+user.id+':'+b.requestId,user.id,total),
- env.DB.prepare('INSERT INTO zx_r_orders(id,user_id,request_key,product_id,product_name,tier,quantity,total,uid,region,nickname) SELECT ?,?,?,?,?,?,?,?,?,?,? WHERE EXISTS(SELECT 1 FROM zx_r_ledger WHERE id=?)').bind(id,user.id,b.requestId,p[0],p[1],b.tier,b.quantity,total,String(b.uid),b.region,info.nickname,ledgerId)
+ env.DB.prepare('INSERT INTO zx_r_orders(id,user_id,request_key,product_id,product_name,tier,quantity,total,uid,region,nickname,plan) SELECT ?,?,?,?,?,?,?,?,?,?,?,? WHERE EXISTS(SELECT 1 FROM zx_r_ledger WHERE id=?)').bind(id,user.id,b.requestId,p[0],p[1],b.tier,b.quantity,total,String(b.uid),b.region,info.nickname,JSON.stringify(p[6]||[]),ledgerId)
  ]);if(!out[0].meta.changes)return json({ok:false,error:'INSUFFICIENT_BALANCE'},409);}catch(e){if(String(e).toLowerCase().includes('unique')){const order=await env.DB.prepare('SELECT * FROM zx_r_orders WHERE user_id=? AND request_key=?').bind(user.id,b.requestId).first();if(order)return json({ok:true,order,repeated:true});}throw e;}
  return json({ok:true,order:await env.DB.prepare('SELECT * FROM zx_r_orders WHERE id=?').bind(id).first()});
  }

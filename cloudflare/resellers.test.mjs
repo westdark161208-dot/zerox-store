@@ -43,3 +43,21 @@ assert.equal((await state(env,user)).tier,2);
 db.exec("UPDATE zx_r_orders SET completed_at=datetime('now','-60 days')");assert.equal((await state(env,user)).tier,2);
 assert.equal((await state(env,founder)).balanceCents,0);
 console.log('PASS: authentication, founder access, locks, pending deposits, duplicate bank reference, price tampering, verified ID, idempotent orders, concurrent overspend, refunds, earned levels and retention. No live balances modified.');
+// Exact bundle pricing/composition must come from the server, never the buyer.
+for(const product of ZXDiamonds.products){
+ assert.equal(product.plan.reduce((sum,p)=>sum+p.amount*p.count,0),product.amount);
+ let last=product.publicCents;
+ for(let tier=1;tier<=7;tier++){const next=ZXDiamonds.price(product.publicCents,tier);assert(next<last);last=next;}
+ if(product.referenceCents)assert(last>=product.referenceCents);
+}
+const funding=crypto.randomUUID();
+await call('resellers/topups',user,{requestId:funding,amountCents:100000,note:'bundle-test'});
+await call('admin/resellers/topups/review',founder,{id:funding,action:'approve',paymentReference:'BankBundle',paymentConfirmed:true});
+const before=(await state(env,user)).balanceCents;
+const bundle=await call('resellers/orders',user,{...order,requestId:crypto.randomUUID(),productId:'combo-7073',quantity:1,total:1,plan:[{amount:99999,count:1}]});
+assert.equal(bundle.ok,true);assert.equal(bundle.order.total,80458);
+assert.equal(JSON.parse(bundle.order.plan).reduce((sum,p)=>sum+p.amount*p.count,0),7073);
+assert.equal((await state(env,user)).balanceCents,before-80458);
+await call('admin/resellers/orders/review',founder,{id:bundle.order.id,action:'refund'});
+assert.equal((await state(env,user)).balanceCents,before);
+console.log('PASS: 44 exact bundles, 7 price levels, server-owned combination and price, full bundle refund.');

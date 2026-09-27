@@ -85,7 +85,7 @@ const PRODUCTS = [
   {
     id: "d340-u",
     category: "Diamantes ilimitados",
-    name: "340 Diamantes",
+    name: "341 Diamantes",
     description: "Cantidad ilimitada. Puedes comprarla varias veces para el mismo ID.",
     price: 56,
     active: true,
@@ -364,6 +364,9 @@ function initZeroXAds(){
 
 
 
+// Large bundles share the exact server-owned composition and retail prices.
+for(const combo of ZXDiamonds.combos)PRODUCTS.push({id:combo.id,category:"Diamantes ilimitados",name:combo.amount.toLocaleString("en-US")+" Diamantes",description:"Combo: "+ZXDiamonds.describe(combo.plan)+". Se entrega en varias recargas al mismo ID. Entrega manual tras confirmar el pago.",price:combo.publicCents/100,active:true,requiresEligibility:false,badge:"COMBO ILIMITADO",diamondPlan:combo.plan});
+
 const SIXOFIRE_PRODUCT_MAP = {
   "d110-u": "ff-110",
   "d340-u": "ff-340",
@@ -626,6 +629,7 @@ $("#register-form")?.addEventListener("submit", async event => {
     zeroxUser = data.user;
     form.reset();
     await restoreZeroXSession();
+    await zxResumeReseller();
   } catch (error) {
     $("#auth-result").innerHTML = `<div class="error">${esc(authMessage(error))}</div>`;
   } finally {
@@ -643,7 +647,8 @@ $("#login-form")?.addEventListener("submit", async event => {
     saveZeroXSession(data.session);
     zeroxUser = data.user;
     form.reset();
-    renderZeroXAccount();
+    await restoreZeroXSession();
+    await zxResumeReseller();
   } catch (error) {
     $("#auth-result").innerHTML = `<div class="error">${esc(authMessage(error))}</div>`;
   } finally {
@@ -653,7 +658,7 @@ $("#login-form")?.addEventListener("submit", async event => {
 
 $("#logout-account")?.addEventListener("click", async () => {
   try { await zeroxAuthRequest("/api/auth/logout", { method:"POST" }); } catch {}
-  saveZeroXSession(null); zeroxUser = null; renderZeroXAccount(); showAuthMode("login");
+  saveZeroXSession(null); zeroxUser = null; renderZeroXAccount(); showAuthMode("login");zxPendingReseller=false;window.zxResellerClear?.();zxCloseViews();zxShow($("#secciones"),true);
 });
 
 $("#account-orders")?.addEventListener("click", () => {
@@ -684,7 +689,7 @@ function zxRenderProfileEditor(){
 function zxRenderStyleGallery(level){
   const banners=[["crimson","Carmesí"],["shadow","Sombra roja"],["angel","Ángel oscuro"]];
   $("#zx-banner-gallery").innerHTML=banners.map(([id,name])=>`<button type="button" data-zx-banner="${id}"><span style="background-image:url('./assets/profile/banner-${id}.jpg')"></span><b>${name}</b></button>`).join("");
-  $("#zx-avatar-gallery").innerHTML=[["silver","Plata"],["ruby","Rubí"]].map(([id,name])=>`<button type="button" data-zx-avatar="${id}"><img src="./assets/profile/avatar-${id}.jpg" alt="Avatar ${name}" loading="lazy"><b>${name}</b></button>`).join("");
+  $("#zx-avatar-gallery").innerHTML=[["silver","Plata"],["ruby","Rubí"],...["Snoopy","Miles","Cachorro","Fantasma","Spider-Man","Gatito"].map((name,i)=>["collection-"+i,name])].map(([id,name])=>`<button type="button" data-zx-avatar="${id}">${id.startsWith("collection-")?`<span class="zx-avatar-crop" style="--col:${Number(id.split("-")[1])%3};--row:${Math.floor(Number(id.split("-")[1])/3)}" role="img" aria-label="Avatar ${name}"></span>`:`<img src="./assets/profile/avatar-${id}.jpg" alt="Avatar ${name}" loading="lazy">`}<b>${name}</b></button>`).join("");
   $("#zx-frame-gallery").innerHTML=[["steel","Acero",1],["chrome","Plata",2],["cobalt","Neón azul",3],["titan","Circuito",4],["aurora","Energía verde",5],["prism","Multicolor",6],["sovereign","Fuego dorado",7]].map(([id,name,needed])=>`<button type="button" data-zx-frame="${id}" ${level<needed?"disabled":""} class="${zxDraftFrame===id?"selected":""}"><span class="zx-frame-preview zx-frame-${id}">ZX</span><b>${name}</b><small>${level<needed?`Nivel ${needed}`:"Disponible"}</small></button>`).join("");
 }
 $("#zx-banner-gallery")?.addEventListener("click",async event=>{
@@ -700,7 +705,7 @@ $("#zx-banner-gallery")?.addEventListener("click",async event=>{
 });
 $("#zx-avatar-gallery")?.addEventListener("click",async event=>{
   const button=event.target.closest("[data-zx-avatar]");if(!button)return;button.disabled=true;
-  try{const response=await fetch(`./assets/profile/avatar-${button.dataset.zxAvatar}.jpg`);if(!response.ok)throw Error("No se pudo cargar el avatar.");zxDraftAvatar=await zxCompactImage(await response.blob(),256,256);$("#account-avatar").textContent="";$("#account-avatar").style.backgroundImage=`url("${zxDraftAvatar}")`;$("#zx-gallery-status").textContent="Avatar preparado. Pulsa Guardar mi estilo."}
+  try{const id=button.dataset.zxAvatar,collection=id.startsWith("collection-");const response=await fetch(collection?"./assets/profile/avatar-collection.jpg":`./assets/profile/avatar-${id}.jpg`);if(!response.ok)throw Error("No se pudo cargar el avatar.");zxDraftAvatar=collection?await zxCollectionAvatar(await response.blob(),Number(id.split("-")[1])):await zxCompactImage(await response.blob(),256,256);$("#account-avatar").textContent="";$("#account-avatar").style.backgroundImage=`url("${zxDraftAvatar}")`;$("#zx-gallery-status").textContent="Avatar preparado. Pulsa Guardar mi estilo."}
   catch(error){$("#zx-gallery-status").textContent=error.message}finally{button.disabled=false}
 });
 $("#zx-frame-gallery")?.addEventListener("click",event=>{
@@ -716,6 +721,11 @@ function zxPresetAvatar(icon,color){
   grad.addColorStop(0,color);grad.addColorStop(1,"#0b0713");ctx.fillStyle=grad;ctx.fillRect(0,0,256,256);
   ctx.fillStyle="#fff";ctx.font="bold 138px sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(icon,128,135);
   return canvas.toDataURL("image/png");
+}
+async function zxCollectionAvatar(file,index){
+ const bitmap=await createImageBitmap(file),canvas=document.createElement("canvas");canvas.width=256;canvas.height=256;
+ const rects=[[21,22,480,483],[512,22,512,483],[1035,22,478,483],[21,517,480,484],[512,517,512,484],[1035,517,478,484]],r=rects[index];
+ if(!r)throw Error("Avatar no válido");const side=Math.min(r[2],r[3]);canvas.getContext("2d").drawImage(bitmap,r[0]+(r[2]-side)/2,r[1]+(r[3]-side)/2,side,side,0,0,256,256);bitmap.close();return canvas.toDataURL("image/jpeg",.8);
 }
 async function zxCompactImage(file,width,height){
   if(!file || !["image/jpeg","image/png","image/webp"].includes(file.type) || file.size>8*1024*1024)throw Error("Selecciona una imagen JPG, PNG o WebP de hasta 8 MB.");
@@ -886,6 +896,7 @@ function updateCartUI() {
    ========================================================= */
 
 function artFor(product) {
+  if(product.id?.startsWith("combo-"))return `<div class="product-art character-art zx-combo-art"><div class="character-glow"></div><img src="file_000000005b2081fd8514a17c052ac79f.png" alt="LUFFY" class="character-img"><div class="character-name">COMBO ${esc(product.name.split(" ")[0])}</div></div>`;
   const name = product.name || "";
   const category = product.category || "";
 
@@ -953,7 +964,7 @@ if (category === "Streaming") {
     character = "file_00000000561081f592ab7a6e14562570.png";
     characterName = "EREN";
   } 
-  else if (name.includes("340")) {
+  else if ((name.includes("340") || name.includes("341"))) {
     character = "file_000000004e4081f5b42e4462cb0ae3df.png";
     characterName = "SUKUNA";
 }
@@ -1044,7 +1055,7 @@ function setFilter(category, scroll = true) {
 /* ZERO'X · navegación por secciones · delegated/mobile-safe */
 function zxShow(el,show){if(!el)return;el.hidden=!show;el.style.display=show?"":"none"}
 function zxScroll(el){requestAnimationFrame(()=>el?.scrollIntoView({behavior:"smooth",block:"start"}))}
-function zxCloseViews(){["#freefire-menu","#zx-id-gate","#zx-managed","#zx-reseller-panel"].forEach(id=>zxShow($(id),false));$("#catalogo")?.classList.add("zx-catalog-hidden")}
+function zxCloseViews(){["#freefire-menu","#zx-id-gate","#zx-managed","#zx-reseller-panel","#zx-coming"].forEach(id=>zxShow($(id),false));$("#catalogo")?.classList.add("zx-catalog-hidden")}
 function zxOpenCatalog(category){if(category==="Streaming"){zxOpenStreaming();return}zxCloseViews();zxShow($("#secciones"),false);setFilter(category,false);$("#catalogo")?.classList.remove("zx-catalog-hidden");zxScroll($("#catalogo"))}
 const ZX_MANAGED={
  streaming:{title:"STREAMING",note:"Elige tu combo y consulta por WhatsApp para confirmar disponibilidad y pago.",category:"Streaming"},
@@ -1080,9 +1091,16 @@ function zxUpdateManagedCurrency(){
   if(ZX_MANAGED[type])note.textContent=ZX_MANAGED[type].note+(currentCurrency==="MXN"?" Precios base en MXN.":` Precios aproximados en ${currentCurrency}, convertidos desde MXN; el cobro final puede variar.`);
  }
 }
-function zxRenderResellerPreview(){window.zxResellerOpen?.()}
+let zxPendingReseller=false;
+async function zxEnterResellers(){
+ if(!getZeroXSession()?.token){zxPendingReseller=true;zxCloseViews();zxShow($("#secciones"),true);showAuthMode("login");$("#account-modal").showModal();$("#auth-result").textContent="Inicia sesión para acceder a Revendedores.";return;}
+ zxCloseViews();zxShow($("#secciones"),false);zxShow($("#zx-reseller-panel"),true);await window.zxResellerOpen?.();zxScroll($("#zx-reseller-panel"));
+}
+window.zxRequireResellerLogin=()=>{saveZeroXSession(null);zeroxUser=null;renderZeroXAccount();zxEnterResellers()};
+async function zxResumeReseller(){if(zxPendingReseller){zxPendingReseller=false;$("#account-modal").close();await zxEnterResellers();}}
+function zxOpenComing(zone){zxCloseViews();zxShow($("#secciones"),false);zxShow($("#zx-coming"),true);$("#zx-coming").setAttribute("aria-label",zone+": próximamente");zxScroll($("#zx-coming"));}
 document.addEventListener("click",event=>{
- const zone=event.target.closest("[data-zone]");if(zone){event.preventDefault();const z=zone.dataset.zone;if(z==="freefire"){zxCloseViews();zxShow($("#secciones"),false);zxShow($("#freefire-menu"),true);zxScroll($("#freefire-menu"))}else if(z==="streaming")zxOpenCatalog("Streaming");else if(z==="resellers"){zxCloseViews();zxShow($("#secciones"),false);zxShow($("#zx-reseller-panel"),true);zxRenderResellerPreview();zxScroll($("#zx-reseller-panel"))}else zxOpenManaged(z);return}
+ const zone=event.target.closest("[data-zone]");if(zone){event.preventDefault();const z=zone.dataset.zone;if(["minecraft","roblox","call-of-duty"].includes(z)){zxOpenComing(z)}else if(z==="freefire"){zxCloseViews();zxShow($("#secciones"),false);zxShow($("#freefire-menu"),true);zxScroll($("#freefire-menu"))}else if(z==="streaming")zxOpenCatalog("Streaming");else if(z==="resellers"){zxEnterResellers()}else zxOpenManaged(z);return}
  if(event.target.closest("[data-back-zones]")){zxCloseViews();zxShow($("#secciones"),true);zxScroll($("#secciones"));return}
  if(event.target.closest("[data-back-freefire]")){zxCloseViews();zxShow($("#secciones"),false);zxShow($("#freefire-menu"),true);zxScroll($("#freefire-menu"));return}
  if(event.target.closest("[data-zx-sub='first']")){zxCloseViews();zxShow($("#secciones"),false);zxShow($("#zx-id-gate"),true);zxScroll($("#zx-id-gate"));return}
@@ -1354,7 +1372,7 @@ function zxPaymentAction(order){
   let paymentUrl="";
   try{const url=new URL(configured||"");if(url.protocol==="https:"&&["mpago.la","link.mercadopago.com.mx","www.mercadopago.com.mx","www.paypal.com","paypal.me","www.paypal.me","pay.binance.com"].includes(url.hostname))paymentUrl=url.href}catch{}
   if(paymentUrl)return `<a class="zx-order-payment-link" href="${esc(paymentUrl)}" target="_blank" rel="noopener noreferrer">Abrir ${esc(order.payment)} para pagar ↗</a><p>Revisa el importe y conserva el comprobante. El pedido seguirá pendiente hasta confirmar el pago.</p>`;
-  const message=`Hola, quiero pagar mi pedido ${order.id}. Producto: ${order.productName}. Total: $${Number(order.total).toFixed(2)} MXN. Método: ${order.payment}. ¿Me compartes los datos de pago?`;
+  const message=`Hola, quiero pagar mi pedido ${order.id}. Producto: ${order.productName}. Total: $${Number(order.total).toFixed(2)} MXN. Método: ${order.payment}. ID: ${order.playerId || "pendiente"}.${order.diamondPlan?.length ? " Combinación: "+ZXDiamonds.describe(order.diamondPlan)+"." : ""} ¿Me compartes los datos de pago?`;
   return `<a class="zx-order-payment-link" href="https://wa.me/529514754210?text=${encodeURIComponent(message)}" target="_blank" rel="noopener noreferrer">Solicitar datos para pagar por ${esc(order.payment)} ↗</a>`;
 }
 // =====================================================
@@ -1750,7 +1768,7 @@ if (product.requiresEligibility) {
 // NO REALIZA COMPRAS
 // =========================================================
 
-const sixofireProduct = SIXOFIRE_PRODUCT_MAP[product.id];
+const sixofireProduct = product.diamondPlan ? product.id : SIXOFIRE_PRODUCT_MAP[product.id];
 
 if (sixofireProduct) {
   const playerId = String(
@@ -1837,6 +1855,7 @@ if (sixofireProduct) {
         id: createOrderId(),
         productId: product.id,
         productName: product.name,
+        diamondPlan: product.diamondPlan || null,
         category: product.category,
         price: product.price,
         discount,
@@ -2160,10 +2179,11 @@ $("#drawer").addEventListener("click",e=>{
   const b=e.target.closest("[data-drawer-zone],[data-drawer-sub],[data-drawer-cat]");if(!b)return;
   e.preventDefault();e.stopPropagation();closeDrawer();
   const zone=b.dataset.drawerZone;
+  if(["minecraft","roblox","call-of-duty"].includes(zone)){zxOpenComing(zone);return;}
   if(zone==="home"){zxCloseViews();zxShow($("#secciones"),true);$("#inicio")?.scrollIntoView({behavior:"smooth"});return;}
   if(zone==="freefire"){zxCloseViews();zxShow($("#secciones"),false);zxShow($("#freefire-menu"),true);zxScroll($("#freefire-menu"));return;}
   if(zone==="streaming"){zxOpenCatalog("Streaming");return;}
-  if(zone==="resellers"){zxCloseViews();zxShow($("#secciones"),false);zxShow($("#zx-reseller-panel"),true);zxRenderResellerPreview();zxScroll($("#zx-reseller-panel"));return;}
+  if(zone==="resellers"){zxEnterResellers();return;}
   if(zone){zxOpenManaged(zone);return;}
   if(b.dataset.drawerSub==="first"){zxCloseViews();zxShow($("#secciones"),false);zxShow($("#zx-id-gate"),true);zxScroll($("#zx-id-gate"));return;}
   if(b.dataset.drawerSub==="unlimited"){zxOpenCatalog("Diamantes ilimitados");return;}
