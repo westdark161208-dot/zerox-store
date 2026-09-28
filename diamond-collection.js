@@ -29,7 +29,7 @@
       ${image}
       <span class="zx-collection-particles" aria-hidden="true"></span>
       <div class="zx-collection-top"><span>ZX / ${String(tier).padStart(2,'0')}</span><span>${ranks[tier]}</span></div>
-      <div class="zx-collection-amount" aria-hidden="true"><span class="zx-collection-gem">◆</span> ${amount.toLocaleString('en-US')}<small>DIAMANTES</small></div>
+      <div class="zx-collection-amount" aria-hidden="true"><span class="zx-collection-gem">◆</span> <span class="zx-collection-value">${amount.toLocaleString('en-US')}</span><small>DIAMANTES</small></div>
       ${edition?`<span class="zx-collection-signature">${amount===100892?'ZERO’X SUPREME EDITION':'ZERO’X EDITION'}</span>`:''}
     </div><div class="zx-collection-caption"><small>${universes[universe]}</small><span>${escape(character)}</span></div>`;
   }

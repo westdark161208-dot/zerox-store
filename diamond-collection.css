@@ -91,3 +91,30 @@
 
 [data-zx-collection="6"] .zx-collection-particles{opacity:1}
 [data-zx-collection="6"] .zx-collection-art::after{content:"";position:absolute;inset:4px;border:2px solid #f6d98e;border-radius:12px;box-shadow:inset 0 0 0 3px #141019,inset 0 0 18px #eac16d55;pointer-events:none}
+
+/* Zero'X typography: chrome quantities, rounded prices, script character names. */
+.products .zx-product-card[data-zx-collection] {
+  border:3px solid rgb(var(--zx-neon))!important;
+  box-shadow:inset 0 0 0 1px #f5f4ff9c,inset 0 0 0 4px #070911,0 7px 18px #000b,0 0 10px rgba(var(--zx-neon),.5)!important;
+}
+.products .zx-product-card[data-zx-collection="5"] {--zx-neon:211,179,255;border-color:#d3b3ff!important}
+.products .zx-product-card[data-zx-collection="6"] {--zx-neon:255,222,141;border-color:#ffde8d!important}
+.zx-collection-window {border:3px solid rgba(var(--zx-neon),.95)!important;box-shadow:0 0 0 1px #fff5,0 0 12px rgba(var(--zx-neon),.45),inset 0 0 14px rgba(var(--zx-neon),.25)!important}
+.zx-collection-value {color:#f5f8ff;font-family:"Arial Black",Impact,system-ui,sans-serif;font-weight:900;letter-spacing:-.055em;text-shadow:0 2px 0 #626c85,0 4px 0 #04050a,0 5px 7px #000;filter:drop-shadow(0 0 3px rgba(var(--zx-neon),.5))}
+@supports(background-clip:text) {
+ .zx-collection-value {background:linear-gradient(180deg,#fff 5%,#c8d5e8 32%,#6c7b96 46%,#f8fbff 51%,#e0e9fa 68%,#8a9fbe 100%);background-clip:text;-webkit-background-clip:text;color:transparent;text-shadow:none;filter:drop-shadow(0 2px 0 #02040b) drop-shadow(0 0 3px rgba(var(--zx-neon),.5))}
+}
+.zx-collection-amount small {font-family:"Trebuchet MS",system-ui,sans-serif;font-size:clamp(9px,3.7cqi,12px);font-weight:900;letter-spacing:.2em;color:#cdefff;text-shadow:0 1px 0 #000,0 0 5px #69bfff80}
+.zx-collection-top span {border:1px solid rgba(var(--zx-neon),.8);background:linear-gradient(#303343,#090b12 55%,#202535);color:#edf3ff;font-weight:900;box-shadow:inset 0 1px 0 #fff7}
+.zx-collection-caption {min-height:64px;gap:7px}
+.zx-collection-caption small {align-self:flex-start;padding:4px 7px;border:1px solid rgba(var(--zx-neon),.7);border-radius:999px;background:rgba(var(--zx-neon),.12);color:#e6dcff;font:900 clamp(8px,3.5cqi,11px)/1.25 "Trebuchet MS",system-ui,sans-serif;letter-spacing:.08em}
+.zx-collection-caption>span {font:700 italic clamp(13px,5.1cqi,18px)/1.3 Georgia,"Times New Roman",serif;color:#fff0fb;text-shadow:0 2px 0 #171026,0 0 4px #d69fff55;overflow-wrap:anywhere}
+.zx-collection-signature {bottom:5px;left:5px;right:5px;padding:5px 3px;background:linear-gradient(135deg,#fff3,#211931 35%,#564764 65%,#14101d);border-top:1px solid #fff9;color:#fff1c4;font-family:Georgia,serif;font-style:italic;font-weight:900;letter-spacing:.035em;line-height:1.15}
+[data-zx-collection="6"] .zx-collection-signature {font-size:clamp(8px,3.8cqi,12px);color:#fff1be}
+.zx-collection-edition .zx-collection-amount {bottom:34px}
+.products .zx-product-card[data-zx-collection] .product-bottom strong {width:max-content;max-width:100%;box-sizing:border-box;padding:6px 7px;border-radius:12px;border:1px solid #b6e8ff75;background:linear-gradient(145deg,#20314b,#0c101b 62%);font-family:ui-rounded,"Trebuchet MS",system-ui,sans-serif;font-size:clamp(14px,6.4cqi,23px);font-weight:900;color:#f1fbff;letter-spacing:-.04em;text-shadow:0 2px 0 #263d62,0 0 4px #b2eaff4d;box-shadow:inset 0 1px 0 #e8f7ff69,0 3px 0 #03050c}
+.products .zx-product-card[data-zx-collection] .product-bottom [data-add] {border:2px solid rgb(var(--zx-neon));color:#fff;background:linear-gradient(145deg,#353544,#10121c);box-shadow:inset 0 1px 0 #fff8,0 0 5px rgba(var(--zx-neon),.45)}
+.products .zx-product-card[data-zx-collection] .product-bottom [data-buy-now] {border:2px solid rgb(var(--zx-neon));background:linear-gradient(125deg,rgba(var(--zx-neon),.35),#121321 60%,rgba(var(--zx-neon),.15));font-family:"Arial Black",Impact,system-ui,sans-serif;font-size:clamp(11px,4.5cqi,15px);font-weight:900;letter-spacing:.08em;color:#fff;text-shadow:0 2px 0 #060612;box-shadow:inset 0 1px 0 #fff8,0 0 6px rgba(var(--zx-neon),.45)}
+.zx-collection-details summary {color:#d4ddf0;font:600 11px/1.4 "Trebuchet MS",system-ui,sans-serif}
+.products .zx-product-card[data-zx-collection] .zx-collection-details p {color:#d9dfeb;font:400 12px/1.6 system-ui,sans-serif}
+@media(max-width:380px){.products .zx-product-card[data-zx-collection] .product-bottom{grid-template-columns:minmax(0,1fr) 44px;gap:4px}.products .zx-product-card[data-zx-collection] .product-bottom strong{padding:6px 3px;font-size:clamp(12px,6.2cqi,19px)}}
