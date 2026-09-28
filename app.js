@@ -367,6 +367,27 @@ function initZeroXAds(){
 // Large bundles share the exact server-owned composition and retail prices.
 for(const combo of ZXDiamonds.combos)PRODUCTS.push({id:combo.id,category:"Diamantes ilimitados",name:combo.amount.toLocaleString("en-US")+" Diamantes",description:"Combo: "+ZXDiamonds.describe(combo.plan)+". Se entrega en varias recargas al mismo ID. Entrega manual tras confirmar el pago.",price:combo.publicCents/100,active:true,requiresEligibility:false,badge:"COMBO ILIMITADO",diamondPlan:combo.plan});
 
+
+// Final storefront presentation. Keep existing exact matches and their prices.
+// New quantities are display-only until the provider and retail prices are configured.
+const ZX_FINAL_DIAMOND_AMOUNTS = [110,220,341,572,680,912,1166,1506,1738,2398,2970,3564,4796,6160,6732,7326,8558,9724,10956,12320,12892,14058,14718,15884,17116,18480,19052,20878,22044,23276,24640,25806,27038,28204,30008,30800,31966,33198,34936,36960,38126,39358,40524,43120,44286,45518,46684,49280,50446];
+{
+  const existing = new Map(PRODUCTS.filter(p => p.category === "Diamantes ilimitados")
+    .map(p => [Number(p.name.match(/^[\d,]+/)[0].replaceAll(",", "")), p]));
+  const first = PRODUCTS.findIndex(p => p.category === "Diamantes ilimitados");
+  const presentation = ZX_FINAL_DIAMOND_AMOUNTS.map(amount => existing.get(amount) || {
+    id: "preview-diamonds-" + amount,
+    category: "Diamantes ilimitados",
+    name: amount.toLocaleString("en-US") + " Diamantes",
+    description: "Precio y disponibilidad pendientes de confirmar.",
+    price: null, active: true, presentationOnly: true,
+    requiresEligibility: false, badge: "PRÓXIMAMENTE"
+  });
+  for (let i = PRODUCTS.length - 1; i >= 0; i--)
+    if (PRODUCTS[i].category === "Diamantes ilimitados") PRODUCTS.splice(i, 1);
+  PRODUCTS.splice(first, 0, ...presentation);
+}
+
 const SIXOFIRE_PRODUCT_MAP = {
   "d110-u": "ff-110",
   "d340-u": "ff-340",
@@ -818,7 +839,7 @@ function cart() {
 function selectedProduct(token) {
   const [id, rawQuantity] = String(token).split("::");
   const product = PRODUCTS.find(item => item.id === id);
-  if (!product) return null;
+  if (!product || product.presentationOnly) return null;
   if (!product.minQuantity) return product;
   const quantity = Number(rawQuantity);
   if (!Number.isInteger(quantity) || quantity < product.minQuantity || quantity > product.maxQuantity) return null;
@@ -1023,9 +1044,11 @@ function render() {
         ${globalThis.ZXCollection?.forProduct(product) ? `<details class="zx-collection-details"><summary>Detalle del paquete</summary><p>${esc(product.description || "")}</p></details>` : `<p>${esc(product.description || "")}</p>`}
         ${product.minQuantity ? `<label class="ff-quantity">Cantidad <span>Mínimo ${product.minQuantity}</span><input data-quantity type="number" inputmode="numeric" min="${product.minQuantity}" max="${product.maxQuantity}" step="1" value="${product.minQuantity}" aria-label="Cantidad de ${esc(product.name)}"></label><small class="ff-unit-price">${money(product.price)} por unidad</small>` : ""}
         <div class="product-bottom">
+          ${product.presentationOnly ? '<strong>Precio por confirmar</strong><button type="button" disabled>PRÓXIMAMENTE</button>' : `
           <strong>${money(product.minQuantity ? product.price * product.minQuantity : product.price)}${product.minQuantity ? " desde" : ""}</strong>
           <button type="button" data-add="${esc(product.id)}" aria-label="Agregar ${esc(product.name)} al carrito" title="Agregar al carrito">＋</button>
           <button type="button" data-buy-now="${esc(product.id)}">COMPRAR <span aria-hidden="true">→</span></button>
+          `}
         </div>
       </div>
     </article>`).join("") : '<div class="zx-empty"><b>SIN PRODUCTOS</b><span>No hay productos disponibles en esta sección por el momento.</span></div>';
@@ -1048,7 +1071,7 @@ function setFilter(category, scroll = true) {
   });
   if ($("#catalog-title")) $("#catalog-title").textContent = category;
   if ($("#catalog-note")) {
-    const note = category === "Diamantes 1 vez" ? "Cada paquete promocional se usa una sola vez por ID. Verificamos tu ID antes de continuar." : category === "Diamantes ilimitados" ? "Paquetes disponibles para comprar más de una vez con el mismo ID." : category === "Cajas y Fragmentos" || category === "Fragmentos" || category === "Cajas" ? "Elige el tipo y la cantidad. El precio total se actualiza antes de continuar." : "Elige tu producto y consulta los detalles antes de continuar.";
+    const note = category === "Diamantes 1 vez" ? "Cada paquete promocional se usa una sola vez por ID. Verificamos tu ID antes de continuar." : category === "Diamantes ilimitados" ? "Catálogo de cantidades finales. Los paquetes marcados «Próximamente» están pendientes de precio y disponibilidad." : category === "Cajas y Fragmentos" || category === "Fragmentos" || category === "Cajas" ? "Elige el tipo y la cantidad. El precio total se actualiza antes de continuar." : "Elige tu producto y consulta los detalles antes de continuar.";
     $("#catalog-note").textContent = note;
   }
   if (scroll) $("#catalogo")?.scrollIntoView({ behavior:"smooth", block:"start" });
