@@ -1,0 +1,5 @@
+# Keep server-side source and wholesale cost snapshots out of the Pages output.
+exclude:
+  - cloudflare
+  - tests
+  - docs

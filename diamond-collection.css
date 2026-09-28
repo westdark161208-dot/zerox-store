@@ -73,3 +73,21 @@
   .zx-collection-placeholder img {max-height:110px}
   .zx-collection-amount {font-size:clamp(22px,14cqi,36px)}
 }
+
+
+/* Supreme remains a single product, with lightweight CSS depth. */
+[data-zx-collection="6"]{border:1px solid #e7c77a!important;box-shadow:0 10px 32px #000,0 0 22px #eac16d44!important;background:linear-gradient(145deg,#252127,#08090e)!important}
+[data-zx-collection="6"] .zx-collection-art{background:radial-gradient(ellipse at 50% 35%,#83633188,transparent 65%),#090912}
+[data-zx-collection="6"] .zx-collection-signature{color:#ffe7a6;font-size:clamp(.55rem,1.8vw,.85rem);letter-spacing:.08em}
+[data-zx-collection="6"] .zx-collection-aura{box-shadow:0 0 45px #ebca7855;animation:zxSupremeGlow 5s ease-in-out infinite alternate}
+@keyframes zxSupremeGlow{to{opacity:.65;transform:scale(1.04)}}
+#zx-diamond-dialog{color:#edf0ff;background:linear-gradient(145deg,#20202d,#090a10);border:1px solid #8270ae;border-radius:20px;max-width:420px;width:calc(100% - 48px);padding:24px;box-shadow:0 20px 80px #000}
+#zx-diamond-dialog::backdrop{background:#02030bd9}
+#zx-diamond-dialog label{display:block;margin:18px 0}
+#zx-diamond-dialog input[name="uid"]{display:block;width:100%;box-sizing:border-box;padding:12px;margin-top:8px;background:#080b16;color:#fff;border:1px solid #626280;border-radius:9px}
+#zx-diamond-dialog button{padding:10px 14px;border-radius:9px;background:#302749;color:#fff;border:1px solid #8d78b2}
+#zx-diamond-dialog p{line-height:1.6;color:#bdc2d5}
+@media(prefers-reduced-motion:reduce){[data-zx-collection="6"] .zx-collection-aura{animation:none}}
+
+[data-zx-collection="6"] .zx-collection-particles{opacity:1}
+[data-zx-collection="6"] .zx-collection-art::after{content:"";position:absolute;inset:4px;border:2px solid #f6d98e;border-radius:12px;box-shadow:inset 0 0 0 3px #141019,inset 0 0 18px #eac16d55;pointer-events:none}

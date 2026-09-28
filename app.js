@@ -364,28 +364,11 @@ function initZeroXAds(){
 
 
 
-// Large bundles share the exact server-owned composition and retail prices.
-for(const combo of ZXDiamonds.combos)PRODUCTS.push({id:combo.id,category:"Diamantes ilimitados",name:combo.amount.toLocaleString("en-US")+" Diamantes",description:"Combo: "+ZXDiamonds.describe(combo.plan)+". Se entrega en varias recargas al mismo ID. Entrega manual tras confirmar el pago.",price:combo.publicCents/100,active:true,requiresEligibility:false,badge:"COMBO ILIMITADO",diamondPlan:combo.plan});
-
-
-// Final storefront presentation. Keep existing exact matches and their prices.
-// New quantities are display-only until the provider and retail prices are configured.
-const ZX_FINAL_DIAMOND_AMOUNTS = [110,220,341,572,680,912,1166,1506,1738,2398,2970,3564,4796,6160,6732,7326,8558,9724,10956,12320,12892,14058,14718,15884,17116,18480,19052,20878,22044,23276,24640,25806,27038,28204,30008,30800,31966,33198,34936,36960,38126,39358,40524,43120,44286,45518,46684,49280,50446];
+// The public catalogue is independent from provider delivery plans.
 {
-  const existing = new Map(PRODUCTS.filter(p => p.category === "Diamantes ilimitados")
-    .map(p => [Number(p.name.match(/^[\d,]+/)[0].replaceAll(",", "")), p]));
-  const first = PRODUCTS.findIndex(p => p.category === "Diamantes ilimitados");
-  const presentation = ZX_FINAL_DIAMOND_AMOUNTS.map(amount => existing.get(amount) || {
-    id: "preview-diamonds-" + amount,
-    category: "Diamantes ilimitados",
-    name: amount.toLocaleString("en-US") + " Diamantes",
-    description: "Precio y disponibilidad pendientes de confirmar.",
-    price: null, active: true, presentationOnly: true,
-    requiresEligibility: false, badge: "PRÓXIMAMENTE"
-  });
-  for (let i = PRODUCTS.length - 1; i >= 0; i--)
-    if (PRODUCTS[i].category === "Diamantes ilimitados") PRODUCTS.splice(i, 1);
-  PRODUCTS.splice(first, 0, ...presentation);
+ const first=PRODUCTS.findIndex(p=>p.category==="Diamantes ilimitados");
+ for(let i=PRODUCTS.length-1;i>=0;i--)if(PRODUCTS[i].category==="Diamantes ilimitados")PRODUCTS.splice(i,1);
+ PRODUCTS.splice(first,0,...ZXDiamondCatalog.map(p=>({id:p.id,category:"Diamantes ilimitados",name:p.diamonds.toLocaleString("en-US")+" Diamantes",price:p.salePriceMXN,active:true,requiresEligibility:false,zxDiamond:true,diamonds:p.diamonds,description:"Recarga al ID de Free Fire indicado. Confirma tu ID antes de continuar.",badge:p.diamonds===100892?"ZERO’X SUPREME EDITION":p.diamonds===50446?"ZERO’X EDITION":"ILIMITADO"})));
 }
 
 const SIXOFIRE_PRODUCT_MAP = {
@@ -1071,7 +1054,7 @@ function setFilter(category, scroll = true) {
   });
   if ($("#catalog-title")) $("#catalog-title").textContent = category;
   if ($("#catalog-note")) {
-    const note = category === "Diamantes 1 vez" ? "Cada paquete promocional se usa una sola vez por ID. Verificamos tu ID antes de continuar." : category === "Diamantes ilimitados" ? "Catálogo de cantidades finales. Los paquetes marcados «Próximamente» están pendientes de precio y disponibilidad." : category === "Cajas y Fragmentos" || category === "Fragmentos" || category === "Cajas" ? "Elige el tipo y la cantidad. El precio total se actualiza antes de continuar." : "Elige tu producto y consulta los detalles antes de continuar.";
+    const note = category === "Diamantes 1 vez" ? "Cada paquete promocional se usa una sola vez por ID. Verificamos tu ID antes de continuar." : category === "Diamantes ilimitados" ? "Elige tu paquete. Recargas al mismo ID de Free Fire; entrega automática pendiente de activación." : category === "Cajas y Fragmentos" || category === "Fragmentos" || category === "Cajas" ? "Elige el tipo y la cantidad. El precio total se actualiza antes de continuar." : "Elige tu producto y consulta los detalles antes de continuar.";
     $("#catalog-note").textContent = note;
   }
   if (scroll) $("#catalogo")?.scrollIntoView({ behavior:"smooth", block:"start" });
@@ -1271,6 +1254,14 @@ function openCheckout(id) {
   current = selectedProduct(id);
 
   if (!current) return;
+  if(current.zxDiamond){
+    $("#zx-diamond-dialog")?.remove();
+    const dialog=document.createElement("dialog");dialog.id="zx-diamond-dialog";
+    dialog.innerHTML=`<form method="dialog"><button aria-label="Cerrar">×</button></form><h2>${esc(current.name)}</h2><strong>${money(current.price)}</strong><p>Introduce y confirma tu ID. La verificación del jugador y el pago estarán disponibles cuando se active el proveedor.</p><form id="zx-diamond-intent"><label>ID de Free Fire<input name="uid" inputmode="numeric" pattern="[0-9]{5,15}" minlength="5" maxlength="15" required></label><label><input type="checkbox" required> Confirmo que este es mi ID de Free Fire.</label><button type="submit">CONFIRMAR ID</button></form><p id="zx-diamond-intent-status" role="status"></p>`;
+    document.body.append(dialog);dialog.showModal();
+    dialog.querySelector("#zx-diamond-intent").onsubmit=e=>{e.preventDefault();dialog.querySelector("#zx-diamond-intent-status").textContent="ID confirmado por ti. Verificación con el proveedor pendiente. Los pagos y las recargas de este catálogo aún no están habilitados.";};
+    return;
+  }
 
   if ($("#modal-product")) {
     $("#modal-product").textContent =

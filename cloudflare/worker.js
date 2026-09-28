@@ -1,3 +1,4 @@
+import { diamondRoute } from "./diamonds/routes.mjs";
 import { resellerRoute } from "./resellers.js";
 // Immutable account ID, assigned only after the account owner verifies it.
 const FOUNDER_USER_ID = "d8573fe7-331f-4248-a0ad-d99288c9a472";
@@ -32,7 +33,7 @@ const PRODUCT_MAP = {
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, PATCH, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization"
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, Idempotency-Key"
 };
 
 function json(data, status = 200) {
@@ -195,6 +196,11 @@ export default {
       }
 
       const url = new URL(request.url);
+      if(url.pathname.startsWith("/api/diamonds/")){
+        let user=null;
+        if(env.DIAMOND_ORDER_DRAFTS_ENABLED==='true'&&url.pathname.includes('/orders')){await authSchema(env);user=await currentUser(request,env);}
+        return await diamondRoute(request,env,url,user,json);
+      }
       if(url.pathname.startsWith("/api/resellers/")||url.pathname.startsWith("/api/admin/resellers")){await authSchema(env);return await resellerRoute(request,env,url,await currentUser(request,env),json);}
       if(url.pathname.startsWith("/api/content/")||url.pathname.startsWith("/api/admin/content/"))return await contentRoutes(request,env,url);
 

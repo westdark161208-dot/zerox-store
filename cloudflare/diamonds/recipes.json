@@ -1,0 +1,972 @@
+[
+  {
+    "id": "zx-diamonds-110",
+    "diamonds": 110,
+    "salePriceCents": 1800,
+    "providerCostCents": 1407,
+    "recipe": [
+      {
+        "diamonds": 110,
+        "costCents": 1407,
+        "sku": null,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-220",
+    "diamonds": 220,
+    "salePriceCents": 3500,
+    "providerCostCents": 2814,
+    "recipe": [
+      {
+        "diamonds": 110,
+        "costCents": 1407,
+        "sku": null,
+        "quantity": 2
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-341",
+    "diamonds": 341,
+    "salePriceCents": 5700,
+    "providerCostCents": 4696,
+    "recipe": [
+      {
+        "diamonds": 341,
+        "costCents": 4696,
+        "sku": null,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-572",
+    "diamonds": 572,
+    "salePriceCents": 8500,
+    "providerCostCents": 6561,
+    "recipe": [
+      {
+        "diamonds": 572,
+        "costCents": 6561,
+        "sku": null,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-682",
+    "diamonds": 682,
+    "salePriceCents": 11400,
+    "providerCostCents": 7968,
+    "recipe": [
+      {
+        "diamonds": 572,
+        "costCents": 6561,
+        "sku": null,
+        "quantity": 1
+      },
+      {
+        "diamonds": 110,
+        "costCents": 1407,
+        "sku": null,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-913",
+    "diamonds": 913,
+    "salePriceCents": 14500,
+    "providerCostCents": 11257,
+    "recipe": [
+      {
+        "diamonds": 572,
+        "costCents": 6561,
+        "sku": null,
+        "quantity": 1
+      },
+      {
+        "diamonds": 341,
+        "costCents": 4696,
+        "sku": null,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-1166",
+    "diamonds": 1166,
+    "salePriceCents": 15000,
+    "providerCostCents": 12206,
+    "recipe": [
+      {
+        "diamonds": 1166,
+        "costCents": 12206,
+        "sku": null,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-1507",
+    "diamonds": 1507,
+    "salePriceCents": 21000,
+    "providerCostCents": 16902,
+    "recipe": [
+      {
+        "diamonds": 1166,
+        "costCents": 12206,
+        "sku": null,
+        "quantity": 1
+      },
+      {
+        "diamonds": 341,
+        "costCents": 4696,
+        "sku": null,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-1738",
+    "diamonds": 1738,
+    "salePriceCents": 21000,
+    "providerCostCents": 18767,
+    "recipe": [
+      {
+        "diamonds": 1166,
+        "costCents": 12206,
+        "sku": null,
+        "quantity": 1
+      },
+      {
+        "diamonds": 572,
+        "costCents": 6561,
+        "sku": null,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-2398",
+    "diamonds": 2398,
+    "salePriceCents": 27500,
+    "providerCostCents": 24260,
+    "recipe": [
+      {
+        "diamonds": 2398,
+        "costCents": 24260,
+        "sku": null,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-2970",
+    "diamonds": 2970,
+    "salePriceCents": 34500,
+    "providerCostCents": 30821,
+    "recipe": [
+      {
+        "diamonds": 2398,
+        "costCents": 24260,
+        "sku": null,
+        "quantity": 1
+      },
+      {
+        "diamonds": 572,
+        "costCents": 6561,
+        "sku": null,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-3564",
+    "diamonds": 3564,
+    "salePriceCents": 41000,
+    "providerCostCents": 36466,
+    "recipe": [
+      {
+        "diamonds": 2398,
+        "costCents": 24260,
+        "sku": null,
+        "quantity": 1
+      },
+      {
+        "diamonds": 1166,
+        "costCents": 12206,
+        "sku": null,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-4796",
+    "diamonds": 4796,
+    "salePriceCents": 54000,
+    "providerCostCents": 48520,
+    "recipe": [
+      {
+        "diamonds": 2398,
+        "costCents": 24260,
+        "sku": null,
+        "quantity": 2
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-6160",
+    "diamonds": 6160,
+    "salePriceCents": 67000,
+    "providerCostCents": 60081,
+    "recipe": [
+      {
+        "diamonds": 6160,
+        "costCents": 60081,
+        "sku": null,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-6732",
+    "diamonds": 6732,
+    "salePriceCents": 74500,
+    "providerCostCents": 66642,
+    "recipe": [
+      {
+        "diamonds": 6160,
+        "costCents": 60081,
+        "sku": null,
+        "quantity": 1
+      },
+      {
+        "diamonds": 572,
+        "costCents": 6561,
+        "sku": null,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-7326",
+    "diamonds": 7326,
+    "salePriceCents": 81000,
+    "providerCostCents": 72287,
+    "recipe": [
+      {
+        "diamonds": 6160,
+        "costCents": 60081,
+        "sku": null,
+        "quantity": 1
+      },
+      {
+        "diamonds": 1166,
+        "costCents": 12206,
+        "sku": null,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-8558",
+    "diamonds": 8558,
+    "salePriceCents": 94000,
+    "providerCostCents": 84341,
+    "recipe": [
+      {
+        "diamonds": 6160,
+        "costCents": 60081,
+        "sku": null,
+        "quantity": 1
+      },
+      {
+        "diamonds": 2398,
+        "costCents": 24260,
+        "sku": null,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-9724",
+    "diamonds": 9724,
+    "salePriceCents": 107500,
+    "providerCostCents": 96547,
+    "recipe": [
+      {
+        "diamonds": 6160,
+        "costCents": 60081,
+        "sku": null,
+        "quantity": 1
+      },
+      {
+        "diamonds": 2398,
+        "costCents": 24260,
+        "sku": null,
+        "quantity": 1
+      },
+      {
+        "diamonds": 1166,
+        "costCents": 12206,
+        "sku": null,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-10956",
+    "diamonds": 10956,
+    "salePriceCents": 121000,
+    "providerCostCents": 108601,
+    "recipe": [
+      {
+        "diamonds": 6160,
+        "costCents": 60081,
+        "sku": null,
+        "quantity": 1
+      },
+      {
+        "diamonds": 2398,
+        "costCents": 24260,
+        "sku": null,
+        "quantity": 2
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-12320",
+    "diamonds": 12320,
+    "salePriceCents": 134000,
+    "providerCostCents": 120162,
+    "recipe": [
+      {
+        "diamonds": 6160,
+        "costCents": 60081,
+        "sku": null,
+        "quantity": 2
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-12892",
+    "diamonds": 12892,
+    "salePriceCents": 141000,
+    "providerCostCents": 126723,
+    "recipe": [
+      {
+        "diamonds": 6160,
+        "costCents": 60081,
+        "sku": null,
+        "quantity": 2
+      },
+      {
+        "diamonds": 572,
+        "costCents": 6561,
+        "sku": null,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-14058",
+    "diamonds": 14058,
+    "salePriceCents": 154500,
+    "providerCostCents": 138929,
+    "recipe": [
+      {
+        "diamonds": 6160,
+        "costCents": 60081,
+        "sku": null,
+        "quantity": 2
+      },
+      {
+        "diamonds": 1166,
+        "costCents": 12206,
+        "sku": null,
+        "quantity": 1
+      },
+      {
+        "diamonds": 572,
+        "costCents": 6561,
+        "sku": null,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-14718",
+    "diamonds": 14718,
+    "salePriceCents": 160500,
+    "providerCostCents": 144422,
+    "recipe": [
+      {
+        "diamonds": 6160,
+        "costCents": 60081,
+        "sku": null,
+        "quantity": 2
+      },
+      {
+        "diamonds": 2398,
+        "costCents": 24260,
+        "sku": null,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-15884",
+    "diamonds": 15884,
+    "salePriceCents": 174000,
+    "providerCostCents": 156628,
+    "recipe": [
+      {
+        "diamonds": 6160,
+        "costCents": 60081,
+        "sku": null,
+        "quantity": 2
+      },
+      {
+        "diamonds": 2398,
+        "costCents": 24260,
+        "sku": null,
+        "quantity": 1
+      },
+      {
+        "diamonds": 1166,
+        "costCents": 12206,
+        "sku": null,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-17116",
+    "diamonds": 17116,
+    "salePriceCents": 187500,
+    "providerCostCents": 168682,
+    "recipe": [
+      {
+        "diamonds": 6160,
+        "costCents": 60081,
+        "sku": null,
+        "quantity": 2
+      },
+      {
+        "diamonds": 2398,
+        "costCents": 24260,
+        "sku": null,
+        "quantity": 2
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-18480",
+    "diamonds": 18480,
+    "salePriceCents": 200500,
+    "providerCostCents": 180243,
+    "recipe": [
+      {
+        "diamonds": 6160,
+        "costCents": 60081,
+        "sku": null,
+        "quantity": 3
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-19052",
+    "diamonds": 19052,
+    "salePriceCents": 208000,
+    "providerCostCents": 186804,
+    "recipe": [
+      {
+        "diamonds": 6160,
+        "costCents": 60081,
+        "sku": null,
+        "quantity": 3
+      },
+      {
+        "diamonds": 572,
+        "costCents": 6561,
+        "sku": null,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-20878",
+    "diamonds": 20878,
+    "salePriceCents": 227500,
+    "providerCostCents": 204503,
+    "recipe": [
+      {
+        "diamonds": 6160,
+        "costCents": 60081,
+        "sku": null,
+        "quantity": 3
+      },
+      {
+        "diamonds": 2398,
+        "costCents": 24260,
+        "sku": null,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-22044",
+    "diamonds": 22044,
+    "salePriceCents": 241000,
+    "providerCostCents": 216709,
+    "recipe": [
+      {
+        "diamonds": 6160,
+        "costCents": 60081,
+        "sku": null,
+        "quantity": 3
+      },
+      {
+        "diamonds": 2398,
+        "costCents": 24260,
+        "sku": null,
+        "quantity": 1
+      },
+      {
+        "diamonds": 1166,
+        "costCents": 12206,
+        "sku": null,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-23276",
+    "diamonds": 23276,
+    "salePriceCents": 254500,
+    "providerCostCents": 228763,
+    "recipe": [
+      {
+        "diamonds": 6160,
+        "costCents": 60081,
+        "sku": null,
+        "quantity": 3
+      },
+      {
+        "diamonds": 2398,
+        "costCents": 24260,
+        "sku": null,
+        "quantity": 2
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-24640",
+    "diamonds": 24640,
+    "salePriceCents": 267500,
+    "providerCostCents": 240324,
+    "recipe": [
+      {
+        "diamonds": 6160,
+        "costCents": 60081,
+        "sku": null,
+        "quantity": 4
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-25806",
+    "diamonds": 25806,
+    "salePriceCents": 281000,
+    "providerCostCents": 252530,
+    "recipe": [
+      {
+        "diamonds": 6160,
+        "costCents": 60081,
+        "sku": null,
+        "quantity": 4
+      },
+      {
+        "diamonds": 1166,
+        "costCents": 12206,
+        "sku": null,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-27038",
+    "diamonds": 27038,
+    "salePriceCents": 294500,
+    "providerCostCents": 264584,
+    "recipe": [
+      {
+        "diamonds": 6160,
+        "costCents": 60081,
+        "sku": null,
+        "quantity": 4
+      },
+      {
+        "diamonds": 2398,
+        "costCents": 24260,
+        "sku": null,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-28204",
+    "diamonds": 28204,
+    "salePriceCents": 308000,
+    "providerCostCents": 276790,
+    "recipe": [
+      {
+        "diamonds": 6160,
+        "costCents": 60081,
+        "sku": null,
+        "quantity": 4
+      },
+      {
+        "diamonds": 2398,
+        "costCents": 24260,
+        "sku": null,
+        "quantity": 1
+      },
+      {
+        "diamonds": 1166,
+        "costCents": 12206,
+        "sku": null,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-30008",
+    "diamonds": 30008,
+    "salePriceCents": 328500,
+    "providerCostCents": 295405,
+    "recipe": [
+      {
+        "diamonds": 6160,
+        "costCents": 60081,
+        "sku": null,
+        "quantity": 4
+      },
+      {
+        "diamonds": 2398,
+        "costCents": 24260,
+        "sku": null,
+        "quantity": 2
+      },
+      {
+        "diamonds": 572,
+        "costCents": 6561,
+        "sku": null,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-30800",
+    "diamonds": 30800,
+    "salePriceCents": 334000,
+    "providerCostCents": 300405,
+    "recipe": [
+      {
+        "diamonds": 6160,
+        "costCents": 60081,
+        "sku": null,
+        "quantity": 5
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-31966",
+    "diamonds": 31966,
+    "salePriceCents": 347500,
+    "providerCostCents": 312611,
+    "recipe": [
+      {
+        "diamonds": 6160,
+        "costCents": 60081,
+        "sku": null,
+        "quantity": 5
+      },
+      {
+        "diamonds": 1166,
+        "costCents": 12206,
+        "sku": null,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-33198",
+    "diamonds": 33198,
+    "salePriceCents": 361000,
+    "providerCostCents": 324665,
+    "recipe": [
+      {
+        "diamonds": 6160,
+        "costCents": 60081,
+        "sku": null,
+        "quantity": 5
+      },
+      {
+        "diamonds": 2398,
+        "costCents": 24260,
+        "sku": null,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-34936",
+    "diamonds": 34936,
+    "salePriceCents": 382000,
+    "providerCostCents": 343432,
+    "recipe": [
+      {
+        "diamonds": 6160,
+        "costCents": 60081,
+        "sku": null,
+        "quantity": 5
+      },
+      {
+        "diamonds": 2398,
+        "costCents": 24260,
+        "sku": null,
+        "quantity": 1
+      },
+      {
+        "diamonds": 1166,
+        "costCents": 12206,
+        "sku": null,
+        "quantity": 1
+      },
+      {
+        "diamonds": 572,
+        "costCents": 6561,
+        "sku": null,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-36960",
+    "diamonds": 36960,
+    "salePriceCents": 401000,
+    "providerCostCents": 360486,
+    "recipe": [
+      {
+        "diamonds": 6160,
+        "costCents": 60081,
+        "sku": null,
+        "quantity": 6
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-38126",
+    "diamonds": 38126,
+    "salePriceCents": 414500,
+    "providerCostCents": 372692,
+    "recipe": [
+      {
+        "diamonds": 6160,
+        "costCents": 60081,
+        "sku": null,
+        "quantity": 6
+      },
+      {
+        "diamonds": 1166,
+        "costCents": 12206,
+        "sku": null,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-39358",
+    "diamonds": 39358,
+    "salePriceCents": 428000,
+    "providerCostCents": 384746,
+    "recipe": [
+      {
+        "diamonds": 6160,
+        "costCents": 60081,
+        "sku": null,
+        "quantity": 6
+      },
+      {
+        "diamonds": 2398,
+        "costCents": 24260,
+        "sku": null,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-40524",
+    "diamonds": 40524,
+    "salePriceCents": 441500,
+    "providerCostCents": 396952,
+    "recipe": [
+      {
+        "diamonds": 6160,
+        "costCents": 60081,
+        "sku": null,
+        "quantity": 6
+      },
+      {
+        "diamonds": 2398,
+        "costCents": 24260,
+        "sku": null,
+        "quantity": 1
+      },
+      {
+        "diamonds": 1166,
+        "costCents": 12206,
+        "sku": null,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-43120",
+    "diamonds": 43120,
+    "salePriceCents": 468000,
+    "providerCostCents": 420567,
+    "recipe": [
+      {
+        "diamonds": 6160,
+        "costCents": 60081,
+        "sku": null,
+        "quantity": 7
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-44286",
+    "diamonds": 44286,
+    "salePriceCents": 481500,
+    "providerCostCents": 432773,
+    "recipe": [
+      {
+        "diamonds": 6160,
+        "costCents": 60081,
+        "sku": null,
+        "quantity": 7
+      },
+      {
+        "diamonds": 1166,
+        "costCents": 12206,
+        "sku": null,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-45518",
+    "diamonds": 45518,
+    "salePriceCents": 495000,
+    "providerCostCents": 444827,
+    "recipe": [
+      {
+        "diamonds": 6160,
+        "costCents": 60081,
+        "sku": null,
+        "quantity": 7
+      },
+      {
+        "diamonds": 2398,
+        "costCents": 24260,
+        "sku": null,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-46684",
+    "diamonds": 46684,
+    "salePriceCents": 508500,
+    "providerCostCents": 457033,
+    "recipe": [
+      {
+        "diamonds": 6160,
+        "costCents": 60081,
+        "sku": null,
+        "quantity": 7
+      },
+      {
+        "diamonds": 2398,
+        "costCents": 24260,
+        "sku": null,
+        "quantity": 1
+      },
+      {
+        "diamonds": 1166,
+        "costCents": 12206,
+        "sku": null,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-49280",
+    "diamonds": 49280,
+    "salePriceCents": 535000,
+    "providerCostCents": 480648,
+    "recipe": [
+      {
+        "diamonds": 6160,
+        "costCents": 60081,
+        "sku": null,
+        "quantity": 8
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-50446",
+    "diamonds": 50446,
+    "salePriceCents": 548500,
+    "providerCostCents": 492854,
+    "recipe": [
+      {
+        "diamonds": 6160,
+        "costCents": 60081,
+        "sku": null,
+        "quantity": 8
+      },
+      {
+        "diamonds": 1166,
+        "costCents": 12206,
+        "sku": null,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "zx-diamonds-100892",
+    "diamonds": 100892,
+    "salePriceCents": 1096000,
+    "providerCostCents": 985708,
+    "recipe": [
+      {
+        "diamonds": 6160,
+        "costCents": 60081,
+        "sku": null,
+        "quantity": 16
+      },
+      {
+        "diamonds": 1166,
+        "costCents": 12206,
+        "sku": null,
+        "quantity": 2
+      }
+    ]
+  }
+]
