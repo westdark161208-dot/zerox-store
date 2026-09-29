@@ -1062,7 +1062,7 @@ function setFilter(category, scroll = true) {
 
 /* ZERO'X · navegación por secciones · delegated/mobile-safe */
 function zxShow(el,show){if(!el)return;el.hidden=!show;el.style.display=show?"":"none"}
-function zxScroll(el){requestAnimationFrame(()=>el?.scrollIntoView({behavior:"smooth",block:"start"}))}
+function zxScroll(el){requestAnimationFrame(()=>{if(!el)return;const offset=document.querySelector(".topbar")?.getBoundingClientRect().height||0;window.scrollTo({top:Math.max(0,window.scrollY+el.getBoundingClientRect().top-offset-16),behavior:"smooth"});})}
 function zxCloseViews(){["#freefire-menu","#zx-id-gate","#zx-managed","#zx-reseller-panel","#zx-coming"].forEach(id=>zxShow($(id),false));$("#catalogo")?.classList.add("zx-catalog-hidden")}
 function zxOpenCatalog(category){if(category==="Streaming"){zxOpenStreaming();return}zxCloseViews();zxShow($("#secciones"),false);setFilter(category,false);$("#catalogo")?.classList.remove("zx-catalog-hidden");zxScroll($("#catalogo"))}
 const ZX_MANAGED={
@@ -1257,9 +1257,34 @@ function openCheckout(id) {
   if(current.zxDiamond){
     $("#zx-diamond-dialog")?.remove();
     const dialog=document.createElement("dialog");dialog.id="zx-diamond-dialog";
-    dialog.innerHTML=`<form method="dialog"><button aria-label="Cerrar">×</button></form><h2>${esc(current.name)}</h2><strong>${money(current.price)}</strong><p>Introduce y confirma tu ID. La verificación del jugador y el pago estarán disponibles cuando se active el proveedor.</p><form id="zx-diamond-intent"><label>ID de Free Fire<input name="uid" inputmode="numeric" pattern="[0-9]{5,15}" minlength="5" maxlength="15" required></label><label><input type="checkbox" required> Confirmo que este es mi ID de Free Fire.</label><button type="submit">CONFIRMAR ID</button></form><p id="zx-diamond-intent-status" role="status"></p>`;
+    dialog.innerHTML=`<form method="dialog"><button aria-label="Cerrar">×</button></form><h2>${esc(current.name)}</h2><strong>${money(current.price)}</strong><p>Introduce tu ID para consultar tu cuenta de Free Fire. Comprueba el nombre antes de confirmar.</p><form id="zx-diamond-intent"><label>ID de Free Fire<input name="uid" inputmode="numeric" pattern="[0-9]{5,15}" minlength="5" maxlength="15" required></label><button type="submit">VERIFICAR ID</button><button type="button" id="zx-confirm-diamond-player" hidden>CONFIRMAR MI CUENTA</button></form><p id="zx-diamond-intent-status" role="status"></p>`;
     document.body.append(dialog);dialog.showModal();
-    dialog.querySelector("#zx-diamond-intent").onsubmit=e=>{e.preventDefault();dialog.querySelector("#zx-diamond-intent-status").textContent="ID confirmado por ti. Verificación con el proveedor pendiente. Los pagos y las recargas de este catálogo aún no están habilitados.";};
+    const intent=dialog.querySelector("#zx-diamond-intent"), uidInput=intent.elements.uid;
+    const status=dialog.querySelector("#zx-diamond-intent-status"), confirm=dialog.querySelector("#zx-confirm-diamond-player");
+    let verifiedUid="", requestVersion=0;
+    uidInput.addEventListener("input",()=>{verifiedUid="";requestVersion++;confirm.hidden=true;status.textContent="";});
+    intent.onsubmit=async e=>{
+      e.preventDefault();const uid=uidInput.value.trim();if(!/^[0-9]{5,15}$/.test(uid))return;
+      const version=++requestVersion, submit=intent.querySelector('[type="submit"]');
+      verifiedUid="";confirm.hidden=true;submit.disabled=true;status.textContent="Consultando jugador…";
+      try {
+        const response=await fetch(`${ZEROX_API}/api/player?uid=${encodeURIComponent(uid)}&region=br`,{signal:AbortSignal.timeout(15000)});
+        const result=await response.json();
+        if(version!==requestVersion||!dialog.isConnected)return;
+        if(!response.ok||!result.ok)throw new Error("lookup");
+        const info=result.player?.basicInfo;
+        if(!info?.nickname)throw new Error("incomplete");
+        if(info.accountId && String(info.accountId)!==uid)throw new Error("mismatch");
+        verifiedUid=uid;status.textContent=`Jugador: ${info.nickname} · ID: ${uid}. ¿Esta es tu cuenta?`;confirm.hidden=false;
+      } catch(error) {
+        if(version===requestVersion&&dialog.isConnected)status.textContent="No pudimos verificar la cuenta. Revisa el ID y vuelve a intentarlo.";
+      } finally {submit.disabled=false;}
+    };
+    confirm.onclick=()=>{
+      if(!verifiedUid||verifiedUid!==uidInput.value.trim())return;
+      confirm.hidden=true;
+      status.textContent="Cuenta confirmada. El pago y la entrega de diamantes todavía no están habilitados. No se ha realizado ningún cobro.";
+    };
     return;
   }
 
