@@ -1259,6 +1259,7 @@ function openCheckout(id) {
 
   if (!current) return;
   if(current.zxDiamond){
+    $("#zx-player-confirm-dialog")?.remove();
     $("#zx-diamond-dialog")?.remove();
     const product=current;
     const dialog=document.createElement("dialog");dialog.id="zx-diamond-dialog";
@@ -1267,7 +1268,25 @@ function openCheckout(id) {
     const intent=dialog.querySelector("#zx-diamond-intent"), uidInput=intent.elements.uid;
     const status=dialog.querySelector("#zx-diamond-intent-status"), confirm=dialog.querySelector("#zx-confirm-diamond-player");
     const card=dialog.querySelector("#zx-diamond-player-card"),payments=dialog.querySelector("#zx-diamond-payment"),pay=dialog.querySelector("#zx-mp-pay"),payLink=dialog.querySelector("#zx-mp-open"),note=dialog.querySelector("#zx-mp-note");
+    const playerDialog=document.createElement("dialog");
+    playerDialog.id="zx-player-confirm-dialog";
+    playerDialog.setAttribute("aria-labelledby","zx-player-confirm-title");
+    playerDialog.innerHTML='<h2 id="zx-player-confirm-title">¿Esta es tu cuenta?</h2><div id="zx-player-confirm-content"></div><div class="zx-player-confirm-actions"><button type="button" id="zx-player-yes">Sí, es mi cuenta</button><button type="button" id="zx-player-no">No es mi cuenta</button></div>';
+    document.body.append(playerDialog);
+    const playerContent=playerDialog.querySelector("#zx-player-confirm-content");
     let verifiedUid="", requestVersion=0,confirmedUid="",attempt="";
+    const rejectPlayer=()=>{
+      confirmedUid="";verifiedUid="";attempt="";pay.disabled=true;payLink.hidden=true;
+      payments.hidden=false;confirm.hidden=true;
+      status.textContent="Cuenta no confirmada. Corrige el ID y vuelve a verificar.";
+      note.textContent="Confirma la cuenta correcta para continuar con el pago.";
+      if(playerDialog.open)playerDialog.close();
+      uidInput.focus();
+    };
+    playerDialog.querySelector("#zx-player-no").onclick=rejectPlayer;
+    playerDialog.querySelector("#zx-player-yes").onclick=()=>{confirm.click();};
+    playerDialog.addEventListener("cancel",event=>{event.preventDefault();rejectPlayer();});
+    dialog.addEventListener("close",()=>{requestVersion++;playerDialog.remove();},{once:true});
     uidInput.addEventListener("input",()=>{verifiedUid="";confirmedUid="";attempt="";requestVersion++;confirm.hidden=true;payments.hidden=true;payLink.hidden=true;card.replaceChildren();status.textContent="";});
     intent.onsubmit=async e=>{
       e.preventDefault();const uid=uidInput.value.trim();if(!/^[0-9]{5,15}$/.test(uid))return;
@@ -1281,8 +1300,11 @@ function openCheckout(id) {
         const info=result.player?.basicInfo||{},nickname=info.nickname||result.player?.nickname;
         if(!nickname)throw new Error("incomplete");
         if(info.accountId && String(info.accountId)!==uid)throw new Error("mismatch");
-        card.innerHTML=renderFreeFireCard(result.player,uid);
-        verifiedUid=uid;status.textContent=`Jugador: ${nickname} · ID: ${uid}. ¿Esta es tu cuenta?`;confirm.hidden=false;
+        playerContent.innerHTML=renderFreeFireCard(result.player,uid);
+        playerContent.querySelector(".zx-ff-disclaimer")?.remove();
+        playerContent.querySelectorAll("img").forEach(image=>image.addEventListener("error",()=>{image.hidden=true;},{once:true}));
+        verifiedUid=uid;status.textContent=`Jugador: ${nickname} · ID: ${uid}. Pendiente de tu confirmación.`;
+        playerDialog.showModal();
       } catch(error) {
         if(version===requestVersion&&dialog.isConnected)status.textContent="No pudimos verificar la cuenta. Revisa el ID y vuelve a intentarlo.";
       } finally {submit.disabled=false;}
@@ -1291,6 +1313,8 @@ function openCheckout(id) {
       if(!verifiedUid||verifiedUid!==uidInput.value.trim())return;
       confirm.hidden=true;
       confirmedUid=verifiedUid;payments.hidden=false;
+      if(playerDialog.open)playerDialog.close();
+      payments.scrollIntoView({block:"nearest"});
       const founder=zeroxUser?.isFounder===true;
       pay.disabled=!founder;
       status.textContent="Cuenta confirmada. Revisa los datos del jugador antes de continuar.";
