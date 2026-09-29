@@ -1,3 +1,4 @@
+import { mpTestRoute } from "./payments/mercadopago-test.mjs";
 import { diamondRoute } from "./diamonds/routes.mjs";
 import { resellerRoute } from "./resellers.js";
 // Immutable account ID, assigned only after the account owner verifies it.
@@ -196,6 +197,11 @@ export default {
       }
 
       const url = new URL(request.url);
+      if(url.pathname.startsWith("/api/payments/mercadopago/test/")){
+        let user=null;
+        if(!url.pathname.endsWith("/webhook")){await authSchema(env);user=await currentUser(request,env);}
+        return await mpTestRoute(request,env,url,user,json);
+      }
       if(url.pathname.startsWith("/api/diamonds/")){
         let user=null;
         if(env.DIAMOND_ORDER_DRAFTS_ENABLED==='true'&&url.pathname.includes('/orders')){await authSchema(env);user=await currentUser(request,env);}

@@ -5,7 +5,7 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 const out = join(root, 'dist');
 // Explicit application entrypoints. Never publish cloudflare/, tests/, docs/ or .git/.
 const files = [
-  'index.html', 'admin.html', 'manage.html', 'profile.html',
+  'payment-test.html', 'payment-test.js', 'index.html', 'admin.html', 'manage.html', 'profile.html',
   'app.js', 'diamonds.js', 'diamond-catalog.js', 'diamond-collection.js',
   'payments-config.js', 'resellers.js', 'resellers-admin.js', 'manage.js', 'profile.js',
   'styles.css', 'diamond-collection.css', 'responsive.css', 'manage.css', 'profile.css',
