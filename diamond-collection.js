@@ -1,9 +1,9 @@
 /* Visual metadata only. Product IDs, quantities, prices and orders live elsewhere. */
 (() => {
-  const universes={rz:'RE:ZERO',bl:'BLUE LOCK',cm:'CHAINSAW MAN',dd:'DANDADAN',jjk:'JUJUTSU KAISEN',aot:'ATTACK ON TITAN',sl:'SOLO LEVELING',op:'ONE PIECE',zx:'ZERO’X STORE'};
+  const universes={rz:'RE:ZERO',bl:'BLUE LOCK',cm:'CHAINSAW MAN',dd:'DANDADAN',jjk:'JUJUTSU KAISEN',aot:'ATTACK ON TITAN',sl:'SOLO LEVELING',op:'ONE PIECE',spy:'SPY × FAMILY',agk:'AKAME GA KILL!',zx:'ZERO’X STORE'};
   const ranks=['','ESENCIAL','PREMIUM','ÉPICA','MÍTICA','LEGENDARIA','SUPREME'];
   const tierFor=amount=>ZXDiamondCatalog.find(p=>p.diamonds===amount)?.tier||1;
-  const entries=ZXDiamondCatalog.map(p=>Object.freeze({amount:p.diamonds,character:p.character,universe:p.universe,accent:p.tier===6?'255,205,100':p.tier>=5?'183,120,255':'104,168,255',tier:p.tier,image:p.image,imageSmall:p.image.replace('.webp','-320.webp'),ready:p.imageReady,edition:p.diamonds===50446||p.diamonds===100892}));
+  const entries=ZXDiamondCatalog.map(p=>Object.freeze({amount:p.diamonds,character:p.character,universe:p.universe,accent:p.accent||'104,168,255',tier:p.tier,image:p.image,imageSmall:p.image.replace('.webp','-320.webp'),ready:p.imageReady,edition:p.diamonds===50446||p.diamonds===100892}));
   const byAmount = new Map(entries.map(item => [item.amount,item]));
   const escape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   function forProduct(product) {
