@@ -28,6 +28,8 @@
   if(!token)throw Error(errors.FOUNDER_REQUIRED);
   const b=await api('/status');
   for(const p of globalThis.ZXDiamondCatalog){const o=document.createElement('option');o.value=p.id;o.textContent=p.diamonds.toLocaleString('es-MX')+' 💎 — $'+p.salePriceMXN.toLocaleString('es-MX')+' MXN';$('product').append(o);}
+  $('product').onchange=()=>{const p=globalThis.ZXDiamondCatalog.find(p=>p.id===$('product').value);if(p){$('summary-amount').textContent=p.diamonds.toLocaleString('es-MX')+' 💎';$('summary-price').textContent='$'+p.salePriceMXN.toLocaleString('es-MX');}};
+  $('product').onchange();$('access-note').hidden=true;
   $('controls').hidden=false;$('create').disabled=!b.tokenConfigured;
   say(b.tokenConfigured?'Secreto detectado. '+(b.webhookConfigured?'Notificaciones configuradas.':'Falta configurar la firma de Webhooks; puedes consultar el resultado manualmente.'):'Falta el secreto MP_ACCESS_TOKEN_TEST.');
   if(/^[a-f0-9-]{36}$/.test(attempt)){remember(attempt);$('refresh').click();}else attempt='';
