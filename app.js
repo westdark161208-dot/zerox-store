@@ -478,6 +478,7 @@ function authMessage(error) {
 function renderZeroXAccount() {
   const guest = $("#account-guest"), user = $("#account-user"), profile = $("#open-account");
   if (!guest || !user) return;
+  window.zxResetAccountServices?.();
   guest.hidden = !!zeroxUser;
   user.hidden = !zeroxUser;
   if ($("#account-title")) $("#account-title").textContent = zeroxUser ? "MI PERFIL" : "MI CUENTA";

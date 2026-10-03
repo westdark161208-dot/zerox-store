@@ -121,3 +121,8 @@
 .footer .zx-origin {margin:24px auto 0;padding:18px 16px 0;border-top:1px solid #7289be30;text-align:center;line-height:1.6}
 .footer .zx-origin span {display:block;color:#b7bfd0;font-size:12px;letter-spacing:.12em}
 .footer .zx-origin strong {display:block;color:#ff6477;font-size:14px;letter-spacing:.02em}
+.zx-service-list {list-style:none;padding:0;margin:16px 0}
+.zx-service-list li {display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:16px 0;border-bottom:1px solid #7289be30}
+.zx-service-list small {display:block;flex-basis:100%;color:#b9c7e1;overflow-wrap:anywhere}
+#account-modal #zx-wallet-balance {font:700 clamp(24px,6vw,36px)/1.4 system-ui;color:#c2d4ff}
+#account-modal .zx-service-list button {min-height:44px}

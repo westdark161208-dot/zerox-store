@@ -26,3 +26,12 @@
 - Pruebas nuevas: 11 casos de seguridad, rutas Worker, proveedor y ledger aprobados. Regresiones previas aprobadas.
 - Detalle de archivos, condiciones de activación y pendientes: BACKEND-FOUNDATIONS.md.
 - No incluye passkeys/step-up ni sesión administrativa separada; no afirmar que la fase completa de seguridad está terminada.
+
+## Incremento 3 — perfil: wallet y sesiones
+- index.html: secciones Saldo Zero’X y sesiones dentro del perfil privado; sin botones de recarga/compra no habilitados.
+- account-services.js: consulta autenticada de wallet/historial y sesiones; revocación individual/todas con confirmación; respuestas tardías descartadas al cambiar o cerrar sesión. No persiste datos privados.
+- app.js: invalida vistas privadas al cambiar el estado de cuenta; flujo existente de logout conservado.
+- responsive.css: listas con divisores, importes legibles en MXN y botones de sesión.
+- scripts/build-pages.mjs: incluye el nuevo módulo público; backend/docs/pruebas siguen excluidos.
+- tests/account-services.test.mjs: 3 pruebas aprobadas (respuesta tardía, wallet desactivada, marcador de sesión). Regresiones worker-security y wallet aprobadas; sintaxis y compilación correctas.
+- Revisión visual móvil/escritorio aún pendiente. No desplegado en producción.

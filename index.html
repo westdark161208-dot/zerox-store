@@ -34,7 +34,7 @@
   >
   <link rel="stylesheet" href="./styles.css?v=36">
   <link rel="stylesheet" href="./diamond-collection.css?v=4">
-  <link rel="stylesheet" href="./responsive.css?v=5">
+  <link rel="stylesheet" href="./responsive.css?v=6">
   <script>
   /* Zero'X emergency cache reset: keep the storefront accessible even if app JS fails */
   if ('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister();});}).catch(function(){});
@@ -1159,6 +1159,22 @@
         </div>
       </details>
       <section class="zx-profile-shop zx-style-gallery"><h3>✦ Banners y marcos</h3><p>Elige tu estilo. Puedes combinar un banner con tu foto y un marco desbloqueado.</p><h4>Banners</h4><div id="zx-banner-gallery" class="zx-banner-gallery"></div><h4>Avatares</h4><div id="zx-avatar-gallery" class="zx-avatar-gallery"></div><h4>Marcos por nivel</h4><div id="zx-frame-gallery" class="zx-frame-gallery"></div><button type="button" id="zx-gallery-save" class="zx-profile-save">Guardar mi estilo</button><p id="zx-gallery-status" role="status" aria-live="polite"></p></section>
+      <section class="zx-account-panel" aria-labelledby="zx-wallet-title">
+        <h3 id="zx-wallet-title">Saldo Zero’X</h3>
+        <p id="zx-wallet-status" role="status" aria-live="polite">Consulta tu saldo disponible en pesos mexicanos.</p>
+        <strong id="zx-wallet-balance" hidden></strong>
+        <p>El saldo de revendedores se administra por separado.</p>
+        <button type="button" id="zx-wallet-refresh">Consultar saldo e historial</button>
+        <ol id="zx-wallet-movements" class="zx-service-list" aria-label="Últimos movimientos"></ol>
+      </section>
+      <section class="zx-account-panel" aria-labelledby="zx-sessions-title">
+        <h3 id="zx-sessions-title">Seguridad · sesiones</h3>
+        <p>Revisa tus accesos y cierra las sesiones que ya no utilices.</p>
+        <button type="button" id="zx-sessions-refresh">Consultar sesiones</button>
+        <p id="zx-sessions-status" role="status" aria-live="polite"></p>
+        <ul id="zx-session-list" class="zx-service-list" aria-label="Sesiones activas"></ul>
+        <button type="button" id="zx-sessions-revoke-all" hidden>Cerrar todas mis sesiones</button>
+      </section>
       <button type="button" id="account-orders">📋 MIS PEDIDOS</button>
       <button type="button" id="logout-account" class="auth-secondary">CERRAR SESIÓN</button>
     </div>
@@ -1287,8 +1303,9 @@
 <script src="./diamonds.js?v=1" defer></script>
 <script src="./diamond-catalog.js?v=2" defer></script>
 <script src="./diamond-collection.js?v=4" defer></script>
-<script src="./app.js?v=46" defer></script>
+<script src="./app.js?v=47" defer></script>
 <script src="./resellers.js?v=3" defer></script>
+<script src="./account-services.js?v=1" defer></script>
 
 </body>
 </html>
