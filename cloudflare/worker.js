@@ -1,3 +1,4 @@
+import {securityRoute} from "./security/sessions.mjs";
 import {controlRoute} from "./control/routes.mjs";
 import {editorRoute} from "./editor/catalog.mjs";
 import { mpTestRoute } from "./payments/mercadopago-test.mjs";
@@ -86,8 +87,8 @@ async function currentUser(request,env){
   const m=(request.headers.get("Authorization")||"").match(/^Bearer\s+(.+)$/i);
   if(!m)return null;
   const tokenHash=await digest(m[1].trim());
-  const user=await env.DB.prepare("SELECT u.id,u.email,u.username,u.status,u.created_at,p.display_name,p.avatar_url,p.xp,p.level FROM zx_sessions s JOIN zx_users u ON u.id=s.user_id LEFT JOIN zx_profiles p ON p.user_id=u.id WHERE s.token_hash=? AND s.revoked_at IS NULL AND s.expires_at>? LIMIT 1").bind(tokenHash,new Date().toISOString()).first();
-  return user ? {...user,isFounder:!!FOUNDER_USER_ID && user.id===FOUNDER_USER_ID} : null;
+  const user=await env.DB.prepare("SELECT s.id AS sessionId,u.id,u.email,u.username,u.status,u.created_at,p.display_name,p.avatar_url,p.xp,p.level FROM zx_sessions s JOIN zx_users u ON u.id=s.user_id LEFT JOIN zx_profiles p ON p.user_id=u.id WHERE s.token_hash=? AND s.revoked_at IS NULL AND s.expires_at>? LIMIT 1").bind(tokenHash,new Date().toISOString()).first();
+  return user && user.status === "active" ? {...user,isFounder:!!FOUNDER_USER_ID && user.id===FOUNDER_USER_ID} : null;
 }
 
 const CATALOG_SECTIONS = ["accounts", "clans", "honor"];
@@ -212,6 +213,7 @@ export default {
       if(url.pathname.startsWith("/api/resellers/")||url.pathname.startsWith("/api/admin/resellers")){await authSchema(env);return await resellerRoute(request,env,url,await currentUser(request,env),json);}
       if(url.pathname.startsWith("/api/content/")||url.pathname.startsWith("/api/admin/content/"))return await contentRoutes(request,env,url);
 
+      if(url.pathname.startsWith('/api/security/')){await authSchema(env);return await securityRoute(request,env,url,await currentUser(request,env),json);}
       if(url.pathname.startsWith('/api/admin/control/')){await authSchema(env);return await controlRoute(request,env,url,await currentUser(request,env),json);}
       if(url.pathname.startsWith('/api/admin/store-editor')||url.pathname==='/api/store-editor/catalog'){
         await authSchema(env);
