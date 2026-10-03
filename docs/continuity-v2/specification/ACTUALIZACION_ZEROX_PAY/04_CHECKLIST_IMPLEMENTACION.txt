@@ -1,0 +1,43 @@
+CHECKLIST OBLIGATORIO PARA WORK — ZERO'X PAY
+
+ANTES DE TOCAR CODIGO
+[ ] Leer paquete base y actualización completa.
+[ ] Inspeccionar repo real y despliegue actual.
+[ ] Identificar framework/backend/base de datos actuales.
+[ ] Mapear login, usuarios, pedidos, pagos y APIs existentes.
+[ ] Identificar integración Mercado Pago actual y qué falta para producción.
+[ ] Revisar Recargas America sin inventar endpoints.
+[ ] Crear punto de restauración/branch o estrategia de rollback.
+[ ] Enumerar archivos exactos a modificar.
+
+IMPLEMENTACION POR ETAPAS
+[ ] Modelo de datos/ledger Wallet.
+[ ] Servicio Wallet independiente de UI.
+[ ] Adaptador Mercado Pago y webhooks idempotentes.
+[ ] Métodos adicionales solo tras validar documentación/cuenta.
+[ ] Adaptador de proveedor separado del adaptador de pago.
+[ ] Provider Wallet Manager inicialmente seguro/solo lectura.
+[ ] Zero'X Pay en Control.
+[ ] Selector país/moneda.
+[ ] Footer de métodos activos.
+
+VALIDACION
+[ ] Pago duplicado no duplica saldo.
+[ ] Webhook repetido no duplica saldo.
+[ ] Pago fallido no acredita.
+[ ] Usuario no puede alterar saldo desde cliente.
+[ ] Usuario normal no accede a Zero'X Control.
+[ ] Secretos no aparecen en bundle/frontend/Git/logs.
+[ ] Compra con wallet genera trazabilidad.
+[ ] Fallo de proveedor tiene compensación/estado recuperable.
+[ ] Responsive Android/escritorio.
+[ ] Login, perfil, catálogo y funciones previas siguen funcionando.
+[ ] Rollback disponible.
+
+PROHIBIDO
+[ ] NO borrar funciones existentes para simplificar.
+[ ] NO reconstruir desde cero.
+[ ] NO introducir API keys reales en código.
+[ ] NO asumir capacidades de Recargas America sin verificarlas.
+[ ] NO mezclar saldo del usuario con saldo del proveedor.
+[ ] NO usar datos de ejemplo como productivos.

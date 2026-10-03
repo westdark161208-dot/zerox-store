@@ -1,0 +1,41 @@
+PROVEEDORES, RECARGAS AMERICA Y FONDOS
+
+PRINCIPIO
+El pago del cliente y el pago/fondeo del proveedor son subsistemas distintos.
+
+RECARGAS AMERICA
+No asumir que la API permite pagar cada orden directamente con USDT externo ni saltarse el saldo de su panel. Antes de implementar, inspeccionar la documentación/API REAL disponible y determinar:
+- endpoint de balance;
+- endpoint de catálogo/precios;
+- endpoint de crear orden;
+- consulta de estado;
+- cancelación/reembolso si existe;
+- webhooks/callbacks si existen;
+- mecanismo de fondeo;
+- moneda de balance;
+- autenticación/firma;
+- idempotencia;
+- límites y rate limits.
+
+Si la API funciona con saldo prefondeado, el flujo esperado será:
+Cliente paga a Zero'X -> Zero'X confirma -> orden -> API Recargas America -> proveedor descuenta del saldo Zero'X en su plataforma.
+
+No almacenar claves reales en repositorio ni documentación.
+
+PROVIDER WALLET MANAGER
+Zero'X Control debe poder evolucionar a una vista de proveedores con:
+- nombre;
+- estado;
+- moneda;
+- saldo reportado si API lo permite;
+- última sincronización;
+- productos/regiones soportadas;
+- errores recientes;
+- umbral de saldo bajo;
+- modo activo/pausado;
+- salud de integración.
+
+No hardcodear saldos ficticios como datos reales.
+
+ROUTING FUTURO
+Cuando dos proveedores soporten el mismo producto, preparar arquitectura para selección por reglas configurables: disponibilidad, región, costo, estado de integración y restricciones comerciales. No activar routing automático complejo hasta tener pruebas y estrategia de fallback.

@@ -15,3 +15,20 @@ body{background:#050506}.avatar{border-radius:13px}.frame-steel{border-color:#99
 @media(forced-colors:active){#public-name.founder-name span{color:CanvasText!important}}
 
 #public-name.founder-name{color:#ff3049!important;background:none!important;-webkit-text-fill-color:#ff3049!important;-webkit-text-stroke:1px #080808;paint-order:stroke fill;text-shadow:1px 1px 0 #000,-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000;filter:none;animation:none!important}
+/* Continuity v2: quieter public profile, with the existing avatar and frame intact. */
+body .public-card,body .search-card,body .empty-state {
+  background:transparent;border:0;border-radius:0;box-shadow:none;
+}
+body .public-card {padding:0}
+body :is(.bio-card,.favorites-card,.level-help) {
+  border:0;border-top:1px solid #7289be40;border-radius:0;
+  background:transparent;box-shadow:none;padding:22px 0;
+}
+body .data-grid>div {
+  border:0;border-inline-start:1px solid #7289be40;border-radius:0;
+  background:transparent;box-shadow:none;
+}
+body :is(input,button,a,summary):focus-visible {outline:2px solid #b4c7ff;outline-offset:4px}
+.zx-origin {margin:22px 0 0;line-height:1.6;letter-spacing:.02em}
+.zx-origin span {display:block;color:#b7bfd0;font-size:12px}
+.zx-origin strong {display:block;color:#ff6477;font-size:14px}

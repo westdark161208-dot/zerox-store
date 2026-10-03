@@ -1,0 +1,226 @@
+
+OBJETIVO
+Este paquete existe para reanudar Zero'X Store en ChatGPT Work sin empezar desde cero, sin reemplazar archivos innecesariamente y sin perder funciones, diseño, integraciones ni decisiones ya tomadas.
+
+REGLA MAESTRA
+Antes de modificar cualquier archivo: INVENTARIAR → ENTENDER → RESPALDAR → CAMBIAR EN PEQUEÑO → VALIDAR → CONTINUAR.
+No reconstruir la web desde cero. No sustituir componentes completos si basta un cambio localizado. No eliminar funciones existentes para “simplificar”.
+
+1. IDENTIDAD DEL PROYECTO
+Zero'X Store no se plantea como una web simple. Debe evolucionar hacia un ecosistema profesional:
+- Zero'X Store: experiencia pública, catálogo, compra y perfil.
+- Zero'X Editor: edición visual directa para la cuenta Creator.
+- Zero'X Control: panel administrativo privado.
+- Zero'X Wallet: saldo interno y libro de movimientos.
+- Zero'X Core: pedidos, proveedores, APIs, automatización y reglas.
+- Lunes Assistant: futura capa inteligente de operación.
+
+Repositorio conocido: westdark161208-dot/zerox-store
+Rama conocida del proyecto Store: main.
+IMPORTANTE: antes de escribir, Work debe inspeccionar el estado REAL del repositorio y confirmar estructura, cambios existentes y despliegue. No asumir que esta especificación describe nombres actuales de archivos.
+
+2. PROTOCOLO DE NO DAÑO
+Antes de implementar:
+1) Leer árbol del repositorio y archivos de configuración.
+2) Identificar framework, rutas, componentes, estilos, base de datos y backend actuales.
+3) Identificar qué funciones ya existen y dónde viven.
+4) Crear un punto de restauración/branch de trabajo antes de cambios importantes.
+5) No borrar código funcional sin demostrar que está obsoleto y tener reemplazo validado.
+6) No cambiar simultáneamente UI, autenticación, base de datos y pagos en una sola modificación.
+7) Mantener secretos fuera del repositorio. Nunca insertar tokens/API keys en frontend o commits.
+8) Validar versión móvil y escritorio después de cada cambio visual.
+9) Validar login, registro, perfil, catálogo y flujo de compra después de cambios compartidos.
+10) Documentar archivos modificados y motivo de cada cambio.
+11) Si hay conflicto entre esta especificación y el código actual, conservar primero lo funcional y reportar el conflicto antes de sustituirlo.
+12) No alterar producción sin una ruta de rollback.
+
+3. REDISEÑO DEL PERFIL
+Meta: perfil más limpio, continuo y profesional.
+- Reducir recuadros/tarjetas visuales grandes.
+- Separar áreas principalmente mediante títulos/subtítulos, espaciado, divisores discretos y acentos de color.
+- Mantener estética Zero'X: negro/azul oscuro, neón morado/azul, metal, profundidad y sombras sin saturación.
+- Mantener identidad, avatar, banner, insignias, marcos, nivel, saldo, pedidos y personalización existentes cuando estén implementados.
+Secciones sugeridas:
+Cuenta / Saldo Zero'X / Nivel y beneficios / Personalización / Compras y pedidos / Seguridad.
+No convertir todo en tarjetas.
+
+4. ORIGEN DE ZERO'X
+Agregar al final de la página una firma de origen sobria y permanente.
+Texto principal:
+Iztapalapa, Ciudad de México
+Debe resaltarse en rojo.
+México debe quedar visualmente en alto como país de origen, sin convertir el footer en publicidad invasiva.
+
+5. ZERO'X EDITOR
+El Editor NO será un dashboard separado. Será un modo de edición sobre la propia tienda.
+Solo Creator/roles autorizados pueden activarlo.
+Flujo:
+Zero'X Store → Activar Editor → seleccionar elemento → editar → previsualizar → guardar borrador/publicar.
+
+Debe permitir, según el tipo de elemento:
+- título y subtítulo;
+- precio;
+- imagen;
+- descripción;
+- disponibilidad/estado;
+- categoría;
+- región;
+- proveedor asociado;
+- orden;
+- banners, carruseles y anuncios;
+- datos comerciales de fichas.
+
+NO debe editar desde UI:
+- arquitectura;
+- efectos complejos;
+- lógica crítica;
+- autenticación;
+- APIs/secrets;
+- seguridad;
+- infraestructura.
+Eso seguirá mediante código/Git.
+
+Toda edición debe validarse en backend. Ocultar un botón en frontend NO es seguridad.
+
+6. ZERO'X CONTROL — PANEL ADMINISTRATIVO
+Debe ser una experiencia distinta y profesional, accesible mediante icono exclusivo para cuentas autorizadas.
+No limitarlo a Free Fire.
+
+Vista general:
+- ventas/pedidos;
+- stock disponible/reservado/pausado;
+- productos agotados;
+- proveedores activos y salud;
+- automatizaciones;
+- pagos;
+- errores;
+- alertas;
+- regiones;
+- usuarios/revendedores;
+- wallet;
+- métricas y gráficas.
+
+Ejemplo visual, NO datos reales:
+Stock Zero'X en vivo
+Diamantes: 482,750
+Pases Booyah: 1,840
+Cajas EVO: 12,420
+Tokens: 51,300
+México/LATAM — Saludable
+USA — Saludable
+Proveedores activos: 4/4
+Pedidos automáticos: ACTIVADOS
+
+Áreas administrativas:
+Dashboard / Operaciones / Inventario / Catálogo / Proveedores y APIs / Finanzas / Usuarios / Revendedores / Zero'X Wallet / Alertas / Sistema / Seguridad / Lunes Assistant.
+
+Las métricas deben salir de datos reales; nunca hardcodear cifras de ejemplo como stock real.
+
+7. ZERO'X WALLET
+El saldo interno no debe ser solo un número editable.
+Implementar concepto de ledger/libro de movimientos.
+Cada movimiento debe poder registrar:
+- ID único;
+- usuario;
+- tipo/concepto;
+- monto;
+- saldo anterior;
+- saldo posterior;
+- fecha;
+- origen;
+- pedido/transacción relacionada;
+- estado;
+- actor/sistema que lo generó.
+
+Evitar modificaciones directas de saldo sin trazabilidad. Diseñar idempotencia para pagos/webhooks para reducir dobles abonos.
+
+8. SEGURIDAD CREATOR/ADMIN
+No existe riesgo cero. Usar defensa por capas.
+Preferencia:
+- Passkey/WebAuthn como autenticación administrativa principal.
+- Autenticación reforzada (step-up) para acciones críticas.
+- Segundo autenticador/passkey o TOTP como respaldo.
+- Códigos de recuperación guardados fuera de la web.
+- Correo/SMS/WhatsApp principalmente para alertas o recuperación limitada, no como llave maestra.
+- Sesión administrativa separada y de duración limitada.
+- Reautenticación para cambios críticos.
+- Rate limiting e intentos fallidos controlados.
+- Registro de accesos y acciones administrativas.
+- Capacidad de cerrar todas las sesiones.
+- Notificación al añadir/eliminar credenciales.
+- RBAC/roles validados SIEMPRE en backend.
+- Cookies seguras HttpOnly/Secure/SameSite cuando corresponda.
+- CSRF, XSS, validación de entrada y autorización por endpoint.
+- Secrets únicamente en almacenamiento seguro del entorno, nunca frontend/Git.
+- No exponer stock privado, proveedores, márgenes, wallet o datos administrativos mediante endpoints públicos.
+
+Acciones que deben requerir step-up:
+cambiar credenciales, añadir administradores, modificar métodos de recuperación, alterar destino financiero, retiros/ajustes sensibles, acciones masivas, cambios críticos de proveedor.
+
+9. SECURITY CENTER
+Preparar área para:
+- dispositivos/passkeys autorizados;
+- sesiones activas;
+- accesos recientes;
+- intentos fallidos;
+- cambios administrativos;
+- auditoría;
+- cerrar todas las sesiones;
+- recuperación segura.
+
+10. LUNES ASSISTANT
+Reservar integración futura en Zero'X Control.
+No conectar ni otorgar permisos amplios hasta diseñar permisos y confirmaciones.
+Objetivo futuro:
+- consultar pedidos/errores/stock/márgenes;
+- resumir estado operativo;
+- detectar incidencias;
+- proponer acciones;
+- ejecutar acciones autorizadas con confirmación para operaciones sensibles.
+Lunes no debe tener acceso irrestricto a secretos.
+
+11. ORDEN DE IMPLEMENTACIÓN RECOMENDADO
+Fase 0: inventario, backup, mapa de arquitectura y pruebas base.
+Fase 1: limpieza visual del perfil + footer de origen.
+Fase 2: modelo de roles/permisos Creator/Admin y frontera de seguridad.
+Fase 3: Zero'X Editor en modo visual, empezando por contenido no crítico.
+Fase 4: Zero'X Control con datos de solo lectura.
+Fase 5: Wallet/ledger y auditoría.
+Fase 6: acciones administrativas controladas.
+Fase 7: passkeys, step-up y Security Center completos.
+Fase 8: proveedores, stock multi-producto, métricas y automatización.
+Fase 9: punto de integración de Lunes Assistant.
+Cada fase debe cerrarse con pruebas antes de iniciar la siguiente.
+
+12. PRUEBAS MÍNIMAS ANTES DE PUBLICAR
+- móvil Android;
+- escritorio;
+- login/logout;
+- registro si existe;
+- perfil;
+- permisos de usuario normal;
+- permisos Creator/Admin;
+- intento directo a rutas administrativas sin autorización;
+- catálogo y fichas;
+- imágenes;
+- precios;
+- flujo de compra;
+- pagos/webhooks cuando se toquen;
+- wallet cuando se toque;
+- proveedor/API cuando se toque;
+- rollback probado o claramente disponible.
+
+13. REGLAS PARA WORK
+Work debe:
+- trabajar sobre el estado actual, no sobre una reconstrucción imaginada;
+- mostrar primero qué encontró;
+- proponer archivos exactos a modificar;
+- hacer cambios pequeños y verificables;
+- conservar funciones existentes;
+- no inventar credenciales, endpoints ni esquemas de proveedor;
+- no usar datos de ejemplo como datos productivos;
+- pedir confirmación antes de migraciones destructivas, borrados, cambios de dominio, cambios de producción o modificaciones irreversibles;
+- mantener un CHANGELOG de lo hecho durante esta etapa.
+
+14. CRITERIO DE ÉXITO
+Zero'X Store debe sentirse como un sistema unificado: tienda para clientes, edición visual para Creator y centro de operaciones privado; cada capa comparte identidad pero respeta fronteras de permisos y seguridad.

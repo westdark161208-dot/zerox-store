@@ -1,0 +1,42 @@
+ZERO'X PAY — ESPECIFICACION DE ACTUALIZACION
+
+OBJETIVO
+Crear una capa financiera universal para Zero'X Store sin acoplarla a un proveedor concreto.
+
+1. ZERO'X WALLET
+Cada usuario registrado podrá tener saldo interno utilizable en cualquier artículo habilitado de la tienda, independientemente del proveedor final.
+
+El saldo NO debe implementarse como un campo libremente editable. Debe existir un ledger/libro de movimientos auditable.
+Campos mínimos sugeridos: transaction_id, user_id, type, amount, currency, previous_balance, resulting_balance, status, source, payment_reference, order_id, created_at, actor y clave de idempotencia.
+
+Estados a contemplar: pending, confirmed, failed, cancelled, refunded/reversed cuando corresponda.
+
+Inicialmente la wallet debe ser CERRADA: sirve para compras y devoluciones/créditos dentro de Zero'X Store. No habilitar transferencias P2P ni retiros a banco/cripto sin un diseño legal, antifraude y de seguridad específico.
+
+2. DOS CAPAS FINANCIERAS SEPARADAS
+A) Customer Payment Layer: cómo paga el cliente a Zero'X.
+B) Provider Settlement Layer: cómo Zero'X paga/consume saldo del proveedor.
+
+Nunca asumir que porque un cliente paga USDT el proveedor debe recibir exactamente ese pago.
+
+3. METODOS DE PAGO PREVISTOS
+- Mercado Pago como integración principal.
+- Tarjetas mediante procesador seguro/tokenización; nunca almacenar CVV o PAN sensible en Zero'X.
+- SPEI/transferencia cuando la integración disponible lo permita.
+- OXXO/efectivo cuando la integración disponible lo permita.
+- Binance Pay / USDT-Crypto, sujeto a cuenta merchant/API y disponibilidad regional.
+- Transferencia bancaria directa, con conciliación segura.
+- Felix Pago: validar documentación/API/condiciones antes de diseñar integración productiva.
+- PayPal: opcional, preparado como adaptador futuro; no obligatorio en primera fase.
+- Otros métodos futuros mediante adaptadores, sin reescribir Wallet.
+
+4. FLUJOS SOPORTADOS
+A) Agregar saldo: pago -> webhook/verificación servidor -> ledger -> saldo disponible.
+B) Compra directa: pago -> confirmación -> orden -> proveedor -> entrega.
+C) Compra con wallet: validar saldo -> reservar/debitar -> orden -> proveedor -> entrega o compensación/reembolso según resultado.
+
+5. ZERO'X CONTROL / ZERO'X PAY
+Crear una subsección administrativa Zero'X Pay con, progresivamente:
+Dashboard / Transacciones / Wallets / Depósitos / Reembolsos / Métodos de pago / Proveedores / Saldos de proveedores / Monedas y países / Webhooks / Alertas / Configuración.
+
+Empezar en solo lectura donde sea prudente. Acciones sensibles requieren permisos, auditoría y step-up.

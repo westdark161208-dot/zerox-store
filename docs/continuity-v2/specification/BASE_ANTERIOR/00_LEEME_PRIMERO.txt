@@ -1,0 +1,19 @@
+CONTINUAR ZERO'X STORE — INSTRUCCIÓN PARA CHATGPT WORK
+
+Adjunto el paquete “ZeroX_Store_Continuidad_Work_v1”. Léelo completo ANTES de modificar el repositorio.
+
+Objetivo: continuar el Zero'X Store existente, NO reconstruirlo.
+
+Regla obligatoria:
+INVENTARIAR → ENTENDER → RESPALDAR → CAMBIAR EN PEQUEÑO → VALIDAR → CONTINUAR.
+
+Primero inspecciona el estado actual del repositorio westdark161208-dot/zerox-store y compáralo con la especificación adjunta. No borres, reemplaces ni simplifiques funciones existentes. No introduzcas secretos en Git ni frontend.
+
+Antes del primer cambio entrégame:
+1. mapa actual del proyecto;
+2. funciones que ya existen relacionadas con Perfil, Editor/Admin, autenticación, pagos, catálogo y backend;
+3. archivos exactos que propones tocar en la primera fase;
+4. riesgos/conflictos encontrados;
+5. punto de restauración o estrategia de rollback.
+
+Después comienza únicamente con la primera fase segura indicada en la especificación. Haz cambios pequeños, verificables y documenta cada archivo modificado.
