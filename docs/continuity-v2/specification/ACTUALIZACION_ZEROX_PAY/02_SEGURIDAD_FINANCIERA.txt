@@ -1,0 +1,28 @@
+ZERO'X PAY — SEGURIDAD FINANCIERA
+
+1. SECRETOS
+Access tokens, API keys, signing secrets y credenciales solo en almacenamiento seguro del backend/entorno (por ejemplo secrets del despliegue). Nunca frontend, localStorage, HTML, JS público, Git o ZIP.
+
+2. WEBHOOKS
+- verificar firma/origen según proveedor;
+- idempotencia obligatoria;
+- no acreditar saldo solo porque el navegador diga 'pago exitoso';
+- persistir referencia externa y resultado de verificación;
+- tolerar reintentos sin doble abono;
+- registrar eventos para auditoría.
+
+3. WALLET
+- operaciones atómicas/transaccionales cuando la base lo permita;
+- impedir saldo negativo salvo regla explícita;
+- no permitir edición directa de balance desde UI;
+- ajustes manuales solo con rol autorizado, motivo, actor, timestamp y auditoría;
+- separar saldo pending/available cuando aplique.
+
+4. ADMIN
+Acciones críticas requieren step-up: cambiar destino financiero, credenciales, webhooks, ajustes manuales sensibles, reembolsos excepcionales, activar/desactivar proveedor y cambios de roles financieros.
+
+5. DATOS DE TARJETA
+No diseñar Zero'X para almacenar CVV ni datos completos de tarjeta. Utilizar tokenización/componentes del procesador de pagos.
+
+6. PRODUCCION
+Antes de sustituir credenciales de prueba por producción: backup, entorno/branch seguro, prueba controlada, verificación de webhooks, rollback y confirmación explícita. Nunca imprimir secretos completos en logs.

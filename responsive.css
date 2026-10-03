@@ -95,3 +95,29 @@
 #zx-player-no{background:#252335;border-color:#8d789d}
 #zx-player-confirm-dialog button:focus-visible{outline:3px solid #adceff;outline-offset:3px}
 #zx-diamond-dialog #zx-mp-pay{background:#009ee3;color:white}
+/* Continuity v2, phase 1: continuous profile sections; retain identity and controls. */
+#account-modal.zx-profile-page .zx-profile-section-title {
+  margin:24px 0 8px;font-size:18px;color:#e2e8ff;
+}
+#account-modal.zx-profile-page :is(.zx-profile-info,.zx-account-panel,.zx-profile-shop,.zx-profile-editor,.level-help) {
+  border:0;border-top:1px solid #7289be40;border-radius:0;
+  background:transparent;box-shadow:none;padding:22px 0!important;margin:18px 0!important;
+}
+#account-modal.zx-profile-page :is(.zx-profile-info-grid>div,.account-stats>div) {
+  border:0!important;border-radius:0;background:transparent!important;box-shadow:none!important;
+  padding:10px 12px!important;
+}
+#account-modal.zx-profile-page .account-stats>div+div {border-left:1px solid #7289be40!important}
+#account-modal.zx-profile-page .zx-profile-info-grid {gap:12px 20px}
+#account-modal.zx-profile-page .zx-panel-heading .zx-panel-symbol,
+#account-modal.zx-profile-page .zx-profile-info h3 span {
+  width:30px;height:30px;font-size:20px;border:0;background:transparent;box-shadow:none;color:#a9bcff;
+}
+#account-modal.zx-profile-page .zx-profile-editor summary {padding-inline:0}
+#account-modal.zx-profile-page .zx-profile-edit-body {padding-inline:0}
+#account-modal.zx-profile-page :is(input,select,textarea,button,a,summary):focus-visible {
+  outline:2px solid #b4c7ff;outline-offset:4px;
+}
+.footer .zx-origin {margin:24px auto 0;padding:18px 16px 0;border-top:1px solid #7289be30;text-align:center;line-height:1.6}
+.footer .zx-origin span {display:block;color:#b7bfd0;font-size:12px;letter-spacing:.12em}
+.footer .zx-origin strong {display:block;color:#ff6477;font-size:14px;letter-spacing:.02em}

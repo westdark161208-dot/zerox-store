@@ -1,0 +1,22 @@
+UI — PAISES, MONEDAS Y METODOS DE PAGO
+
+BARRA SUPERIOR
+Añadir selector compacto de país/moneda, por ejemplo: bandera + MXN.
+Separar conceptualmente country de currency; cambiar uno no debe falsear la ubicación del usuario.
+
+ANIMACION
+- móvil: panel/carrusel suave de abajo hacia arriba;
+- escritorio: transición lateral/horizontal o dropdown animado coherente con Zero'X;
+- respetar reduced-motion/accesibilidad cuando sea posible.
+
+La lista de países/monedas debe ser configurable y no hardcodear lógica financiera en el componente visual.
+
+METODOS POR REGION
+Mostrar solo métodos realmente habilitados para la región/configuración. No mostrar un método como disponible si el backend/procesador no lo soporta.
+
+FOOTER
+Antes de la firma 'Iztapalapa, Ciudad de México', agregar una franja visual sobria con iconos/logotipos de métodos efectivamente habilitados, por ejemplo Mercado Pago, tarjetas, SPEI, OXXO, Binance Pay y futuros métodos.
+No saturar el footer ni mostrar métodos todavía no disponibles como si estuvieran activos.
+
+ESTILO
+Mantener identidad Zero'X: oscuro, negro/azul profundo, metal/neón morado-azul, efectos moderados, responsive. Evitar cuadros grandes innecesarios.

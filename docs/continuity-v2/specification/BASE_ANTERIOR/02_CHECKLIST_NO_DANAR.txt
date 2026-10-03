@@ -1,0 +1,15 @@
+ZERO'X STORE — CHECKLIST ANTES DE CADA CAMBIO
+
+[ ] Estoy trabajando sobre el repositorio/estado correcto.
+[ ] Leí el archivo antes de modificarlo.
+[ ] Sé qué función existente depende de este archivo.
+[ ] Existe rollback/backup/commit previo.
+[ ] No estoy eliminando una función existente innecesariamente.
+[ ] No estoy exponiendo tokens, claves o secretos.
+[ ] El cambio es pequeño y tiene objetivo único.
+[ ] Probé móvil y escritorio si afecta UI.
+[ ] Probé permisos si afecta autenticación/admin.
+[ ] Probé compra/pago si afecta checkout.
+[ ] Probé datos/ledger si afecta wallet.
+[ ] Registré qué archivo cambié y por qué.
+[ ] Solo después de validar paso al siguiente cambio.

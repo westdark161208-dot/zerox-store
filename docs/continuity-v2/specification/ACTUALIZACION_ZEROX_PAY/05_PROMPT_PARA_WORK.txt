@@ -1,0 +1,7 @@
+PROMPT RECOMENDADO PARA CHATGPT WORK
+
+Continúa el proyecto Zero'X Store existente usando este paquete como especificación de continuidad. Lee primero 00_LEER_PRIMERO_ACTUALIZACION.txt y después todos los archivos en el orden indicado. El contenido de BASE_ANTERIOR sigue vigente y ACTUALIZACION_ZEROX_PAY lo amplía.
+
+NO empieces desde cero. Antes de modificar archivos, inspecciona el repositorio y entrégame: (1) mapa actual, (2) funciones ya existentes relacionadas con usuarios/perfil/admin/pagos/wallet/proveedores, (3) estado de Mercado Pago, (4) archivos exactos que propones tocar, (5) riesgos/conflictos, y (6) estrategia de backup/rollback.
+
+Después implementa únicamente la primera etapa segura. Haz cambios pequeños y verificables. No borres ni reemplaces funciones existentes innecesariamente. No inventes endpoints de proveedores y no introduzcas secretos en frontend, Git o documentación. Mantén un changelog de cada modificación y valida móvil/escritorio y regresiones antes de continuar.
