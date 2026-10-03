@@ -11,7 +11,9 @@
     // Match the exact amount, never a substring or the nearest package.
     const amount = Number(product.diamonds || (/^zx-diamonds-(\d+)$/.exec(product.id || '') || [])[1] || (product.name.match(/^[\d,]+/) || [''])[0].replaceAll(',',''));
     if (!Number.isSafeInteger(amount) || amount < 1) return null;
-    return byAmount.get(amount) || {amount,character:'Colección Zero’X',universe:'zx',accent:'125,150,255',tier:tierFor(amount),ready:false,edition:false};
+    const original=byAmount.get(amount);
+    if(original&&product.collectionOverride){const o=product.collectionOverride;return {...original,character:o.character,image:o.image,imageSmall:o.image,ready:true};}
+    return original || {amount,character:'Colección Zero’X',universe:'zx',accent:'125,150,255',tier:tierFor(amount),ready:false,edition:false};
   }
   function attributes(product) {
     const visual = forProduct(product);

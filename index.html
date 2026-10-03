@@ -40,6 +40,7 @@
   if ('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister();});}).catch(function(){});
   if ('caches' in window) caches.keys().then(function(keys){keys.forEach(function(k){caches.delete(k);});}).catch(function(){});
   </script>
+  <link rel="stylesheet" href="./store-editor.css?v=1">
 </head>
 
 <body>
@@ -1301,11 +1302,12 @@
   </div>
 <script src="./payments-config.js?v=1" defer></script>
 <script src="./diamonds.js?v=1" defer></script>
-<script src="./diamond-catalog.js?v=3" defer></script>
-<script src="./diamond-collection.js?v=5" defer></script>
+<script src="./diamond-catalog.js?v=4" defer></script>
+<script src="./diamond-collection.js?v=6" defer></script>
 <script src="./app.js?v=47" defer></script>
 <script src="./resellers.js?v=3" defer></script>
 <script src="./account-services.js?v=1" defer></script>
 
+<script src="./store-editor.js?v=1" defer></script>
 </body>
 </html>
