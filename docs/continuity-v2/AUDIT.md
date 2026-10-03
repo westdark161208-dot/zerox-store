@@ -1,6 +1,8 @@
 # Continuidad Zero’X Store v2 — auditoría y estado
 
 Fecha: 2026-10-03 UTC / 2026-10-02 México.
+Actualización: ver BACKEND-FOUNDATIONS.md para el incremento 2; esta auditoría describe la base inicial. MXN ya confirmado y documentación RA recibida.
+
 Fuente: ZIP v2 ZEROX PAY adjunto. Se leyeron todos los textos, el documento Word y el inventario del ZIP original incluido. Los textos de especificación se conservan en `specification/`.
 Base remota: `ae23197da28f73765f177653448ba29f0356e1ec`.
 Rama de trabajo: `work/zerox-continuidad-v2`. No se ha actualizado main, desplegado el Worker ni migrado D1.

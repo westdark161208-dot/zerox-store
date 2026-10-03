@@ -1,3 +1,4 @@
+import {can} from "./security/permissions.mjs";
 import "../diamonds.js";
 // All monetary values are integer MXN cents. Prices and permissions are server-owned.
 export const LEVELS=['Novato','Principiante','Élite','Maestro','Titán','Legendario','Zero’X Supreme'];
@@ -36,7 +37,7 @@ export async function state(env,user){
 export async function resellerRoute(request,env,url,user,json){
  if(!user||user.status!=='active')return json({ok:false,error:'LOGIN_REQUIRED'},401);
  const admin=url.pathname.startsWith('/api/admin/resellers');
- if(admin&&!user.isFounder)return json({ok:false,error:'FORBIDDEN'},403);
+ if(admin&&!can(user,'resellers.manage'))return json({ok:false,error:'FORBIDDEN'},403);
  await schema(env);
  const path=url.pathname.replace(admin?'/api/admin/resellers':'/api/resellers','');
  if(request.method==='GET'&&admin&&path===''){

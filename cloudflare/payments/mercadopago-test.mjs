@@ -1,3 +1,4 @@
+import {can} from "../security/permissions.mjs";
 // Isolated test ledger. Never calls the delivery engine or updates real orders.
 import {getProduct} from '../diamonds/catalog.mjs';
 const SITE='https://zerox-store.pages.dev';
@@ -44,7 +45,7 @@ export async function mpTestRoute(request,env,url,user,json){
    await reconcile(env,await mp(env,'/v1/payments/'+id));
    return json({ok:true});
   }
-  if(!user?.isFounder||user.status!=='active')return json({ok:false,error:'FOUNDER_REQUIRED'},403);
+  if(!can(user,'payments.test'))return json({ok:false,error:'FOUNDER_REQUIRED'},403);
   if(url.pathname.endsWith('/status')&&request.method==='GET')return json({ok:true,testOnly:true,tokenConfigured:!!env.MP_ACCESS_TOKEN_TEST,webhookConfigured:!!env.MP_WEBHOOK_SECRET_TEST,deliveryEnabled:false});
   await schema(env.DB);
   if(url.pathname.endsWith('/checkout')&&request.method==='POST'){

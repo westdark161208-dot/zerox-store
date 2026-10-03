@@ -1,3 +1,7 @@
+import {providerRoute} from "./providers/routes.mjs";
+import {walletRoute} from "./wallet/routes.mjs";
+import {can} from "./security/permissions.mjs";
+import {securityRoute} from "./security/sessions.mjs";
 import { mpTestRoute } from "./payments/mercadopago-test.mjs";
 import { diamondRoute } from "./diamonds/routes.mjs";
 import { resellerRoute } from "./resellers.js";
@@ -42,6 +46,8 @@ function json(data, status = 200) {
     status,
     headers: {
       "Content-Type": "application/json; charset=UTF-8",
+      "Cache-Control": "no-store",
+      "X-Content-Type-Options": "nosniff",
       ...corsHeaders
     }
   });
@@ -84,8 +90,8 @@ async function currentUser(request,env){
   const m=(request.headers.get("Authorization")||"").match(/^Bearer\s+(.+)$/i);
   if(!m)return null;
   const tokenHash=await digest(m[1].trim());
-  const user=await env.DB.prepare("SELECT u.id,u.email,u.username,u.status,u.created_at,p.display_name,p.avatar_url,p.xp,p.level FROM zx_sessions s JOIN zx_users u ON u.id=s.user_id LEFT JOIN zx_profiles p ON p.user_id=u.id WHERE s.token_hash=? AND s.revoked_at IS NULL AND s.expires_at>? LIMIT 1").bind(tokenHash,new Date().toISOString()).first();
-  return user ? {...user,isFounder:!!FOUNDER_USER_ID && user.id===FOUNDER_USER_ID} : null;
+  const user=await env.DB.prepare("SELECT s.id AS sessionId,u.id,u.email,u.username,u.status,u.created_at,p.display_name,p.avatar_url,p.xp,p.level FROM zx_sessions s JOIN zx_users u ON u.id=s.user_id LEFT JOIN zx_profiles p ON p.user_id=u.id WHERE s.token_hash=? AND s.revoked_at IS NULL AND s.expires_at>? LIMIT 1").bind(tokenHash,new Date().toISOString()).first();
+  return user && user.status === "active" ? {...user,isFounder:!!FOUNDER_USER_ID && user.id===FOUNDER_USER_ID} : null;
 }
 
 const CATALOG_SECTIONS = ["accounts", "clans", "honor"];
@@ -135,7 +141,7 @@ async function contentSchema(env){
 }
 async function contentRoutes(request,env,url){
  const admin=url.pathname.startsWith('/api/admin/content/');
- if(admin){await authSchema(env);const u=await currentUser(request,env);if(!u||u.status!=='active'||!u.isFounder)return json({ok:false,error:'FORBIDDEN'},403)}
+ if(admin){await authSchema(env);const u=await currentUser(request,env);if(!can(u,'content.manage'))return json({ok:false,error:'FORBIDDEN'},403)}
  await contentSchema(env);
  const base=admin?'/api/admin/content/':'/api/content/',path=url.pathname.slice(base.length);
  const media=k=>k?url.origin+'/api/catalog/media/'+encodeURIComponent(k):null;
@@ -197,6 +203,17 @@ export default {
       }
 
       const url = new URL(request.url);
+      if(url.pathname.startsWith("/api/wallet/") || url.pathname.startsWith("/api/admin/providers/")){
+        await authSchema(env);
+        const user=await currentUser(request,env);
+        return url.pathname.startsWith("/api/wallet/")
+          ? await walletRoute(request,env,url,user,json)
+          : await providerRoute(request,env,url,user,json);
+      }
+      if(url.pathname.startsWith("/api/security/")){
+        await authSchema(env);
+        return await securityRoute(request,env,url,await currentUser(request,env),json);
+      }
       if(url.pathname.startsWith("/api/payments/mercadopago/test/")){
         let user=null;
         if(!url.pathname.endsWith("/webhook")){await authSchema(env);user=await currentUser(request,env);}
@@ -342,7 +359,7 @@ export default {
         }
         if (!url.pathname.startsWith("/api/admin/catalog")) return json({ok:false,error:"NOT_FOUND"},404);
         const user = await currentUser(request,env);
-        if (!user || user.status !== "active" || user.isFounder !== true)
+        if (!can(user, "catalog.manage"))
           return json({ok:false,error:"FORBIDDEN"},403);
         if (!env.DB) return json({ok:false,error:"DB_BINDING_NOT_CONFIGURED"},503);
         await catalogSchema(env);
@@ -627,8 +644,7 @@ if (
     } catch (error) {
       return json({
         ok: false,
-        error: "INTERNAL_ERROR",
-        message: error.message
+        error: "INTERNAL_ERROR"
       }, 500);
     }
   }

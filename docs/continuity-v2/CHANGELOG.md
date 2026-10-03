@@ -15,3 +15,14 @@
 - No modificados backend, secretos, base de datos, saldos ni main.
 
 - Validación estática: IDs HTML existentes preservados; sintaxis de app.js/profile.js aprobadas. Build local aprobado (22 entradas públicas, sin medios recuperados); docs/backend excluidos.
+
+## Incremento 2 — fundamentos de backend, sin despliegue
+- MXN confirmado por usuario. Recibidos y leídos colección Postman y plugin RA.
+- Permisos centralizados; sesiones propias consultables y revocables con auditoría.
+- Cuentas deshabilitadas bloqueadas, JSON no-store y errores internos sin datos sensibles.
+- Service worker preparado para excluir API/datos privados si se reactiva; sigue desactivado.
+- Ledger MXN inmutable, atómico e idempotente, separado del saldo revendedor; API solo lectura y desactivada por defecto.
+- Recargas América: adaptador solo lectura de saldo/catálogo para Fundador; sin llamadas reales ni compras.
+- Pruebas nuevas: 11 casos de seguridad, rutas Worker, proveedor y ledger aprobados. Regresiones previas aprobadas.
+- Detalle de archivos, condiciones de activación y pendientes: BACKEND-FOUNDATIONS.md.
+- No incluye passkeys/step-up ni sesión administrativa separada; no afirmar que la fase completa de seguridad está terminada.

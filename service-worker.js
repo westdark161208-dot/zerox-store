@@ -1,4 +1,4 @@
-const CACHE_NAME = 'zerox-store-v8';
+const CACHE_NAME = 'zerox-store-v9';
 
 const APP_SHELL = [
   './',
@@ -35,10 +35,16 @@ self.addEventListener('activate', event => {
 
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
+  const url = new URL(event.request.url);
+  // Never cache private APIs, authorized requests, external resources or payment returns.
+  if (url.origin !== self.location.origin || url.pathname.startsWith('/api/') ||
+      event.request.headers.has('Authorization') || url.search ||
+      !/\.(?:css|js|png|jpe?g|webp|gif|svg|ico|woff2?)$/i.test(url.pathname)) return;
 
   event.respondWith(
     fetch(event.request)
       .then(response => {
+        if (!response.ok || /no-store|private/i.test(response.headers.get("Cache-Control") || "")) return response;
         const copy = response.clone();
 
         caches.open(CACHE_NAME).then(cache => {
@@ -49,7 +55,7 @@ self.addEventListener('fetch', event => {
       })
       .catch(() =>
         caches.match(event.request).then(
-          response => response || caches.match('./index.html')
+          response => response || Response.error()
         )
       )
   );
