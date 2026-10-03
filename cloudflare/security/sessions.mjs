@@ -8,10 +8,17 @@ export async function securitySchema(db) {
   await db.prepare('CREATE INDEX IF NOT EXISTS zx_security_events_user ON zx_security_events(user_id,created_at)').run();
 }
 
-export async function securityRoute(request, env, url, user, json) {
+export async function securityRoute(request, env, url, user, respond) {
+  const json=(data,status=200)=>{const response=respond(data,status);response.headers?.set('Cache-Control','no-store');return response;};
   if (!can(user, 'sessions.self')) return json({ok:false,error:'LOGIN_REQUIRED'},401);
   if (url.pathname === '/api/security/permissions' && request.method === 'GET') {
     return json({ok:true,permissions:permissionsFor(user),passkeysEnabled:false});
+  }
+  if (url.pathname === '/api/security/events' && request.method === 'GET') {
+    const exists=await env.DB.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='zx_security_events'").first();
+    if(!exists)return json({ok:true,events:[]});
+    const rows=await env.DB.prepare('SELECT action,created_at FROM zx_security_events WHERE user_id=? ORDER BY created_at DESC LIMIT 30').bind(user.id).all();
+    return json({ok:true,events:rows.results});
   }
   if (url.pathname === '/api/security/sessions' && request.method === 'GET') {
     const rows = await env.DB.prepare(`SELECT id,created_at,expires_at FROM zx_sessions
