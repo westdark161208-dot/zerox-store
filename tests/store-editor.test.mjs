@@ -15,3 +15,15 @@ test('new orders use published prices, existing order retries retain their origi
  await call(db,'/api/admin/store-editor/draft',{revision:0,product});await call(db,'/api/admin/store-editor/publish',{revision:1,confirm:true});
  assert.equal((await createOrder(db,order)).sale_price_cents,1800);assert.equal((await createOrder(db,{...order,requestKey:'editor_order_87654321'})).sale_price_cents,1900);
 });
+test('whole-store content accepts approved page targets and non-diamond products only',()=>{
+ assert.ok(validateEdit({...product,id:'d110-1',image:'',category:'Free Fire',region:'México',position:3}));
+ assert.ok(validateEdit({...product,id:'page:hero-tagline',image:'',priceCents:0}));
+ assert.equal(validateEdit({...product,id:'page:account-password'}),null);
+ assert.equal(validateEdit({...product,image:'assets/../secret.png'}),null);
+ assert.equal(validateEdit({...product,position:-1}),null);
+});
+test('managed product publication updates commercial fields while preserving stock',async()=>{
+ const db=database();db.sql.exec("CREATE TABLE zx_streaming(id TEXT PRIMARY KEY,name TEXT,description TEXT,price REAL,image_key TEXT,active INTEGER,stock INTEGER); INSERT INTO zx_streaming VALUES('12345678-1234-1234-1234-123456789abc','Antes','',20,NULL,1,7)");
+ const p={...product,id:'entity:streaming:12345678-1234-1234-1234-123456789abc',image:'',name:'Nuevo nombre',priceCents:2500};
+ assert.equal((await call(db,'/api/admin/store-editor/draft',{revision:0,product:p})).status,200);await call(db,'/api/admin/store-editor/publish',{revision:1,confirm:true});const saved=db.sql.prepare('SELECT * FROM zx_streaming').get();assert.equal(saved.price,25);assert.equal(saved.stock,7);assert.equal(saved.name,'Nuevo nombre');
+});
