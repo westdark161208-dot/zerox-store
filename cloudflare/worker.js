@@ -1,3 +1,4 @@
+import {controlRoute} from "./control/routes.mjs";
 import {editorRoute} from "./editor/catalog.mjs";
 import {providerRoute} from "./providers/routes.mjs";
 import {walletRoute} from "./wallet/routes.mjs";
@@ -228,6 +229,7 @@ export default {
       if(url.pathname.startsWith("/api/resellers/")||url.pathname.startsWith("/api/admin/resellers")){await authSchema(env);return await resellerRoute(request,env,url,await currentUser(request,env),json);}
       if(url.pathname.startsWith("/api/content/")||url.pathname.startsWith("/api/admin/content/"))return await contentRoutes(request,env,url);
 
+      if(url.pathname.startsWith('/api/admin/control/')){await authSchema(env);return await controlRoute(request,env,url,await currentUser(request,env),json);}
       if(url.pathname.startsWith('/api/admin/store-editor')||url.pathname==='/api/store-editor/catalog'){
         await authSchema(env);
         return await editorRoute(request,env,url,url.pathname.startsWith('/api/admin/')?await currentUser(request,env):null,json);

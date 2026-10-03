@@ -42,3 +42,7 @@
 - Corrected character metadata and old cross-package image references. 18,480 uses neutral “Colección rosa” pending exact character name.
 - Artwork lookup uses stable product quantity/ID before display name, so a later Editor rename does not detach artwork.
 - Prices, quantities, delivery recipes and payment flags unchanged. Editor publishing and production rollout remain separate pending work.
+
+
+## ZIP compliance review and read-only Control — 2026-10-03
+Rechecked the reattached ZIP (text contents unchanged), recorded published versus prepared functionality in REVIEW-2026-10-03.md, and added a founder-only read-only Control dashboard. Queries do not change operational tables or expose secrets. Unavailable metrics remain unavailable. Payments/provider activation remain pending.
