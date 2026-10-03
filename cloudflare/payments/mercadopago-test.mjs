@@ -1,3 +1,4 @@
+import {publishedProduct} from '../editor/catalog.mjs';
 // Isolated test ledger. Never calls the delivery engine or updates real orders.
 import {getProduct} from '../diamonds/catalog.mjs';
 const SITE='https://zerox-store.pages.dev';
@@ -48,7 +49,7 @@ export async function mpTestRoute(request,env,url,user,json){
   if(url.pathname.endsWith('/status')&&request.method==='GET')return json({ok:true,testOnly:true,tokenConfigured:!!env.MP_ACCESS_TOKEN_TEST,webhookConfigured:!!env.MP_WEBHOOK_SECRET_TEST,deliveryEnabled:false});
   await schema(env.DB);
   if(url.pathname.endsWith('/checkout')&&request.method==='POST'){
-   const b=await request.json(),product=getProduct(b.productId),id=request.headers.get('Idempotency-Key');
+   const b=await request.json(),product=await publishedProduct(env.DB,getProduct(b.productId)),id=request.headers.get('Idempotency-Key');
    if(!product||! /^[a-f0-9-]{36}$/.test(id||''))return json({ok:false,error:'INVALID_REQUEST'},400);
    const existing=await env.DB.prepare('SELECT * FROM zx_mp_test_orders WHERE id=? AND user_id=?').bind(id,user.id).first();
    if(existing){

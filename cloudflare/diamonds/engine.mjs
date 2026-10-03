@@ -1,10 +1,15 @@
+import {publishedProduct} from '../editor/catalog.mjs';
+import {getProduct} from './catalog.mjs';
 import {makeSnapshot} from './catalog.mjs';
 import {disabledProvider} from './provider.mjs';
 const now=()=>new Date().toISOString();
 const uuid=()=>crypto.randomUUID();
 export async function createOrder(db,{userId,requestKey,productId,playerId}){
  if(!userId||!/^[A-Za-z0-9_-]{16,100}$/.test(requestKey))throw Error('INVALID_REQUEST_KEY');
- const snapshot=makeSnapshot(productId,playerId),id=uuid(),at=now();
+ const existing=await db.prepare('SELECT * FROM zx_diamond_orders WHERE user_id=? AND request_key=?').bind(userId,requestKey).first();
+ if(existing){if(existing.product_id!==productId||existing.player_id!==playerId)throw Error('IDEMPOTENCY_CONFLICT');return existing;}
+ const product=await publishedProduct(db,getProduct(productId));if(!product)throw Error('PRODUCT_UNAVAILABLE');
+ const snapshot={...makeSnapshot(productId,playerId),salePriceCents:product.salePriceCents},id=uuid(),at=now();
  // All operations derive from a trusted catalogue, never from a browser recipe.
  const statements=[db.prepare(`INSERT OR IGNORE INTO zx_diamond_orders(id,user_id,request_key,product_id,player_id,diamonds,sale_price_cents,provider_cost_cents,snapshot_json,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)`).bind(id,userId,requestKey,productId,playerId,snapshot.diamonds,snapshot.salePriceCents,snapshot.providerCostCents,JSON.stringify(snapshot),at,at)];
  let seq=0;for(const p of snapshot.recipe)for(let n=0;n<p.quantity;n++){

@@ -1,3 +1,4 @@
+import {editorRoute} from "./editor/catalog.mjs";
 import { mpTestRoute } from "./payments/mercadopago-test.mjs";
 import { diamondRoute } from "./diamonds/routes.mjs";
 import { resellerRoute } from "./resellers.js";
@@ -210,6 +211,10 @@ export default {
       if(url.pathname.startsWith("/api/resellers/")||url.pathname.startsWith("/api/admin/resellers")){await authSchema(env);return await resellerRoute(request,env,url,await currentUser(request,env),json);}
       if(url.pathname.startsWith("/api/content/")||url.pathname.startsWith("/api/admin/content/"))return await contentRoutes(request,env,url);
 
+      if(url.pathname.startsWith('/api/admin/store-editor')||url.pathname==='/api/store-editor/catalog'){
+        await authSchema(env);
+        return await editorRoute(request,env,url,url.pathname.startsWith('/api/admin/')?await currentUser(request,env):null,json);
+      }
       if(url.pathname.startsWith("/api/auth/") || url.pathname.startsWith("/api/public-profile/")) await authSchema(env);
 
       if(url.pathname==="/api/auth/features" && request.method==="GET")return json({ok:true,contact:true,publicProfiles:true});
