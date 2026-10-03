@@ -9,7 +9,7 @@
   function forProduct(product) {
     if (!product || product.category !== 'Diamantes ilimitados') return null;
     // Match the exact amount, never a substring or the nearest package.
-    const amount = Number((product.name.match(/^[\d,]+/) || [''])[0].replaceAll(',',''));
+    const amount = Number(product.diamonds || (/^zx-diamonds-(\d+)$/.exec(product.id || '') || [])[1] || (product.name.match(/^[\d,]+/) || [''])[0].replaceAll(',',''));
     if (!Number.isSafeInteger(amount) || amount < 1) return null;
     return byAmount.get(amount) || {amount,character:'Colección Zero’X',universe:'zx',accent:'125,150,255',tier:tierFor(amount),ready:false,edition:false};
   }
