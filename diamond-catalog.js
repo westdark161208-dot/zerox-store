@@ -8,8 +8,8 @@
     "anime": "Re:Zero",
     "universe": "rz",
     "tier": 1,
-    "image": "assets/diamonds/unlimited/110.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/110.webp",
+    "imageReady": true,
     "accent": "171,132,255"
   },
   {
@@ -20,8 +20,8 @@
     "anime": "Blue Lock",
     "universe": "bl",
     "tier": 1,
-    "image": "assets/diamonds/unlimited/220.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/220.webp",
+    "imageReady": true,
     "accent": "246,220,80"
   },
   {
@@ -32,8 +32,8 @@
     "anime": "Chainsaw Man",
     "universe": "cm",
     "tier": 1,
-    "image": "assets/diamonds/unlimited/341.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/341.webp",
+    "imageReady": true,
     "accent": "255,103,121"
   },
   {
@@ -44,8 +44,8 @@
     "anime": "Re:Zero",
     "universe": "rz",
     "tier": 1,
-    "image": "assets/diamonds/unlimited/572.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/572.webp",
+    "imageReady": true,
     "accent": "100,189,255"
   },
   {
@@ -56,8 +56,8 @@
     "anime": "Blue Lock",
     "universe": "bl",
     "tier": 1,
-    "image": "assets/diamonds/unlimited/682.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/682.webp",
+    "imageReady": true,
     "accent": "255,115,172"
   },
   {
@@ -68,8 +68,8 @@
     "anime": "Dandadan",
     "universe": "dd",
     "tier": 1,
-    "image": "assets/diamonds/unlimited/913.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/913.webp",
+    "imageReady": true,
     "accent": "255,126,190"
   },
   {
@@ -80,8 +80,8 @@
     "anime": "Blue Lock",
     "universe": "bl",
     "tier": 1,
-    "image": "assets/diamonds/unlimited/1166.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/1166.webp",
+    "imageReady": true,
     "accent": "190,137,255"
   },
   {
@@ -92,7 +92,7 @@
     "anime": "Jujutsu Kaisen",
     "universe": "jjk",
     "tier": 1,
-    "image": "assets/diamonds/unlimited/2398.webp",
+    "image": "assets/diamonds/collection-v2/1507.webp",
     "imageReady": true,
     "accent": "113,162,255"
   },
@@ -104,8 +104,8 @@
     "anime": "Re:Zero",
     "universe": "rz",
     "tier": 1,
-    "image": "assets/diamonds/unlimited/1738.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/1738.webp",
+    "imageReady": true,
     "accent": "204,159,255"
   },
   {
@@ -116,8 +116,8 @@
     "anime": "Chainsaw Man",
     "universe": "cm",
     "tier": 1,
-    "image": "assets/diamonds/unlimited/2398.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/2398.webp",
+    "imageReady": true,
     "accent": "107,180,255"
   },
   {
@@ -128,8 +128,8 @@
     "anime": "Attack on Titan",
     "universe": "aot",
     "tier": 1,
-    "image": "assets/diamonds/unlimited/2970.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/2970.webp",
+    "imageReady": true,
     "accent": "255,107,119"
   },
   {
@@ -140,8 +140,8 @@
     "anime": "Blue Lock",
     "universe": "bl",
     "tier": 1,
-    "image": "assets/diamonds/unlimited/3564.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/3564.webp",
+    "imageReady": true,
     "accent": "154,212,255"
   },
   {
@@ -152,8 +152,8 @@
     "anime": "Jujutsu Kaisen",
     "universe": "jjk",
     "tier": 1,
-    "image": "assets/diamonds/unlimited/4796.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/4796.webp",
+    "imageReady": true,
     "accent": "255,157,102"
   },
   {
@@ -164,8 +164,8 @@
     "anime": "One Piece",
     "universe": "op",
     "tier": 2,
-    "image": "assets/diamonds/unlimited/6160.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/6160.webp",
+    "imageReady": true,
     "accent": "255,105,90"
   },
   {
@@ -176,8 +176,8 @@
     "anime": "One Piece",
     "universe": "op",
     "tier": 2,
-    "image": "assets/diamonds/unlimited/6732.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/6732.webp",
+    "imageReady": true,
     "accent": "117,235,127"
   },
   {
@@ -188,8 +188,8 @@
     "anime": "One Piece",
     "universe": "op",
     "tier": 2,
-    "image": "assets/diamonds/unlimited/7326.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/7326.webp",
+    "imageReady": true,
     "accent": "185,137,255"
   },
   {
@@ -200,8 +200,8 @@
     "anime": "Blue Lock",
     "universe": "bl",
     "tier": 2,
-    "image": "assets/diamonds/unlimited/8558.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/8558.webp",
+    "imageReady": true,
     "accent": "109,175,255"
   },
   {
@@ -212,8 +212,8 @@
     "anime": "One Piece",
     "universe": "op",
     "tier": 2,
-    "image": "assets/diamonds/unlimited/9724.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/9724.webp",
+    "imageReady": true,
     "accent": "255,221,115"
   },
   {
@@ -224,7 +224,7 @@
     "anime": "Attack on Titan",
     "universe": "aot",
     "tier": 2,
-    "image": "assets/diamonds/unlimited/6160.webp",
+    "image": "assets/diamonds/collection-v2/10956.webp",
     "imageReady": true,
     "accent": "138,211,193"
   },
@@ -236,8 +236,8 @@
     "anime": "One Piece",
     "universe": "op",
     "tier": 2,
-    "image": "assets/diamonds/unlimited/12320.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/12320.webp",
+    "imageReady": true,
     "accent": "255,137,183"
   },
   {
@@ -248,8 +248,8 @@
     "anime": "Blue Lock",
     "universe": "bl",
     "tier": 2,
-    "image": "assets/diamonds/unlimited/12892.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/12892.webp",
+    "imageReady": true,
     "accent": "255,130,97"
   },
   {
@@ -260,8 +260,8 @@
     "anime": "Chainsaw Man",
     "universe": "cm",
     "tier": 2,
-    "image": "assets/diamonds/unlimited/14058.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/14058.webp",
+    "imageReady": true,
     "accent": "255,160,80"
   },
   {
@@ -272,8 +272,8 @@
     "anime": "Jujutsu Kaisen",
     "universe": "jjk",
     "tier": 2,
-    "image": "assets/diamonds/unlimited/14718.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/14718.webp",
+    "imageReady": true,
     "accent": "133,235,166"
   },
   {
@@ -284,7 +284,7 @@
     "anime": "One Piece",
     "universe": "op",
     "tier": 3,
-    "image": "assets/diamonds/unlimited/17116.webp",
+    "image": "assets/diamonds/collection-v2/15884.webp",
     "imageReady": true,
     "accent": "255,152,88"
   },
@@ -296,20 +296,20 @@
     "anime": "Blue Lock",
     "universe": "bl",
     "tier": 3,
-    "image": "assets/diamonds/unlimited/17116.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/17116.webp",
+    "imageReady": true,
     "accent": "112,187,255"
   },
   {
     "id": "zx-diamonds-18480",
     "diamonds": 18480,
     "salePriceMXN": 2005,
-    "character": "Yor Forger",
-    "anime": "Spy × Family",
-    "universe": "spy",
+    "character": "Colección rosa",
+    "anime": "Zero’X Store",
+    "universe": "zx",
     "tier": 3,
-    "image": "assets/diamonds/unlimited/18480.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/18480.webp",
+    "imageReady": true,
     "accent": "255,107,142"
   },
   {
@@ -320,8 +320,8 @@
     "anime": "Jujutsu Kaisen",
     "universe": "jjk",
     "tier": 3,
-    "image": "assets/diamonds/unlimited/19052.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/19052.webp",
+    "imageReady": true,
     "accent": "159,135,255"
   },
   {
@@ -332,8 +332,8 @@
     "anime": "One Piece",
     "universe": "op",
     "tier": 3,
-    "image": "assets/diamonds/unlimited/20878.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/20878.webp",
+    "imageReady": true,
     "accent": "244,130,178"
   },
   {
@@ -344,8 +344,8 @@
     "anime": "Chainsaw Man",
     "universe": "cm",
     "tier": 3,
-    "image": "assets/diamonds/unlimited/22044.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/22044.webp",
+    "imageReady": true,
     "accent": "255,107,112"
   },
   {
@@ -356,32 +356,32 @@
     "anime": "Solo Leveling",
     "universe": "sl",
     "tier": 3,
-    "image": "assets/diamonds/unlimited/23276.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/23276.webp",
+    "imageReady": true,
     "accent": "130,181,255"
   },
   {
     "id": "zx-diamonds-24640",
     "diamonds": 24640,
     "salePriceMXN": 2675,
-    "character": "Yuta Okkotsu",
-    "anime": "Jujutsu Kaisen",
-    "universe": "jjk",
+    "character": "Jiji / Evil Eye",
+    "anime": "Dandadan",
+    "universe": "dd",
     "tier": 3,
-    "image": "assets/diamonds/unlimited/24640.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/24640.webp",
+    "imageReady": true,
     "accent": "255,207,121"
   },
   {
     "id": "zx-diamonds-25806",
     "diamonds": 25806,
     "salePriceMXN": 2810,
-    "character": "Cha Hae-In",
-    "anime": "Solo Leveling",
-    "universe": "sl",
+    "character": "Yuta Okkotsu",
+    "anime": "Jujutsu Kaisen",
+    "universe": "jjk",
     "tier": 3,
-    "image": "assets/diamonds/unlimited/25806.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/25806.webp",
+    "imageReady": true,
     "accent": "105,204,255"
   },
   {
@@ -392,8 +392,8 @@
     "anime": "One Piece",
     "universe": "op",
     "tier": 3,
-    "image": "assets/diamonds/unlimited/27038.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/27038.webp",
+    "imageReady": true,
     "accent": "139,222,169"
   },
   {
@@ -404,8 +404,8 @@
     "anime": "Attack on Titan",
     "universe": "aot",
     "tier": 3,
-    "image": "assets/diamonds/unlimited/28204.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/28204.webp",
+    "imageReady": true,
     "accent": "135,205,255"
   },
   {
@@ -416,20 +416,20 @@
     "anime": "One Piece",
     "universe": "op",
     "tier": 4,
-    "image": "assets/diamonds/unlimited/30008.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/30008.webp",
+    "imageReady": true,
     "accent": "255,105,155"
   },
   {
     "id": "zx-diamonds-30800",
     "diamonds": 30800,
     "salePriceMXN": 3340,
-    "character": "Esdeath",
-    "anime": "Akame ga Kill!",
-    "universe": "agk",
+    "character": "Sanji",
+    "anime": "One Piece",
+    "universe": "op",
     "tier": 4,
-    "image": "assets/diamonds/unlimited/30800.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/30800.webp",
+    "imageReady": true,
     "accent": "124,164,255"
   },
   {
@@ -440,8 +440,8 @@
     "anime": "Dandadan",
     "universe": "dd",
     "tier": 4,
-    "image": "assets/diamonds/unlimited/31966.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/31966.webp",
+    "imageReady": true,
     "accent": "255,216,134"
   },
   {
@@ -452,7 +452,7 @@
     "anime": "Jujutsu Kaisen",
     "universe": "jjk",
     "tier": 4,
-    "image": "assets/diamonds/unlimited/30008.webp",
+    "image": "assets/diamonds/collection-v2/33198.webp",
     "imageReady": true,
     "accent": "255,134,92"
   },
@@ -464,20 +464,20 @@
     "anime": "One Piece",
     "universe": "op",
     "tier": 4,
-    "image": "assets/diamonds/unlimited/34936.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/34936.webp",
+    "imageReady": true,
     "accent": "135,186,255"
   },
   {
     "id": "zx-diamonds-36960",
     "diamonds": 36960,
     "salePriceMXN": 4010,
-    "character": "Eren / Titán Fundador",
-    "anime": "Attack on Titan",
-    "universe": "aot",
+    "character": "Roronoa Zoro / Asura",
+    "anime": "One Piece",
+    "universe": "op",
     "tier": 4,
-    "image": "assets/diamonds/unlimited/36960.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/36960.webp",
+    "imageReady": true,
     "accent": "255,113,144"
   },
   {
@@ -488,8 +488,8 @@
     "anime": "Jujutsu Kaisen",
     "universe": "jjk",
     "tier": 4,
-    "image": "assets/diamonds/unlimited/38126.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/38126.webp",
+    "imageReady": true,
     "accent": "195,168,255"
   },
   {
@@ -500,20 +500,20 @@
     "anime": "Jujutsu Kaisen",
     "universe": "jjk",
     "tier": 4,
-    "image": "assets/diamonds/unlimited/39358.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/39358.webp",
+    "imageReady": true,
     "accent": "162,124,255"
   },
   {
     "id": "zx-diamonds-40524",
     "diamonds": 40524,
     "salePriceMXN": 4415,
-    "character": "Monkey D. Luffy / Gear 5",
+    "character": "Kaido",
     "anime": "One Piece",
     "universe": "op",
     "tier": 5,
-    "image": "assets/diamonds/unlimited/40524.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/40524.webp",
+    "imageReady": true,
     "accent": "131,224,227"
   },
   {
@@ -524,8 +524,8 @@
     "anime": "Solo Leveling",
     "universe": "sl",
     "tier": 5,
-    "image": "assets/diamonds/unlimited/43120.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/43120.webp",
+    "imageReady": true,
     "accent": "255,100,139"
   },
   {
@@ -536,20 +536,20 @@
     "anime": "One Piece",
     "universe": "op",
     "tier": 5,
-    "image": "assets/diamonds/unlimited/44286.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/44286.webp",
+    "imageReady": true,
     "accent": "255,216,143"
   },
   {
     "id": "zx-diamonds-45518",
     "diamonds": 45518,
     "salePriceMXN": 4950,
-    "character": "Ryomen Sukuna / Malevolent Shrine",
-    "anime": "Jujutsu Kaisen",
-    "universe": "jjk",
+    "character": "Buggy",
+    "anime": "One Piece",
+    "universe": "op",
     "tier": 5,
-    "image": "assets/diamonds/unlimited/45518.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/45518.webp",
+    "imageReady": true,
     "accent": "164,124,255"
   },
   {
@@ -560,8 +560,8 @@
     "anime": "One Piece",
     "universe": "op",
     "tier": 5,
-    "image": "assets/diamonds/unlimited/46684.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/46684.webp",
+    "imageReady": true,
     "accent": "255,108,114"
   },
   {
@@ -572,20 +572,20 @@
     "anime": "Solo Leveling",
     "universe": "sl",
     "tier": 5,
-    "image": "assets/diamonds/unlimited/49280.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/49280.webp",
+    "imageReady": true,
     "accent": "255,215,112"
   },
   {
     "id": "zx-diamonds-50446",
     "diamonds": 50446,
     "salePriceMXN": 5485,
-    "character": "Shanks",
+    "character": "Monkey D. Luffy / Gear 5",
     "anime": "One Piece",
     "universe": "op",
     "tier": 5,
-    "image": "assets/diamonds/unlimited/50446.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/50446.webp",
+    "imageReady": true,
     "accent": "255,156,110"
   },
   {
@@ -596,8 +596,8 @@
     "anime": "One Piece",
     "universe": "op",
     "tier": 6,
-    "image": "assets/diamonds/unlimited/100892.webp",
-    "imageReady": false,
+    "image": "assets/diamonds/collection-v2/100892.webp",
+    "imageReady": true,
     "accent": "255,215,112"
   }
 ].map(Object.freeze));})();

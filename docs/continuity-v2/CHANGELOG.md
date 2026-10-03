@@ -35,3 +35,10 @@
 - scripts/build-pages.mjs: incluye el nuevo módulo público; backend/docs/pruebas siguen excluidos.
 - tests/account-services.test.mjs: 3 pruebas aprobadas (respuesta tardía, wallet desactivada, marcador de sesión). Regresiones worker-security y wallet aprobadas; sintaxis y compilación correctas.
 - Revisión visual móvil/escritorio aún pendiente. No desplegado en producción.
+
+
+## Definitive diamond artwork — 2026-10-03
+- Imported all 50 user-approved images by exact filename quantity, with 320/640px WebP derivatives preserving aspect ratio and alpha. Original upload remains unchanged.
+- Corrected character metadata and old cross-package image references. 18,480 uses neutral “Colección rosa” pending exact character name.
+- Artwork lookup uses stable product quantity/ID before display name, so a later Editor rename does not detach artwork.
+- Prices, quantities, delivery recipes and payment flags unchanged. Editor publishing and production rollout remain separate pending work.
