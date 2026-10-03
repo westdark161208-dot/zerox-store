@@ -350,7 +350,7 @@ function buildAdDots(){
  dots.replaceChildren();ZEROX_ADS.forEach((_,i)=>{const b=document.createElement("button");b.type="button";b.setAttribute("aria-label",`Anuncio ${i+1}`);b.onclick=()=>{renderZeroXAd(i);startZeroXAds()};dots.append(b)});
 }
 async function loadPublishedAds(){
- try{const r=await fetch(`${ZEROX_API}/api/content/ads`);if(!r.ok)return;const d=await r.json();if(!d.ok||!Array.isArray(d.ads))return;clearInterval(zeroxAdTimer);clearTimeout(zeroxAdTransition);ZEROX_ADS.splice(0,ZEROX_ADS.length,...d.ads.map(a=>({kicker:a.kicker,title:a.title,text:a.description,image:a.image,category:a.target})));const zone=document.querySelector(".zerox-ad-zone");if(zone)zone.style.display=ZEROX_ADS.length?"":"none";buildAdDots();document.querySelectorAll(".ad-arrow,#ad-dots").forEach(el=>el.hidden=ZEROX_ADS.length<2);if(ZEROX_ADS.length){renderZeroXAd(0);startZeroXAds()}}catch{}
+ try{const r=await fetch(`${ZEROX_API}/api/content/ads`);if(!r.ok)return;const d=await r.json();if(!d.ok||!Array.isArray(d.ads))return;clearInterval(zeroxAdTimer);clearTimeout(zeroxAdTransition);ZEROX_ADS.splice(0,ZEROX_ADS.length,...d.ads.map(a=>({id:a.id,kicker:a.kicker,title:a.title,text:a.description,image:a.image,category:a.target})));const zone=document.querySelector(".zerox-ad-zone");if(zone)zone.style.display=ZEROX_ADS.length?"":"none";buildAdDots();document.querySelectorAll(".ad-arrow,#ad-dots").forEach(el=>el.hidden=ZEROX_ADS.length<2);if(ZEROX_ADS.length){renderZeroXAd(0);startZeroXAds()}document.dispatchEvent(new Event('zx-ads-loaded'));}catch{}
 }
 function initZeroXAds(){
   const dots=document.querySelector("#ad-dots"); if(!dots) return;
@@ -905,6 +905,7 @@ function updateCartUI() {
    ========================================================= */
 
 function artFor(product) {
+  if(product.editorImage&&!product.zxDiamond)return `<div class="zx-media-art"><img src="${esc(product.editorImage)}" alt="${esc(product.name)}" loading="lazy"></div>`;
   const collectionArt = globalThis.ZXCollection?.art(product);
   if (collectionArt) return collectionArt;
   if(product.id?.startsWith("combo-"))return `<div class="product-art character-art zx-combo-art"><div class="character-glow"></div><img src="file_000000005b2081fd8514a17c052ac79f.png" alt="LUFFY" class="character-img"><div class="character-name">COMBO ${esc(product.name.split(" ")[0])}</div></div>`;
@@ -1022,13 +1023,13 @@ function render() {
     const categoryMatch = filter === "Todos" || product.category === filter || (filter === "Cajas y Fragmentos" && ["Cajas","Fragmentos"].includes(product.category));
     const searchMatch = !q || (product.name + " " + (product.description || "") + " " + product.category).toLowerCase().includes(q);
     return categoryMatch && searchMatch;
-  });
+  }).sort((a,b)=>(a.editorPosition||0)-(b.editorPosition||0));
   container.innerHTML = rows.length ? rows.map(product => `
     <article class="product-card zx-product-card" ${globalThis.ZXCollection?.attributes(product) || ""} data-product="${esc(product.id)}" data-kind="${product.category.includes("Diamantes") ? "diamonds" : product.category === "Pases Booyah" ? "pass" : product.category === "Cajas" ? "box" : product.category === "Fragmentos" ? "fragments" : "other"}">
       ${artFor(product)}
       <div class="product-copy">
         ${product.badge ? `<span class="badge">${esc(product.badge)}</span>` : ""}
-        <h3>${esc(product.name)}</h3>
+        <h3>${esc(product.name)}</h3>${product.editorCategory||product.editorRegion?`<small class="zx-editor-commercial">${esc([product.editorCategory,product.editorRegion].filter(Boolean).join(" · "))}</small>`:""}
         ${globalThis.ZXCollection?.forProduct(product) ? `<details class="zx-collection-details"><summary>Detalle del paquete</summary><p>${esc(product.description || "")}</p></details>` : `<p>${esc(product.description || "")}</p>`}
         ${product.minQuantity ? `<label class="ff-quantity">Cantidad <span>Mínimo ${product.minQuantity}</span><input data-quantity type="number" inputmode="numeric" min="${product.minQuantity}" max="${product.maxQuantity}" step="1" value="${product.minQuantity}" aria-label="Cantidad de ${esc(product.name)}"></label><small class="ff-unit-price">${money(product.price)} por unidad</small>` : ""}
         <div class="product-bottom">
@@ -1080,14 +1081,14 @@ async function zxOpenManaged(type){
  const cfg=ZX_MANAGED[type];if(!cfg)return;zxCloseViews();zxShow($("#secciones"),false);zxShow($("#zx-managed"),true);
  $("#zx-managed-title").textContent=cfg.title;$("#zx-managed").dataset.currentSection=type;zxUpdateManagedCurrency();
  const rows=PRODUCTS.filter(p=>p.active&&p.category===cfg.category);
- $("#zx-managed-grid").innerHTML=rows.length?rows.map(p=>`<article class="zx-media-product" data-section="${esc(type)}"><div class="zx-media-art">${artFor(p)||'<div class="zx-media-placeholder">ZERO’X</div>'}</div><div><small>${esc(p.category)}</small><h3>${esc(p.name)}</h3><p>${esc(p.description||"Producto disponible en Zero’X Store.")}</p><strong class="zx-managed-price" data-zx-base-price="${Number(p.price)}">${money(p.price)}</strong><button type="button" data-buy="${esc(p.id)}">VER PRODUCTO</button></div></article>`).join(""):'<div class="zx-empty"><b>PRÓXIMAMENTE</b><span>Esta sección ya está preparada para recibir productos con fotos, videos, descripción y precio.</span></div>';
+ $("#zx-managed-grid").innerHTML=rows.length?rows.map(p=>`<article class="zx-media-product" data-product="${esc(p.id)}" data-section="${esc(type)}"><div class="zx-media-art">${artFor(p)||'<div class="zx-media-placeholder">ZERO’X</div>'}</div><div><small>${esc(p.category)}</small><h3>${esc(p.name)}</h3><p>${esc(p.description||"Producto disponible en Zero’X Store.")}</p><strong class="zx-managed-price" data-zx-base-price="${Number(p.price)}">${money(p.price)}</strong><button type="button" data-buy="${esc(p.id)}">VER PRODUCTO</button></div></article>`).join(""):'<div class="zx-empty"><b>PRÓXIMAMENTE</b><span>Esta sección ya está preparada para recibir productos con fotos, videos, descripción y precio.</span></div>';
  $("#zx-managed-grid").querySelectorAll("[data-buy]").forEach(b=>b.onclick=()=>openCheckout(b.dataset.buy));zxScroll($("#zx-managed"));
  try{
    const response=await fetch(`${ZEROX_API}/api/catalog/products?section=${encodeURIComponent(type)}`);
    if(!response.ok)return;
    const data=await response.json();
    if(!data.ok || !Array.isArray(data.products) || !data.products.length || $("#zx-managed")?.hidden || $("#zx-managed").dataset.currentSection!==type)return;
-   const cards=data.products.map(p=>`<article class="zx-media-product" data-section="${esc(type)}">
+   const cards=data.products.map(p=>`<article class="zx-media-product" data-product="entity:catalog:${esc(p.id)}" data-section="${esc(type)}">
      <div class="zx-media-art">${p.videoUrl?`<video controls playsinline preload="metadata" ${p.imageUrl?`poster="${esc(p.imageUrl)}"`:""} src="${esc(p.videoUrl)}"></video>`:p.imageUrl?`<img loading="lazy" src="${esc(p.imageUrl)}" alt="${esc(p.name)}">`:'<div class="zx-media-placeholder">ZERO’X</div>'}</div>
      <div><small>${esc(cfg.title)}</small><h3>${esc(p.name)}</h3><p>${esc(p.description)}</p><strong class="zx-managed-price" data-zx-base-price="${Number(p.price)}">${money(p.price)}</strong><a class="zx-catalog-inquiry" href="https://wa.me/529514754210?text=${encodeURIComponent("Hola, quiero consultar "+p.name)}" target="_blank" rel="noopener">CONSULTAR DISPONIBILIDAD</a></div>
    </article>`).join("");
@@ -2499,7 +2500,7 @@ let streamingViewRequest=0;
 async function zxOpenStreaming(){
  const request=++streamingViewRequest;zxCloseViews();zxShow($("#secciones"),false);zxShow($("#zx-managed"),true);$("#zx-managed").dataset.currentSection="streaming";$("#zx-managed-title").textContent="STREAMING";zxUpdateManagedCurrency();const grid=$("#zx-managed-grid");grid.textContent="Consultando disponibilidad…";zxScroll($("#zx-managed"));
  try{const r=await fetch(`${ZEROX_API}/api/content/streaming`);const d=await r.json();if(!r.ok||!d.ok||!Array.isArray(d.products))throw Error("UNAVAILABLE");if(request!==streamingViewRequest||$("#zx-managed").hidden||$("#zx-managed").dataset.currentSection!=="streaming")return;
- grid.innerHTML=d.products.length?d.products.map(p=>`<article class="zx-media-product"><div class="zx-media-art">${p.imageUrl?`<img loading="lazy" src="${esc(p.imageUrl)}" alt="${esc(p.name)}">`:'<div class="zx-media-placeholder">ZERO’X</div>'}</div><div><small>${esc({account:"Cuenta completa",profile:"Perfil",invite:"Invitación"}[p.kind]||p.kind)} · ${Number(p.duration)} días aprox.</small><h3>${esc(p.name)}</h3><p>${esc(p.description)}</p><strong class="zx-managed-price" data-zx-base-price="${Number(p.price)}">${money(p.price)}</strong><p>${p.stock>0?`${Number(p.stock)} disponibles`:"Agotado"}</p>${p.offerEnds?`<p>Oferta hasta el ${esc(new Date(p.offerEnds).toLocaleDateString("es-MX",{timeZone:"America/Mexico_City",day:"numeric",month:"long"}))} o hasta agotar existencias.</p>`:""}${p.stock>0?`<a class="zx-catalog-inquiry" href="https://wa.me/529514754210?text=${encodeURIComponent(`Hola, quiero solicitar ${p.name} (${p.duration} días). Referencia de producto: ${p.id}. ¿Me confirmas disponibilidad y pago?`)}" target="_blank" rel="noopener">SOLICITAR PEDIDO</a>`:'<button disabled type="button">AGOTADO</button>'}</div></article>`).join(""):"No hay productos de Streaming publicados por el momento.";
+ grid.innerHTML=d.products.length?d.products.map(p=>`<article class="zx-media-product" data-product="entity:streaming:${esc(p.id)}"><div class="zx-media-art">${p.imageUrl?`<img loading="lazy" src="${esc(p.imageUrl)}" alt="${esc(p.name)}">`:'<div class="zx-media-placeholder">ZERO’X</div>'}</div><div><small>${esc({account:"Cuenta completa",profile:"Perfil",invite:"Invitación"}[p.kind]||p.kind)} · ${Number(p.duration)} días aprox.</small><h3>${esc(p.name)}</h3><p>${esc(p.description)}</p><strong class="zx-managed-price" data-zx-base-price="${Number(p.price)}">${money(p.price)}</strong><p>${p.stock>0?`${Number(p.stock)} disponibles`:"Agotado"}</p>${p.offerEnds?`<p>Oferta hasta el ${esc(new Date(p.offerEnds).toLocaleDateString("es-MX",{timeZone:"America/Mexico_City",day:"numeric",month:"long"}))} o hasta agotar existencias.</p>`:""}${p.stock>0?`<a class="zx-catalog-inquiry" href="https://wa.me/529514754210?text=${encodeURIComponent(`Hola, quiero solicitar ${p.name} (${p.duration} días). Referencia de producto: ${p.id}. ¿Me confirmas disponibilidad y pago?`)}" target="_blank" rel="noopener">SOLICITAR PEDIDO</a>`:'<button disabled type="button">AGOTADO</button>'}</div></article>`).join(""):"No hay productos de Streaming publicados por el momento.";
  }catch{if(request===streamingViewRequest&&!$("#zx-managed").hidden&&$("#zx-managed").dataset.currentSection==="streaming")grid.textContent="No pudimos consultar el stock. Intenta abrir esta sección nuevamente."}
 }
 loadPublishedAds();
