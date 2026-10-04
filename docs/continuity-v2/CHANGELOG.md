@@ -1,5 +1,32 @@
 # Changelog de continuidad v2
 
+## Piloto cerrado de saldo — 2026-10-04 UTC
+- Checkout de intención MXN exclusivo fundador, webhook firmado y consulta propia preparados detrás de MP_WALLET_PILOT_ENABLED, apagado por defecto.
+- Abono y confirmación atómicos; reintentos/concurrencia no duplican movimiento. Pagos pendientes o bajo revisión no abonan.
+- Pantalla de pago/retorno y control de privacidad; browser return nunca confirma un pago.
+- 61 pruebas Node, suite revendedores y build público aprobados. Sin cobros reales ni cambios remotos. Requisitos e intervención siguiente: FUNDING-PILOT-2026-10-04.md.
+
+## Pagos de producción: preparación — 2026-10-04 UTC
+- Lectura privada de pagos reales existentes y diagnóstico de configuración; desactivada por defecto, sin cobros ni movimientos.
+- Intenciones MXN internas y validación de evidencia/idempotencia/estados; no conectadas al ledger ni a un webhook productivo.
+- Mercado Pago TEST intacto. Credenciales productivas no verificadas ni expuestas; proveedor sin fondos no procesa recargas.
+- 51 pruebas Node y suite revendedores aprobadas. Límites, configuración y rollback en PRODUCTION-PAYMENTS-2026-10-04.md.
+
+## Control financiero — 2026-10-04 UTC
+- Continuado PR #4 desde b47c610, conservando tema negro/azul/verde y fundamentos desactivados.
+- Consulta privada paginada de ledger existente; estado de Recargas América y lectura manual de saldo condicionada a configuración del servidor.
+- Respuestas privadas no-store, cancelación y descarte de datos tardíos; sin tablas creadas por Control, claves expuestas ni activación financiera.
+- 43 pruebas Node y suite revendedores aprobadas; sintaxis/diff/build público correctos. Detalle y rollback en CONTROL-FINANCE-2026-10-04.md.
+
+## Paneles y wallet — propuesta 2026-10-04 UTC
+- Tema compartido negro, burbujas sutiles y azul/verde desaturados; menor separación de perfil.
+- Avatares y banners únicamente desde dispositivo; imágenes guardadas y marcos conservados.
+- Firma corregida a Iztapalapa, México, sin “hecho”/“creado”.
+- Recuperados ledger MXN y adaptador RA de lectura de rama anterior; desactivados por defecto.
+- Consulta propia de wallet con protección frente a respuestas tardías; rutas privadas no-store.
+- 37 pruebas aprobadas y suite revendedores/build correctos. Revisión visual pendiente por descarga de Chromium inválida.
+- No publicado ni activados pagos/proveedores. Detalles: PANELS-WALLET-2026-10-04.md.
+
 ## Reanudación — 2026-10-04 UTC
 - Releído ZIP adjunto y contrastadas capturas con main 74ffd6a y rama anterior d6d8664.
 - Recuperada solo limpieza visual de perfil/footer en nueva rama desde main.

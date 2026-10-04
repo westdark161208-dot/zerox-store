@@ -2,6 +2,9 @@
   "name": "zerox-sixofire-api",
   "main": "worker.js",
   "compatibility_date": "2026-09-10",
+  "vars": {
+    "MP_COLLECTOR_ID_PRODUCTION": "1404826494"
+  },
   "d1_databases": [
     {
       "binding": "DB",

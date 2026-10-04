@@ -3,7 +3,20 @@ export async function controlRoute(request,env,url,user,json){
  const reply=(data,status=200)=>{const response=json(data,status);response.headers?.set('Cache-Control','no-store');return response;};
  if(!user||user.status!=='active'||user.isFounder!==true)return reply({ok:false,error:'FORBIDDEN'},403);
  if(request.method!=='GET')return reply({ok:false,error:'METHOD_NOT_ALLOWED'},405);
- if(url.pathname!=='/api/admin/control/overview')return reply({ok:false,error:'NOT_FOUND'},404);
+ if(!['/api/admin/control/overview','/api/admin/control/wallet'].includes(url.pathname))return reply({ok:false,error:'NOT_FOUND'},404);
+ if(url.pathname==='/api/admin/control/wallet'){
+  const cursor=url.searchParams.get('before');
+  if(cursor!==null&&(!/^[1-9]\d{0,15}$/.test(cursor)||!Number.isSafeInteger(Number(cursor))))return reply({ok:false,error:'INVALID_CURSOR'},400);
+  const exists=await env.DB.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='zx_wallet_ledger'").first();
+  if(!exists)return reply({ok:true,available:false,currency:'MXN',movements:[],nextCursor:null});
+  // Read existing records only; never initialize the ledger from the admin panel.
+  const rows=(await env.DB.prepare(`SELECT rowid AS cursor,id,kind,amount_cents AS amountCents,currency,
+    previous_balance AS previousBalanceCents,resulting_balance AS resultingBalanceCents,
+    order_id AS orderId,status,created_at AS createdAt FROM zx_wallet_ledger
+    WHERE currency='MXN' ${cursor?'AND rowid < ?':''} ORDER BY rowid DESC LIMIT 21`)
+    .bind(...(cursor?[Number(cursor)]:[])).all()).results;
+  return reply({ok:true,available:true,currency:'MXN',movements:rows.slice(0,20).map(({cursor,...row})=>row),nextCursor:rows.length>20?String(rows[19].cursor):null});
+ }
  const tables=new Set((await env.DB.prepare("SELECT name FROM sqlite_master WHERE type='table'").all()).results.map(r=>r.name));
  const read=async(table,sql)=>tables.has(table)?{available:true,...await env.DB.prepare(sql).first()}:{available:false};
  const metrics={};

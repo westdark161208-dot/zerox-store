@@ -42,6 +42,7 @@
   if ('caches' in window) caches.keys().then(function(keys){keys.forEach(function(k){caches.delete(k);});}).catch(function(){});
   </script>
   <link rel="stylesheet" href="./store-editor.css?v=2">
+  <link rel="stylesheet" href="./panel-theme.css?v=1">
 </head>
 
 <body>
@@ -751,7 +752,7 @@
     </div>
 
     <div id="zx-payment-methods" class="zx-payment-methods" hidden aria-label="Métodos de pago habilitados"></div>
-    <p class="zx-origin"><span>Hecho en México</span><strong>Iztapalapa, Ciudad de México</strong></p>
+    <p class="zx-origin"><strong>Iztapalapa, México</strong></p>
   </footer>
 
 
@@ -1116,6 +1117,13 @@
           <output id="zx-contact-status" role="status" aria-live="polite"></output>
         </form>
       </section>
+      <section class="zx-account-panel zx-wallet-panel" aria-label="Saldo Zero’X">
+        <div class="zx-panel-heading"><div><small>MI SALDO</small><h3>Zero’X Wallet</h3></div></div>
+        <p id="zx-wallet-status" role="status" aria-live="polite">La wallet está en preparación. Las recargas y compras con saldo aún no están habilitadas.</p>
+        <strong id="zx-wallet-balance" class="zx-wallet-balance" hidden></strong>
+        <button id="zx-wallet-refresh" type="button">Consultar saldo y movimientos</button>
+        <ul id="zx-wallet-movements" class="zx-wallet-movements"></ul>
+      </section>
       <section class="zx-account-panel zx-public-panel" aria-label="Perfil para compartir">
         <div class="zx-panel-heading"><span class="zx-panel-symbol">✦</span><div><small>MI VITRINA ZERO’X</small><h3>Perfil público</h3></div></div>
         <p>Muestra tu avatar, banner, biografía y nivel. Tus datos de contacto siempre quedan privados.</p>
@@ -1139,22 +1147,20 @@
             <div class="zx-username-row"><span>@</span><input id="profile-username" autocomplete="username" maxlength="24" pattern="[A-Za-z0-9_.-]{3,24}" spellcheck="false" aria-describedby="profile-username-status"><button type="button" id="profile-username-save">Cambiar</button></div>
             <small id="profile-username-status" role="status" aria-live="polite">De 3 a 24 caracteres; letras, números, punto, guion o guion bajo.</small>
           </div>
-          <span class="zx-field-title">Elige un avatar</span>
-          <div class="zx-avatar-choices" id="profile-avatar-choices"></div>
-          <label class="zx-upload-choice">📷 Subir mi foto<input type="file" id="profile-avatar-file" accept="image/jpeg,image/png,image/webp" hidden></label>
+          <label class="zx-upload-choice">Subir foto desde mi dispositivo<input type="file" id="profile-avatar-file" accept="image/jpeg,image/png,image/webp"></label>
           <label class="zx-field-title" for="profile-bio">Sobre mí</label>
           <textarea id="profile-bio" maxlength="180" rows="3" placeholder="Cuéntanos algo sobre ti..."></textarea>
           <span class="zx-field-title">Tus secciones favoritas</span>
           <div class="zx-favorite-choices" id="profile-favorites"></div>
-          <span class="zx-field-title">Estilo del banner</span>
-          <div class="zx-style-choices" id="profile-banner-choices"></div>
+          <button type="button" class="zx-upload-choice" id="profile-banner-upload">Subir banner desde mi dispositivo</button>
+          <small class="zx-upload-note">JPG, PNG o WebP · hasta 8 MB. Guarda los cambios para conservar tus imágenes.</small>
           <span class="zx-field-title">Marco de avatar</span>
           <div class="zx-style-choices" id="profile-frame-choices"></div>
           <button type="button" id="profile-save" class="zx-profile-save">Guardar cambios</button>
           <div id="profile-result" role="status" aria-live="polite"></div>
         </div>
       </details>
-      <section class="zx-profile-shop zx-style-gallery"><h3>✦ Banners y marcos</h3><p>Elige tu estilo. Puedes combinar un banner con tu foto y un marco desbloqueado.</p><h4>Banners</h4><div id="zx-banner-gallery" class="zx-banner-gallery"></div><h4>Avatares</h4><div id="zx-avatar-gallery" class="zx-avatar-gallery"></div><h4>Marcos por nivel</h4><div id="zx-frame-gallery" class="zx-frame-gallery"></div><button type="button" id="zx-gallery-save" class="zx-profile-save">Guardar mi estilo</button><p id="zx-gallery-status" role="status" aria-live="polite"></p></section>
+
       <button type="button" id="account-orders">📋 MIS PEDIDOS</button>
       <button type="button" id="logout-account" class="auth-secondary">CERRAR SESIÓN</button>
     </div>
@@ -1292,7 +1298,8 @@
 <script src="./diamonds.js?v=1" defer></script>
 <script src="./diamond-catalog.js?v=4" defer></script>
 <script src="./diamond-collection.js?v=6" defer></script>
-<script src="./app.js?v=50" defer></script>
+<script src="./app.js?v=38" defer></script>
+<script src="./wallet-view.js?v=1" defer></script>
 <script src="./resellers.js?v=3" defer></script>
 <script src="./region-selector.js?v=1" defer></script>
 
