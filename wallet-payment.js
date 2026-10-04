@@ -6,6 +6,8 @@
  let generation=0,enabled=false;
  let attempt=new URL(location.href).searchParams.get('attempt');
  if(!/^[a-f0-9-]{36}$/.test(attempt||''))attempt=null;
+ const preferred=new URL(location.href).searchParams.get('method');
+ if(!attempt&&['all','card','oxxo','spei'].includes(preferred)){const radio=document.querySelector?.('input[name=method][value='+preferred+']');if(radio)radio.checked=true;}
  function clear(){generation++;enabled=false;q('funding-create').disabled=true;q('funding-refresh').disabled=true;q('funding-checkout').hidden=true;q('funding-checkout').removeAttribute('href');q('funding-result').textContent='';q('funding-status').textContent='Inicia sesión en la tienda y vuelve a consultar.';}
  async function api(path,options={}){
   const current=token(),version=generation;

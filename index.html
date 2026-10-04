@@ -34,8 +34,8 @@
   >
   <link rel="stylesheet" href="./styles.css?v=36">
   <link rel="stylesheet" href="./diamond-collection.css?v=4">
-  <link rel="stylesheet" href="./responsive.css?v=8">
-  <link rel="stylesheet" href="./region-selector.css?v=1">
+  <link rel="stylesheet" href="./responsive.css?v=9">
+  <link rel="stylesheet" href="./region-selector.css?v=2">
   <script>
   /* Zero'X emergency cache reset: keep the storefront accessible even if app JS fails */
   if ('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister();});}).catch(function(){});
@@ -110,9 +110,9 @@
         ♙
       </button>
 
-      <button type="button" id="zx-header-wallet" aria-label="Consultar mi saldo Zero’X">
+      <button type="button" id="zx-header-wallet" aria-haspopup="dialog" aria-controls="zx-wallet-island" aria-label="Consultar mi saldo Zero’X">
         <svg viewBox="0 0 28 24" aria-hidden="true" fill="none"><path d="M3 6V4a2 2 0 0 1 2-2h17v4M3 6h21a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6Z" stroke="currentColor" stroke-width="2"/><path d="M20 11h6v6h-6a3 3 0 0 1 0-6Z" fill="currentColor"/></svg>
-        <span><small>SALDO ZERO’X</small><strong id="zx-header-wallet-value" aria-live="polite">Inicia sesión</strong></span><span class="zx-header-wallet-arrow" aria-hidden="true">↗</span>
+        <span><small>SALDO</small><strong id="zx-header-wallet-value" aria-live="polite">Inicia sesión</strong></span>
       </button>
 
       <button
@@ -264,7 +264,7 @@
 
 
     <!-- ZERO'X · PORTAL DE SECCIONES -->
-    <section class="zx-section-hub shell" id="secciones">
+    <section class="zx-section-hub shell" id="secciones"><aside class="zx-buy-guide" aria-labelledby="zx-buy-guide-title"><div class="zx-buy-guide-heading"><div><small>ANTES DE ELEGIR</small><h2 id="zx-buy-guide-title">¿Cómo comprar en Zero’X?</h2></div><button type="button" id="zx-guide-currency">Elegir moneda ↗</button></div><ol><li><span>01</span><div><strong>Elige tu moneda</strong><p>Consulta precios en tu moneda; la conversión es estimada.</p></div></li><li><span>02</span><div><strong>Registra tu cuenta</strong><p>Inicia sesión para consultar tu saldo y seguir tus pedidos.</p></div></li><li><span>03</span><div><strong>Selecciona y verifica</strong><p>Elige el artículo. Para recargas por ID, confirma jugador y región cuando corresponda.</p></div></li><li><span>04</span><div><strong>Revisa y paga</strong><p>Confirma importe, receptor y método habilitado antes de pagar.</p></div></li><li><span>05</span><div><strong>Sigue la confirmación</strong><p>El pago debe verificarse. Agregar saldo no entrega automáticamente un artículo.</p></div></li></ol><p class="zx-guide-note">Los métodos y la entrega dependen del artículo. El catálogo aún incluye productos por consulta; las compras con Wallet están en preparación.</p></aside>
       <div class="zx-hub-head">
         <span>EXPLORA ZERO'X</span>
         <h2>ELIGE TU <em>SECCIÓN</em></h2>
@@ -1294,20 +1294,30 @@
   <div class="zx-region-heading"><h2 id="zx-region-title">País y moneda</h2><button type="button" id="zx-region-close" aria-label="Cerrar selector">×</button></div>
   <p id="zx-region-description">Elige tu país de consulta y la moneda para ver precios. La región de tu cuenta de juego se verifica por separado al comprar.</p>
   <label for="zx-country">País</label><select id="zx-country"></select>
-  <label for="currency">Moneda de referencia</label><select id="currency"></select>
+  <span class="zx-currency-label">Moneda de referencia</span>
+  <div class="zx-currency-heading"><span>Desliza para explorar</span><div><button type="button" id="zx-currency-prev" aria-label="Moneda anterior">←</button><button type="button" id="zx-currency-next" aria-label="Moneda siguiente">→</button></div></div>
+  <div id="zx-currency-carousel" class="zx-currency-carousel" role="group" aria-label="Monedas de referencia"></div><details class="zx-currency-alternative"><summary>Usar lista de monedas</summary><label for="currency">Moneda</label><select id="currency"></select></details>
   <p id="zx-region-rate" role="status"></p>
   <button type="button" id="zx-region-done">Listo</button>
 </dialog>
-<script src="./regional-config.js?v=1" defer></script>
+<dialog id="zx-wallet-island" aria-labelledby="zx-wallet-island-title">
+ <div class="zx-island-heading"><span class="zx-island-kicker">ZERO’X PAY / MI CUENTA</span><button type="button" id="zx-wallet-island-close" aria-label="Cerrar saldo">×</button></div>
+ <h2 id="zx-wallet-island-title">Tu saldo, a un toque.</h2><div class="zx-island-balance"><span>Saldo disponible</span><strong id="zx-wallet-island-value">Consultando…</strong><small>MXN · saldo interno de tu cuenta</small></div>
+ <p id="zx-wallet-island-status" role="status" aria-live="polite"></p><button type="button" id="zx-wallet-island-refresh">Actualizar saldo</button>
+ <h3>Recargar saldo</h3><p class="zx-island-note">Elige un método para preparar tu pago. Mercado Pago procesa y confirma la operación.</p>
+ <div class="zx-island-methods" id="zx-wallet-island-methods" aria-label="Métodos de recarga"></div>
+ <a id="zx-wallet-island-topup" href="wallet-payment.html" hidden>Recargar saldo →</a><p class="zx-island-note">La moneda del catálogo es una referencia. Tu saldo se registra en MXN. Las compras con saldo aún están en preparación.</p>
+</dialog>
+<script src="./regional-config.js?v=2" defer></script>
 <script src="./payments-config.js?v=1" defer></script>
 <script src="./diamonds.js?v=1" defer></script>
 <script src="./diamond-catalog.js?v=4" defer></script>
 <script src="./diamond-collection.js?v=6" defer></script>
 <script src="./app.js?v=39" defer></script>
 <script src="./wallet-view.js?v=1" defer></script>
-<script src="./header-wallet.js?v=1" defer></script>
+<script src="./header-wallet.js?v=2" defer></script>
 <script src="./resellers.js?v=3" defer></script>
-<script src="./region-selector.js?v=1" defer></script>
+<script src="./region-selector.js?v=2" defer></script>
 
 <script src="./editor-elements.js?v=1" defer></script>
 <script src="./store-editor.js?v=3" defer></script>
