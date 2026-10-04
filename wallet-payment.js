@@ -25,7 +25,7 @@
  async function init(){clear();const version=generation;try{
   const data=await api('/api/admin/payments/mercadopago/status');enabled=data.checkoutEnabled===true;
   q('funding-status').textContent=enabled?'Prueba real habilitada solo para la cuenta fundadora.':'Prueba desactivada: pendiente de configuración y validación del servidor.';
-  q('funding-create').disabled=!enabled||!!attempt;q('funding-amount').disabled=!!attempt;
+  q('funding-create').disabled=!enabled||!!attempt;q('funding-amount').disabled=!!attempt;for(const input of document.querySelectorAll?.('input[name=method]')||[])input.disabled=!!attempt;
   q('funding-refresh').disabled=!enabled||!attempt;
   if(enabled&&attempt)await refresh();
  }catch(e){if(version===generation&&e.message!=='STALE_RESPONSE')q('funding-status').textContent=e.message;}}
@@ -35,8 +35,9 @@
   if(!/^\d{1,3}(\.\d{1,2})?$/.test(amount)){q('funding-result').textContent='Indica un importe con máximo dos decimales.';return;}
   const cents=Math.round(Number(amount)*100);if(cents<1000||cents>20000)return;
   const version=generation;q('funding-create').disabled=true;q('funding-amount').disabled=true;
+  for(const input of document.querySelectorAll?.('input[name=method]')||[])input.disabled=true;
   attempt=attempt||crypto.randomUUID();history.replaceState(null,'','?attempt='+attempt);
-  try{const data=await api(ROOT+'/checkout',{method:'POST',headers:{'Idempotency-Key':attempt},body:JSON.stringify({amountCents:cents})});
+  try{const data=await api(ROOT+'/checkout',{method:'POST',headers:{'Idempotency-Key':attempt},body:JSON.stringify({amountCents:cents,method:document.querySelector?.('input[name=method]:checked')?.value||'all'})});
    const link=new URL(data.checkoutUrl);if(link.protocol!=='https:'||!['www.mercadopago.com.mx','www.mercadopago.com'].includes(link.hostname))throw Error('Enlace de pago inválido.');
    q('funding-checkout').href=link.href;q('funding-checkout').hidden=false;q('funding-result').textContent='Pago preparado. Abre Mercado Pago para revisar y pagar el importe.';
   }catch(e){if(version===generation&&e.message!=='STALE_RESPONSE')q('funding-result').textContent=e.message;}

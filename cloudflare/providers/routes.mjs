@@ -1,3 +1,4 @@
+import {integrationRead} from './integrations.mjs';
 import {can} from '../security/permissions.mjs';
 import {readRecargasAmerica} from './recargas-america.mjs';
 export async function providerRoute(request,env,url,user,json) {
@@ -5,6 +6,7 @@ export async function providerRoute(request,env,url,user,json) {
   if (!user || user.status!=='active') return reply({ok:false,error:'LOGIN_REQUIRED'},401);
   if (!can(user,'providers.read')) return reply({ok:false,error:'FORBIDDEN'},403);
   if (request.method!=='GET') return reply({ok:false,error:'METHOD_NOT_ALLOWED'},405);
+  if (!url.pathname.startsWith('/api/admin/providers/recargas-america/')) return integrationRead(env,url,reply);
   const root='/api/admin/providers/recargas-america/';
   const resource=url.pathname.slice(root.length);
   if (!url.pathname.startsWith(root) || !['status','wallet','catalog'].includes(resource)) return reply({ok:false,error:'NOT_FOUND'},404);
