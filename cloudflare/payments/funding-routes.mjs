@@ -41,7 +41,7 @@ export async function fundingRoute(request,env,url,user,json,fetcher=fetch){
   }
   if(url.pathname===ROOT+'/checkout'&&request.method==='POST'){
    const body=await request.json(),key=request.headers.get('Idempotency-Key');
-   if(!/^[a-f0-9-]{36}$/.test(key||'')||!Number.isSafeInteger(body.amountCents)||body.amountCents<1000||body.amountCents>20000)return reply({ok:false,error:'INVALID_FUNDING_REQUEST'},400);
+   if(!/^[a-f0-9-]{36}$/.test(key||'')||!Number.isSafeInteger(body.amountCents)||body.amountCents<1000||body.amountCents>20000||!['all','card','oxxo','spei'].includes(body.method||'all'))return reply({ok:false,error:'INVALID_FUNDING_REQUEST'},400);
    await schemas(env.DB);
    const intent=await createFundingIntent(env.DB,{id:key,userId:user.id,amountCents:body.amountCents,collectorId:String(env.MP_COLLECTOR_ID_PRODUCTION),requestKey:key});
    if(intent.state!=='pending')return reply({ok:false,error:'FUNDING_ATTEMPT_ALREADY_PROCESSED'},409);
@@ -56,6 +56,7 @@ export async function fundingRoute(request,env,url,user,json,fetcher=fetch){
    try{
     const response=await fetcher('https://api.mercadopago.com/checkout/preferences',{method:'POST',redirect:'manual',headers:{Authorization:'Bearer '+productionToken(env),'Content-Type':'application/json'},signal:AbortSignal.timeout(12000),body:JSON.stringify({
      items:[{id:intent.id,title:'Saldo Zero’X · prueba controlada',quantity:1,currency_id:'MXN',unit_price:intent.amount_cents/100}],external_reference:intent.id,
+     payment_methods:body.method==='oxxo'?{default_payment_method_id:'oxxo'}:body.method==='spei'?{default_payment_method_id:'clabe'}:body.method==='card'?{excluded_payment_types:[{id:'account_money'},{id:'ticket'},{id:'bank_transfer'},{id:'atm'}]}:{},
      back_urls:{success:back,pending:back,failure:back},notification_url:HOOK,expires:true,expiration_date_to:new Date(Date.now()+3600000).toISOString()
     })});
     if(!response.ok)throw Error('CHECKOUT_FAILED');pref=await response.json();

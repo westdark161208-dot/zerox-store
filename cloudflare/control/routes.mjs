@@ -32,5 +32,5 @@ export async function controlRoute(request,env,url,user,json){
  const recent=async(table,sql)=>tables.has(table)?(await env.DB.prepare(sql).all()).results:[];
  const orders=await recent('zx_r_orders','SELECT id,product_name AS product,status,total AS cents,created_at AS created FROM zx_r_orders ORDER BY created_at DESC LIMIT 20');
  const publications=await recent('zx_store_editor_history','SELECT revision,created_at AS created FROM zx_store_editor_history ORDER BY revision DESC LIMIT 10');
- return reply({ok:true,generatedAt:new Date().toISOString(),metrics,orders,publications,configuration:{paymentMode:'test',automaticDelivery:false,providerPurchases:false,customerWalletReadEnabled:env.WALLET_READ_ENABLED==='true',providerBalanceSync:'not_connected',passkeys:'pending',delegatedRoles:'pending'}});
+ return reply({ok:true,generatedAt:new Date().toISOString(),metrics,orders,publications,configuration:{paymentMode:env.MP_WALLET_PILOT_ENABLED==='true'?'production_pilot':'test',automaticDelivery:false,providerPurchases:false,customerWalletReadEnabled:env.WALLET_READ_ENABLED==='true',providerBalanceSync:'not_connected',passkeys:'pending',delegatedRoles:'pending'}});
 }

@@ -55,3 +55,12 @@ test('checkout redirects are rejected and cannot forward the production token',a
  const result=await fundingRoute(request,enabled(db),new URL(request.url),owner,reply,async(url,options)=>{calls++;assert.equal(options.redirect,'manual');return new Response(null,{status:302,headers:{Location:'https://untrusted.test'}});});
  assert.equal(result.status,503);assert.equal(calls,1);assert.equal((await walletState(db,'user')).availableCents,0);
 });
+
+test('method preferences are server-controlled and existing checkout remains unique',async()=>{
+ for(const [method,expected] of [['oxxo','oxxo'],['spei','clabe'],['card',null]]){
+  const db=await setup();let calls=0;const request=()=>new Request('https://test/api/payments/mercadopago/funding/checkout',{method:'POST',headers:{'Idempotency-Key':id},body:JSON.stringify({amountCents:1000,method})});
+  const fetcher=async(u,o)=>{calls++;const body=JSON.parse(o.body);if(expected)assert.equal(body.payment_methods.default_payment_method_id,expected);else assert(body.payment_methods.excluded_payment_types.some(p=>p.id==='account_money'));return Response.json({id:'pref',collector_id:123,init_point:'https://www.mercadopago.com.mx/checkout/test'});};
+  assert.equal((await fundingRoute(request(),enabled(db),new URL(request().url),owner,reply,fetcher)).status,200);assert.equal((await fundingRoute(request(),enabled(db),new URL(request().url),owner,reply,fetcher)).status,200);assert.equal(calls,1);
+ }
+ const db=await setup(),request=new Request('https://test/api/payments/mercadopago/funding/checkout',{method:'POST',headers:{'Idempotency-Key':id},body:JSON.stringify({amountCents:1000,method:'malicious'})});assert.equal((await fundingRoute(request,enabled(db),new URL(request.url),owner,reply,()=>{throw Error('must not call')})).status,400);
+});
