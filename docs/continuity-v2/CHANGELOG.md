@@ -1,5 +1,11 @@
 # Changelog de continuidad v2
 
+## Control financiero — 2026-10-04 UTC
+- Continuado PR #4 desde b47c610, conservando tema negro/azul/verde y fundamentos desactivados.
+- Consulta privada paginada de ledger existente; estado de Recargas América y lectura manual de saldo condicionada a configuración del servidor.
+- Respuestas privadas no-store, cancelación y descarte de datos tardíos; sin tablas creadas por Control, claves expuestas ni activación financiera.
+- 43 pruebas Node y suite revendedores aprobadas; sintaxis/diff/build público correctos. Detalle y rollback en CONTROL-FINANCE-2026-10-04.md.
+
 ## Paneles y wallet — propuesta 2026-10-04 UTC
 - Tema compartido negro, burbujas sutiles y azul/verde desaturados; menor separación de perfil.
 - Avatares y banners únicamente desde dispositivo; imágenes guardadas y marcos conservados.
