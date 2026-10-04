@@ -1,5 +1,13 @@
 # Changelog de continuidad v2
 
+## Reanudación — 2026-10-04 UTC
+- Releído ZIP adjunto y contrastadas capturas con main 74ffd6a y rama anterior d6d8664.
+- Recuperada solo limpieza visual de perfil/footer en nueva rama desde main.
+- Añadido selector independiente país/moneda, persistencia y configuración pública de referencia; métodos productivos sin habilitar.
+- Corregida actualización de filas del carrito al cambiar moneda; conservados precios base y backend.
+- 26 pruebas Node y suite revendedores aprobadas; sintaxis/build aprobados. Validación visual real pendiente por navegador no disponible.
+- Mapa, archivos, límites y rollback: RESUME-2026-10-04.md. Propuesta para revisión; sin despliegue productivo.
+
 ## Fase 0 — 2026-10-03 UTC
 - Leídos paquete v2, base v1 y documento Word.
 - Recuperadas fuentes del commit remoto ae23197 mediante GitHub; clonación directa bloqueada por conectividad del proxy.
