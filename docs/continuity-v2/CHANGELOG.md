@@ -1,5 +1,14 @@
 # Changelog de continuidad v2
 
+## Paneles y wallet — propuesta 2026-10-04 UTC
+- Tema compartido negro, burbujas sutiles y azul/verde desaturados; menor separación de perfil.
+- Avatares y banners únicamente desde dispositivo; imágenes guardadas y marcos conservados.
+- Firma corregida a Iztapalapa, México, sin “hecho”/“creado”.
+- Recuperados ledger MXN y adaptador RA de lectura de rama anterior; desactivados por defecto.
+- Consulta propia de wallet con protección frente a respuestas tardías; rutas privadas no-store.
+- 37 pruebas aprobadas y suite revendedores/build correctos. Revisión visual pendiente por descarga de Chromium inválida.
+- No publicado ni activados pagos/proveedores. Detalles: PANELS-WALLET-2026-10-04.md.
+
 ## Reanudación — 2026-10-04 UTC
 - Releído ZIP adjunto y contrastadas capturas con main 74ffd6a y rama anterior d6d8664.
 - Recuperada solo limpieza visual de perfil/footer en nueva rama desde main.

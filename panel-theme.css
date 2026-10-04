@@ -1,0 +1,65 @@
+/* Shared panel identity. Store artwork, prices and fulfillment remain independent. */
+:root{--zx-panel-blue:#8aafc5;--zx-panel-green:#75a995;--zx-panel-line:#203137;--zx-panel-text:#d3dfe2;--zx-panel-muted:#9aadb3}
+body.zx-panel-surface{background:#000;color:var(--zx-panel-text);isolation:isolate;min-height:100dvh}
+body.zx-panel-surface::before,body.zx-panel-surface::after,#account-modal.zx-profile-page::before,#account-modal.zx-profile-page::after{content:"";position:fixed;border-radius:50%;width:240px;height:240px;pointer-events:none;z-index:-1;border:1px solid #426b7c40;box-shadow:inset 8px 12px 22px #619ab50a,inset -8px -12px 22px #426b7c08;animation:zx-panel-float 22s ease-in-out infinite;top:16vh;right:-100px}
+body.zx-panel-surface::after,#account-modal.zx-profile-page::after{width:160px;height:160px;left:-90px;right:auto;top:65vh;border-color:#44715c40;animation-delay:-9s;animation-duration:28s}
+body.zx-panel-surface :is(header,main,footer){position:relative;z-index:0}
+body.zx-panel-surface header{background:#000;border-color:var(--zx-panel-line)}
+body.zx-panel-surface :is(h2,h3,.eyebrow,header span,th){color:var(--zx-panel-blue)}
+body.zx-panel-surface :is(p,small,.metric span){color:var(--zx-panel-muted)}
+body.zx-panel-surface a{color:var(--zx-panel-blue)}
+body.zx-panel-surface :is(button,nav a,.back){border-color:#36505a;background:#0c171b;color:#bad0d9;box-shadow:inset 0 1px #bad0d914;min-height:44px}
+body.zx-panel-surface :is(input:not([type=checkbox]),select,textarea){background:#05090b;border-color:#36505a;color:var(--zx-panel-text)}
+body.zx-panel-surface :is(section,.content-admin,#reseller-admin){margin-top:12px;padding-block:18px;border-color:var(--zx-panel-line)}
+body.zx-panel-surface .metrics{gap:16px}
+body.zx-panel-surface .metric{border-color:#355f6b;padding-left:12px}
+body.zx-panel-surface .metric strong{color:var(--zx-panel-blue)}
+body.zx-panel-surface #balances .metric{border-color:#396353}
+body.zx-panel-surface #balances .metric strong{color:var(--zx-panel-green)}
+body.zx-panel-surface :is(th,td,.session-list li){border-color:var(--zx-panel-line)}
+body.zx-panel-surface :is(form,#product-list article,.content-admin article,#reseller-admin form){background:#05090b;border-color:#283e46;box-shadow:none;border-radius:14px}
+body.zx-panel-surface .search-card{padding:14px 0}
+body.zx-panel-surface :is(.bio-card,.favorites-card){padding:16px 0}
+body.zx-panel-surface .public-card{margin-top:14px}
+body.zx-panel-surface .cover{border-color:#385763;box-shadow:none}
+body.zx-panel-surface .data-grid{gap:8px;margin-block:12px}
+body.zx-panel-surface .data-grid>div{padding:12px 8px;border-color:var(--zx-panel-line)}
+body.zx-panel-surface .data-grid span{color:var(--zx-panel-blue)}
+body.zx-panel-surface dialog{background:#05090b;border-color:#36505a}
+body.zx-panel-surface :is(button,a,input,textarea,select,summary):focus-visible{outline:2px solid #8fb8cc;outline-offset:3px}
+#account-modal.zx-profile-page{background:#000!important;isolation:isolate;color:var(--zx-panel-text);padding:16px max(18px,env(safe-area-inset-left,0px))!important}
+#account-modal.zx-profile-page::before,#account-modal.zx-profile-page::after{position:absolute}
+#account-modal.zx-profile-page #account-user{position:relative;max-width:760px}
+#account-modal.zx-profile-page :is(.zx-profile-info,.zx-account-panel,.zx-profile-shop,.zx-profile-editor,.level-help){margin:10px 0!important;padding:14px 0!important;border-top-color:var(--zx-panel-line)}
+#account-modal.zx-profile-page :is(.zx-profile-section-title,.zx-panel-heading h3,.zx-profile-info h3,.zx-field-title,summary){color:var(--zx-panel-blue)}
+#account-modal.zx-profile-page :is(p,small,.zx-profile-bio,.zx-panel-heading small){color:var(--zx-panel-muted)}
+#account-modal.zx-profile-page .zx-profile-section-title{margin:14px 0 6px}
+#account-modal.zx-profile-page .account-stats{margin:8px 0;gap:8px}
+#account-modal.zx-profile-page .account-stats b{color:var(--zx-panel-green)}
+#account-modal.zx-profile-page .zx-profile-info-grid{gap:6px 14px}
+#account-modal.zx-profile-page .zx-profile-info-grid>div{padding:8px 0!important}
+#account-modal.zx-profile-page :is(input:not([type=checkbox]),select,textarea){background:#05090b!important;border-color:#36505a!important;color:var(--zx-panel-text)!important;box-shadow:none!important}
+#account-modal.zx-profile-page :is(button:not(.zx-founder-badge),.zx-upload-choice,.zx-public-actions a,.zx-security-link){background:#0c171b!important;border-color:#36505a!important;color:#bad0d9!important;box-shadow:none!important;min-height:44px}
+#account-modal.zx-profile-page .zx-upload-choice{display:flex;align-items:center;justify-content:center;cursor:pointer;padding:12px 16px;border:1px solid #36505a;border-radius:12px;font:inherit;gap:8px}
+#account-modal.zx-profile-page .zx-upload-choice input{max-width:100%;font-size:13px}
+#account-modal.zx-profile-page .zx-upload-note{display:block;line-height:1.5;margin-top:8px}
+#account-modal.zx-profile-page .zx-profile-edit-body{padding:12px 0}
+#account-modal.zx-profile-page .zx-profile-banner{box-shadow:none!important;border-color:#385763!important}
+#account-modal.zx-profile-page .zx-style-choices{gap:8px}
+#account-modal.zx-profile-page .zx-style-choices button.selected{border-color:#79a99b!important;color:#bad7cb!important}
+#account-modal.zx-profile-page .zx-style-choices button:disabled{opacity:.45}
+#account-modal.zx-profile-page .zx-wallet-balance{color:var(--zx-panel-green);font-size:28px}
+#account-modal.zx-profile-page .zx-wallet-movements{list-style:none;padding:0;margin:8px 0}
+#account-modal.zx-profile-page .zx-wallet-movements li{padding:12px 0;border-bottom:1px solid var(--zx-panel-line)}
+#account-modal.zx-profile-page .zx-wallet-movements :is(strong,small){display:block;overflow-wrap:anywhere}
+#zx-store-editor{background:#05090b!important;border-color:#36505a!important;color:var(--zx-panel-text)}
+@keyframes zx-panel-float{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(-14px,-24px,0)}}
+@media(max-width:600px){body.zx-panel-surface main{padding-top:14px}body.zx-panel-surface .metrics{gap:14px}#account-modal.zx-profile-page .zx-profile-info-grid{grid-template-columns:1fr}body.zx-panel-surface nav{gap:8px}}
+@media(prefers-reduced-motion:reduce){body.zx-panel-surface::before,body.zx-panel-surface::after,#account-modal.zx-profile-page::before,#account-modal.zx-profile-page::after{animation:none}}
+@media(forced-colors:active){body.zx-panel-surface::before,body.zx-panel-surface::after,#account-modal.zx-profile-page::before,#account-modal.zx-profile-page::after{display:none}}
+/* Creator editing tools share the same quiet accents. */
+#zx-editor-bar,#zx-editor-dialog{background:#05090bf7;border-color:#36505a;color:var(--zx-panel-text);box-shadow:0 12px 30px #0008}
+#zx-editor-bar :is(button,select),#zx-editor-dialog button,[data-zx-edit]{background:#0c171b;border-color:#36505a;color:#bad0d9}
+#zx-editor-dialog :is(input:not([type=checkbox]),textarea){background:#05090b;border-color:#36505a}
+#zx-editor-bar p,#zx-editor-dialog [role=status]{color:var(--zx-panel-blue)}
+#account-modal.zx-profile-page label.zx-upload-choice{flex-direction:column;align-items:stretch;text-align:center}
