@@ -9,11 +9,11 @@ globalThis.ZXRegionalConfig = Object.freeze({
     {code:'BR', name:'Brasil', flag:'🇧🇷'}
   ]),
   currencies: Object.freeze([
-    {code:'MXN', locale:'es-MX', referenceRate:1},
-    {code:'USD', locale:'en-US', referenceRate:0.055},
-    {code:'COP', locale:'es-CO', referenceRate:215},
-    {code:'ARS', locale:'es-AR', referenceRate:78},
-    {code:'BRL', locale:'pt-BR', referenceRate:0.29}
+    {code:'MXN', name:'Peso mexicano', flag:'🇲🇽', locale:'es-MX', referenceRate:1},
+    {code:'USD', name:'Dólar estadounidense', flag:'🇺🇸', locale:'en-US', referenceRate:0.055},
+    {code:'COP', name:'Peso colombiano', flag:'🇨🇴', locale:'es-CO', referenceRate:215},
+    {code:'ARS', name:'Peso argentino', flag:'🇦🇷', locale:'es-AR', referenceRate:78},
+    {code:'BRL', name:'Real brasileño', flag:'🇧🇷', locale:'pt-BR', referenceRate:0.29}
   ]),
   paymentMethods: Object.freeze([])
 });

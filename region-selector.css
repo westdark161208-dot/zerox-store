@@ -15,3 +15,11 @@
 #zx-region-dialog[open]{animation:zx-region-enter .18s ease-out}
 @media(max-width:650px){#zx-region-dialog{margin:auto 0 0;width:100%;max-width:none;max-height:85dvh;border-radius:20px 20px 0 0;padding:22px 20px}#zx-region-dialog[open]{animation:zx-region-up .2s ease-out}@keyframes zx-region-up{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}}
 @media(prefers-reduced-motion:reduce){#zx-region-dialog[open]{animation:none}}
+#zx-region-dialog{background:radial-gradient(ellipse at top,#30245688,transparent 65%),#080b16;border-color:#a277ef66;border-radius:24px;box-shadow:0 0 45px #884cff18,0 30px 90px #000b}
+#zx-region-dialog::backdrop{backdrop-filter:blur(6px)}.zx-currency-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:22px 0 12px;font:12px system-ui;color:#bfb6d6}.zx-currency-heading>div{display:flex;gap:7px}.zx-currency-heading button{padding:0!important;width:40px;min-height:40px!important}
+.zx-currency-carousel{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:10px 6px 18px;scrollbar-width:thin;scrollbar-color:#7b58b5 #11101c;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+#zx-region-dialog .zx-currency-card{flex:0 0 130px;scroll-snap-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:148px;box-sizing:border-box;padding:18px 10px;border:1px solid #9073c544;border-radius:18px;background:linear-gradient(140deg,#1b1730,#0d1021);transition:transform .2s,border-color .2s,box-shadow .2s}
+.zx-currency-card>span{font-size:28px}.zx-currency-card strong{font:700 20px system-ui}.zx-currency-card small{font:11px/1.4 system-ui;color:#b9b3cf;text-align:center}
+#zx-region-dialog .zx-currency-card[aria-pressed=true]{border-color:#72e8ff;background:linear-gradient(135deg,#372050,#102c3c);box-shadow:0 0 18px #bc62fc25,inset 0 1px #e1baff33;transform:translateY(-4px)}
+#zx-region-dialog #zx-region-done{background:linear-gradient(105deg,#7434ad,#196f96);border-color:#b387ef66}.zx-currency-alternative{margin:10px 0;font:12px system-ui;color:#c6badb}.zx-currency-alternative summary{cursor:pointer;padding:8px 0}
+@media(prefers-reduced-motion:reduce){#zx-region-dialog .zx-currency-card{transition:none}.zx-currency-carousel{scroll-behavior:auto}}

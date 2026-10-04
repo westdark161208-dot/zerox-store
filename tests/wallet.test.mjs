@@ -44,3 +44,9 @@ test('wallet HTTP is own-user read-only and disabled by default',async()=>{
   assert.equal(own.body.availableCents,10000);
   assert.equal((await walletRoute(new Request(url,{method:'POST',body:JSON.stringify({amountCents:99999})}),{DB,WALLET_READ_ENABLED:'true'},url,user,json)).status,405);
 });
+
+test('wallet funding availability is restricted to active founder with complete pilot configuration',async()=>{
+ const {fundingPilotEnabled}=await import('../cloudflare/payments/funding-routes.mjs');
+ const env={MP_WALLET_PILOT_ENABLED:'true',MP_PRODUCTION_READ_ENABLED:'true',MP_ACCESS_TOKEN:'fixture',MP_COLLECTOR_ID_PRODUCTION:'123',MP_WEBHOOK_SECRET_PRODUCTION:'fixture'};
+ assert.equal(fundingPilotEnabled(env),true);assert.equal(fundingPilotEnabled({...env,MP_WALLET_PILOT_ENABLED:'false'}),false);assert.equal(fundingPilotEnabled({...env,MP_WEBHOOK_SECRET_PRODUCTION:''}),false);
+});

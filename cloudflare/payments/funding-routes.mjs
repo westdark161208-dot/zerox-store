@@ -6,7 +6,7 @@ import {validSignature} from './mercadopago-test.mjs';
 const ROOT='/api/payments/mercadopago/funding';
 const SITE='https://zerox-store.pages.dev';
 const HOOK='https://zerox-sixofire-api.westdark161208.workers.dev'+ROOT+'/webhook';
-function enabled(env){return env.MP_WALLET_PILOT_ENABLED==='true'&&env.MP_PRODUCTION_READ_ENABLED==='true'&&!!productionToken(env)&&!!env.MP_COLLECTOR_ID_PRODUCTION&&!!env.MP_WEBHOOK_SECRET_PRODUCTION;}
+export function fundingPilotEnabled(env){return env.MP_WALLET_PILOT_ENABLED==='true'&&env.MP_PRODUCTION_READ_ENABLED==='true'&&!!productionToken(env)&&!!env.MP_COLLECTOR_ID_PRODUCTION&&!!env.MP_WEBHOOK_SECRET_PRODUCTION;}
 async function schemas(db){
  await fundingSchema(db);await walletSchema(db);
  await db.prepare(`CREATE TABLE IF NOT EXISTS zx_funding_checkouts (
@@ -22,7 +22,7 @@ export async function fundingRoute(request,env,url,user,json,fetcher=fetch){
  const reply=(body,status=200)=>{const r=json(body,status);r.headers?.set('Cache-Control','no-store');return r;};
  const webhook=url.pathname===ROOT+'/webhook';
  if(!webhook&&(!user||user.status!=='active'||user.isFounder!==true))return reply({ok:false,error:'FOUNDER_REQUIRED'},403);
- if(!enabled(env))return reply({ok:false,error:'FUNDING_PILOT_DISABLED'},503);
+ if(!fundingPilotEnabled(env))return reply({ok:false,error:'FUNDING_PILOT_DISABLED'},503);
  try{
   if(webhook){
    if(request.method!=='POST')return reply({ok:false,error:'METHOD_NOT_ALLOWED'},405);
