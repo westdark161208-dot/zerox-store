@@ -18,7 +18,7 @@ export async function productionPayment(env,id,fetcher=fetch){
  if(env.MP_PRODUCTION_READ_ENABLED!=='true')throw Error('MP_PRODUCTION_READ_DISABLED');
  if(!productionToken(env)||!env.MP_COLLECTOR_ID_PRODUCTION)throw Error('MP_PRODUCTION_CONFIG_MISSING');
  if(!/^\d{1,30}$/.test(String(id)))throw Error('INVALID_PAYMENT_ID');
- const response=await fetcher('https://api.mercadopago.com/v1/payments/'+id,{method:'GET',redirect:'error',
+ const response=await fetcher('https://api.mercadopago.com/v1/payments/'+id,{method:'GET',redirect:'manual',
   headers:{Authorization:'Bearer '+productionToken(env),Accept:'application/json'},signal:AbortSignal.timeout(12000)});
  if(!response.ok)throw Error('MP_PRODUCTION_UNAVAILABLE');
  const payment=await response.json();
@@ -30,7 +30,7 @@ export async function productionAccount(env,fetcher=fetch){
  if(env.MP_PRODUCTION_READ_ENABLED!=='true')throw Error('MP_PRODUCTION_READ_DISABLED');
  if(!productionToken(env)||!env.MP_COLLECTOR_ID_PRODUCTION)throw Error('MP_PRODUCTION_CONFIG_MISSING');
  let response;
- try{response=await fetcher('https://api.mercadopago.com/users/me',{method:'GET',redirect:'error',headers:{Authorization:'Bearer '+productionToken(env),Accept:'application/json'},signal:AbortSignal.timeout(12000)});}
+ try{response=await fetcher('https://api.mercadopago.com/users/me',{method:'GET',redirect:'manual',headers:{Authorization:'Bearer '+productionToken(env),Accept:'application/json'},signal:AbortSignal.timeout(12000)});}
  catch(e){throw Error(e.name==='TimeoutError'||e.name==='AbortError'?'MP_PRODUCTION_TIMEOUT':'MP_PRODUCTION_CONNECTION_FAILED');}
  if(response.status===401)throw Error('MP_PRODUCTION_CREDENTIAL_REJECTED');
  if(response.status===403)throw Error('MP_PRODUCTION_ACCESS_REJECTED');

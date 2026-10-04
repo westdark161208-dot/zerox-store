@@ -12,7 +12,7 @@ test('production evidence accepts exact cents only and rejects test mode, wrong 
  for(const patch of [{live_mode:false},{collector_id:124},{currency_id:'USD'},{external_reference:'other'},{transaction_amount:18.501}])assert.equal(productionEvidence({...payment,...patch},intent),false);
 });
 test('production lookup disabled/missing config makes no request; enabled uses GET and checks receiver',async()=>{
- let calls=0;const fetcher=async(url,options)=>{calls++;assert.equal(url,'https://api.mercadopago.com/v1/payments/999');assert.equal(options.method,'GET');assert.equal(options.redirect,'error');return {ok:true,json:async()=>payment};};
+ let calls=0;const fetcher=async(url,options)=>{calls++;assert.equal(url,'https://api.mercadopago.com/v1/payments/999');assert.equal(options.method,'GET');assert.equal(options.redirect,'manual');return {ok:true,json:async()=>payment};};
  await assert.rejects(productionPayment({},'999',fetcher),/READ_DISABLED/);
  await assert.rejects(productionPayment({MP_PRODUCTION_READ_ENABLED:'true'},'999',fetcher),/CONFIG_MISSING/);assert.equal(calls,0);
  const env={MP_PRODUCTION_READ_ENABLED:'true',MP_ACCESS_TOKEN_PRODUCTION:'fixture',MP_COLLECTOR_ID_PRODUCTION:'123'};
@@ -58,7 +58,7 @@ test('confirmed existing production token is supported, explicit override wins a
 
 test('account check sends GET only, rejects receiver/site mismatch and minimizes returned data',async()=>{
  let calls=0;const env={MP_ACCESS_TOKEN:'fixture',MP_PRODUCTION_READ_ENABLED:'true',MP_COLLECTOR_ID_PRODUCTION:'123'};
- const fetcher=async(url,options)=>{calls++;assert.equal(url,'https://api.mercadopago.com/users/me');assert.equal(options.method,'GET');assert.equal(options.redirect,'error');return {ok:true,json:async()=>({id:123,site_id:'MLM',email:'private@example.test',first_name:'private'})};};
+ const fetcher=async(url,options)=>{calls++;assert.equal(url,'https://api.mercadopago.com/users/me');assert.equal(options.method,'GET');assert.equal(options.redirect,'manual');return {ok:true,json:async()=>({id:123,site_id:'MLM',email:'private@example.test',first_name:'private'})};};
  await assert.rejects(productionAccount({...env,MP_PRODUCTION_READ_ENABLED:'false'},fetcher),/READ_DISABLED/);assert.equal(calls,0);
  assert.deepEqual(await productionAccount(env,fetcher),{receiverMatched:true,site:'MLM'});
  await assert.rejects(productionAccount({...env,MP_COLLECTOR_ID_PRODUCTION:'456'},fetcher),/ACCOUNT_MISMATCH/);
@@ -81,4 +81,11 @@ test('account diagnostics classify provider failures without exposing response b
   const r=await productionReadRoute(new Request(url),env,url,{status:'active',isFounder:true},json,async()=>{throw Object.assign(Error('private-token'),{name});});
   assert.deepEqual(await r.json(),{ok:false,error:'MP_PRODUCTION_'+code});
  }
+});
+
+test('manual redirects are rejected without following Location or parsing its body',async()=>{
+ const env={MP_ACCESS_TOKEN:'fixture',MP_PRODUCTION_READ_ENABLED:'true',MP_COLLECTOR_ID_PRODUCTION:'123'};
+ let calls=0;const upstream=async(url,options)=>{calls++;assert.equal(options.redirect,'manual');return new Response(null,{status:302,headers:{Location:'https://untrusted.test'}});};
+ await assert.rejects(productionAccount(env,upstream),/MP_PRODUCTION_UNAVAILABLE/);
+ await assert.rejects(productionPayment(env,'999',upstream),/MP_PRODUCTION_UNAVAILABLE/);assert.equal(calls,2);
 });
