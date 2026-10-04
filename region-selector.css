@@ -1,0 +1,17 @@
+.topbar #zx-region-open{width:100%;min-height:44px;padding:4px;border:1px solid #796791;border-radius:12px;background:#15111e;color:#f8f4ff;font:700 12px/1.2 system-ui;cursor:pointer}
+#zx-region-dialog{box-sizing:border-box;width:min(420px,calc(100% - 28px));max-height:85dvh;overflow:auto;padding:24px;border:1px solid #796791;border-radius:20px;background:linear-gradient(145deg,#21172e,#0b101b);color:#f8f4ff;box-shadow:0 20px 70px #000b}
+#zx-region-dialog::backdrop{background:#03050cbb}
+.zx-region-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.zx-region-heading h2{font:700 22px/1.3 system-ui;margin:0}
+#zx-region-dialog p{color:#c8c1d4;font:14px/1.6 system-ui}
+#zx-region-dialog label{display:block;margin:18px 0 8px;font:600 14px/1.4 system-ui}
+#zx-region-dialog select{box-sizing:border-box;width:100%;min-height:48px;padding:10px 12px;border:1px solid #796791;border-radius:10px;background:#12121f;color:white;font:16px system-ui}
+#zx-region-dialog button{min-height:44px;padding:10px 16px;border:1px solid #796791;border-radius:10px;background:#37234f;color:white;font:700 15px system-ui;cursor:pointer}
+#zx-region-done{width:100%}
+#zx-region-dialog :focus-visible,#zx-region-open:focus-visible{outline:2px solid #b4c7ff;outline-offset:3px}
+.zx-payment-methods{display:flex;flex-wrap:wrap;justify-content:center;gap:16px;margin:20px}
+.zx-payment-methods[hidden]{display:none}
+@keyframes zx-region-enter{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateX(0)}}
+#zx-region-dialog[open]{animation:zx-region-enter .18s ease-out}
+@media(max-width:650px){#zx-region-dialog{margin:auto 0 0;width:100%;max-width:none;max-height:85dvh;border-radius:20px 20px 0 0;padding:22px 20px}#zx-region-dialog[open]{animation:zx-region-up .2s ease-out}@keyframes zx-region-up{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}}
+@media(prefers-reduced-motion:reduce){#zx-region-dialog[open]{animation:none}}

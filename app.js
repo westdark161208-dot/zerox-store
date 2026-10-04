@@ -385,21 +385,9 @@ let current = null;
 let currentCurrency = "MXN";
 let searchTerm = "";
 
-const RATES = {
-  MXN: 1,
-  USD: 0.055,
-  COP: 215,
-  ARS: 78,
-  BRL: 0.29
-};
-
-const LOCALES = {
-  MXN: "es-MX",
-  USD: "en-US",
-  COP: "es-CO",
-  ARS: "es-AR",
-  BRL: "pt-BR"
-};
+// Display references only; checkout prices and fulfillment remain server-owned.
+const RATES = Object.fromEntries(ZXRegionalConfig.currencies.map(c => [c.code, c.referenceRate]));
+const LOCALES = Object.fromEntries(ZXRegionalConfig.currencies.map(c => [c.code, c.locale]));
 
 const $ = selector => document.querySelector(selector);
 const $$ = selector => [...document.querySelectorAll(selector)];
@@ -1131,6 +1119,7 @@ $$("[data-cat]").forEach(button => {
 
 if ($("#currency")) {
   $("#currency").onchange = event => {
+    if (!Object.hasOwn(RATES, event.target.value)) return;
     currentCurrency = event.target.value;
 
     if ($("#rate-note")) {
@@ -1142,7 +1131,7 @@ if ($("#currency")) {
 
     render();
     zxUpdateManagedCurrency();
-    updateCartUI();
+    renderCart();
   };
 }
 

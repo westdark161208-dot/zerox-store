@@ -34,7 +34,8 @@
   >
   <link rel="stylesheet" href="./styles.css?v=36">
   <link rel="stylesheet" href="./diamond-collection.css?v=4">
-  <link rel="stylesheet" href="./responsive.css?v=4">
+  <link rel="stylesheet" href="./responsive.css?v=7">
+  <link rel="stylesheet" href="./region-selector.css?v=1">
   <script>
   /* Zero'X emergency cache reset: keep the storefront accessible even if app JS fails */
   if ('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister();});}).catch(function(){});
@@ -87,18 +88,9 @@
         >
       </div>
 
-      <label
-        class="currency-select"
-        aria-label="Seleccionar moneda">
-
-        <select id="currency">
-          <option value="MXN">MXN</option>
-          <option value="USD">USD</option>
-          <option value="COP">COP</option>
-          <option value="ARS">ARS</option>
-          <option value="BRL">BRL</option>
-        </select>
-      </label>
+      <div class="currency-select">
+        <button type="button" id="zx-region-open" aria-haspopup="dialog" aria-controls="zx-region-dialog" aria-label="País México, moneda MXN">🇲🇽 MXN</button>
+      </div>
 
       <button
         class="icon-btn cart-btn"
@@ -758,6 +750,8 @@
 
     </div>
 
+    <div id="zx-payment-methods" class="zx-payment-methods" hidden aria-label="Métodos de pago habilitados"></div>
+    <p class="zx-origin"><span>Hecho en México</span><strong>Iztapalapa, Ciudad de México</strong></p>
   </footer>
 
 
@@ -1100,6 +1094,7 @@
         <div><small>MI PERFIL</small><div class="zx-name-line"><strong id="account-name">Jugador</strong></div><span id="account-username">@usuario</span><span id="founder-badge-info" class="zx-founder-info" hidden>Fundador</span></div>
       </div>
       <p id="profile-bio-view" class="zx-profile-bio">Personaliza tu presentación ✨</p>
+      <h3 class="zx-profile-section-title">Nivel y beneficios</h3>
       <div class="account-stats"><div><b id="account-level">1</b><span>NIVEL</span></div><div><b id="account-xp">0</b><span>XP</span></div></div>
       <details class="level-help"><summary>¿Cómo funcionan los niveles?</summary><p>Tu nivel Zero’X es independiente del nivel de Free Fire. Las cuentas nuevas comienzan en nivel 1 con 0 XP.</p><p>La acumulación de XP por compras aún no está activa. Publicaremos aquí las acciones que dan puntos y los requisitos para subir de nivel cuando estén habilitados.</p><p>Marcos por nivel: 1 Acero · 2 Plata · 3 Neón azul · 4 Circuito · 5 Energía verde · 6 Multicolor · 7 Fuego dorado. La insignia y el marco de Fundador son exclusivos.</p></details><section class="zx-profile-info" aria-label="Información personal">
         <h3><span aria-hidden="true">◇</span> Información personal</h3>
@@ -1284,12 +1279,22 @@
     </button>
 
   </div>
+<dialog id="zx-region-dialog" aria-labelledby="zx-region-title" aria-describedby="zx-region-description">
+  <div class="zx-region-heading"><h2 id="zx-region-title">País y moneda</h2><button type="button" id="zx-region-close" aria-label="Cerrar selector">×</button></div>
+  <p id="zx-region-description">Elige tu país de consulta y la moneda para ver precios. La región de tu cuenta de juego se verifica por separado al comprar.</p>
+  <label for="zx-country">País</label><select id="zx-country"></select>
+  <label for="currency">Moneda de referencia</label><select id="currency"></select>
+  <p id="zx-region-rate" role="status"></p>
+  <button type="button" id="zx-region-done">Listo</button>
+</dialog>
+<script src="./regional-config.js?v=1" defer></script>
 <script src="./payments-config.js?v=1" defer></script>
 <script src="./diamonds.js?v=1" defer></script>
 <script src="./diamond-catalog.js?v=4" defer></script>
 <script src="./diamond-collection.js?v=6" defer></script>
-<script src="./app.js?v=49" defer></script>
+<script src="./app.js?v=50" defer></script>
 <script src="./resellers.js?v=3" defer></script>
+<script src="./region-selector.js?v=1" defer></script>
 
 <script src="./editor-elements.js?v=1" defer></script>
 <script src="./store-editor.js?v=3" defer></script>
