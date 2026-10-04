@@ -1,12 +1,12 @@
 import {fundingSchema,createFundingIntent,reconcileFunding} from './funding.mjs';
 import {walletSchema} from '../wallet/ledger.mjs';
 import {settleFunding} from './settlement.mjs';
-import {productionPayment} from './mercadopago-production.mjs';
+import {productionPayment,productionToken} from './mercadopago-production.mjs';
 import {validSignature} from './mercadopago-test.mjs';
 const ROOT='/api/payments/mercadopago/funding';
 const SITE='https://zerox-store.pages.dev';
 const HOOK='https://zerox-sixofire-api.westdark161208.workers.dev'+ROOT+'/webhook';
-function enabled(env){return env.MP_WALLET_PILOT_ENABLED==='true'&&env.MP_PRODUCTION_READ_ENABLED==='true'&&!!env.MP_ACCESS_TOKEN_PRODUCTION&&!!env.MP_COLLECTOR_ID_PRODUCTION&&!!env.MP_WEBHOOK_SECRET_PRODUCTION;}
+function enabled(env){return env.MP_WALLET_PILOT_ENABLED==='true'&&env.MP_PRODUCTION_READ_ENABLED==='true'&&!!productionToken(env)&&!!env.MP_COLLECTOR_ID_PRODUCTION&&!!env.MP_WEBHOOK_SECRET_PRODUCTION;}
 async function schemas(db){
  await fundingSchema(db);await walletSchema(db);
  await db.prepare(`CREATE TABLE IF NOT EXISTS zx_funding_checkouts (
@@ -54,7 +54,7 @@ export async function fundingRoute(request,env,url,user,json,fetcher=fetch){
    const back=SITE+'/wallet-payment.html?attempt='+intent.id;
    let pref;
    try{
-    const response=await fetcher('https://api.mercadopago.com/checkout/preferences',{method:'POST',redirect:'error',headers:{Authorization:'Bearer '+env.MP_ACCESS_TOKEN_PRODUCTION,'Content-Type':'application/json'},signal:AbortSignal.timeout(12000),body:JSON.stringify({
+    const response=await fetcher('https://api.mercadopago.com/checkout/preferences',{method:'POST',redirect:'error',headers:{Authorization:'Bearer '+productionToken(env),'Content-Type':'application/json'},signal:AbortSignal.timeout(12000),body:JSON.stringify({
      items:[{id:intent.id,title:'Saldo Zero’X · prueba controlada',quantity:1,currency_id:'MXN',unit_price:intent.amount_cents/100}],external_reference:intent.id,
      back_urls:{success:back,pending:back,failure:back},notification_url:HOOK,expires:true,expiration_date_to:new Date(Date.now()+3600000).toISOString()
     })});

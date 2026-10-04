@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {database} from './helpers/d1.mjs';
-import {paymentCents,productionEvidence,productionPayment,productionReadRoute} from '../cloudflare/payments/mercadopago-production.mjs';
+import {productionToken,paymentCents,productionEvidence,productionPayment,productionReadRoute} from '../cloudflare/payments/mercadopago-production.mjs';
 import {fundingSchema,createFundingIntent,reconcileFunding} from '../cloudflare/payments/funding.mjs';
 const input={id:'intent-1',userId:'user',amountCents:1850,collectorId:'123',requestKey:'request-1'};
 const payment={id:999,live_mode:true,collector_id:123,external_reference:'intent-1',currency_id:'MXN',transaction_amount:18.5,status:'approved'};
@@ -42,4 +42,16 @@ test('pending/failed never verify; refund review persists across out-of-order ap
  assert.equal((await reconcileFunding(db,{...payment,transaction_amount_refunded:1})).state,'review_required');
  assert.equal((await reconcileFunding(db,payment)).state,'review_required');
  await assert.rejects(reconcileFunding(db,{...payment,transaction_amount:17}),/EVIDENCE_REJECTED/);
+});
+
+test('confirmed existing production token is supported, explicit override wins and TEST never substitutes',async()=>{
+ assert.equal(productionToken({MP_ACCESS_TOKEN:'live',MP_ACCESS_TOKEN_TEST:'test'}),'live');
+ assert.equal(productionToken({MP_ACCESS_TOKEN:'live',MP_ACCESS_TOKEN_PRODUCTION:'override'}),'override');
+ assert.equal(productionToken({MP_ACCESS_TOKEN_TEST:'test'}),'');
+ let calls=0;
+ const fetcher=async(url,options)=>{calls++;assert.equal(options.headers.Authorization,'Bearer live');return {ok:true,json:async()=>payment};};
+ const env={MP_PRODUCTION_READ_ENABLED:'true',MP_ACCESS_TOKEN:'live',MP_COLLECTOR_ID_PRODUCTION:'123'};
+ await productionPayment(env,'999',fetcher);
+ await assert.rejects(productionPayment({...env,MP_ACCESS_TOKEN:undefined,MP_ACCESS_TOKEN_TEST:'test'},'999',fetcher),/CONFIG_MISSING/);
+ assert.equal(calls,1);
 });

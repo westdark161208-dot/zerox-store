@@ -47,3 +47,7 @@ Un checkout ambiguo necesita revisar la preferencia/pago antes de un nuevo inten
 Revertir este incremento restaura 5f4226c. Antes de detener un piloto activado con pagos pendientes, deshabilitar nuevos checkouts y resolver las notificaciones pendientes; no borrar intenciones, checkouts o ledger. No cortar recepción de pagos aprobados sin conciliarlos. Código de schema es aditivo; conservar registros para auditoría.
 
 Referencia oficial: [crear preferencia](https://www.mercadopago.com.mx/developers/es/reference/online-payments/checkout-pro-preferences/create-preference/post). Consulta y firma: fuentes del documento PRODUCTION-PAYMENTS-2026-10-04.md.
+
+## Confirmed production configuration
+
+The owner confirmed that the existing `MP_ACCESS_TOKEN` holds production credentials. Production modules now accept this name; `MP_ACCESS_TOKEN_PRODUCTION` remains an optional explicit override. `MP_ACCESS_TOKEN_TEST` is never a fallback. Live mode, receiver, currency and amount checks remain mandatory. The owner saved collector `1404826494` and reported saving `MP_WEBHOOK_SECRET_PRODUCTION` in Cloudflare; secret presence and live connectivity have not been independently verified. Collector is mirrored in Wrangler vars to preserve it on deployment. No activation flags were added and no money was processed.
