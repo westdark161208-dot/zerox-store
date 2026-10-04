@@ -1,5 +1,11 @@
 # Changelog de continuidad v2
 
+## Piloto cerrado de saldo — 2026-10-04 UTC
+- Checkout de intención MXN exclusivo fundador, webhook firmado y consulta propia preparados detrás de MP_WALLET_PILOT_ENABLED, apagado por defecto.
+- Abono y confirmación atómicos; reintentos/concurrencia no duplican movimiento. Pagos pendientes o bajo revisión no abonan.
+- Pantalla de pago/retorno y control de privacidad; browser return nunca confirma un pago.
+- 61 pruebas Node, suite revendedores y build público aprobados. Sin cobros reales ni cambios remotos. Requisitos e intervención siguiente: FUNDING-PILOT-2026-10-04.md.
+
 ## Pagos de producción: preparación — 2026-10-04 UTC
 - Lectura privada de pagos reales existentes y diagnóstico de configuración; desactivada por defecto, sin cobros ni movimientos.
 - Intenciones MXN internas y validación de evidencia/idempotencia/estados; no conectadas al ledger ni a un webhook productivo.

@@ -1,4 +1,4 @@
-// Internal funding intents; no HTTP creation, checkout, webhook or balance write yet.
+// Internal funding intents; only server-fetched payment evidence may enter reconciliation.
 import {productionEvidence,paymentCents} from './mercadopago-production.mjs';
 export async function fundingSchema(db){
  await db.prepare(`CREATE TABLE IF NOT EXISTS zx_funding_intents (
@@ -30,7 +30,7 @@ export async function reconcileFunding(db,payment){
  const id=String(payment.id);
  try{
   await db.prepare(`UPDATE zx_funding_intents SET payment_id=?,observed_status=?,
-   state=CASE WHEN state='review_required' THEN state WHEN state='verified' AND ?!='review_required' THEN state ELSE ? END,
+   state=CASE WHEN state='review_required' THEN state WHEN state IN ('verified','confirmed') AND ?!='review_required' THEN state ELSE ? END,
    updated_at=CURRENT_TIMESTAMP WHERE id=? AND (payment_id IS NULL OR payment_id=?)`)
    .bind(id,payment.status,state,state,intent.id,id).run();
  }catch{throw Error('FUNDING_PAYMENT_CONFLICT');}

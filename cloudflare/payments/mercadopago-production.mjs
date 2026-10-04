@@ -28,7 +28,7 @@ export async function productionReadRoute(request,env,url,user,json){
  if(!user||user.status!=='active'||user.isFounder!==true)return reply({ok:false,error:'FORBIDDEN'},403);
  if(request.method!=='GET')return reply({ok:false,error:'METHOD_NOT_ALLOWED'},405);
  const root='/api/admin/payments/mercadopago';
- if(url.pathname===root+'/status')return reply({ok:true,readEnabled:env.MP_PRODUCTION_READ_ENABLED==='true',tokenConfigured:!!env.MP_ACCESS_TOKEN_PRODUCTION,collectorConfigured:!!env.MP_COLLECTOR_ID_PRODUCTION,webhookConfigured:!!env.MP_WEBHOOK_SECRET_PRODUCTION,checkoutEnabled:false,walletFundingEnabled:false});
+ if(url.pathname===root+'/status')return reply({ok:true,readEnabled:env.MP_PRODUCTION_READ_ENABLED==='true',tokenConfigured:!!env.MP_ACCESS_TOKEN_PRODUCTION,collectorConfigured:!!env.MP_COLLECTOR_ID_PRODUCTION,webhookConfigured:!!env.MP_WEBHOOK_SECRET_PRODUCTION,checkoutEnabled:env.MP_WALLET_PILOT_ENABLED==='true'&&env.MP_PRODUCTION_READ_ENABLED==='true'&&!!env.MP_ACCESS_TOKEN_PRODUCTION&&!!env.MP_COLLECTOR_ID_PRODUCTION&&!!env.MP_WEBHOOK_SECRET_PRODUCTION,walletFundingEnabled:false});
  const match=url.pathname.match(/^\/api\/admin\/payments\/mercadopago\/payments\/(\d{1,30})$/);
  if(!match)return reply({ok:false,error:'NOT_FOUND'},404);
  try{

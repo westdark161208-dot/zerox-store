@@ -1,3 +1,4 @@
+import {fundingRoute} from "./payments/funding-routes.mjs";
 import {productionReadRoute} from "./payments/mercadopago-production.mjs";
 import {walletRoute} from "./wallet/routes.mjs";
 import {providerRoute} from "./providers/routes.mjs";
@@ -203,6 +204,11 @@ export default {
       }
 
       const url = new URL(request.url);
+      if(url.pathname.startsWith('/api/payments/mercadopago/funding/')){
+        let user=null;
+        if(!url.pathname.endsWith('/webhook')){await authSchema(env);user=await currentUser(request,env);}
+        return await fundingRoute(request,env,url,user,json);
+      }
       if(url.pathname.startsWith("/api/payments/mercadopago/test/")){
         let user=null;
         if(!url.pathname.endsWith("/webhook")){await authSchema(env);user=await currentUser(request,env);}
