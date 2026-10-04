@@ -2,17 +2,17 @@
 (() => {
   const API='https://zerox-sixofire-api.westdark161208.workers.dev';
   const q=id=>document.getElementById(id);
-  let generation=0, nextCursor=null, providerReady=false;
+  let generation=0, nextCursor=null, providerReady=false, paymentReady=false;
   const pending=new Set();
   const token=()=>{try{return JSON.parse(localStorage.getItem('zerox-session')||'null')?.token;}catch{return null;}};
   const money=cents=>new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'}).format(cents/100);
   function clear(){
     generation++; for(const controller of pending)controller.abort();pending.clear();
-    nextCursor=null;providerReady=false;
+    nextCursor=null;providerReady=false;paymentReady=false;
     q('wallet-audit-rows').replaceChildren();
-    for(const id of ['wallet-audit-status','provider-status','provider-balance-result'])q(id).textContent='';
-    q('wallet-audit-next').hidden=true;
-    for(const id of ['wallet-audit-refresh','wallet-audit-next','provider-check','provider-balance'])q(id).disabled=true;
+    for(const id of ['wallet-audit-status','provider-status','provider-balance-result','payment-config-status','payment-audit-status'])q(id).textContent='';
+    q('wallet-audit-next').hidden=true;q('payment-audit-id').value='';
+    for(const id of ['wallet-audit-refresh','wallet-audit-next','provider-check','provider-balance','payment-config-check','payment-audit-check'])q(id).disabled=true;
   }
   async function read(path, apply, fail, finish){
     const current=token(), version=generation;
@@ -68,11 +68,29 @@
       q('provider-check').disabled=false;q('provider-balance').disabled=!providerReady;
     });
   }
+  function paymentConfig(){
+    paymentReady=false;q('payment-config-check').disabled=true;q('payment-audit-check').disabled=true;
+    q('payment-audit-status').textContent='';q('payment-config-status').textContent='Consultando configuración…';
+    read('/api/admin/payments/mercadopago/status',data=>{
+      paymentReady=data.readEnabled&&data.tokenConfigured&&data.collectorConfigured;
+      q('payment-config-status').textContent=paymentReady?'Consulta de pagos reales habilitada. Cobros y abonos aún desactivados.':`Consulta: ${data.readEnabled?'habilitada':'desactivada'} · Credencial: ${data.tokenConfigured?'configurada':'pendiente'} · Cuenta receptora: ${data.collectorConfigured?'configurada':'pendiente'} · Firma webhook: ${data.webhookConfigured?'configurada':'pendiente'}`;
+    },message=>{q('payment-config-status').textContent=message;},()=>{q('payment-config-check').disabled=false;q('payment-audit-check').disabled=!paymentReady;});
+  }
+  function paymentAudit(){
+    if(!paymentReady||q('payment-audit-check').disabled)return;
+    const id=q('payment-audit-id').value.trim();
+    if(!/^\d{1,30}$/.test(id)){q('payment-audit-status').textContent='Escribe un ID numérico de pago válido.';return;}
+    q('payment-config-check').disabled=true;q('payment-audit-check').disabled=true;q('payment-audit-status').textContent='Consultando pago…';
+    read('/api/admin/payments/mercadopago/payments/'+id,data=>{
+      const p=data.payment;q('payment-audit-status').textContent=`Pago ${p.id} · ${p.status} · ${money(p.amountCents)} MXN · Sin abono ni entrega desde esta consulta.`;
+    },message=>{q('payment-audit-status').textContent=message;},()=>{q('payment-config-check').disabled=false;q('payment-audit-check').disabled=!paymentReady;});
+  }
+  q('payment-config-check').onclick=paymentConfig;q('payment-audit-check').onclick=paymentAudit;
   q('wallet-audit-refresh').onclick=()=>wallet();q('wallet-audit-next').onclick=()=>wallet(true);
   q('provider-check').onclick=provider;q('provider-balance').onclick=balance;
   window.addEventListener('zx-control-clear',clear);
   window.addEventListener('zx-control-ready',()=>{
-    q('wallet-audit-refresh').disabled=false;q('provider-check').disabled=false;
+    q('wallet-audit-refresh').disabled=false;q('provider-check').disabled=false;q('payment-config-check').disabled=false;
     q('wallet-audit-status').textContent='Consulta los movimientos cuando lo necesites.';
     q('provider-status').textContent='Consulta la configuración antes de solicitar saldo.';
   });

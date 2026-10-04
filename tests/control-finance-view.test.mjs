@@ -4,7 +4,7 @@ import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
 function setup(){
   class Element{hidden=false;disabled=false;textContent='';children=[];replaceChildren(...c){this.children=c;}append(...c){this.children.push(...c);}}
-  const ids=['workspace','wallet-audit-rows','wallet-audit-status','wallet-audit-refresh','wallet-audit-next','provider-status','provider-check','provider-balance','provider-balance-result'];
+  const ids=['workspace','wallet-audit-rows','wallet-audit-status','wallet-audit-refresh','wallet-audit-next','provider-status','provider-check','provider-balance','provider-balance-result','payment-config-status','payment-audit-status','payment-config-check','payment-audit-check','payment-audit-id'];
   const e=Object.fromEntries(ids.map(id=>[id,new Element()])),window=new EventTarget(),calls=[];
   const document={hidden:false,getElementById:id=>e[id],createElement:()=>new Element()};
   let token='one';
@@ -30,4 +30,16 @@ test('provider balance uses the original currency and is cleared on Control rese
   s.e['provider-balance'].onclick();s.calls[1].resolve({ok:true,data:{balance:'12.34',currency:'USD'},syncedAt:'2026-10-04T00:00:00Z'});await settle();
   assert.match(s.e['provider-balance-result'].textContent,/12.34 USD/);
   s.window.dispatchEvent(new Event('zx-control-clear'));assert.equal(s.e['provider-balance-result'].textContent,'');assert.equal(s.e['provider-balance'].disabled,true);
+});
+test('production payment inspection stays unavailable until server configuration is confirmed',async()=>{
+  const s=setup();s.e['payment-config-check'].onclick();s.calls[0].resolve({ok:true,readEnabled:false,tokenConfigured:false,collectorConfigured:false,webhookConfigured:false});await settle();
+  assert.equal(s.e['payment-audit-check'].disabled,true);s.e['payment-audit-check'].onclick();assert.equal(s.calls.length,1);
+  assert.match(s.e['payment-config-status'].textContent,/pendiente/);
+});
+test('real payment inspection rejects malformed IDs and clears late results after session changes',async()=>{
+  const s=setup();s.e['payment-config-check'].onclick();s.calls[0].resolve({ok:true,readEnabled:true,tokenConfigured:true,collectorConfigured:true});await settle();
+  s.e['payment-audit-id'].value='not-an-id';s.e['payment-audit-check'].onclick();assert.equal(s.calls.length,1);
+  s.e['payment-audit-id'].value='999';s.e['payment-audit-check'].onclick();assert.equal(s.calls.length,2);
+  s.change();s.calls[1].resolve({ok:true,payment:{id:'999',status:'approved',amountCents:1000}});await settle();
+  assert.equal(s.e['payment-audit-status'].textContent,'');assert.equal(s.e['payment-audit-id'].value,'');
 });

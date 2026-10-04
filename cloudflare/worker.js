@@ -1,3 +1,4 @@
+import {productionReadRoute} from "./payments/mercadopago-production.mjs";
 import {walletRoute} from "./wallet/routes.mjs";
 import {providerRoute} from "./providers/routes.mjs";
 import {securityRoute} from "./security/sessions.mjs";
@@ -215,6 +216,7 @@ export default {
       if(url.pathname.startsWith("/api/resellers/")||url.pathname.startsWith("/api/admin/resellers")){await authSchema(env);return await resellerRoute(request,env,url,await currentUser(request,env),json);}
       if(url.pathname.startsWith("/api/content/")||url.pathname.startsWith("/api/admin/content/"))return await contentRoutes(request,env,url);
 
+      if(url.pathname.startsWith('/api/admin/payments/mercadopago/')){await authSchema(env);return await productionReadRoute(request,env,url,await currentUser(request,env),json);}
       if(url.pathname.startsWith('/api/wallet/')){await authSchema(env);return await walletRoute(request,env,url,await currentUser(request,env),json);}
       if(url.pathname.startsWith('/api/admin/providers/recargas-america/')){await authSchema(env);return await providerRoute(request,env,url,await currentUser(request,env),json);}
       if(url.pathname.startsWith('/api/security/')){await authSchema(env);return await securityRoute(request,env,url,await currentUser(request,env),json);}

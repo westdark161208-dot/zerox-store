@@ -1,5 +1,11 @@
 # Changelog de continuidad v2
 
+## Pagos de producción: preparación — 2026-10-04 UTC
+- Lectura privada de pagos reales existentes y diagnóstico de configuración; desactivada por defecto, sin cobros ni movimientos.
+- Intenciones MXN internas y validación de evidencia/idempotencia/estados; no conectadas al ledger ni a un webhook productivo.
+- Mercado Pago TEST intacto. Credenciales productivas no verificadas ni expuestas; proveedor sin fondos no procesa recargas.
+- 51 pruebas Node y suite revendedores aprobadas. Límites, configuración y rollback en PRODUCTION-PAYMENTS-2026-10-04.md.
+
 ## Control financiero — 2026-10-04 UTC
 - Continuado PR #4 desde b47c610, conservando tema negro/azul/verde y fundamentos desactivados.
 - Consulta privada paginada de ledger existente; estado de Recargas América y lectura manual de saldo condicionada a configuración del servidor.
