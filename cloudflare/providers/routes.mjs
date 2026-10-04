@@ -1,3 +1,4 @@
+import {quotesRoute} from './quotes.mjs';
 import {integrationRead} from './integrations.mjs';
 import {can} from '../security/permissions.mjs';
 import {readRecargasAmerica} from './recargas-america.mjs';
@@ -5,6 +6,7 @@ export async function providerRoute(request,env,url,user,json) {
   const reply=(body,status=200)=>{const response=json(body,status);response.headers?.set('Cache-Control','no-store');return response;};
   if (!user || user.status!=='active') return reply({ok:false,error:'LOGIN_REQUIRED'},401);
   if (!can(user,'providers.read')) return reply({ok:false,error:'FORBIDDEN'},403);
+  if(url.pathname==='/api/admin/providers/sixofire/quotes')return quotesRoute(request,env,url,user,reply);
   if (request.method!=='GET') return reply({ok:false,error:'METHOD_NOT_ALLOWED'},405);
   if (!url.pathname.startsWith('/api/admin/providers/recargas-america/')) return integrationRead(env,url,reply);
   const root='/api/admin/providers/recargas-america/';

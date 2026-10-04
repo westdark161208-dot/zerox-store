@@ -101,3 +101,17 @@ body.zx-console #funding-form .pay-method input{position:absolute;width:1px!impo
 .pay-method-check{position:absolute;right:9px;top:8px;width:16px;height:16px;display:grid;place-items:center;border-radius:50%;background:#5bfac1;color:#052b21;font-size:11px;font-weight:bold;opacity:0}.pay-method:has(input:checked) .pay-method-check{opacity:1}
 @media(max-width:650px){body.zx-console #funding-form .pay-method{flex-direction:column;align-items:flex-start;gap:12px;padding:18px 14px;min-height:138px}.pay-method-icon{width:48px;height:34px}.pay-method-copy strong{font-size:14px}.pay-method-copy small{font-size:10px}}
 @media(forced-colors:active){body.zx-console #funding-form .pay-method input{position:static;width:18px!important;height:18px;opacity:1}.pay-method-check{display:none}.pay-method-icon{display:none}}
+/* Private system observatory: green neural core, blue geography, black instrument panels. */
+body.zx-console{background:radial-gradient(ellipse at 80% 0,#0b203022,transparent 55%),#010403;--zx-panel-blue:#9abecf;--zx-panel-green:#97ec9f;--zx-panel-text:#e0eae2;--zx-panel-muted:#8da599}
+body.zx-console section{background:linear-gradient(120deg,#050b09ee,#020506);border:1px solid #284c3c;box-shadow:inset 0 0 30px #275b2410,0 12px 35px #0007;border-radius:16px;position:relative}
+.system-observatory{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin:24px 0;grid-column:1/-1}
+.system-observatory article{min-width:0;background:linear-gradient(160deg,#07120c,#010605);border:1px solid #2a6044;border-radius:18px;padding:20px;position:relative;overflow:hidden;box-shadow:inset 0 0 35px #286e1720,0 0 20px #173e231a}
+.system-observatory article::before{content:"";position:absolute;top:0;left:15%;height:1px;width:70%;background:linear-gradient(90deg,transparent,#80ed90,transparent);animation:zx-instrument-scan 8s ease-in-out infinite;pointer-events:none}
+.system-observatory article h2{font-size:18px!important;margin:0 0 5px!important;color:#b9e3bb!important}.system-observatory canvas{display:block;width:100%;height:300px}.system-observatory .console-note{font-size:12px;margin:8px 0;color:#839c8f}
+.system-observatory .console-kicker{color:#72b680;margin-bottom:10px}.system-observatory .system-data{min-height:48px;font:12px/1.7 system-ui;color:#bed3c3}.system-legend{display:flex;flex-wrap:wrap;gap:10px;list-style:none;padding:0;margin:12px 0}.system-legend li{font:10px system-ui;padding:6px 9px;border:1px solid #244334;color:#90ad99;border-radius:6px}
+.system-quotes{list-style:none;padding:0;display:grid;gap:10px}.system-quotes li{border:1px solid #204832;border-radius:10px;padding:12px;min-width:0}.system-quotes svg{width:100%;height:80px;display:block}.system-quotes p{font:12px/1.7 system-ui;margin:6px 0}.system-quotes strong{font-size:14px!important;color:#c6ecce!important}
+body.zx-console .pay-method .zx-payment-logo{width:84px!important;height:40px!important;object-fit:contain!important;max-width:100%}
+body.zx-console .pay-method-icon{width:104px;max-width:100%;height:46px}body.zx-console .pay-method-icon svg{width:44px;height:36px}
+@keyframes zx-instrument-scan{0%,100%{opacity:.25;transform:translateX(-12%)}50%{opacity:.8;transform:translateX(12%)}}
+@media(max-width:760px){.system-observatory{grid-template-columns:1fr;gap:12px}.system-observatory article{padding:16px}.system-observatory canvas{height:260px}.pay-method{min-height:100px}body.zx-console .pay-method-icon{width:80px}}
+@media(prefers-reduced-motion:reduce){.system-observatory article::before{animation:none}}

@@ -1,3 +1,4 @@
+import {readSixofire,safeProviderError} from './sixofire-read.mjs';
 // Private read-only adapters. Fixed origins and no raw provider payloads or errors.
 const text=v=>['string','number'].includes(typeof v)?String(v).slice(0,120):null;
 const count=v=>v!==null&&v!==undefined&&v!==''&&Number.isSafeInteger(Number(v))&&Number(v)>=0?Number(v):null;
@@ -21,11 +22,14 @@ export async function integrationRead(env,url,reply,fetcher=fetch){
   endpoint='https://developers.freefirecommunity.com/api/v1/info?'+new URLSearchParams({uid,region});headers={'x-api-key':env.FF_INFO_API_KEY};kind='player';
  }else return reply({ok:false,error:'NOT_FOUND'},404);
  try{
+  let raw;
+  if(kind==='catalog'||kind==='order-access'){raw=await readSixofire(env,endpoint.replace('https://api.sixofire.net',''),fetcher);}else{
   const response=await fetcher(endpoint,{method:'GET',redirect:'manual',headers:{...headers,Accept:'application/json'},signal:AbortSignal.timeout(12000)});
   if(!response.ok)return reply({ok:false,error:response.status===401||response.status===403?'PROVIDER_CREDENTIAL_REJECTED':response.status===429?'PROVIDER_RATE_LIMITED':'PROVIDER_UNAVAILABLE'},503);
-  const raw=await response.json();let data;
+  raw=await response.json();}
+  let data;
   if(kind==='order-access'){
-   if(raw.status!==true||raw.code!==200||!raw.data||typeof raw.data!=='object')throw Error('invalid');
+   if(raw.status!==true||Number(raw.code)!==200||!raw.data||typeof raw.data!=='object')throw Error('PROVIDER_RESPONSE_FORMAT');
    data={orderReadAvailable:true,deliveryEnabled:false,balanceVerified:false};
   }else if(kind==='player'){
    const b=raw.basicInfo||raw.player?.basicInfo;
@@ -34,8 +38,8 @@ export async function integrationRead(env,url,reply,fetcher=fetch){
   }else{
    const items=Array.isArray(raw)?raw:raw.items||raw.data?.items||raw.data;
    if(!Array.isArray(items))throw Error('invalid');
-   data={total:items.length,items:items.slice(0,100).map(i=>({id:text(i.id??i.item_id??i.product_id),name:text(i.name??i.title),available:i.available===true&&i.isActive===true,itemType:text(i.itemType),diamonds:count(i.diamondQuantity),regions:Array.isArray(i.availableRegions)?i.availableRegions.map(text).filter(Boolean).slice(0,20):[]} )).filter(i=>i.id||i.name)};
+   data={total:items.length,items:items.slice(0,100).map(i=>({id:text(i.id??i.item_id??i.product_id),name:text(i.name??i.title),available:i.available===true&&i.isActive===true,itemType:text(i.itemType),diamonds:count(i.diamondQuantity),priceUsd:(i.effectivePriceUsd??i.priceUsd)!=null&&Number.isFinite(Number(i.effectivePriceUsd??i.priceUsd))?Number(i.effectivePriceUsd??i.priceUsd):null,bonus:count(i.diamondBonus),regions:Array.isArray(i.availableRegions)?i.availableRegions.map(text).filter(Boolean).slice(0,20):[]} )).filter(i=>i.id||i.name)};
   }
   return reply({ok:true,data,queriedAt:new Date().toISOString(),purchasesEnabled:false});
- }catch{return reply({ok:false,error:'PROVIDER_UNAVAILABLE'},503);}
+ }catch(error){return reply({ok:false,error:safeProviderError(error)},503);}
 }
