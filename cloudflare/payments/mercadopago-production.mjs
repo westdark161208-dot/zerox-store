@@ -25,16 +25,30 @@ export async function productionPayment(env,id,fetcher=fetch){
  if(payment.live_mode!==true||String(payment.id)!==String(id)||String(payment.collector_id)!==String(env.MP_COLLECTOR_ID_PRODUCTION)||payment.currency_id!=='MXN'||paymentCents(payment.transaction_amount)===null)throw Error('MP_PRODUCTION_EVIDENCE_REJECTED');
  return payment;
 }
-export async function productionReadRoute(request,env,url,user,json){
+// Connection evidence only; matching account does not prove a live payment.
+export async function productionAccount(env,fetcher=fetch){
+ if(env.MP_PRODUCTION_READ_ENABLED!=='true')throw Error('MP_PRODUCTION_READ_DISABLED');
+ if(!productionToken(env)||!env.MP_COLLECTOR_ID_PRODUCTION)throw Error('MP_PRODUCTION_CONFIG_MISSING');
+ const response=await fetcher('https://api.mercadopago.com/users/me',{method:'GET',redirect:'error',headers:{Authorization:'Bearer '+productionToken(env),Accept:'application/json'},signal:AbortSignal.timeout(12000)});
+ if(!response.ok)throw Error('MP_PRODUCTION_UNAVAILABLE');
+ const account=await response.json();
+ if(!/^\d{1,30}$/.test(String(account.id))||String(account.id)!==String(env.MP_COLLECTOR_ID_PRODUCTION)||account.site_id!=='MLM')throw Error('MP_PRODUCTION_ACCOUNT_MISMATCH');
+ return {receiverMatched:true,site:'MLM'};
+}
+export async function productionReadRoute(request,env,url,user,json,fetcher=fetch){
  const reply=(body,status=200)=>{const r=json(body,status);r.headers?.set('Cache-Control','no-store');return r;};
  if(!user||user.status!=='active'||user.isFounder!==true)return reply({ok:false,error:'FORBIDDEN'},403);
  if(request.method!=='GET')return reply({ok:false,error:'METHOD_NOT_ALLOWED'},405);
  const root='/api/admin/payments/mercadopago';
  if(url.pathname===root+'/status')return reply({ok:true,readEnabled:env.MP_PRODUCTION_READ_ENABLED==='true',tokenConfigured:!!productionToken(env),collectorConfigured:!!env.MP_COLLECTOR_ID_PRODUCTION,webhookConfigured:!!env.MP_WEBHOOK_SECRET_PRODUCTION,checkoutEnabled:env.MP_WALLET_PILOT_ENABLED==='true'&&env.MP_PRODUCTION_READ_ENABLED==='true'&&!!productionToken(env)&&!!env.MP_COLLECTOR_ID_PRODUCTION&&!!env.MP_WEBHOOK_SECRET_PRODUCTION,walletFundingEnabled:false});
+ if(url.pathname===root+'/account'){
+  try{return reply({ok:true,account:await productionAccount(env,fetcher),paymentVerified:false,walletCredited:false,deliveryEnabled:false});}
+  catch(e){const safe=['MP_PRODUCTION_READ_DISABLED','MP_PRODUCTION_CONFIG_MISSING','MP_PRODUCTION_ACCOUNT_MISMATCH'].includes(e.message)?e.message:'MP_PRODUCTION_UNAVAILABLE';return reply({ok:false,error:safe},503);}
+ }
  const match=url.pathname.match(/^\/api\/admin\/payments\/mercadopago\/payments\/(\d{1,30})$/);
  if(!match)return reply({ok:false,error:'NOT_FOUND'},404);
  try{
-  const p=await productionPayment(env,match[1]);
+  const p=await productionPayment(env,match[1],fetcher);
   return reply({ok:true,payment:{id:String(p.id),status:p.status,currency:'MXN',amountCents:paymentCents(p.transaction_amount),refundedCents:paymentCents(p.transaction_amount_refunded??0),externalReference:String(p.external_reference||''),liveMode:true},walletCredited:false,deliveryEnabled:false});
  }catch(e){
   const safe=['MP_PRODUCTION_READ_DISABLED','MP_PRODUCTION_CONFIG_MISSING','MP_PRODUCTION_EVIDENCE_REJECTED'].includes(e.message)?e.message:'MP_PRODUCTION_UNAVAILABLE';

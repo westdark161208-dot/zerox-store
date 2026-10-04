@@ -4,7 +4,7 @@ import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
 function setup(){
   class Element{hidden=false;disabled=false;textContent='';children=[];replaceChildren(...c){this.children=c;}append(...c){this.children.push(...c);}}
-  const ids=['workspace','wallet-audit-rows','wallet-audit-status','wallet-audit-refresh','wallet-audit-next','provider-status','provider-check','provider-balance','provider-balance-result','payment-config-status','payment-audit-status','payment-config-check','payment-audit-check','payment-audit-id'];
+  const ids=['workspace','wallet-audit-rows','wallet-audit-status','wallet-audit-refresh','wallet-audit-next','provider-status','provider-check','provider-balance','provider-balance-result','payment-config-status','payment-audit-status','payment-config-check','payment-audit-check','payment-audit-id','payment-account-check','payment-account-status'];
   const e=Object.fromEntries(ids.map(id=>[id,new Element()])),window=new EventTarget(),calls=[];
   const document={hidden:false,getElementById:id=>e[id],createElement:()=>new Element()};
   let token='one';
@@ -42,4 +42,13 @@ test('real payment inspection rejects malformed IDs and clears late results afte
   s.e['payment-audit-id'].value='999';s.e['payment-audit-check'].onclick();assert.equal(s.calls.length,2);
   s.change();s.calls[1].resolve({ok:true,payment:{id:'999',status:'approved',amountCents:1000}});await settle();
   assert.equal(s.e['payment-audit-status'].textContent,'');assert.equal(s.e['payment-audit-id'].value,'');
+});
+
+test('account connection check requires configuration and discards late private response',async()=>{
+ const s=setup();s.e['payment-account-check'].onclick();assert.equal(s.calls.length,0);
+ s.e['payment-config-check'].onclick();s.calls[0].resolve({ok:true,readEnabled:true,tokenConfigured:true,collectorConfigured:true,webhookConfigured:true,checkoutEnabled:false});await settle();
+ assert.match(s.e['payment-config-status'].textContent,/desactivado/);
+ s.e['payment-account-check'].onclick();assert.match(s.calls[1].url,/mercadopago\/account$/);
+ s.change();s.calls[1].resolve({ok:true,account:{receiverMatched:true,site:'MLM'}});await settle();
+ assert.equal(s.e['payment-account-status'].textContent,'');assert.equal(s.e['payment-account-check'].disabled,true);
 });

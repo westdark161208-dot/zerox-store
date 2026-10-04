@@ -10,9 +10,9 @@
     generation++; for(const controller of pending)controller.abort();pending.clear();
     nextCursor=null;providerReady=false;paymentReady=false;
     q('wallet-audit-rows').replaceChildren();
-    for(const id of ['wallet-audit-status','provider-status','provider-balance-result','payment-config-status','payment-audit-status'])q(id).textContent='';
+    for(const id of ['wallet-audit-status','provider-status','provider-balance-result','payment-config-status','payment-audit-status','payment-account-status'])q(id).textContent='';
     q('wallet-audit-next').hidden=true;q('payment-audit-id').value='';
-    for(const id of ['wallet-audit-refresh','wallet-audit-next','provider-check','provider-balance','payment-config-check','payment-audit-check'])q(id).disabled=true;
+    for(const id of ['wallet-audit-refresh','wallet-audit-next','provider-check','provider-balance','payment-config-check','payment-audit-check','payment-account-check'])q(id).disabled=true;
   }
   async function read(path, apply, fail, finish){
     const current=token(), version=generation;
@@ -69,12 +69,20 @@
     });
   }
   function paymentConfig(){
-    paymentReady=false;q('payment-config-check').disabled=true;q('payment-audit-check').disabled=true;
+    paymentReady=false;q('payment-account-check').disabled=true;q('payment-account-status').textContent='';q('payment-config-check').disabled=true;q('payment-audit-check').disabled=true;
     q('payment-audit-status').textContent='';q('payment-config-status').textContent='Consultando configuración…';
     read('/api/admin/payments/mercadopago/status',data=>{
       paymentReady=data.readEnabled&&data.tokenConfigured&&data.collectorConfigured;
-      q('payment-config-status').textContent=paymentReady?'Consulta de pagos reales habilitada. Cobros y abonos aún desactivados.':`Consulta: ${data.readEnabled?'habilitada':'desactivada'} · Credencial: ${data.tokenConfigured?'configurada':'pendiente'} · Cuenta receptora: ${data.collectorConfigured?'configurada':'pendiente'} · Firma webhook: ${data.webhookConfigured?'configurada':'pendiente'}`;
-    },message=>{q('payment-config-status').textContent=message;},()=>{q('payment-config-check').disabled=false;q('payment-audit-check').disabled=!paymentReady;});
+      q('payment-config-status').textContent=paymentReady?`Consulta habilitada · Piloto de abono: ${data.checkoutEnabled?'habilitado para fundador':'desactivado'} · Firma webhook: ${data.webhookConfigured?'configurada':'pendiente'}.`:`Consulta: ${data.readEnabled?'habilitada':'desactivada'} · Credencial: ${data.tokenConfigured?'configurada':'pendiente'} · Cuenta receptora: ${data.collectorConfigured?'configurada':'pendiente'} · Firma webhook: ${data.webhookConfigured?'configurada':'pendiente'}`;
+    },message=>{q('payment-config-status').textContent=message;},()=>{q('payment-config-check').disabled=false;q('payment-audit-check').disabled=!paymentReady;q('payment-account-check').disabled=!paymentReady;});
+  }
+  function paymentAccount(){
+    if(!paymentReady||q('payment-account-check').disabled)return;
+    q('payment-account-check').disabled=true;q('payment-config-check').disabled=true;
+    q('payment-account-status').textContent='Verificando conexión y cuenta receptora…';
+    read('/api/admin/payments/mercadopago/account',data=>{
+      q('payment-account-status').textContent=data.account.receiverMatched===true?'La credencial corresponde a la cuenta receptora configurada en México. Esta consulta no valida un pago ni abona saldo.':'La cuenta receptora no pudo verificarse.';
+    },message=>{q('payment-account-status').textContent=message;},()=>{q('payment-config-check').disabled=false;q('payment-account-check').disabled=!paymentReady;});
   }
   function paymentAudit(){
     if(!paymentReady||q('payment-audit-check').disabled)return;
@@ -83,9 +91,9 @@
     q('payment-config-check').disabled=true;q('payment-audit-check').disabled=true;q('payment-audit-status').textContent='Consultando pago…';
     read('/api/admin/payments/mercadopago/payments/'+id,data=>{
       const p=data.payment;q('payment-audit-status').textContent=`Pago ${p.id} · ${p.status} · ${money(p.amountCents)} MXN · Sin abono ni entrega desde esta consulta.`;
-    },message=>{q('payment-audit-status').textContent=message;},()=>{q('payment-config-check').disabled=false;q('payment-audit-check').disabled=!paymentReady;});
+    },message=>{q('payment-audit-status').textContent=message;},()=>{q('payment-config-check').disabled=false;q('payment-audit-check').disabled=!paymentReady;q('payment-account-check').disabled=!paymentReady;});
   }
-  q('payment-config-check').onclick=paymentConfig;q('payment-audit-check').onclick=paymentAudit;
+  q('payment-account-check').onclick=paymentAccount;q('payment-config-check').onclick=paymentConfig;q('payment-audit-check').onclick=paymentAudit;
   q('wallet-audit-refresh').onclick=()=>wallet();q('wallet-audit-next').onclick=()=>wallet(true);
   q('provider-check').onclick=provider;q('provider-balance').onclick=balance;
   window.addEventListener('zx-control-clear',clear);

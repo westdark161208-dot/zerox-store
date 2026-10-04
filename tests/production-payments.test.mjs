@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {database} from './helpers/d1.mjs';
-import {productionToken,paymentCents,productionEvidence,productionPayment,productionReadRoute} from '../cloudflare/payments/mercadopago-production.mjs';
+import {productionAccount,productionToken,paymentCents,productionEvidence,productionPayment,productionReadRoute} from '../cloudflare/payments/mercadopago-production.mjs';
 import {fundingSchema,createFundingIntent,reconcileFunding} from '../cloudflare/payments/funding.mjs';
 const input={id:'intent-1',userId:'user',amountCents:1850,collectorId:'123',requestKey:'request-1'};
 const payment={id:999,live_mode:true,collector_id:123,external_reference:'intent-1',currency_id:'MXN',transaction_amount:18.5,status:'approved'};
@@ -54,4 +54,17 @@ test('confirmed existing production token is supported, explicit override wins a
  await productionPayment(env,'999',fetcher);
  await assert.rejects(productionPayment({...env,MP_ACCESS_TOKEN:undefined,MP_ACCESS_TOKEN_TEST:'test'},'999',fetcher),/CONFIG_MISSING/);
  assert.equal(calls,1);
+});
+
+test('account check sends GET only, rejects receiver/site mismatch and minimizes returned data',async()=>{
+ let calls=0;const env={MP_ACCESS_TOKEN:'fixture',MP_PRODUCTION_READ_ENABLED:'true',MP_COLLECTOR_ID_PRODUCTION:'123'};
+ const fetcher=async(url,options)=>{calls++;assert.equal(url,'https://api.mercadopago.com/users/me');assert.equal(options.method,'GET');assert.equal(options.redirect,'error');return {ok:true,json:async()=>({id:123,site_id:'MLM',email:'private@example.test',first_name:'private'})};};
+ await assert.rejects(productionAccount({...env,MP_PRODUCTION_READ_ENABLED:'false'},fetcher),/READ_DISABLED/);assert.equal(calls,0);
+ assert.deepEqual(await productionAccount(env,fetcher),{receiverMatched:true,site:'MLM'});
+ await assert.rejects(productionAccount({...env,MP_COLLECTOR_ID_PRODUCTION:'456'},fetcher),/ACCOUNT_MISMATCH/);
+ await assert.rejects(productionAccount(env,async()=>({ok:true,json:async()=>({id:123,site_id:'MLA'})})),/ACCOUNT_MISMATCH/);
+ const url=new URL('https://test/api/admin/payments/mercadopago/account');const json=(b,s=200)=>new Response(JSON.stringify(b),{status:s});const before=calls;
+ const denied=await productionReadRoute(new Request(url),env,url,{status:'active',isFounder:false},json,fetcher);assert.equal(denied.status,403);assert.equal(calls,before);
+ const result=await productionReadRoute(new Request(url),env,url,{status:'active',isFounder:true},json,fetcher);
+ assert.equal(result.headers.get('Cache-Control'),'no-store');const body=await result.json();assert.equal(body.paymentVerified,false);assert.equal(body.walletCredited,false);assert.ok(!JSON.stringify(body).includes('private'));
 });
