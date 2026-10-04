@@ -5,7 +5,7 @@ const SITE='https://zerox-store.pages.dev';
 const HOOK='https://zerox-sixofire-api.westdark161208.workers.dev/api/payments/mercadopago/test/webhook';
 export async function mp(env,path,options={}){
  if(!env.MP_ACCESS_TOKEN_TEST)throw Error('MP_TEST_TOKEN_MISSING');
- const r=await fetch('https://api.mercadopago.com'+path,{...options,headers:{Authorization:'Bearer '+env.MP_ACCESS_TOKEN_TEST,'Content-Type':'application/json'},signal:AbortSignal.timeout(12000)});
+ const r=await fetch('https://api.mercadopago.com'+path,{...options,redirect:'manual',headers:{Authorization:'Bearer '+env.MP_ACCESS_TOKEN_TEST,'Content-Type':'application/json'},signal:AbortSignal.timeout(12000)});
  if(!r.ok)throw Error('MP_HTTP_'+r.status);
  return r.json();
 }
@@ -20,7 +20,12 @@ export async function validSignature(request,url,secret){
  const key=await crypto.subtle.importKey('raw',new TextEncoder().encode(secret),{name:'HMAC',hash:'SHA-256'},false,['verify']);
  return crypto.subtle.verify('HMAC',key,Uint8Array.from(parts.v1.match(/../g),h=>parseInt(h,16)),new TextEncoder().encode(`id:${id.toLowerCase()};request-id:${rid};ts:${parts.ts};`));
 }
+export function checkoutMethods(method){
+ if(!["all","card","oxxo","spei"].includes(method))throw Error("INVALID_PAYMENT_METHOD");
+ return method==="oxxo"?{default_payment_method_id:"oxxo"}:method==="spei"?{default_payment_method_id:"clabe"}:method==="card"?{excluded_payment_types:[{id:"account_money"},{id:"ticket"},{id:"bank_transfer"},{id:"atm"}]}:{};
+}
 async function schema(db){
+ await db.prepare("CREATE TABLE IF NOT EXISTS zx_mp_test_methods (order_id TEXT PRIMARY KEY,method TEXT NOT NULL)").run();
  await db.prepare(`CREATE TABLE IF NOT EXISTS zx_mp_test_orders (id TEXT PRIMARY KEY,user_id TEXT NOT NULL,product_id TEXT NOT NULL,amount_cents INTEGER NOT NULL,collector_id TEXT,preference_id TEXT,checkout_url TEXT,state TEXT NOT NULL DEFAULT 'creating',payment_id TEXT UNIQUE,created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)`).run();
 }
 async function reconcile(env,p){
@@ -51,17 +56,20 @@ export async function mpTestRoute(request,env,url,user,json){
   if(url.pathname.endsWith('/checkout')&&request.method==='POST'){
    const b=await request.json(),product=await publishedProduct(env.DB,getProduct(b.productId)),id=request.headers.get('Idempotency-Key');
    if(!product||! /^[a-f0-9-]{36}$/.test(id||''))return json({ok:false,error:'INVALID_REQUEST'},400);
+   const method=b.method||'all';checkoutMethods(method);
    const existing=await env.DB.prepare('SELECT * FROM zx_mp_test_orders WHERE id=? AND user_id=?').bind(id,user.id).first();
    if(existing){
-    if(existing.product_id!==product.id)return json({ok:false,error:'KEY_CONFLICT'},409);
+    const chosen=await env.DB.prepare("SELECT method FROM zx_mp_test_methods WHERE order_id=?").bind(id).first();
+    if(existing.product_id!==product.id||(chosen?.method||"all")!==method)return json({ok:false,error:'KEY_CONFLICT'},409);
     return existing.checkout_url?json({ok:true,id,checkoutUrl:existing.checkout_url}):json({ok:false,error:'ATTEMPT_INCOMPLETE_CREATE_NEW'},409);
    }
    // Verify test seller independently of token prefix. Fail closed for real accounts.
    const seller=await mp(env,'/users/me');
    if(!Array.isArray(seller.tags)||!seller.tags.includes('test_user'))return json({ok:false,error:'TEST_SELLER_REQUIRED'},409);
    await env.DB.prepare('INSERT INTO zx_mp_test_orders(id,user_id,product_id,amount_cents,collector_id) VALUES(?,?,?,?,?)').bind(id,user.id,product.id,product.salePriceCents,String(seller.id)).run();
+   await env.DB.prepare('INSERT INTO zx_mp_test_methods(order_id,method) VALUES(?,?)').bind(id,method).run();
    const back=SITE+'/payment-test.html?attempt='+id;
-   const pref=await mp(env,'/checkout/preferences',{method:'POST',body:JSON.stringify({items:[{id:product.id,title:'PRUEBA SIN ENTREGA — '+product.diamonds+' diamantes',quantity:1,currency_id:'MXN',unit_price:product.salePriceCents/100}],external_reference:id,back_urls:{success:back,pending:back,failure:back},notification_url:HOOK,expires:true,expiration_date_to:new Date(Date.now()+3600000).toISOString()})});
+   const pref=await mp(env,'/checkout/preferences',{method:'POST',body:JSON.stringify({items:[{id:product.id,title:'PRUEBA SIN ENTREGA — '+product.diamonds+' diamantes',quantity:1,currency_id:'MXN',unit_price:product.salePriceCents/100}],external_reference:id,payment_methods:checkoutMethods(method),back_urls:{success:back,pending:back,failure:back},notification_url:HOOK,expires:true,expiration_date_to:new Date(Date.now()+3600000).toISOString()})});
    const checkout=new URL(pref.init_point);
    if(checkout.protocol!=='https:'||!['www.mercadopago.com.mx','www.mercadopago.com'].includes(checkout.hostname)||String(pref.collector_id)!==String(seller.id))throw Error('INVALID_CHECKOUT_RESPONSE');
    await env.DB.prepare("UPDATE zx_mp_test_orders SET preference_id=?,checkout_url=?,state='pending' WHERE id=?").bind(String(pref.id),checkout.href,id).run();
@@ -79,7 +87,7 @@ export async function mpTestRoute(request,env,url,user,json){
   }
   return json({ok:false,error:'NOT_FOUND'},404);
  }catch(e){
-  const code=/^(MP_HTTP_\d{3}|MP_TEST_TOKEN_MISSING|INVALID_CHECKOUT_RESPONSE)$/.test(e.message)?e.message:'MP_TEST_UNAVAILABLE';
+  const code=/^(MP_HTTP_\d{3}|MP_TEST_TOKEN_MISSING|INVALID_CHECKOUT_RESPONSE|INVALID_PAYMENT_METHOD)$/.test(e.message)?e.message:'MP_TEST_UNAVAILABLE';
   return json({ok:false,error:code},503);
  }
 }

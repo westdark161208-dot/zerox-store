@@ -11,6 +11,9 @@ export async function integrationRead(env,url,reply,fetcher=fetch){
  if(path==='/api/admin/providers/sixofire/catalog'){
   if(!env.SIXOFIRE_API_KEY)return reply({ok:false,error:'PROVIDER_KEY_MISSING'},503);
   endpoint='https://api.sixofire.net/account/shop/items';headers={'X-API-Key':env.SIXOFIRE_API_KEY};kind='catalog';
+ }else if(path==='/api/admin/providers/sixofire/order-access'){
+  if(!env.SIXOFIRE_API_KEY)return reply({ok:false,error:'PROVIDER_KEY_MISSING'},503);
+  endpoint='https://api.sixofire.net/account/shop/orders?page=1&limit=1';headers={'X-API-Key':env.SIXOFIRE_API_KEY};kind='order-access';
  }else if(path==='/api/admin/providers/freefire-info/player'){
   const uid=url.searchParams.get('uid'),region=url.searchParams.get('region')||'br';
   if(!/^\d{5,15}$/.test(uid||'')||!['br','us','sac','na','eu','ind','sg','id','th','vn','tw','me','pk','bd','cis'].includes(region))return reply({ok:false,error:'INVALID_PLAYER_QUERY'},400);
@@ -21,14 +24,17 @@ export async function integrationRead(env,url,reply,fetcher=fetch){
   const response=await fetcher(endpoint,{method:'GET',redirect:'manual',headers:{...headers,Accept:'application/json'},signal:AbortSignal.timeout(12000)});
   if(!response.ok)return reply({ok:false,error:response.status===401||response.status===403?'PROVIDER_CREDENTIAL_REJECTED':response.status===429?'PROVIDER_RATE_LIMITED':'PROVIDER_UNAVAILABLE'},503);
   const raw=await response.json();let data;
-  if(kind==='player'){
+  if(kind==='order-access'){
+   if(raw.status!==true||raw.code!==200||!raw.data||typeof raw.data!=='object')throw Error('invalid');
+   data={orderReadAvailable:true,deliveryEnabled:false,balanceVerified:false};
+  }else if(kind==='player'){
    const b=raw.basicInfo||raw.player?.basicInfo;
    if(!b||!text(b.nickname)||String(b.accountId)!==url.searchParams.get('uid'))throw Error('invalid');
    data={uid:text(b.accountId),nickname:text(b.nickname),region:text(b.region),level:count(b.level),rank:count(b.rank),likes:count(b.liked??b.likes)};
   }else{
    const items=Array.isArray(raw)?raw:raw.items||raw.data?.items||raw.data;
    if(!Array.isArray(items))throw Error('invalid');
-   data={total:items.length,items:items.slice(0,100).map(i=>({id:text(i.id??i.item_id??i.product_id),name:text(i.name??i.title)})).filter(i=>i.id||i.name)};
+   data={total:items.length,items:items.slice(0,100).map(i=>({id:text(i.id??i.item_id??i.product_id),name:text(i.name??i.title),available:i.available===true&&i.isActive===true,itemType:text(i.itemType),diamonds:count(i.diamondQuantity),regions:Array.isArray(i.availableRegions)?i.availableRegions.map(text).filter(Boolean).slice(0,20):[]} )).filter(i=>i.id||i.name)};
   }
   return reply({ok:true,data,queriedAt:new Date().toISOString(),purchasesEnabled:false});
  }catch{return reply({ok:false,error:'PROVIDER_UNAVAILABLE'},503);}

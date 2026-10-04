@@ -731,11 +731,12 @@ function renderFreeFireCard(player,uid,region="br"){
     const b=player.basicInfo||{},clan=player.clanBasicInfo||{},score=player.creditScoreInfo||{},pet=player.petInfo||{},profile=player.profileInfo||{},social=player.socialInfo||{};
     const itemImage=id=>/^\d{4,18}$/.test(String(id||""))?`${ZEROX_API}/api/item-image?itemID=${encodeURIComponent(id)}`:"";
     const avatar=itemImage(profile.avatarId),banner=itemImage(b.bannerId||profile.bannerId);
-    const stat=(label,value)=>value===undefined||value===null||value===""?"":`<div class="zx-ff-stat"><small>${esc(label)}</small><strong>${esc(String(value))}</strong></div>`;
+    const statIcons={Nivel:"nivel.png",Rango:"rango.png",Likes:"likes.png",Región:"region.png"};
+    const stat=(label,value)=>value===undefined||value===null||value===""?"":`<div class="zx-ff-stat"><small>${statIcons[label]?`<img src="${statIcons[label]}" class="ff-stat-icon" alt="" loading="lazy">`:""}${esc(label)}</small><strong>${esc(String(value))}</strong></div>`;
     const date=Number(b.createAt||b.createTime||0);
     const since=date>1000000000&&date<3000000000?new Intl.DateTimeFormat("es-MX",{dateStyle:"medium"}).format(new Date(date*1000)):"";
     const clothes=Array.isArray(profile.clothes)?profile.clothes.map(itemImage).filter(Boolean).slice(0,6):[];
-    return `<article class="zx-ff-card"><div class="zx-ff-banner" ${banner?`style="background-image:linear-gradient(0deg,#101523bb,#10152322),url('${banner}')"`:""}></div><div class="zx-ff-identity">${avatar?`<img src="${avatar}" alt="Avatar del jugador" loading="lazy">`:`<span aria-hidden="true">◆</span>`}<div><small>PERFIL FREE FIRE · ${esc(String(b.region||region).toUpperCase())}</small><h4>${esc(b.nickname||player.nickname||"Jugador Free Fire")}</h4><span>ID ${esc(uid)}</span></div></div><div class="zx-ff-stats">${stat("Nivel",b.level)}${stat("Rango",b.rank)}${stat("Likes",b.liked??b.likes)}${stat("Prime",b.primePrivilegeDetail?.primeLevel??b.primeLevel??player.primeLevel)}${stat("Honor",score.creditScore)}${stat("Desde",since)}</div>${clan.clanName?`<div class="zx-ff-detail"><small>CLAN</small><strong>${esc(clan.clanName)}</strong><span>${esc(clan.clanLevel?`Nivel ${clan.clanLevel}`:"")}${clan.memberNum!=null&&clan.capacity!=null?` · ${esc(String(clan.memberNum))}/${esc(String(clan.capacity))} miembros`:""}</span></div>`:""}${social.signature?`<div class="zx-ff-detail"><small>FIRMA DEL JUGADOR</small><p>${esc(social.signature)}</p></div>`:""}${pet.id?`<div class="zx-ff-detail"><small>MASCOTA EQUIPADA</small><strong>ID ${esc(pet.id)}</strong>${pet.level?`<span> · Nivel ${esc(String(pet.level))}</span>`:""}</div>`:""}${clothes.length?`<div class="zx-ff-detail"><small>OBJETOS EQUIPADOS</small><div class="zx-ff-outfit">${clothes.map(url=>`<img src="${url}" alt="Objeto equipado" loading="lazy">`).join("")}</div></div>`:""}<small class="zx-ff-disclaimer">Consulta informativa de una API externa. La imagen o algún dato pueden no estar disponibles.</small></article>`;
+    return `<article class="zx-ff-card"><div class="zx-ff-banner" ${banner?`style="background-image:linear-gradient(0deg,#101523bb,#10152322),url('${banner}')"`:""}></div><div class="zx-ff-identity">${avatar?`<img src="${avatar}" alt="Avatar del jugador" loading="lazy">`:`<span aria-hidden="true">◆</span>`}<div><small>PERFIL FREE FIRE · ${esc(String(b.region||region).toUpperCase())}</small><h4>${esc(b.nickname||player.nickname||"Jugador Free Fire")}</h4><span>ID ${esc(uid)}</span></div></div><div class="zx-ff-stats">${stat("Nivel",b.level)}${stat("Rango",b.rank)}${stat("Likes",b.liked??b.likes)}${stat("Prime",b.primePrivilegeDetail?.primeLevel??b.primeLevel??player.primeLevel)}${stat("Honor",score.creditScore)}${stat("Desde",since)}${stat("Región",b.region||region)}</div>${clan.clanName?`<div class="zx-ff-detail"><small><img src="clan.png" class="ff-stat-icon" alt=""> CLAN</small><strong>${esc(clan.clanName)}</strong><span>${esc(clan.clanLevel?`Nivel ${clan.clanLevel}`:"")}${clan.memberNum!=null&&clan.capacity!=null?` · ${esc(String(clan.memberNum))}/${esc(String(clan.capacity))} miembros`:""}</span></div>`:""}${social.signature?`<div class="zx-ff-detail"><small>FIRMA DEL JUGADOR</small><p>${esc(social.signature)}</p></div>`:""}${pet.id?`<div class="zx-ff-detail"><small>MASCOTA EQUIPADA</small><strong>ID ${esc(pet.id)}</strong>${pet.level?`<span> · Nivel ${esc(String(pet.level))}</span>`:""}</div>`:""}${clothes.length?`<div class="zx-ff-detail"><small>OBJETOS EQUIPADOS</small><div class="zx-ff-outfit">${clothes.map(url=>`<img src="${url}" alt="Objeto equipado" loading="lazy">`).join("")}</div></div>`:""}<small class="zx-ff-disclaimer">Consulta informativa de una API externa. La imagen o algún dato pueden no estar disponibles.</small></article>`;
 }
 
 $("#zx-ff-form")?.addEventListener("submit",async event=>{
@@ -1199,6 +1200,16 @@ if ($("#checkout-cart-first")) {
    CHECKOUT
    ========================================================= */
 
+function zxRenderPaymentMethods(host,select){
+  if(!select){select=document.createElement("select");select.setAttribute("aria-label","Método de pago");host.append(select);}
+  select.classList.add("zx-method-native");
+  const methods=[["card","Tarjeta"],["oxxo","OXXO"],["spei","Transferencia SPEI"],["all","Mercado Pago"]];
+  if(!select.options.length)for(const [value,label] of methods){const option=document.createElement("option");option.value=value;option.textContent=label;select.append(option);}
+  const tiles=document.createElement("div");tiles.className="zx-method-tiles";host.append(tiles);
+  for(const [value,label] of methods){const button=document.createElement("button");button.type="button";button.dataset.method=value;button.innerHTML=window.ZX_PAYMENT_ICONS?.[value]||"";const name=document.createElement("span");name.textContent=label;button.append(name);button.onclick=()=>{select.value=value;select.dispatchEvent(new Event("change",{bubbles:true}));};tiles.append(button);}
+  const sync=()=>tiles.querySelectorAll("button").forEach(button=>button.setAttribute("aria-pressed",String(button.dataset.method===select.value)));select.addEventListener("change",sync);sync();return select;
+}
+
 function openCheckout(id) {
   current = selectedProduct(id);
 
@@ -1208,11 +1219,12 @@ function openCheckout(id) {
     $("#zx-diamond-dialog")?.remove();
     const product=current;
     const dialog=document.createElement("dialog");dialog.id="zx-diamond-dialog";
-    dialog.innerHTML=`<form method="dialog"><button aria-label="Cerrar">×</button></form><h2>${esc(current.name)}</h2><strong>${money(current.price)}</strong><p>Introduce tu ID para consultar tu cuenta de Free Fire. Comprueba el nombre antes de confirmar.</p><form id="zx-diamond-intent"><label>ID de Free Fire<input name="uid" inputmode="numeric" pattern="[0-9]{5,15}" minlength="5" maxlength="15" required></label><button type="submit">VERIFICAR ID</button><button type="button" id="zx-confirm-diamond-player" hidden>CONFIRMAR MI CUENTA</button></form><div id="zx-diamond-player-card"></div><p id="zx-diamond-intent-status" role="status"></p><section id="zx-diamond-payment" hidden><h3>Pagar con</h3><button type="button" id="zx-mp-pay" disabled><svg aria-hidden="true" width="42" height="42" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>Mercado Pago</title><path d="M11.115 16.479a.93.927 0 0 1-.939-.886c-.002-.042-.006-.155-.103-.155-.04 0-.074.023-.113.059-.112.103-.254.206-.46.206a.816.814 0 0 1-.305-.066c-.535-.214-.542-.578-.521-.725.006-.038.007-.08-.02-.11l-.032-.03h-.034c-.027 0-.055.012-.093.039a.788.786 0 0 1-.454.16.7.699 0 0 1-.253-.05c-.708-.27-.65-.928-.617-1.126.005-.041-.005-.072-.03-.092l-.05-.04-.047.043a.728.726 0 0 1-.505.203.73.728 0 0 1-.732-.725c0-.4.328-.722.732-.722.364 0 .675.27.721.63l.026.195.11-.165c.01-.018.307-.46.852-.46.102 0 .21.016.316.05.434.13.508.52.519.68.008.094.075.1.09.1.037 0 .064-.024.083-.045a.746.744 0 0 1 .54-.225c.128 0 .263.03.402.09.69.293.379 1.158.374 1.167-.058.144-.061.207-.005.244l.027.013h.02c.03 0 .07-.014.134-.035.093-.032.235-.08.367-.08a.944.942 0 0 1 .94.93.936.934 0 0 1-.94.928zm7.302-4.171c-1.138-.98-3.768-3.24-4.481-3.77-.406-.302-.685-.462-.928-.533a1.559 1.554 0 0 0-.456-.07c-.182 0-.376.032-.58.095-.46.145-.918.505-1.362.854l-.023.018c-.414.324-.84.66-1.164.73a1.986 1.98 0 0 1-.43.049c-.362 0-.687-.104-.81-.258-.02-.025-.007-.066.04-.125l.008-.008 1-1.067c.783-.774 1.525-1.506 3.23-1.545h.085c1.062 0 2.12.469 2.24.524a7.03 7.03 0 0 0 3.056.724c1.076 0 2.188-.263 3.354-.795a9.135 9.11 0 0 0-.405-.317c-1.025.44-2.003.66-2.946.66-.962 0-1.925-.229-2.858-.68-.05-.022-1.22-.567-2.44-.57-.032 0-.065 0-.096.002-1.434.033-2.24.536-2.782.976-.528.013-.982.138-1.388.25-.361.1-.673.186-.979.185-.125 0-.35-.01-.37-.012-.35-.01-2.115-.437-3.518-.962-.143.1-.28.203-.415.31 1.466.593 3.25 1.053 3.812 1.089.157.01.323.027.491.027.372 0 .744-.103 1.104-.203.213-.059.446-.123.692-.17l-.196.194-1.017 1.087c-.08.08-.254.294-.14.557a.705.703 0 0 0 .268.292c.243.162.677.27 1.08.271.152 0 .297-.015.43-.044.427-.095.874-.448 1.349-.82.377-.296.913-.672 1.323-.782a1.494 1.49 0 0 1 .37-.05.611.61 0 0 1 .095.005c.27.034.533.125 1.003.472.835.62 4.531 3.815 4.566 3.846.002.002.238.203.22.537-.007.186-.11.352-.294.466a.902.9 0 0 1-.484.15.804.802 0 0 1-.428-.124c-.014-.01-1.28-1.157-1.746-1.543-.074-.06-.146-.115-.22-.115a.122.122 0 0 0-.096.045c-.073.09.01.212.105.294l1.48 1.47c.002 0 .184.17.204.395.012.244-.106.447-.35.606a.957.955 0 0 1-.526.171.766.764 0 0 1-.42-.127l-.214-.206a21.035 20.978 0 0 0-1.08-1.009c-.072-.058-.148-.112-.221-.112a.127.127 0 0 0-.094.038c-.033.037-.056.103.028.212a.698.696 0 0 0 .075.083l1.078 1.198c.01.01.222.26.024.511l-.038.048a1.18 1.178 0 0 1-.1.096c-.184.15-.43.164-.527.164a.8.798 0 0 1-.147-.012c-.106-.018-.178-.048-.212-.089l-.013-.013c-.06-.06-.602-.609-1.054-.98-.059-.05-.133-.11-.21-.11a.128.128 0 0 0-.096.042c-.09.096.044.24.1.293l.92 1.003a.204.204 0 0 1-.033.062c-.033.044-.144.155-.479.196a.91.907 0 0 1-.122.007c-.345 0-.712-.164-.902-.264a1.343 1.34 0 0 0 .13-.576 1.368 1.365 0 0 0-1.42-1.357c.024-.342-.025-.99-.697-1.274a1.455 1.452 0 0 0-.575-.125c-.146 0-.287.025-.42.075a1.153 1.15 0 0 0-.671-.564 1.52 1.515 0 0 0-.494-.085c-.28 0-.537.08-.767.242a1.168 1.165 0 0 0-.903-.43 1.173 1.17 0 0 0-.82.335c-.287-.217-1.425-.93-4.467-1.613a17.39 17.344 0 0 1-.692-.189 4.822 4.82 0 0 0-.077.494l.67.157c3.108.682 4.136 1.391 4.309 1.525a1.145 1.142 0 0 0-.09.442 1.16 1.158 0 0 0 1.378 1.132c.096.467.406.821.879 1.003a1.165 1.162 0 0 0 .415.08c.09 0 .179-.012.266-.034.086.22.282.493.722.668a1.233 1.23 0 0 0 .457.094c.122 0 .241-.022.355-.063a1.373 1.37 0 0 0 1.269.841c.37.002.726-.147.985-.41.221.121.688.341 1.163.341.06 0 .118-.002.175-.01.47-.059.689-.24.789-.382a.571.57 0 0 0 .048-.078c.11.032.234.058.373.058.255 0 .501-.086.75-.265.244-.174.418-.424.444-.637v-.01c.083.017.167.026.251.026.265 0 .527-.082.773-.242.48-.31.562-.715.554-.98a1.28 1.279 0 0 0 .978-.194 1.04 1.04 0 0 0 .502-.808 1.088 1.085 0 0 0-.16-.653c.804-.342 2.636-1.003 4.795-1.483a4.734 4.721 0 0 0-.067-.492 27.742 27.667 0 0 0-5.049 1.62zm5.123-.763c0 4.027-5.166 7.293-11.537 7.293-6.372 0-11.538-3.266-11.538-7.293 0-4.028 5.165-7.293 11.539-7.293 6.371 0 11.537 3.265 11.537 7.293zm.46.004c0-4.272-5.374-7.755-12-7.755S.002 7.277.002 11.55L0 12.004c0 4.533 4.695 8.203 11.999 8.203 7.347 0 12-3.67 12-8.204z"/></svg><span>mercado pago</span></button><small id="zx-mp-note">Los pagos públicos todavía no están habilitados.</small><a id="zx-mp-open" hidden target="_blank" rel="noopener noreferrer">Abrir checkout de prueba ↗</a></section>`;
+    dialog.innerHTML=`<form method="dialog"><button aria-label="Cerrar">×</button></form><h2>${esc(current.name)}</h2><strong>${money(current.price)}</strong><p>Introduce tu ID para consultar tu cuenta de Free Fire. Comprueba el nombre antes de confirmar.</p><form id="zx-diamond-intent"><label>ID de Free Fire<input name="uid" inputmode="numeric" pattern="[0-9]{5,15}" minlength="5" maxlength="15" required></label><button type="submit">VERIFICAR ID</button><button type="button" id="zx-confirm-diamond-player" hidden>CONFIRMAR MI CUENTA</button></form><div id="zx-diamond-player-card"></div><p id="zx-diamond-intent-status" role="status"></p><section id="zx-diamond-payment" hidden><h3>Método de pago</h3><div id="zx-product-methods" class="zx-product-methods"></div><button type="button" id="zx-mp-pay" disabled>Preparar checkout de prueba →</button><small id="zx-mp-note">Los pagos públicos todavía no están habilitados.</small><a id="zx-mp-open" hidden target="_blank" rel="noopener noreferrer">Abrir checkout de prueba ↗</a></section>`;
     document.body.append(dialog);dialog.showModal();
     const intent=dialog.querySelector("#zx-diamond-intent"), uidInput=intent.elements.uid;
     const status=dialog.querySelector("#zx-diamond-intent-status"), confirm=dialog.querySelector("#zx-confirm-diamond-player");
     const card=dialog.querySelector("#zx-diamond-player-card"),payments=dialog.querySelector("#zx-diamond-payment"),pay=dialog.querySelector("#zx-mp-pay"),payLink=dialog.querySelector("#zx-mp-open"),note=dialog.querySelector("#zx-mp-note");
+    const methodSelect=zxRenderPaymentMethods(dialog.querySelector("#zx-product-methods"));
     const playerDialog=document.createElement("dialog");
     playerDialog.id="zx-player-confirm-dialog";
     playerDialog.setAttribute("aria-labelledby","zx-player-confirm-title");
@@ -1263,14 +1275,15 @@ function openCheckout(id) {
       const founder=zeroxUser?.isFounder===true;
       pay.disabled=!founder;
       status.textContent="Cuenta confirmada. Revisa los datos del jugador antes de continuar.";
-      note.textContent=founder?"PRUEBA · Solo cuenta compradora y tarjetas de prueba. Sin entrega de diamantes.":"Mercado Pago estará disponible cuando se activen los pagos. No se ha realizado ningún cobro.";
+      note.textContent=founder?"Checkout de productos en prueba. Usa cuentas y medios de prueba; no se entregan diamantes. La recarga real de saldo está disponible por separado en Zero’X Pay.":"Mercado Pago estará disponible cuando se activen los pagos. No se ha realizado ningún cobro.";
     };
+    methodSelect.addEventListener("change",()=>{attempt="";payLink.hidden=true;});
     pay.onclick=async()=>{
       if(!confirmedUid||confirmedUid!==uidInput.value.trim()||zeroxUser?.isFounder!==true)return;
-      const version=requestVersion;pay.disabled=true;payLink.hidden=true;note.textContent="Preparando pago de prueba…";
+      const version=requestVersion;pay.disabled=true;methodSelect.disabled=true;dialog.querySelectorAll(".zx-method-tiles button").forEach(b=>b.disabled=true);payLink.hidden=true;note.textContent="Preparando pago de prueba…";
       if(!attempt)attempt=crypto.randomUUID();
       try{
-        const response=await fetch(`${ZEROX_API}/api/payments/mercadopago/test/checkout`,{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+(getZeroXSession()?.token||""),"Idempotency-Key":attempt},body:JSON.stringify({productId:product.id}),signal:AbortSignal.timeout(30000)});
+        const response=await fetch(`${ZEROX_API}/api/payments/mercadopago/test/checkout`,{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+(getZeroXSession()?.token||""),"Idempotency-Key":attempt},body:JSON.stringify({productId:product.id,method:methodSelect.value}),signal:AbortSignal.timeout(30000)});
         const result=await response.json();
         if(version!==requestVersion||!dialog.isConnected)return;
         if(!response.ok||!result.ok)throw Error(result.error||"PAYMENT_UNAVAILABLE");
@@ -1278,7 +1291,7 @@ function openCheckout(id) {
         payLink.href=result.checkoutUrl;payLink.hidden=false;
         note.textContent="Checkout de prueba listo. Utiliza exclusivamente la cuenta compradora y tarjetas de prueba. Sin entrega de diamantes.";
       }catch(error){if(version===requestVersion)note.textContent="No se pudo preparar la prueba: "+error.message;}
-      finally{if(version===requestVersion)pay.disabled=false;}
+      finally{methodSelect.disabled=false;dialog.querySelectorAll(".zx-method-tiles button").forEach(b=>b.disabled=false);if(version===requestVersion)pay.disabled=false;}
     };
     return;
   }
@@ -1404,12 +1417,13 @@ function createOrderId() {
   );
 }
 function zxPaymentAction(order){
+  const label=({card:"Tarjeta",oxxo:"OXXO",spei:"Transferencia SPEI",all:"Mercado Pago"})[order.payment]||order.payment;
   const configured=window.ZEROX_PAYMENT_LINKS?.[order.payment];
   let paymentUrl="";
   try{const url=new URL(configured||"");if(url.protocol==="https:"&&["mpago.la","link.mercadopago.com.mx","www.mercadopago.com.mx","www.paypal.com","paypal.me","www.paypal.me","pay.binance.com"].includes(url.hostname))paymentUrl=url.href}catch{}
-  if(paymentUrl)return `<a class="zx-order-payment-link" href="${esc(paymentUrl)}" target="_blank" rel="noopener noreferrer">Abrir ${esc(order.payment)} para pagar ↗</a><p>Revisa el importe y conserva el comprobante. El pedido seguirá pendiente hasta confirmar el pago.</p>`;
-  const message=`Hola, quiero pagar mi pedido ${order.id}. Producto: ${order.productName}. Total: $${Number(order.total).toFixed(2)} MXN. Método: ${order.payment}. ID: ${order.playerId || "pendiente"}.${order.diamondPlan?.length ? " Combinación: "+ZXDiamonds.describe(order.diamondPlan)+"." : ""} ¿Me compartes los datos de pago?`;
-  return `<a class="zx-order-payment-link" href="https://wa.me/529514754210?text=${encodeURIComponent(message)}" target="_blank" rel="noopener noreferrer">Solicitar datos para pagar por ${esc(order.payment)} ↗</a>`;
+  if(paymentUrl)return `<a class="zx-order-payment-link" href="${esc(paymentUrl)}" target="_blank" rel="noopener noreferrer">Abrir ${esc(label)} para pagar ↗</a><p>Revisa el importe y conserva el comprobante. El pedido seguirá pendiente hasta confirmar el pago.</p>`;
+  const message=`Hola, quiero pagar mi pedido ${order.id}. Producto: ${order.productName}. Total: $${Number(order.total).toFixed(2)} MXN. Método: ${label}. ID: ${order.playerId || "pendiente"}.${order.diamondPlan?.length ? " Combinación: "+ZXDiamonds.describe(order.diamondPlan)+"." : ""} ¿Me compartes los datos de pago?`;
+  return `<a class="zx-order-payment-link" href="https://wa.me/529514754210?text=${encodeURIComponent(message)}" target="_blank" rel="noopener noreferrer">Solicitar datos para pagar por ${esc(label)} ↗</a>`;
 }
 // =====================================================
 // COMPROBAR CUENTA FREE FIRE
@@ -1463,179 +1477,13 @@ async function checkFreeFirePlayer() {
       );
     }
 
+    if(playerInput.value.trim()!==uid)return;
     const data = result.player;
 
-    const basicInfo = data.basicInfo || {};
-    const profileInfo = data.profileInfo || {};
-    const clanInfo = data.clanBasicInfo || {};
-
-    const avatarId = profileInfo.avatarId || "";
-    const bannerId = basicInfo.bannerId || profileInfo.bannerId || "";
-
-    const clothes = Array.isArray(profileInfo.clothes)
-      ? profileInfo.clothes
-      : [];
-
-    const avatarUrl = avatarId
-      ? `${ZEROX_API}/api/item-image?itemID=${encodeURIComponent(avatarId)}`
-      : "";
-
-    const bannerUrl = bannerId
-      ? `${ZEROX_API}/api/item-image?itemID=${encodeURIComponent(bannerId)}`
-      : "";
-
-    const clothesHtml = clothes
-      .map(
-        itemID => `
-          <img
-            src="${ZEROX_API}/api/item-image?itemID=${encodeURIComponent(itemID)}"
-            alt="Equipamiento"
-            loading="lazy"
-            onerror="this.style.display='none'"
-          >
-        `
-      )
-      .join("");
-
-    const nickname =
-      basicInfo.nickname ||
-      data.nickname ||
-      "Jugador";
-
-    const level =
-      basicInfo.level ??
-      "—";
-
-    const region =
-      basicInfo.region ||
-      "—";
-
-    const rank =
-      basicInfo.rank ??
-      "—";
-
-    const likes =
-      basicInfo.liked ??
-      basicInfo.likes ??
-      "—";
-
-    const clanName =
-      clanInfo.clanName ||
-      "Sin clan";
-
-    profileCard.innerHTML = `
-  <div class="player-profile-card">
-
-    <div
-      class="player-profile-banner"
-      ${
-        bannerUrl
-          ? `style="background-image:url('${bannerUrl}')"`
-          : ""
-      }
-    ></div>
-
-    <div class="player-profile-content">
-
-      ${
-        avatarUrl
-          ? `
-            <img
-              class="player-avatar"
-              src="${avatarUrl}"
-              alt="Avatar de ${esc(nickname)}"
-            >
-          `
-          : `
-            <div class="player-avatar"></div>
-          `
-      }
-
-      <div class="player-profile-info">
-        <strong>${esc(nickname)}</strong>
-        <span>UID: ${esc(uid)}</span>
-      </div>
-
-    </div>
-
-    <div class="player-profile-status">
-
-      <div>
-  <strong><img src="nivel.png" class="ff-stat-icon" alt="Nivel"> ${esc(String(level))}</strong>
-  <small>Nivel</small>
-</div>
-
-<div>
-  <strong><img src="region.png" class="ff-stat-icon" alt="Región"> ${esc(String(region))}</strong>
-  <small>Región</small>
-</div>
-
-<div>
-  <img src="./rango.png?v=2" class="ff-stat-icon" alt="Rango"> ${esc(String(rank))}</strong>
-  <small>Rango</small>
-</div>
-
-<div>
-  <strong><img src="likes.png" class="ff-stat-icon" alt="Likes"> ${esc(String(likes))}</strong>
-  <small>Likes</small>
-</div>
-
-    </div>
-
-    <div class="player-clan">
-  <img src="clan.png" class="ff-clan-icon" alt="Clan">
-  <span>${esc(clanName)}</span>
-</div>
-
-    ${
-      clothes.length
-        ? `
-          <div class="player-equipment">
-
-            <div class="player-equipment-title">
-              <span>👕 Equipamiento actual</span>
-            </div>
-
-            <div class="player-equipment-grid">
-              ${clothesHtml}
-            </div>
-
-          </div>
-        `
-        : ""
-    }
-
-    <div class="player-confirm-box">
-
-      <h4>¿Esta es tu cuenta?</h4>
-
-      <p>
-        Verifica que la información sea correcta antes de continuar.
-      </p>
-
-      <div class="player-confirm-actions">
-
-        <button
-          type="button"
-          class="confirm-player-btn ff-confirm-account"
-          data-player-verified="true"
-        >
-          ✓ SÍ, ES MI CUENTA
-        </button>
-
-        <button
-          type="button"
-          class="change-player-btn ff-change-account"
-        >
-          ↻ CAMBIAR ID
-        </button>
-
-      </div>
-
-    </div>
-
-  </div>
-`;
+    const basicInfo=data.basicInfo||{};
+    if(basicInfo.accountId && String(basicInfo.accountId)!==uid)throw Error("PLAYER_ID_MISMATCH");
+    profileCard.innerHTML=`<div class="player-profile-card">${renderFreeFireCard(data,uid)}<div class="player-confirm-box"><h4>¿Esta es tu cuenta?</h4><p>Verifica la información antes de continuar.</p><div class="player-confirm-actions"><button type="button" class="confirm-player-btn ff-confirm-account" data-player-verified="true">✓ SÍ, ES MI CUENTA</button><button type="button" class="change-player-btn ff-change-account">↻ CAMBIAR ID</button></div></div></div>`;
+    profileCard.querySelectorAll("img").forEach(image=>image.addEventListener("error",()=>{image.hidden=true;},{once:true}));
 
     profileCard.dataset.playerVerified = "false";
     profileCard.dataset.playerUid = uid;
@@ -2447,3 +2295,6 @@ async function zxOpenStreaming(){
  }catch{if(request===streamingViewRequest&&!$("#zx-managed").hidden&&$("#zx-managed").dataset.currentSection==="streaming")grid.textContent="No pudimos consultar el stock. Intenta abrir esta sección nuevamente."}
 }
 loadPublishedAds();
+
+const catalogMethods=document.getElementById("zx-catalog-payment-methods");
+if(catalogMethods)zxRenderPaymentMethods(catalogMethods,document.querySelector("#checkout [name=payment]"));

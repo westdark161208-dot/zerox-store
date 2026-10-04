@@ -16,3 +16,12 @@ test('player query validates UID/region and identity, safely selects only public
  assert.equal((await integrationRead(env,u,reply,async()=>Response.json({basicInfo:{accountId:999,nickname:'Wrong'}}))).status,503);
  assert(!JSON.stringify(await integrationRead(env,u,reply,async()=>{throw Error('private-key')})).includes('private-key'));
 });
+
+test('Sixofire order access only reads fixed origin and never returns customer orders or balances',async()=>{
+ const r=await integrationRead(env,url('sixofire/order-access'),reply,async(endpoint,options)=>{
+  assert.equal(endpoint,'https://api.sixofire.net/account/shop/orders?page=1&limit=1');assert.equal(options.method,'GET');assert.equal(options.redirect,'manual');
+  return Response.json({code:200,status:true,data:{orders:[{uid:'PRIVATE',payment:'PRIVATE'}]}});
+ });
+ assert.deepEqual(r.body.data,{orderReadAvailable:true,deliveryEnabled:false,balanceVerified:false});assert(!JSON.stringify(r).includes('PRIVATE'));
+ const rejected=await integrationRead(env,url('sixofire/order-access'),reply,async()=>Response.json({code:403,status:false,data:null},{status:403}));assert.equal(rejected.status,503);
+});
