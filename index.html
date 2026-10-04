@@ -34,7 +34,7 @@
   >
   <link rel="stylesheet" href="./styles.css?v=36">
   <link rel="stylesheet" href="./diamond-collection.css?v=4">
-  <link rel="stylesheet" href="./responsive.css?v=7">
+  <link rel="stylesheet" href="./responsive.css?v=8">
   <link rel="stylesheet" href="./region-selector.css?v=1">
   <script>
   /* Zero'X emergency cache reset: keep the storefront accessible even if app JS fails */
@@ -108,6 +108,11 @@
         id="open-account"
         aria-label="Mi cuenta">
         ♙
+      </button>
+
+      <button type="button" id="zx-header-wallet" aria-label="Consultar mi saldo Zero’X">
+        <svg viewBox="0 0 28 24" aria-hidden="true" fill="none"><path d="M3 6V4a2 2 0 0 1 2-2h17v4M3 6h21a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6Z" stroke="currentColor" stroke-width="2"/><path d="M20 11h6v6h-6a3 3 0 0 1 0-6Z" fill="currentColor"/></svg>
+        <span><small>SALDO ZERO’X</small><strong id="zx-header-wallet-value" aria-live="polite">Inicia sesión</strong></span><span class="zx-header-wallet-arrow" aria-hidden="true">↗</span>
       </button>
 
       <button
@@ -1298,8 +1303,9 @@
 <script src="./diamonds.js?v=1" defer></script>
 <script src="./diamond-catalog.js?v=4" defer></script>
 <script src="./diamond-collection.js?v=6" defer></script>
-<script src="./app.js?v=38" defer></script>
+<script src="./app.js?v=39" defer></script>
 <script src="./wallet-view.js?v=1" defer></script>
+<script src="./header-wallet.js?v=1" defer></script>
 <script src="./resellers.js?v=3" defer></script>
 <script src="./region-selector.js?v=1" defer></script>
 

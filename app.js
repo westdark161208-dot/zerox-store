@@ -432,6 +432,7 @@ function saveZeroXSession(session) {
   window.zxResetWalletView?.();
   if (session) localStorage.setItem(ZEROX_SESSION_KEY, JSON.stringify(session));
   else localStorage.removeItem(ZEROX_SESSION_KEY);
+  window.dispatchEvent(new Event("zx-session-change"));
 }
 
 async function zeroxAuthRequest(path, options = {}) {
@@ -465,6 +466,7 @@ function authMessage(error) {
 }
 
 function renderZeroXAccount() {
+  window.dispatchEvent(new Event("zx-account-ready"));
   window.zxResetWalletView?.();
   const guest = $("#account-guest"), user = $("#account-user"), profile = $("#open-account");
   if (!guest || !user) return;
