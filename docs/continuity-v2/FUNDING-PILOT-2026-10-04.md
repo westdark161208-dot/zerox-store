@@ -51,3 +51,11 @@ Referencia oficial: [crear preferencia](https://www.mercadopago.com.mx/developer
 ## Confirmed production configuration
 
 The owner confirmed that the existing `MP_ACCESS_TOKEN` holds production credentials. Production modules now accept this name; `MP_ACCESS_TOKEN_PRODUCTION` remains an optional explicit override. `MP_ACCESS_TOKEN_TEST` is never a fallback. Live mode, receiver, currency and amount checks remain mandatory. The owner saved collector `1404826494` and reported saving `MP_WEBHOOK_SECRET_PRODUCTION` in Cloudflare; secret presence and live connectivity have not been independently verified. Collector is mirrored in Wrangler vars to preserve it on deployment. No activation flags were added and no money was processed.
+
+## Activación del piloto y diseño de Control/Pay
+
+La captura 820879 confirma que la credencial productiva corresponde a la cuenta receptora en México. El usuario pidió conectar pagos reales y mejorar Control/Pay con sus referencias futuristas. Se habilitan en Wrangler MP_WALLET_PILOT_ENABLED=true y WALLET_READ_ENABLED=true, junto a la lectura productiva ya habilitada. Checkout y consultas de intención siguen exclusivos del fundador activo; la consulta de saldo propio permite únicamente GET. No se crean checkouts ni se pagan transacciones desde el agente. El usuario completa el pago en Mercado Pago. Ninguna compra Wallet, recarga, transferencia ni retiro se habilita.
+
+La firma está configurada, pero la recepción de una notificación real y el abono en D1 requieren la prueba real del usuario; no se declaran validados. Una simulación con ID inexistente no prueba un pago aprobado. Las tablas se crean de forma aditiva en la primera consulta Wallet o intención, sin datos ficticios.
+
+Console.css aplica solo a Control y Pay: tarjetas azul/violeta, núcleo orbital decorativo, datos reales existentes, sin gráficas o porcentajes inventados. Se preservan IDs y manejadores. El texto estático anterior de modo de prueba se corrige para separar producción y pruebas.

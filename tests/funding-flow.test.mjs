@@ -48,3 +48,10 @@ test('browser return is private read-only and cannot credit from URL status',asy
  const r=await fundingRoute(request,enabled(db),new URL(request.url),owner,reply,()=>{throw Error('must not fetch');});assert.equal(r.status,200);assert.equal((await r.json()).state,'pending');assert.equal((await walletState(db,'user')).availableCents,0);assert.equal(r.headers.get('Cache-Control'),'no-store');
  const other=await fundingRoute(request,enabled(db),new URL(request.url),{...owner,id:'other'},reply);assert.equal(other.status,404);
 });
+
+test('checkout redirects are rejected and cannot forward the production token',async()=>{
+ const db=await setup();let calls=0;
+ const request=new Request('https://test/api/payments/mercadopago/funding/checkout',{method:'POST',headers:{'Idempotency-Key':id},body:JSON.stringify({amountCents:1000})});
+ const result=await fundingRoute(request,enabled(db),new URL(request.url),owner,reply,async(url,options)=>{calls++;assert.equal(options.redirect,'manual');return new Response(null,{status:302,headers:{Location:'https://untrusted.test'}});});
+ assert.equal(result.status,503);assert.equal(calls,1);assert.equal((await walletState(db,'user')).availableCents,0);
+});
