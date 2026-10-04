@@ -23,6 +23,6 @@ No agent-initiated real payment, supplier purchase, wallet credit or diamond del
 
 ## Validation
 
-93 Node tests pass, including new live-evidence rejection, duplicate webhook, own-wallet debit, concurrent/idempotent ledger behavior, lost supplier response, exact product/region/UID validation, existing-debit recovery and real price snapshot checks. Legacy reseller suite passes. Public allowlist build: 220 files; no backend, tests, docs or secrets shipped. Browser review and hosting checks are tracked in the publishing response.
+94 Node tests pass, including new live-evidence rejection, duplicate webhook, own-wallet debit, concurrent/idempotent ledger behavior, lost supplier response, exact product/region/UID validation, existing-debit recovery and real price snapshot checks. Legacy reseller suite passes. Public allowlist build: 220 files; no backend, tests, docs or secrets shipped. Browser review and hosting checks are tracked in the publishing response.
 
 Rollback: revert this increment. Additive provider quote/product-payment tables can remain; never delete or alter financial ledgers as a visual rollback. Pause delivery by disabling product flags, preserving own-order read access and already-paid records.

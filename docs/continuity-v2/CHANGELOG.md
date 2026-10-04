@@ -1,7 +1,7 @@
 # Animaciones y compras con saldo — 2026-10-04 UTC
 - Logos originales, rayos en perfiles de jugador, planeta/cerebro animados y consultas históricas de precios USD.
 - Piloto de compra con saldo o Mercado Pago preparado, desactivado hasta verificar entrega directa, acceso SHOP_ORDER, fondos y contrato real. No se procesó ninguna recarga real.
-- 93 pruebas Node y suite de revendedores aprobadas. Ver ANIMATED-PURCHASES-2026-10-04.md.
+- 94 pruebas Node y suite de revendedores aprobadas. Ver ANIMATED-PURCHASES-2026-10-04.md.
 
 # Changelog de continuidad v2
 
