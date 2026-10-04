@@ -87,3 +87,17 @@ body.zx-console .console-note{font-size:12px;line-height:1.7;color:#9db6b4}.lune
 @media(max-width:650px){.visual-grid,.provider-grid{grid-template-columns:1fr}.holo-chart{padding:18px}.lunes-console{align-items:flex-start;gap:16px}.lunes-orb{width:54px;height:54px;font-size:26px}.holo-network svg{height:200px}}
 @media(prefers-reduced-motion:reduce){body.zx-console *{animation:none!important;transition:none!important}}
 body.zx-console [hidden]{display:none!important}
+
+/* Payment choices retain native radio semantics with large visual click targets. */
+body.zx-console .pay-methods{gap:12px;margin-top:26px}
+body.zx-console #funding-form .pay-methods legend{color:#d4f7ed;font-size:15px;font-weight:600;margin-bottom:14px}
+body.zx-console #funding-form .pay-method{position:relative;display:flex;align-items:center;gap:12px;min-height:104px;box-sizing:border-box;margin:0;padding:20px 14px;border:1px solid #64c9c52e;border-radius:16px;background:linear-gradient(135deg,#0b1b22,#040b0e);transition:border-color .2s,box-shadow .2s,background .2s}
+body.zx-console #funding-form .pay-method:hover{border-color:#5edfff88}
+body.zx-console #funding-form .pay-method:has(input:checked){border-color:#66ffcd;background:linear-gradient(130deg,#0c3432,#062022);box-shadow:inset 0 1px #9affdf22,0 0 24px #47ffb914}
+body.zx-console #funding-form .pay-method:has(input:focus-visible){outline:2px solid #78e6ff;outline-offset:4px}
+body.zx-console #funding-form .pay-method input{position:absolute;width:1px!important;height:1px;opacity:0;margin:0;padding:0;overflow:hidden}
+.pay-method-icon{display:grid;place-items:center;flex:none;width:48px;height:42px}.pay-method-icon svg{width:100%;height:100%;filter:drop-shadow(0 3px 7px #0006)}
+.pay-method-copy{display:block;min-width:0}.pay-method-copy strong{display:block;color:#e4fff4;font-size:14px;font-weight:600;line-height:1.4}.pay-method-copy small{display:block;font-size:10px;color:#9ebbb8;margin-top:5px;line-height:1.4}
+.pay-method-check{position:absolute;right:9px;top:8px;width:16px;height:16px;display:grid;place-items:center;border-radius:50%;background:#5bfac1;color:#052b21;font-size:11px;font-weight:bold;opacity:0}.pay-method:has(input:checked) .pay-method-check{opacity:1}
+@media(max-width:650px){body.zx-console #funding-form .pay-method{flex-direction:column;align-items:flex-start;gap:12px;padding:18px 14px;min-height:138px}.pay-method-icon{width:48px;height:34px}.pay-method-copy strong{font-size:14px}.pay-method-copy small{font-size:10px}}
+@media(forced-colors:active){body.zx-console #funding-form .pay-method input{position:static;width:18px!important;height:18px;opacity:1}.pay-method-check{display:none}.pay-method-icon{display:none}}

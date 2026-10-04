@@ -121,3 +121,8 @@
 .footer .zx-origin {margin:24px auto 0;padding:18px 16px 0;border-top:1px solid #7289be30;text-align:center;line-height:1.6}
 .footer .zx-origin span {display:block;color:#b7bfd0;font-size:12px;letter-spacing:.12em}
 .footer .zx-origin strong {display:block;color:#ff6477;font-size:14px;letter-spacing:.02em}
+
+/* Own-user balance stays above the hero, on its own compact header row. */
+.topbar #zx-header-wallet{grid-column:1/-1!important;grid-row:auto!important;justify-self:end;display:flex;align-items:center;gap:11px;max-width:100%;min-height:46px;padding:8px 14px;border:1px solid #5ad9c644;border-radius:14px;background:linear-gradient(110deg,#071c24,#08251d);color:#7bffe0;cursor:pointer;box-shadow:inset 0 1px #aaffdf0b}
+#zx-header-wallet svg{width:25px;height:24px;flex:none}#zx-header-wallet>span:not(.zx-header-wallet-arrow){display:flex;align-items:center;gap:14px}#zx-header-wallet small{font:600 9px/1.4 system-ui;letter-spacing:.12em;color:#a4c6c3}#zx-header-wallet strong{font:600 13px/1.4 system-ui;color:#e0fff1;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}#zx-header-wallet .zx-header-wallet-arrow{color:#61dfec;font-size:17px}#zx-header-wallet:focus-visible{outline:2px solid #81e9ff;outline-offset:3px}
+@media(max-width:650px){.topbar #zx-header-wallet{justify-self:stretch;padding:8px 12px;min-height:44px}#zx-header-wallet>span:not(.zx-header-wallet-arrow){flex:1;justify-content:space-between;gap:8px}#zx-header-wallet strong{font-size:12px}}
