@@ -429,6 +429,7 @@ function getZeroXSession() {
 }
 
 function saveZeroXSession(session) {
+  window.zxResetWalletView?.();
   if (session) localStorage.setItem(ZEROX_SESSION_KEY, JSON.stringify(session));
   else localStorage.removeItem(ZEROX_SESSION_KEY);
 }
@@ -464,6 +465,7 @@ function authMessage(error) {
 }
 
 function renderZeroXAccount() {
+  window.zxResetWalletView?.();
   const guest = $("#account-guest"), user = $("#account-user"), profile = $("#open-account");
   if (!guest || !user) return;
   guest.hidden = !!zeroxUser;
@@ -659,65 +661,20 @@ $("#account-orders")?.addEventListener("click", () => {
 });
 
 const ZX_FAVS = ["Free Fire","Streaming","Cuentas","Venta de clanes","Honor de clanes","Revendedores"];
-const ZX_AVATARS = [["♛","#5e199d"],["✦","#126b91"],["⚡","#853334"],["◆","#387266"],["★","#9c6119"]];
 let zxDraftAvatar = "";
 let zxDraftBannerImage = "";
 let zxDraftBanner = "violet";
 let zxDraftFrame = "steel";
 function zxRenderProfileEditor(){
-  const profile=zeroxUser?.profile || {}, avatarBox=$("#profile-avatar-choices");
-  if(!avatarBox)return;
+  const profile=zeroxUser?.profile || {};
+  if(!$("#profile-bio"))return;
   zxDraftAvatar=profile.avatar||"";zxDraftBannerImage=profile.bannerImage||"";zxDraftBanner=profile.banner||"violet";zxDraftFrame=profile.frame||"steel";
   $("#profile-bio").value=profile.bio||"";
   $("#profile-username").value=zeroxUser.username||"";
   $("#profile-username-status").textContent="De 3 a 24 caracteres; letras, números, punto, guion o guion bajo.";
-  avatarBox.innerHTML=ZX_AVATARS.map(([icon,color],i)=>`<button type="button" class="zx-avatar-option" data-avatar-preset="${i}" style="--avatar-color:${color}" aria-label="Avatar ${i+1}">${icon}</button>`).join("");
   $("#profile-favorites").innerHTML=ZX_FAVS.map(f=>`<label><input type="checkbox" value="${f}" ${(profile.favorites||[]).includes(f)?"checked":""}><span>${f}</span></label>`).join("");
-  $("#profile-banner-choices").innerHTML=[["violet","💜 Violeta"],["crimson","❤️ Carmesí"],["electric","⚡ Eléctrico"]].map(([id,label])=>`<button type="button" data-profile-banner="${id}" class="${zxDraftBanner===id?"selected":""}">${label}</button>`).join("")+`<button type="button" data-profile-banner="custom" class="${zxDraftBanner==="custom"?"selected":""}">🖼️ Mi imagen</button>`;
   const level=Number(zeroxUser.level||1);
-  zxRenderStyleGallery(level);
   $("#profile-frame-choices").innerHTML=[["steel","🎁 Acero",1],["chrome","✧ Cromo",2],["cobalt","◆ Cobalto",3],["titan","✦ Titán",4],["aurora","❖ Aurora",5],["prism","◇ Prisma",6],["sovereign","♛ Soberano",7]].map(([id,label,needed])=>`<button type="button" data-profile-frame="${id}" ${level<needed?"disabled":""} class="${zxDraftFrame===id?"selected":""}">${label}${level<needed?` · Nivel ${needed}`:""}</button>`).join("");
-}
-function zxRenderStyleGallery(level){
-  const banners=[["crimson","Carmesí"],["shadow","Sombra roja"],["angel","Ángel oscuro"]];
-  $("#zx-banner-gallery").innerHTML=banners.map(([id,name])=>`<button type="button" data-zx-banner="${id}"><span style="background-image:url('./assets/profile/banner-${id}.jpg')"></span><b>${name}</b></button>`).join("");
-  $("#zx-avatar-gallery").innerHTML=[["silver","Plata"],["ruby","Rubí"],...["Snoopy","Miles","Cachorro","Fantasma","Spider-Man","Gatito"].map((name,i)=>["collection-"+i,name])].map(([id,name])=>`<button type="button" data-zx-avatar="${id}">${id.startsWith("collection-")?`<span class="zx-avatar-crop" style="--col:${Number(id.split("-")[1])%3};--row:${Math.floor(Number(id.split("-")[1])/3)}" role="img" aria-label="Avatar ${name}"></span>`:`<img src="./assets/profile/avatar-${id}.jpg" alt="Avatar ${name}" loading="lazy">`}<b>${name}</b></button>`).join("");
-  $("#zx-frame-gallery").innerHTML=[["steel","Acero",1],["chrome","Plata",2],["cobalt","Neón azul",3],["titan","Circuito",4],["aurora","Energía verde",5],["prism","Multicolor",6],["sovereign","Fuego dorado",7]].map(([id,name,needed])=>`<button type="button" data-zx-frame="${id}" ${level<needed?"disabled":""} class="${zxDraftFrame===id?"selected":""}"><span class="zx-frame-preview zx-frame-${id}">ZX</span><b>${name}</b><small>${level<needed?`Nivel ${needed}`:"Disponible"}</small></button>`).join("");
-}
-$("#zx-banner-gallery")?.addEventListener("click",async event=>{
-  const button=event.target.closest("[data-zx-banner]");if(!button)return;
-  const status=$("#zx-gallery-status");button.disabled=true;
-  try{
-    const response=await fetch(`./assets/profile/banner-${button.dataset.zxBanner}.jpg`);if(!response.ok)throw Error("No se pudo cargar el banner.");
-    zxDraftBannerImage=await zxCompactImage(await response.blob(),640,220);zxDraftBanner="custom";
-    $("#profile-banner").className="zx-profile-banner zx-banner-custom";$("#profile-banner").style.backgroundImage=`url("${zxDraftBannerImage}")`;
-    $("#zx-banner-gallery").querySelectorAll("button").forEach(item=>item.classList.toggle("selected",item===button));
-    status.textContent="Banner preparado. Pulsa Guardar mi estilo.";
-  }catch(error){status.textContent=error.message}finally{button.disabled=false}
-});
-$("#zx-avatar-gallery")?.addEventListener("click",async event=>{
-  const button=event.target.closest("[data-zx-avatar]");if(!button)return;button.disabled=true;
-  try{const id=button.dataset.zxAvatar,collection=id.startsWith("collection-");const response=await fetch(collection?"./assets/profile/avatar-collection.jpg":`./assets/profile/avatar-${id}.jpg`);if(!response.ok)throw Error("No se pudo cargar el avatar.");zxDraftAvatar=collection?await zxCollectionAvatar(await response.blob(),Number(id.split("-")[1])):await zxCompactImage(await response.blob(),256,256);$("#account-avatar").textContent="";$("#account-avatar").style.backgroundImage=`url("${zxDraftAvatar}")`;$("#zx-gallery-status").textContent="Avatar preparado. Pulsa Guardar mi estilo."}
-  catch(error){$("#zx-gallery-status").textContent=error.message}finally{button.disabled=false}
-});
-$("#zx-frame-gallery")?.addEventListener("click",event=>{
-  const button=event.target.closest("[data-zx-frame]");if(!button||button.disabled)return;
-  zxDraftFrame=button.dataset.zxFrame;$("#account-avatar").className="account-avatar zx-frame-"+zxDraftFrame;
-  $("#zx-frame-gallery").querySelectorAll("button").forEach(item=>item.classList.toggle("selected",item===button));
-  $("#zx-gallery-status").textContent="Marco preparado. Pulsa Guardar mi estilo.";
-});
-$("#zx-gallery-save")?.addEventListener("click",()=>{$("#profile-save").click()});
-function zxPresetAvatar(icon,color){
-  const canvas=document.createElement("canvas");canvas.width=canvas.height=256;
-  const ctx=canvas.getContext("2d"),grad=ctx.createLinearGradient(0,0,256,256);
-  grad.addColorStop(0,color);grad.addColorStop(1,"#0b0713");ctx.fillStyle=grad;ctx.fillRect(0,0,256,256);
-  ctx.fillStyle="#fff";ctx.font="bold 138px sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(icon,128,135);
-  return canvas.toDataURL("image/png");
-}
-async function zxCollectionAvatar(file,index){
- const bitmap=await createImageBitmap(file),canvas=document.createElement("canvas");canvas.width=256;canvas.height=256;
- const rects=[[21,22,480,483],[512,22,512,483],[1035,22,478,483],[21,517,480,484],[512,517,512,484],[1035,517,478,484]],r=rects[index];
- if(!r)throw Error("Avatar no válido");const side=Math.min(r[2],r[3]);canvas.getContext("2d").drawImage(bitmap,r[0]+(r[2]-side)/2,r[1]+(r[3]-side)/2,side,side,0,0,256,256);bitmap.close();return canvas.toDataURL("image/jpeg",.8);
 }
 async function zxCompactImage(file,width,height){
   if(!file || !["image/jpeg","image/png","image/webp"].includes(file.type) || file.size>8*1024*1024)throw Error("Selecciona una imagen JPG, PNG o WebP de hasta 8 MB.");
@@ -729,29 +686,25 @@ async function zxCompactImage(file,width,height){
   if(data.length>155000)throw Error("La imagen es muy grande; prueba con otra.");
   return data;
 }
-$("#profile-avatar-choices")?.addEventListener("click",e=>{
-  const button=e.target.closest("[data-avatar-preset]");if(!button)return;
-  const [icon,color]=ZX_AVATARS[Number(button.dataset.avatarPreset)];zxDraftAvatar=zxPresetAvatar(icon,color);
-  $("#profile-avatar-choices").querySelectorAll("button").forEach(b=>b.classList.toggle("selected",b===button));
-  $("#account-avatar").textContent="";$("#account-avatar").style.backgroundImage=`url("${zxDraftAvatar}")`;
-});
 $("#profile-avatar-file")?.addEventListener("change",async e=>{
+  if(!e.target.files?.length)return;
   try{zxDraftAvatar=await zxCompactImage(e.target.files[0],256,256);$("#account-avatar").textContent="";$("#account-avatar").style.backgroundImage=`url("${zxDraftAvatar}")`;$("#profile-result").textContent="Foto preparada. Guarda los cambios.";}
   catch(err){$("#profile-result").textContent=err.message;}
 });
+$("#profile-banner-upload")?.addEventListener("click",()=>$("#profile-banner-file").click());
 $("#profile-banner-file")?.addEventListener("change",async e=>{
+  if(!e.target.files?.length)return;
   try{zxDraftBannerImage=await zxCompactImage(e.target.files[0],640,220);zxDraftBanner="custom";$("#profile-banner").className="zx-profile-banner zx-banner-custom";$("#profile-banner").style.backgroundImage=`linear-gradient(0deg,rgba(5,3,10,.6),transparent),url("${zxDraftBannerImage}")`;$("#profile-result").textContent="Banner preparado. Guarda los cambios.";}
   catch(err){$("#profile-result").textContent=err.message;}
 });
-$("#profile-banner-choices")?.addEventListener("click",e=>{const b=e.target.closest("[data-profile-banner]");if(!b)return;zxDraftBanner=b.dataset.profileBanner;$("#profile-banner").className="zx-profile-banner zx-banner-"+zxDraftBanner;$("#profile-banner").style.backgroundImage=zxDraftBanner==="custom"&&zxDraftBannerImage?`linear-gradient(0deg,rgba(5,3,10,.6),transparent),url("${zxDraftBannerImage}")`:"";$("#profile-banner-choices").querySelectorAll("button").forEach(x=>x.classList.toggle("selected",x===b));});
 $("#profile-frame-choices")?.addEventListener("click",e=>{const b=e.target.closest("[data-profile-frame]");if(!b||b.disabled)return;zxDraftFrame=b.dataset.profileFrame;$("#account-avatar").className="account-avatar zx-frame-"+zxDraftFrame;$("#profile-frame-choices").querySelectorAll("button").forEach(x=>x.classList.toggle("selected",x===b));});
 $("#profile-save")?.addEventListener("click",async()=>{
   const button=$("#profile-save"),out=$("#profile-result");button.disabled=true;out.textContent="Guardando...";
   try{const favorites=[...$("#profile-favorites").querySelectorAll("input:checked")].map(x=>x.value);if(favorites.length>6)throw Error("Puedes elegir hasta 6 categorías.");
     const body={bio:$("#profile-bio").value.trim(),favorites,avatar:zxDraftAvatar,banner:zxDraftBanner,bannerImage:zxDraftBannerImage,frame:zxDraftFrame,isPublic:$("#zx-public-enabled").checked};
     const data=await zeroxAuthRequest("/api/auth/profile",{method:"POST",body:JSON.stringify(body)});
-    zeroxUser.profile=data.profile;renderZeroXAccount();out.textContent="Perfil guardado ✓";$("#zx-gallery-status").textContent="Estilo guardado en tu cuenta ✓";
-  }catch(err){out.textContent=err.status?authMessage(err):err.message;$("#zx-gallery-status").textContent=out.textContent;}finally{button.disabled=false;}
+    zeroxUser.profile=data.profile;renderZeroXAccount();out.textContent="Perfil guardado ✓";
+  }catch(err){out.textContent=err.status?authMessage(err):err.message;}finally{button.disabled=false;}
 });
 
 restoreZeroXSession();
