@@ -1,3 +1,4 @@
+import {reconcileProductPayment} from '../diamonds/purchases.mjs';
 import {fundingSchema,createFundingIntent,reconcileFunding} from './funding.mjs';
 import {walletSchema} from '../wallet/ledger.mjs';
 import {settleFunding} from './settlement.mjs';
@@ -36,7 +37,7 @@ export async function fundingRoute(request,env,url,user,json,fetcher=fetch){
    const payment=await productionPayment(env,id,fetcher);
    await schemas(env.DB);
    const intent=await env.DB.prepare('SELECT id FROM zx_funding_intents WHERE id=?').bind(String(payment.external_reference||'')).first();
-   if(!intent)return reply({ok:true,ignored:true});
+   if(!intent){await reconcileProductPayment(env,payment,fetcher);return reply({ok:true});}
    await processFundingPayment(env,payment);return reply({ok:true});
   }
   if(url.pathname===ROOT+'/checkout'&&request.method==='POST'){

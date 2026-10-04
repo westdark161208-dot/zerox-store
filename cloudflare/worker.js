@@ -1,3 +1,4 @@
+import {purchaseRoute} from './diamonds/purchases.mjs';
 import {fundingRoute} from "./payments/funding-routes.mjs";
 import {productionReadRoute} from "./payments/mercadopago-production.mjs";
 import {walletRoute} from "./wallet/routes.mjs";
@@ -214,6 +215,7 @@ export default {
         if(!url.pathname.endsWith("/webhook")){await authSchema(env);user=await currentUser(request,env);}
         return await mpTestRoute(request,env,url,user,json);
       }
+      if(url.pathname.startsWith("/api/diamonds/purchase/")){await authSchema(env);return await purchaseRoute(request,env,url,await currentUser(request,env),json);}
       if(url.pathname.startsWith("/api/diamonds/")){
         let user=null;
         if(env.DIAMOND_ORDER_DRAFTS_ENABLED==='true'&&url.pathname.includes('/orders')){await authSchema(env);user=await currentUser(request,env);}
