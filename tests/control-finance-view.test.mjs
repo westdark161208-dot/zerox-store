@@ -8,7 +8,7 @@ function setup(){
   const e=Object.fromEntries(ids.map(id=>[id,new Element()])),window=new EventTarget(),calls=[];
   const document={hidden:false,getElementById:id=>e[id],createElement:()=>new Element()};
   let token='one';
-  const context=vm.createContext({window,document,Intl,Date,AbortController,setTimeout,clearTimeout,localStorage:{getItem:()=>JSON.stringify({token})},fetch:(url,options)=>new Promise(resolve=>calls.push({url,options,resolve:body=>resolve({ok:true,json:async()=>body})}))});
+  const context=vm.createContext({window,document,Intl,Date,AbortController,setTimeout,clearTimeout,localStorage:{getItem:()=>JSON.stringify({token})},fetch:(url,options)=>new Promise(resolve=>calls.push({url,options,resolve:(body,status=200)=>resolve({ok:status>=200&&status<300,status,json:async()=>body})}))});
   vm.runInContext(readFileSync(new URL('../control-finance.js',import.meta.url),'utf8'),context);
   window.dispatchEvent(new Event('zx-control-ready'));
   return {e,window,calls,change:()=>{token='two';window.dispatchEvent(new Event('zx-control-clear'));}};
@@ -51,4 +51,12 @@ test('account connection check requires configuration and discards late private 
  s.e['payment-account-check'].onclick();assert.match(s.calls[1].url,/mercadopago\/account$/);
  s.change();s.calls[1].resolve({ok:true,account:{receiverMatched:true,site:'MLM'}});await settle();
  assert.equal(s.e['payment-account-status'].textContent,'');assert.equal(s.e['payment-account-check'].disabled,true);
+});
+
+test('account failures show safe diagnostics while unknown provider content stays hidden',async()=>{
+ const s=setup();s.e['payment-config-check'].onclick();s.calls[0].resolve({ok:true,readEnabled:true,tokenConfigured:true,collectorConfigured:true});await settle();
+ s.e['payment-account-check'].onclick();s.calls[1].resolve({ok:false,error:'MP_PRODUCTION_CREDENTIAL_REJECTED'},503);await settle();
+ assert.match(s.e['payment-account-status'].textContent,/401/);assert.equal(s.e['payment-account-check'].disabled,false);
+ s.e['payment-account-check'].onclick();s.calls[2].resolve({ok:false,error:'private-provider-token'},503);await settle();
+ assert.equal(s.e['payment-account-status'].textContent,'Consulta no disponible.');
 });

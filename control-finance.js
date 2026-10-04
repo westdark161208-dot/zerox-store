@@ -14,6 +14,17 @@
     q('wallet-audit-next').hidden=true;q('payment-audit-id').value='';
     for(const id of ['wallet-audit-refresh','wallet-audit-next','provider-check','provider-balance','payment-config-check','payment-audit-check','payment-account-check'])q(id).disabled=true;
   }
+  const diagnostics={
+    MP_PRODUCTION_READ_DISABLED:'La consulta de producción está desactivada en el servidor.',
+    MP_PRODUCTION_CONFIG_MISSING:'Falta la credencial de producción o la cuenta receptora en el servidor.',
+    MP_PRODUCTION_ACCOUNT_MISMATCH:'La cuenta de la credencial no coincide con la receptora configurada en México. Revisa el User ID y la cuenta de Mercado Pago.',
+    MP_PRODUCTION_CREDENTIAL_REJECTED:'Mercado Pago rechazó la credencial (401). Revisa el Access Token de producción guardado en Cloudflare.',
+    MP_PRODUCTION_ACCESS_REJECTED:'Mercado Pago denegó el acceso (403). Revisa los permisos y el estado de la aplicación.',
+    MP_PRODUCTION_RATE_LIMITED:'Mercado Pago limitó las consultas (429). Espera un momento y vuelve a intentar.',
+    MP_PRODUCTION_TIMEOUT:'Mercado Pago no respondió a tiempo. Vuelve a intentar.',
+    MP_PRODUCTION_CONNECTION_FAILED:'El servidor no pudo conectarse con Mercado Pago. Vuelve a intentar.',
+    MP_PRODUCTION_EVIDENCE_REJECTED:'El pago no coincide con la cuenta, moneda o modo de producción esperado.'
+  };
   async function read(path, apply, fail, finish){
     const current=token(), version=generation;
     if(!current||q('workspace').hidden)return;
@@ -22,8 +33,10 @@
     const valid=()=>version===generation&&token()===current&&!q('workspace').hidden&&!document.hidden;
     try{
       const response=await fetch(API+path,{headers:{Authorization:'Bearer '+current},cache:'no-store',signal:controller.signal});
-      if(!response.ok)throw Error(response.status===403?'Acceso no autorizado.':response.status===401?'Tu sesión expiró. Inicia sesión de nuevo.':'Consulta no disponible.');
-      const data=await response.json();if(!data.ok)throw Error('Consulta no disponible.');
+      if(response.status===403)throw Error('Acceso no autorizado.');
+      if(response.status===401)throw Error('Tu sesión expiró. Inicia sesión de nuevo.');
+      const data=await response.json().catch(()=>null);
+      if(!response.ok||!data?.ok)throw Error(Object.hasOwn(diagnostics,data?.error)?diagnostics[data.error]:'Consulta no disponible.');
       if(valid())apply(data);
     }catch(error){if(valid())fail(error.name==='AbortError'?'La consulta tardó demasiado. Puedes reintentar.':error.message);}
     finally{clearTimeout(timer);pending.delete(controller);if(valid())finish();}

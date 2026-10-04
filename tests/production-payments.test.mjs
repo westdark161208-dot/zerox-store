@@ -68,3 +68,17 @@ test('account check sends GET only, rejects receiver/site mismatch and minimizes
  const result=await productionReadRoute(new Request(url),env,url,{status:'active',isFounder:true},json,fetcher);
  assert.equal(result.headers.get('Cache-Control'),'no-store');const body=await result.json();assert.equal(body.paymentVerified,false);assert.equal(body.walletCredited,false);assert.ok(!JSON.stringify(body).includes('private'));
 });
+
+test('account diagnostics classify provider failures without exposing response bodies or exceptions',async()=>{
+ const env={MP_ACCESS_TOKEN:'fixture',MP_PRODUCTION_READ_ENABLED:'true',MP_COLLECTOR_ID_PRODUCTION:'123'};
+ const url=new URL('https://test/api/admin/payments/mercadopago/account');const json=(b,s=200)=>new Response(JSON.stringify(b),{status:s});
+ const cases=[[401,'CREDENTIAL_REJECTED'],[403,'ACCESS_REJECTED'],[429,'RATE_LIMITED'],[500,'UNAVAILABLE']];
+ for(const [status,code] of cases){
+  const r=await productionReadRoute(new Request(url),env,url,{status:'active',isFounder:true},json,async()=>({ok:false,status,json:async()=>{throw Error('private-response');}}));
+  assert.deepEqual(await r.json(),{ok:false,error:'MP_PRODUCTION_'+code});assert.equal(r.status,503);
+ }
+ for(const [name,code] of [['TimeoutError','TIMEOUT'],['TypeError','CONNECTION_FAILED']]){
+  const r=await productionReadRoute(new Request(url),env,url,{status:'active',isFounder:true},json,async()=>{throw Object.assign(Error('private-token'),{name});});
+  assert.deepEqual(await r.json(),{ok:false,error:'MP_PRODUCTION_'+code});
+ }
+});
