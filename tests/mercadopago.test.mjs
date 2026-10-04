@@ -23,3 +23,12 @@ test('non-founder cannot create a checkout or read configuration',async()=>{
  const r=await mpTestRoute(new Request(url,{method:'POST'}),{},url,{isFounder:false},(body,status)=>({body,status}));
  assert.equal(r.status,403);
 });
+
+test('test checkout method preferences are bounded and never supplied as raw client options',async()=>{
+ const {checkoutMethods}=await import('../cloudflare/payments/mercadopago-test.mjs');
+ assert.deepEqual(checkoutMethods('all'),{});
+ assert.equal(checkoutMethods('oxxo').default_payment_method_id,'oxxo');
+ assert.equal(checkoutMethods('spei').default_payment_method_id,'clabe');
+ assert(checkoutMethods('card').excluded_payment_types.some(i=>i.id==='bank_transfer'));
+ assert.throws(()=>checkoutMethods('untrusted'),/INVALID_PAYMENT_METHOD/);
+});
