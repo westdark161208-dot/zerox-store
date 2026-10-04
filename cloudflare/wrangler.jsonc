@@ -4,7 +4,9 @@
   "compatibility_date": "2026-09-10",
   "vars": {
     "MP_COLLECTOR_ID_PRODUCTION": "1404826494",
-    "MP_PRODUCTION_READ_ENABLED": "true"
+    "MP_PRODUCTION_READ_ENABLED": "true",
+    "MP_WALLET_PILOT_ENABLED": "true",
+    "WALLET_READ_ENABLED": "true"
   },
   "d1_databases": [
     {
