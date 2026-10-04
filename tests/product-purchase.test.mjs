@@ -70,3 +70,9 @@ test('recovery after wallet debit state-write failure only repairs existing debi
  const a=await route(env,'/wallet',founder,body,crypto.randomUUID(),fetcher);assert.equal(a.body.error,'WALLET_RECONCILIATION_REQUIRED');assert.ok(a.body.orderId);
  await route(env,'/resume',founder,{orderId:a.body.orderId},crypto.randomUUID(),fetcher);assert.equal((await walletState(env.DB,'owner')).availableCents,8200);assert.equal((await env.DB.prepare('SELECT state FROM zx_diamond_orders').first()).state,'COMPLETED');
 });
+test('accepted supplier order resumes with expected UID via lookup and no repeated POST',async()=>{
+ const env=await setup();await postMovement(env.DB,{userId:'owner',kind:'credit',amountCents:10000,currency:'MXN',source:'fixture',reference:'1',requestKey:'credit',actor:'fixture'});let sends=0,reads=0;const base=upstream();
+ const fetcher=async(url,options)=>{if(url.endsWith('/account/shop/order')){sends++;return response({status:true,code:200,data:{id:789,status:'PROCESSING',gameAccount:{uid:'1136210821'}}});}if(url.endsWith('/account/shop/orders/789')){reads++;return response({status:true,code:200,data:{id:789,status:'COMPLETED',gameAccount:{uid:'1136210821'}}});}return base(url,options);};
+ const a=await route(env,'/wallet',founder,body,crypto.randomUUID(),fetcher);assert.equal(a.body.delivery.state,'REQUIRES_REVIEW');
+ const b=await route(env,'/resume',founder,{orderId:a.body.orderId},crypto.randomUUID(),fetcher);assert.equal(b.body.delivery.state,'COMPLETED');assert.equal(sends,1);assert.equal(reads,1);
+});

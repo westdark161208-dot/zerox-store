@@ -54,7 +54,7 @@ export async function runOrder(db,orderId,{provider=disabledProvider,skuMap={},m
    let result;
    if(op.state==='PROCESSING'){
     if(op.provider_name!==provider.name)break;
-    try{result=await provider.lookup({reference:op.provider_reference,idempotencyKey:op.id});}catch{result={status:'UNKNOWN'};}
+    try{result=await provider.lookup({reference:op.provider_reference,idempotencyKey:op.id,playerId:op.player_id});}catch{result={status:'UNKNOWN'};}
    }else{
     if(sent>=maxOperations)break;
     const sku=op.provider_sku||skuMap[op.diamonds];if(!sku)break;
