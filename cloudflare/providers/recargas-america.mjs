@@ -8,7 +8,7 @@ export async function readRecargasAmerica(env, resource, fetcher=fetch) {
   if (!path) throw Error('RA_RESOURCE_NOT_ALLOWED');
   let response;
   try {
-    response=await fetcher(BASE+path,{method:'GET',redirect:'error',
+    response=await fetcher(BASE+path,{method:'GET',redirect:'manual',
       headers:{Authorization:'Bearer '+env.RECARGAS_AMERICA_API_KEY,Accept:'application/json'},
       signal:AbortSignal.timeout(10000)});
   } catch {throw Error('RA_UNAVAILABLE')}

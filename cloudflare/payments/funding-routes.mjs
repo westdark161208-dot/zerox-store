@@ -54,7 +54,7 @@ export async function fundingRoute(request,env,url,user,json,fetcher=fetch){
    const back=SITE+'/wallet-payment.html?attempt='+intent.id;
    let pref;
    try{
-    const response=await fetcher('https://api.mercadopago.com/checkout/preferences',{method:'POST',redirect:'error',headers:{Authorization:'Bearer '+productionToken(env),'Content-Type':'application/json'},signal:AbortSignal.timeout(12000),body:JSON.stringify({
+    const response=await fetcher('https://api.mercadopago.com/checkout/preferences',{method:'POST',redirect:'manual',headers:{Authorization:'Bearer '+productionToken(env),'Content-Type':'application/json'},signal:AbortSignal.timeout(12000),body:JSON.stringify({
      items:[{id:intent.id,title:'Saldo Zero’X · prueba controlada',quantity:1,currency_id:'MXN',unit_price:intent.amount_cents/100}],external_reference:intent.id,
      back_urls:{success:back,pending:back,failure:back},notification_url:HOOK,expires:true,expiration_date_to:new Date(Date.now()+3600000).toISOString()
     })});

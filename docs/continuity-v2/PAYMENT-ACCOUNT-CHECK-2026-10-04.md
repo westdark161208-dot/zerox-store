@@ -9,3 +9,7 @@ Official SDK reference: https://pkg.go.dev/github.com/mercadopago/sdk-go/pkg/use
 ## Diagnóstico de conexión
 
 La captura de Control confirma consulta habilitada y firma configurada, pero la cuenta aún no fue verificada. Se distinguen rechazo HTTP 401, acceso 403, límite 429, timeout, conexión y discrepancia de cuenta. No se devuelve el cuerpo de error de Mercado Pago ni datos personales. El frontend solo traduce códigos permitidos. La bandera MP_PRODUCTION_READ_ENABLED=true se sincroniza con la configuración que el fundador ya habilitó. El piloto sigue desactivado. Validación: 66 pruebas y compilación pública.
+
+## Compatibilidad del runtime
+
+La captura siguiente reportó CONNECTION_FAILED. El código oficial de workerd (src/workerd/api/http.c++) rechaza redirect:error y exige manual o follow. Se cambia a manual en las consultas y preparación de checkout; las respuestas no exitosas, incluidas redirecciones 3xx, siguen rechazadas sin seguir Location ni reenviar credenciales. Se corrige también el adaptador de consulta de Recargas América. Pilotos y compras siguen con sus banderas existentes, sin activaciones. La cuenta productiva aún requiere comprobación desde la sesión del fundador.
