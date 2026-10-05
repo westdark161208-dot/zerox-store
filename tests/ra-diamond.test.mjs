@@ -40,3 +40,12 @@ test('level-up uses documented UID-only route and rejects identity mismatches',a
  assert.equal((await readLevelUp({SIXOFIRE_API_KEY:'fixture'},'1136210821',async(url,opts)=>{assert.equal(url,'https://api.sixofire.net/account/levelup/packages?uid=1136210821');assert.equal(opts.method,'GET');return response(fixture);})).packages[0].itemId,'4790');
  await assert.rejects(readLevelUp({SIXOFIRE_API_KEY:'fixture'},'1136210821',async()=>response({...fixture,data:{...fixture.data,uid:'999999999'}})),/FORMAT/);
 });
+
+test('manual_id is sent only from an explicit immutable mapping matching the live required field',async()=>{
+ const map={'572':{...mapping['572'],playerField:'manual_id'}},manual={...item,requiredFields:['manual_id']};
+ assert.throws(()=>validateRaPlan([manual],recipe,mapping,'US'),/MISMATCH/);
+ assert.throws(()=>raMapping({...env,RA_DIAMOND_PACKS:JSON.stringify({'572':{...map['572'],playerField:'untrusted'}})}),/INVALID/);
+ const p={...plan,packs:validateRaPlan([manual],recipe,map,'US')};let posts=0;
+ const adapter=raProvider(env,p,async(url,opts)=>{if(url.endsWith('/products/catalog'))return response({success:true,data:[{...manual,required_fields:['manual_id']}]});if(!url.endsWith('/buy/catalog'))return fetcher(url);posts++;assert.deepEqual(JSON.parse(opts.body),{product_id:1,quantity:1,manual_id:p.playerId});return response({success:true,data:{order_id:'RAAPI-M',status:'COMPLETED',amount_charged:5,item:item.name}});});
+ assert.equal((await adapter.submit({sku:'1',playerId:p.playerId,idempotencyKey:'operation-manual'})).status,'SUCCESS');assert.equal(posts,1);
+});

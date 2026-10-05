@@ -1,3 +1,4 @@
+import {marketRoute} from './market.mjs';
 import {purchaseConfiguration} from '../diamonds/purchases.mjs';
 import {quotesRoute} from './quotes.mjs';
 import {integrationRead} from './integrations.mjs';
@@ -7,6 +8,7 @@ export async function providerRoute(request,env,url,user,json) {
   const reply=(body,status=200)=>{const response=json(body,status);response.headers?.set('Cache-Control','no-store');return response;};
   if (!user || user.status!=='active') return reply({ok:false,error:'LOGIN_REQUIRED'},401);
   if (!can(user,'providers.read')) return reply({ok:false,error:'FORBIDDEN'},403);
+  if(url.pathname.startsWith('/api/admin/providers/market'))return marketRoute(request,env,url,user,reply);
   if(url.pathname==='/api/admin/providers/sixofire/quotes')return quotesRoute(request,env,url,user,reply);
   if(url.pathname==='/api/admin/providers/recargas-america/validate'&&request.method==='POST'){
     try{const body=await request.json();return reply({ok:true,data:await validateRecargasAccount(env,body.productId,String(body.uid||'')),purchasesEnabled:false});}

@@ -6,7 +6,7 @@ const out = join(root, 'dist');
 // Explicit application entrypoints. Never publish cloudflare/, tests/, docs/ or .git/.
 const files = [
   'product-payment.html', 'product-payment.js', 'system-holograms.js', 'header-wallet.js', 'wallet-payment.html', 'wallet-payment.js',
-  'control-visuals.js', 'providers-panel.js', 'console.css', 'panel-theme.css', 'wallet-view.js',
+  'provider-intelligence.js', 'control-visuals.js', 'providers-panel.js', 'console.css', 'panel-theme.css', 'wallet-view.js',
   'regional-config.js', 'region-selector.js', 'region-selector.css',
   'security.html', 'security.js', 'security.css',
   'control.html', 'control.js', 'control.css', 'control-finance.js',

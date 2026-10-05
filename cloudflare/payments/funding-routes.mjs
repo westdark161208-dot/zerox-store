@@ -52,7 +52,7 @@ export async function fundingRoute(request,env,url,user,json,fetcher=fetch){
     const old=await env.DB.prepare('SELECT checkout_url,state FROM zx_funding_checkouts WHERE intent_id=?').bind(intent.id).first();
     return old.checkout_url?reply({ok:true,id:intent.id,checkoutUrl:old.checkout_url}):reply({ok:false,error:'CHECKOUT_RECONCILIATION_REQUIRED'},409);
    }
-   const back=SITE+'/wallet-payment.html?attempt='+intent.id;
+   const back=body.returnTo==='store'?SITE+'/?funding='+intent.id:SITE+'/wallet-payment.html?attempt='+intent.id;
    let pref;
    try{
     const response=await fetcher('https://api.mercadopago.com/checkout/preferences',{method:'POST',redirect:'manual',headers:{Authorization:'Bearer '+productionToken(env),'Content-Type':'application/json'},signal:AbortSignal.timeout(12000),body:JSON.stringify({

@@ -4,6 +4,7 @@
    ========================================================= */
 
 const PRODUCTS = [
+  ...[{"id": "ff-ra-weekly-basic", "category": "Pases Booyah", "name": "Membresía semanal básica", "description": "Tarjeta semanal básica de Free Fire. Recarga por ID; revisa las condiciones de la membresía.", "price": 0, "pricePending": true, "active": true, "featured": false, "requiresEligibility": false, "badge": "BÁSICA", "providerProductKey": "weekly-basic"}, {"id": "ff-ra-weekly", "category": "Pases Booyah", "name": "Membresía semanal", "description": "Tarjeta semanal de Free Fire. Recarga por ID para tu cuenta.", "price": 0, "pricePending": true, "active": true, "featured": false, "requiresEligibility": false, "badge": "SEMANAL", "providerProductKey": "weekly"}, {"id": "ff-ra-monthly", "category": "Pases Booyah", "name": "Membresía mensual", "description": "Tarjeta mensual de Free Fire. Confirma tu cuenta antes de solicitarla.", "price": 0, "pricePending": true, "active": true, "featured": false, "requiresEligibility": false, "badge": "MENSUAL", "providerProductKey": "monthly"}, {"id": "ff-ra-booyah-premium", "category": "Pases Booyah", "name": "Pase Booyah Premium", "description": "Pase Booyah Premium con 50 medallas adicionales. Confirma tu ID y la disponibilidad de la temporada.", "price": 0, "pricePending": true, "active": true, "featured": false, "requiresEligibility": false, "badge": "PREMIUM +50", "providerProductKey": "booyah-premium"}],
   {
     id: "d110-1",
     category: "Diamantes 1 vez",
@@ -848,6 +849,7 @@ function updateCartUI() {
    ========================================================= */
 
 function artFor(product) {
+  if(product.providerProductKey&&!product.editorImage){const premium=product.providerProductKey==='booyah-premium';return `<div class="ff-membership-art ${premium?'ff-membership-premium':''}" aria-hidden="true"><div class="ff-member-orbit"></div><span>${premium?'✦':'▦'}</span><strong>${premium?'+50':esc(product.badge)}</strong><small>${premium?'MEDALLAS / BOOYAH':'MEMBRESÍA / FREE FIRE'}</small></div>`;}
   if(product.editorImage&&!product.zxDiamond)return `<div class="zx-media-art"><img src="${esc(product.editorImage)}" alt="${esc(product.name)}" loading="lazy"></div>`;
   const collectionArt = globalThis.ZXCollection?.art(product);
   if (collectionArt) return collectionArt;
@@ -976,7 +978,7 @@ function render() {
         ${globalThis.ZXCollection?.forProduct(product) ? `<details class="zx-collection-details"><summary>Detalle del paquete</summary><p>${esc(product.description || "")}</p></details>` : `<p>${esc(product.description || "")}</p>`}
         ${product.minQuantity ? `<label class="ff-quantity">Cantidad <span>Mínimo ${product.minQuantity}</span><input data-quantity type="number" inputmode="numeric" min="${product.minQuantity}" max="${product.maxQuantity}" step="1" value="${product.minQuantity}" aria-label="Cantidad de ${esc(product.name)}"></label><small class="ff-unit-price">${money(product.price)} por unidad</small>` : ""}
         <div class="product-bottom">
-          ${product.presentationOnly ? '<strong>Precio por confirmar</strong><button type="button" disabled>PRÓXIMAMENTE</button>' : `
+          ${product.pricePending&&product.price<=0 ? `<strong>Precio por confirmar</strong><button type="button" data-inquire="${esc(product.id)}">VER OPCIONES →</button>` : product.presentationOnly ? '<strong>Precio por confirmar</strong><button type="button" disabled>PRÓXIMAMENTE</button>' : `
           <strong>${money(product.minQuantity ? product.price * product.minQuantity : product.price)}${product.minQuantity ? " desde" : ""}</strong>
           <button type="button" data-add="${esc(product.id)}" aria-label="Agregar ${esc(product.name)} al carrito" title="Agregar al carrito">＋</button>
           <button type="button" data-buy-now="${esc(product.id)}">COMPRAR <span aria-hidden="true">→</span></button>
@@ -984,6 +986,7 @@ function render() {
         </div>
       </div>
     </article>`).join("") : '<div class="zx-empty"><b>SIN PRODUCTOS</b><span>No hay productos disponibles en esta sección por el momento.</span></div>';
+  container.querySelectorAll("[data-inquire]").forEach(button=>button.onclick=()=>openCheckout(button.dataset.inquire));
   container.querySelectorAll("[data-add]").forEach(button => button.onclick = () => addToCart(productSelection(button)));
   container.querySelectorAll("[data-buy-now]").forEach(button => button.onclick = () => { const token = productSelection(button); if (token) openCheckout(token); });
   container.querySelectorAll("[data-quantity]").forEach(input => input.oninput = () => {
@@ -1214,6 +1217,11 @@ function openCheckout(id) {
   current = selectedProduct(id);
 
   if (!current) return;
+  if(current.providerProductKey){
+    document.getElementById('zx-service-detail')?.remove();const dialog=document.createElement('dialog');dialog.id='zx-service-detail';dialog.className='zx-service-detail';
+    dialog.innerHTML=`<form method="dialog"><button aria-label="Cerrar producto">×</button></form><span class="badge">${esc(current.badge)}</span><h2>${esc(current.name)}</h2><p>${esc(current.description)}</p><strong>${current.price>0?money(current.price):'Precio de venta por confirmar'}</strong><p>La disponibilidad, el ID y el proveedor se verifican antes de cobrar. Esta ficha aún no ejecuta una compra automática.</p><a class="zx-catalog-inquiry" target="_blank" rel="noopener" href="https://wa.me/529514754210?text=${encodeURIComponent('Hola, quiero consultar '+current.name+'. ¿Me confirmas precio y disponibilidad para mi ID?')}">Consultar precio y disponibilidad →</a>`;
+    document.body.append(dialog);dialog.showModal();return;
+  }
   if(current.zxDiamond){
     $("#zx-player-confirm-dialog")?.remove();
     $("#zx-diamond-dialog")?.remove();

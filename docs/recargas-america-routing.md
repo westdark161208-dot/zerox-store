@@ -26,6 +26,7 @@ Formato de RA_DIAMOND_PACKS (ejemplo de estructura, NO SKU real):
     "productId": 1,
     "sku": "CODIGO_REAL_DEL_CATALOGO",
     "name": "NOMBRE_EXACTO_DEL_CATALOGO",
+    "playerField": "manual_id",
     "baseDiamonds": 520,
     "bonusDiamonds": 52,
     "regions": ["US"],
@@ -39,3 +40,11 @@ Se rechazan precio/código/nombre/tipo/campos requeridos o región incompatibles
 Sixofire servicios usa `SIXOFIRE_SERVICE_SKUS` con SKU real -> `fragment`, `fragment-box`, `booyah`, `level-up`. La consulta level-up requiere ACCOUNT_PACKAGE_LEVELUP y cuota activa y consume una consulta de cuota. El `itemId` del paquete Garena debe relacionarse con `levelUpPackageId` del producto de venta, nunca confundirse con su `product_id`.
 
 No se ha ejecutado un pago o recarga real durante pruebas. Una primera operación real aún requiere completar la sesión privada y revisar el resultado de proveedor/pago/entrega antes de ampliar el piloto.
+
+## Catálogo observado y comparación (video 830668)
+
+El video del propietario muestra ADS001 semanal básica, ADS002 semanal, ADS003 mensual y ADS004 Booyah Premium. Se añadieron fichas públicas; precio MXN pendiente de edición. La descripción Premium incluye las +50 medallas solicitadas por el propietario; confirmar la equivalencia contractual antes de asociar otro proveedor.
+
+ADS006 (310 +10%), ADS007 (520 +10%) y ADS010 (5.600 +10%) aparecen como recharge con required_fields=[manual_id]. La asociación financiera debe declarar playerField=manual_id; el adaptador verifica el campo real y congela la asociación. Sin playerField conserva player_id para pedidos anteriores. Nunca acepta claves arbitrarias. Los productos PIN ADS012/014/015/016 son códigos, no entregas directas al ID.
+
+Control dispone de comparador privado de referencias, historial de precios, regiones y comisiones configuradas. Lunes resume observaciones mediante reglas. No autoriza compras por inferencia ni cambia pedidos pagados. Los servicios nuevos permanecen en consulta hasta implementar y verificar su flujo financiero y de entrega. El saldo puede prepararse desde la isla del inicio usando el piloto existente; no se ampliaron permisos financieros ni límites de cuentas.
