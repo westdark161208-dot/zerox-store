@@ -28,7 +28,7 @@ export async function spendOrderWallet(db,order,user){
 export async function reconcileProductPayment(env,p,fetcher=fetch){
  const table=await env.DB.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='zx_product_payments'").first();if(!table)return {ignored:true};
  const row=await env.DB.prepare('SELECT * FROM zx_product_payments WHERE order_id=?').bind(String(p.external_reference||'')).first();if(!row)return {ignored:true};
- if(row.method==='wallet'||!productionEvidence(p,{...row,id:row.order_id})||(row.payment_id&&row.payment_id!==String(p.id)))throw Error('PRODUCT_PAYMENT_EVIDENCE_REJECTED');
+ if(['wallet','ra-funds'].includes(row.method)||!productionEvidence(p,{...row,id:row.order_id})||(row.payment_id&&row.payment_id!==String(p.id)))throw Error('PRODUCT_PAYMENT_EVIDENCE_REJECTED');
  if(p.status==='refunded'||p.status==='charged_back'||Number(p.transaction_amount_refunded||0)>0){await env.DB.prepare("UPDATE zx_product_payments SET state='review_required' WHERE order_id=?").bind(row.order_id).run();return {reviewRequired:true};}
  if(p.status!=='approved'||row.state==='review_required')return {pending:true};
  await env.DB.batch([env.DB.prepare("UPDATE zx_product_payments SET state='paid',payment_id=? WHERE order_id=? AND state IN ('creating','needs_review','ready','paid') AND (payment_id IS NULL OR payment_id=?)").bind(String(p.id),row.order_id,String(p.id)),env.DB.prepare("UPDATE zx_diamond_orders SET state='PAID',payment_reference=?,paid_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP WHERE id=? AND paid_at IS NULL AND state='PENDING_PAYMENT' AND EXISTS(SELECT 1 FROM zx_product_payments WHERE order_id=? AND state='paid' AND payment_id=?)").bind('mercadopago:'+p.id,row.order_id,row.order_id,String(p.id))]);
@@ -50,14 +50,40 @@ export async function purchaseRoute(request,env,url,user,json,fetcher=fetch){
  if(user.isFounder!==true){if(url.pathname===ROOT+'/status'&&request.method==='GET')return reply({ok:true,pilot:true,enabled:false,walletEnabled:false,reasons:['FOUNDER_PILOT_ONLY']});return reply({ok:false,error:'FOUNDER_PILOT_ONLY'},403);}
  env=await resolvedRaEnvironment(env,fetcher);
  const config=purchaseConfiguration(env);
- if(url.pathname===ROOT+'/status'&&request.method==='GET')return reply({ok:true,pilot:true,enabled:user.isFounder===true&&config.enabled,walletEnabled:user.isFounder===true&&config.enabled,reasons:user.isFounder===true?config.reasons:['FOUNDER_PILOT_ONLY']});
+ if(url.pathname===ROOT+'/status'&&request.method==='GET')return reply({ok:true,pilot:true,enabled:user.isFounder===true&&config.enabled,walletEnabled:user.isFounder===true&&config.enabled,supplierEnabled:!config.reasons.filter(r=>r!=='PRODUCTION_PAYMENT_CONFIG_MISSING').length,reasons:user.isFounder===true?config.reasons:['FOUNDER_PILOT_ONLY']});
  try{
   const match=url.pathname.match(/^\/api\/diamonds\/purchase\/orders\/([a-f0-9-]{36})$/);
   if(match&&request.method==='GET'){
    const table=await env.DB.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='zx_product_payments'").first();if(!table)return reply({ok:false,error:'NOT_FOUND'},404);
-   const row=await env.DB.prepare("SELECT o.id,o.state,o.diamonds,o.delivered,o.sale_price_cents,p.checkout_url,p.state AS paymentState,CASE WHEN p.method='wallet' AND EXISTS(SELECT 1 FROM zx_wallet_ledger l WHERE l.user_id=o.user_id AND l.source='diamond-wallet' AND l.reference=o.id AND l.order_id=o.id AND l.amount_cents=-o.sale_price_cents) THEN 1 ELSE 0 END AS recoveryAvailable FROM zx_diamond_orders o JOIN zx_product_payments p ON p.order_id=o.id WHERE o.id=? AND o.user_id=?").bind(match[1],user.id).first();return row?reply({ok:true,order:row}):reply({ok:false,error:'NOT_FOUND'},404);
+   const row=await env.DB.prepare("SELECT o.id,o.state,o.diamonds,o.delivered,o.sale_price_cents,p.checkout_url,p.state AS paymentState,p.method AS paymentMethod,CASE WHEN p.method='wallet' AND EXISTS(SELECT 1 FROM zx_wallet_ledger l WHERE l.user_id=o.user_id AND l.source='diamond-wallet' AND l.reference=o.id AND l.order_id=o.id AND l.amount_cents=-o.sale_price_cents) THEN 1 ELSE 0 END AS recoveryAvailable FROM zx_diamond_orders o JOIN zx_product_payments p ON p.order_id=o.id WHERE o.id=? AND o.user_id=?").bind(match[1],user.id).first();return row?reply({ok:true,order:row}):reply({ok:false,error:'NOT_FOUND'},404);
   }
-  if(!config.enabled)return reply({ok:false,error:'PRODUCT_DELIVERY_NOT_READY',reasons:config.reasons},503);
+  if([ROOT+'/supplier/quote',ROOT+'/supplier/buy'].includes(url.pathname)){
+   if(request.method!=='POST')return reply({ok:false,error:'METHOD_NOT_ALLOWED'},405);
+   const reasons=config.reasons.filter(r=>r!=='PRODUCTION_PAYMENT_CONFIG_MISSING');if(reasons.length)return reply({ok:false,error:'PRODUCT_DELIVERY_NOT_READY',reasons},503);
+   const body=await request.json(),uid=String(body.playerId||''),key=request.headers.get('Idempotency-Key'),buy=url.pathname.endsWith('/buy');
+   if(!/^\d{5,15}$/.test(uid)||body.playerConfirmed!==true||buy&&(!/^[a-f0-9-]{36}$/.test(key||'')||body.supplierConfirmed!==true||!Number.isSafeInteger(body.maxTotalMicros)||body.maxTotalMicros<1||body.maxTotalMicros>12000000))return reply({ok:false,error:'INVALID_REQUEST'},400);
+   const product=await publishedProduct(env.DB,getProduct(body.productId));if(!product||product.salePriceCents>20000)return reply({ok:false,error:'PRODUCT_OUTSIDE_PILOT'},400);
+   const exists=await env.DB.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='zx_product_payments'").first();
+   if(exists&&/^[a-f0-9-]{36}$/.test(key||'')){
+    const old=await env.DB.prepare('SELECT o.*,p.method FROM zx_diamond_orders o JOIN zx_product_payments p ON p.order_id=o.id WHERE o.user_id=? AND o.request_key=?').bind(user.id,key).first();
+    if(old){if(old.product_id!==product.id||old.player_id!==uid)throw Error('IDEMPOTENCY_CONFLICT');if(old.method!=='ra-funds')throw Error('PAYMENT_METHOD_CONFLICT');return buy?reply({ok:true,orderId:old.id,fundingSource:'ra-funds',...await fulfill(env,old.id,fetcher)}):reply({ok:true,existingOrderId:old.id,fundingSource:'ra-funds'});}
+   }
+   const region=await verifiedPlayer(env,uid,fetcher),plan=await raAmountPreflight(env,product.diamonds,region,uid,fetcher);
+   if(plan.totalMicros>12000000)return reply({ok:false,error:'SUPPLIER_PILOT_LIMIT'},400);
+   if(!buy)return reply({ok:true,provider:'recargas-america',currency:'USD',totalMicros:plan.totalMicros,diamonds:product.diamonds,playerId:uid,region,purchasesPerformed:0});
+   if(plan.totalMicros>body.maxTotalMicros)return reply({ok:false,error:'SUPPLIER_PRICE_CHANGED'},409);
+   await schemas(env.DB);const order=await createOrder(env.DB,{userId:user.id,requestKey:key,productId:product.id,playerId:uid,fulfillmentPlan:plan,billingMode:'owner-provider'});
+   const frozen=JSON.parse(order.snapshot_json);if(frozen.billingMode!=='owner-provider')throw Error('PAYMENT_METHOD_CONFLICT');
+   if(frozen.fulfillmentPlan.region!==region)throw Error('RA_PLAN_MISMATCH');
+   if(frozen.fulfillmentPlan.totalMicros>body.maxTotalMicros)return reply({ok:false,error:'SUPPLIER_PRICE_CHANGED'},409);
+   await env.DB.batch([
+    env.DB.prepare("INSERT INTO zx_product_payments(order_id,user_id,method,region,collector_id,amount_cents,state) VALUES(?,?,'ra-funds',?,'supplier:recargas-america',0,'paid') ON CONFLICT DO NOTHING").bind(order.id,user.id,region),
+    env.DB.prepare("UPDATE zx_diamond_orders SET state='PAID',payment_reference=?,paid_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP WHERE id=? AND paid_at IS NULL AND state='PENDING_PAYMENT' AND EXISTS(SELECT 1 FROM zx_product_payments WHERE order_id=? AND method='ra-funds' AND state='paid')").bind('owner-provider:'+order.id,order.id,order.id)
+   ]);
+   const funded=await env.DB.prepare('SELECT method FROM zx_product_payments WHERE order_id=?').bind(order.id).first();if(funded?.method!=='ra-funds')throw Error('PAYMENT_METHOD_CONFLICT');
+   try{return reply({ok:true,orderId:order.id,fundingSource:'ra-funds',...await fulfill(env,order.id,fetcher)});}catch{return reply({ok:true,orderId:order.id,fundingSource:'ra-funds',deliveryPending:true,reviewRequired:true});}
+  }
+  if(!(url.pathname===ROOT+'/resume'?!config.reasons.filter(r=>r!=='PRODUCTION_PAYMENT_CONFIG_MISSING').length:config.enabled))return reply({ok:false,error:'PRODUCT_DELIVERY_NOT_READY',reasons:config.reasons},503);
   if(![ROOT+'/checkout',ROOT+'/wallet',ROOT+'/resume'].includes(url.pathname)||request.method!=='POST')return reply({ok:false,error:'METHOD_NOT_ALLOWED'},405);
   const body=await request.json();
   if(url.pathname===ROOT+'/resume'){
@@ -71,6 +97,7 @@ export async function purchaseRoute(request,env,url,user,json,fetcher=fetch){
   const product=await publishedProduct(env.DB,getProduct(body.productId));if(!product||product.salePriceCents>20000)return reply({ok:false,error:'PRODUCT_OUTSIDE_PILOT'},400);
   const region=await verifiedPlayer(env,uid,fetcher);const plan=await raAmountPreflight(env,product.diamonds,region,uid,fetcher);if(method!=='wallet')await productionAccount(env,fetcher);
   await schemas(env.DB);const order=await createOrder(env.DB,{userId:user.id,requestKey:key,productId:product.id,playerId:uid,fulfillmentPlan:plan});
+  if(JSON.parse(order.snapshot_json).billingMode==='owner-provider')throw Error('PAYMENT_METHOD_CONFLICT');
   if(JSON.parse(order.snapshot_json).fulfillmentPlan?.provider!=='recargas-america')return reply({ok:false,error:'LEGACY_ORDER_REVIEW_REQUIRED',orderId:order.id},409);
   const old=await env.DB.prepare('SELECT * FROM zx_product_payments WHERE order_id=?').bind(order.id).first();
   if(old&&old.method!==method)return reply({ok:false,error:'PAYMENT_METHOD_CONFLICT'},409);

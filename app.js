@@ -1207,9 +1207,10 @@ function zxRenderPaymentMethods(host,select){
   if(!select){select=document.createElement("select");select.setAttribute("aria-label","Método de pago");host.append(select);}
   select.classList.add("zx-method-native");
   const methods=[["card","Tarjeta"],["oxxo","OXXO"],["spei","Transferencia SPEI"],["all","Mercado Pago"],["wallet","Mi saldo Zero’X"]];
+  if(host.id==="zx-product-methods"&&zeroxUser?.isFounder===true)methods.push(["ra","Saldo RA · fundador"]);
   if(!select.options.length)for(const [value,label] of methods){const option=document.createElement("option");option.value=value;option.textContent=label;select.append(option);}
   const tiles=document.createElement("div");tiles.className="zx-method-tiles";host.append(tiles);
-  for(const [value,label] of methods){if(select.options.length&&!Array.from(select.options).some(o=>o.value===value))continue;const button=document.createElement("button");button.type="button";button.dataset.method=value;button.innerHTML=window.ZX_PAYMENT_ICONS?.[value]||"";const name=document.createElement("span");name.textContent=label;button.append(name);button.onclick=()=>{select.value=value;select.dispatchEvent(new Event("change",{bubbles:true}));};tiles.append(button);}
+  for(const [value,label] of methods){if(select.options.length&&!Array.from(select.options).some(o=>o.value===value))continue;const button=document.createElement("button");button.type="button";button.dataset.method=value;button.innerHTML=window.ZX_PAYMENT_ICONS?.[value==="ra"?"wallet":value]||"";const name=document.createElement("span");name.textContent=label;button.append(name);button.onclick=()=>{select.value=value;select.dispatchEvent(new Event("change",{bubbles:true}));};tiles.append(button);}
   const sync=()=>tiles.querySelectorAll("button").forEach(button=>button.setAttribute("aria-pressed",String(button.dataset.method===select.value)));select.addEventListener("change",sync);sync();return select;
 }
 
@@ -1239,9 +1240,9 @@ function openCheckout(id) {
     playerDialog.innerHTML='<h2 id="zx-player-confirm-title">¿Esta es tu cuenta?</h2><div id="zx-player-confirm-content"></div><div class="zx-player-confirm-actions"><button type="button" id="zx-player-yes">Sí, es mi cuenta</button><button type="button" id="zx-player-no">No es mi cuenta</button></div>';
     document.body.append(playerDialog);
     const playerContent=playerDialog.querySelector("#zx-player-confirm-content");
-    let verifiedUid="", requestVersion=0,confirmedUid="",attempt="",realAvailable=false,createdOrder="",purchaseStarted=false;
+    let verifiedUid="", requestVersion=0,confirmedUid="",attempt="",realAvailable=false,createdOrder="",purchaseStarted=false,supplierQuote=null,customerAvailable=false,supplierAvailable=false;
     const rejectPlayer=()=>{
-      confirmedUid="";verifiedUid="";attempt="";realAvailable=false;pay.disabled=true;payLink.hidden=true;
+      confirmedUid="";verifiedUid="";attempt="";supplierQuote=null;customerAvailable=false;supplierAvailable=false;realAvailable=false;pay.disabled=true;payLink.hidden=true;
       payments.hidden=false;confirm.hidden=true;
       status.textContent="Cuenta no confirmada. Corrige el ID y vuelve a verificar.";
       note.textContent="Confirma la cuenta correcta para continuar con el pago.";
@@ -1252,11 +1253,11 @@ function openCheckout(id) {
     playerDialog.querySelector("#zx-player-yes").onclick=()=>{confirm.click();};
     playerDialog.addEventListener("cancel",event=>{event.preventDefault();rejectPlayer();});
     dialog.addEventListener("close",()=>{requestVersion++;playerDialog.remove();},{once:true});
-    uidInput.addEventListener("input",()=>{verifiedUid="";confirmedUid="";attempt="";realAvailable=false;requestVersion++;confirm.hidden=true;payments.hidden=true;payLink.hidden=true;card.replaceChildren();status.textContent="";});
+    uidInput.addEventListener("input",()=>{verifiedUid="";confirmedUid="";attempt="";supplierQuote=null;customerAvailable=false;supplierAvailable=false;realAvailable=false;requestVersion++;confirm.hidden=true;payments.hidden=true;payLink.hidden=true;card.replaceChildren();status.textContent="";});
     intent.onsubmit=async e=>{
       e.preventDefault();if(purchaseStarted)return;const uid=uidInput.value.trim();if(!/^[0-9]{5,15}$/.test(uid))return;
       const version=++requestVersion, submit=intent.querySelector('[type="submit"]');
-      verifiedUid="";confirmedUid="";attempt="";realAvailable=false;payments.hidden=true;payLink.hidden=true;card.replaceChildren();confirm.hidden=true;submit.disabled=true;status.textContent="Consultando jugador…";
+      verifiedUid="";confirmedUid="";attempt="";supplierQuote=null;customerAvailable=false;supplierAvailable=false;realAvailable=false;payments.hidden=true;payLink.hidden=true;card.replaceChildren();confirm.hidden=true;submit.disabled=true;status.textContent="Consultando jugador…";
       try {
         const response=await fetch(`${ZEROX_API}/api/player?uid=${encodeURIComponent(uid)}&region=br`,{signal:AbortSignal.timeout(15000)});
         const result=await response.json();
@@ -1283,25 +1284,35 @@ function openCheckout(id) {
       pay.disabled=true;realAvailable=false;note.textContent="Comprobando si pago y entrega están disponibles…";
       const version=requestVersion,currentToken=getZeroXSession()?.token;
       status.textContent="Cuenta confirmada. Revisa los datos del jugador antes de continuar.";
-      try{const result=await zeroxAuthRequest('/api/diamonds/purchase/status',{cache:'no-store'});if(version!==requestVersion||!dialog.isConnected||currentToken!==getZeroXSession()?.token)return;realAvailable=result.enabled===true;pay.disabled=!realAvailable;note.textContent=realAvailable?"Pago real disponible en el piloto de tu cuenta. El servidor verifica el pago y la entrega del producto exacto.":"Entrega real pendiente: debemos verificar el catálogo, el saldo y la bonificación del paquete en Recargas América. No se realizará ningún cobro.";}
+      try{const result=await zeroxAuthRequest('/api/diamonds/purchase/status',{cache:'no-store'});if(version!==requestVersion||!dialog.isConnected||currentToken!==getZeroXSession()?.token)return;customerAvailable=result.enabled===true;supplierAvailable=result.supplierEnabled===true;realAvailable=methodSelect.value==="ra"?supplierAvailable:customerAvailable;pay.disabled=!realAvailable;note.textContent=realAvailable?"Pago real disponible en el piloto de tu cuenta. El servidor verifica el pago y la entrega del producto exacto.":"Entrega real pendiente: debemos verificar el catálogo, el saldo y la bonificación del paquete en Recargas América. No se realizará ningún cobro.";}
       catch{if(version===requestVersion)note.textContent="Inicia sesión para consultar la disponibilidad. El servidor debe habilitar pago y entrega antes de cobrar.";}
 
     };
-    methodSelect.addEventListener("change",()=>{if(createdOrder||purchaseStarted)return;attempt="";payLink.hidden=true;pay.disabled=!realAvailable;pay.textContent=methodSelect.value==="wallet"?"Comprar con mi saldo →":"Preparar pago real →";});
+    methodSelect.addEventListener("change",()=>{if(createdOrder||purchaseStarted)return;attempt="";supplierQuote=null;realAvailable=methodSelect.value==="ra"?supplierAvailable:customerAvailable;payLink.hidden=true;pay.disabled=!realAvailable;pay.textContent=methodSelect.value==="ra"?"Consultar coste con Saldo RA →":methodSelect.value==="wallet"?"Comprar con mi saldo →":"Preparar pago real →";});
     pay.onclick=async()=>{
       if(createdOrder||!realAvailable||!confirmedUid||confirmedUid!==uidInput.value.trim())return;
       const version=requestVersion,currentToken=getZeroXSession()?.token;
       const pendingKey='zx-pending-purchase:'+String(zeroxUser?.id||'')+':'+product.id+':'+confirmedUid;
       let pending=null;try{pending=JSON.parse(sessionStorage.getItem(pendingKey)||'null');}catch{}
       const method=pending?.method||methodSelect.value;if(pending?.key)attempt=pending.key;
+      if(method==='ra'&&!supplierQuote){
+        pay.disabled=true;note.textContent='Consultando coste y saldo de Recargas América. Todavía no se compra.';
+        try{const quote=await zeroxAuthRequest('/api/diamonds/purchase/supplier/quote',{method:'POST',...(pending?.key?{headers:{'Idempotency-Key':pending.key}}:{}),body:JSON.stringify({productId:product.id,playerId:confirmedUid,playerConfirmed:true})});
+          if(version!==requestVersion||currentToken!==getZeroXSession()?.token||!dialog.isConnected||methodSelect.value!=='ra')return;
+          if(quote.existingOrderId){createdOrder=quote.existingOrderId;const tracking=document.createElement('a');tracking.href='product-payment.html?order='+encodeURIComponent(createdOrder);tracking.textContent='Consultar intento con Saldo RA →';payments.append(tracking);note.textContent='Ya existe este intento. Consulta su entrega; no prepares otra recarga.';return;}
+          if(!Number.isSafeInteger(quote.totalMicros)||quote.totalMicros<1||quote.playerId!==confirmedUid||quote.currency!=='USD')throw Error('INVALID_QUOTE');supplierQuote=quote;note.textContent=quote.diamonds+' diamantes para ID '+quote.playerId+' · '+quote.region+'. Se descontarán hasta '+(quote.totalMicros/1e6).toFixed(6)+' USD del saldo de Recargas América. Tu saldo interno no se descontará.';pay.textContent='Confirmar recarga con Saldo RA →';
+        }catch{if(version===requestVersion)note.textContent='No pudimos cotizar la recarga. Revisa el saldo y la preparación en Control. No se realizó una compra.';}
+        finally{if(version===requestVersion&&!createdOrder)pay.disabled=!realAvailable;}
+        return;
+      }
       pay.disabled=true;methodSelect.disabled=true;dialog.querySelectorAll(".zx-method-tiles button").forEach(b=>b.disabled=true);payLink.hidden=true;note.textContent="Verificando producto, región y entrega antes de preparar el pago…";
       purchaseStarted=true;uidInput.readOnly=true;intent.querySelectorAll("button").forEach(b=>b.disabled=true);
       if(!attempt)attempt=crypto.randomUUID();
       try{sessionStorage.setItem(pendingKey,JSON.stringify({key:attempt,method}));}catch{}
-      try{const result=await zeroxAuthRequest('/api/diamonds/purchase/'+(method==="wallet"?'wallet':'checkout'),{method:'POST',headers:{'Idempotency-Key':attempt},body:JSON.stringify({productId:product.id,playerId:confirmedUid,playerConfirmed:true,method})});
+      try{const result=await zeroxAuthRequest('/api/diamonds/purchase/'+(method==="ra"?'supplier/buy':method==="wallet"?'wallet':'checkout'),{method:'POST',headers:{'Idempotency-Key':attempt},body:JSON.stringify({productId:product.id,playerId:confirmedUid,playerConfirmed:true,method,...(method==="ra"?{supplierConfirmed:true,maxTotalMicros:supplierQuote.totalMicros}:{})})});
         if(version!==requestVersion||!dialog.isConnected||currentToken!==getZeroXSession()?.token)return;
         if(result.checkoutUrl){const link=new URL(result.checkoutUrl);if(link.protocol!=='https:'||!['www.mercadopago.com.mx','www.mercadopago.com'].includes(link.hostname)||link.username||link.password)throw Error('INVALID_CHECKOUT');payLink.href=link.href;payLink.textContent='Abrir Mercado Pago y pagar ↗';payLink.hidden=false;note.textContent='Pago preparado. Revisa el importe y sigue la confirmación del servidor.';}
-        else{note.textContent='Compra con saldo registrada. Consulta el estado para confirmar cuántos diamantes se entregaron.';}
+        else{note.textContent=method==='ra'?'Recarga con fondos de RA registrada. Consulta la entrega; no se abonó ni descontó saldo interno.':'Compra con saldo registrada. Consulta el estado para confirmar cuántos diamantes se entregaron.';}
         window.dispatchEvent(new Event('zx-provider-balances-refresh'));createdOrder=result.orderId;try{sessionStorage.removeItem(pendingKey);}catch{}const tracking=document.createElement('a');tracking.href='product-payment.html?order='+encodeURIComponent(result.orderId);tracking.textContent='Consultar pago y entrega →';tracking.className='zx-order-payment-link';payments.append(tracking);pay.disabled=true;
       }catch(error){if(version===requestVersion&&currentToken===getZeroXSession()?.token&&dialog.isConnected){const code=error.data?.error||error.message;if(error.data?.orderId){createdOrder=error.data.orderId;const tracking=document.createElement("a");tracking.href="product-payment.html?order="+encodeURIComponent(createdOrder);tracking.textContent="Consultar intento y entrega →";payments.append(tracking);}note.textContent=code==='WALLET_MOVEMENT_REJECTED'?'Saldo insuficiente o movimiento rechazado. No se solicitó una recarga.':'No se pudo preparar la compra. Revisa permiso, región, producto y saldo del proveedor en Control. Si el intento necesita revisión, no vuelvas a pagar.';pay.disabled=true;}}
       finally{methodSelect.disabled=purchaseStarted;dialog.querySelectorAll(".zx-method-tiles button").forEach(b=>b.disabled=purchaseStarted);}

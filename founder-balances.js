@@ -10,5 +10,5 @@
   }catch{if(version===generation&&current===token()&&!document.hidden)note.textContent='No se pudo actualizar. Pulsa un saldo para consultar otra vez.';}
  }
  for(const id of ['ra','sf'])document.getElementById('zx-balance-'+id).onclick=refresh;
- window.addEventListener('zx-provider-balances-refresh',refresh);window.addEventListener('zx-account-ready',refresh);window.addEventListener('zx-session-change',clear);window.addEventListener('storage',e=>{if(e.key==='zerox-session'||e.key===null)clear();});window.addEventListener('pagehide',clear);document.addEventListener('visibilitychange',()=>{if(document.hidden)clear();else refresh();});refresh();
+ window.addEventListener('zx-provider-balances-refresh',refresh);window.addEventListener('zx-account-ready',refresh);document.getElementById('zx-wallet-refresh')?.addEventListener('click',refresh);window.addEventListener('zx-session-change',clear);window.addEventListener('storage',e=>{if(e.key==='zerox-session'||e.key===null)clear();});window.addEventListener('pagehide',clear);document.addEventListener('visibilitychange',()=>{if(document.hidden)clear();else refresh();});refresh();
 })();

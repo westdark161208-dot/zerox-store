@@ -129,3 +129,41 @@ test('automatic live US mapping completes a paid wallet purchase once and tracks
  await route(env,'/wallet',founder,body,key,fetcher);assert.equal(calls.buy,1);
  const forbidden=await route(env,'/checkout',{...founder,isFounder:false},body,key,()=>{throw Error('must not read provider')});assert.equal(forbidden.status,403);
 });
+
+test('founder supplier quote is read only; explicit supplier confirmation delivers once with no wallet or MP income',async()=>{
+ const env=await setup();delete env.MP_ACCESS_TOKEN;const calls={n:0},base=upstream({submitted:calls});const fetcher=(url,opts)=>{assert.ok(!url.includes('mercadopago'));return base(url,opts);};
+ const key=crypto.randomUUID(),input={...body,supplierConfirmed:true,maxTotalMicros:1000000};
+ const quote=await route(env,'/supplier/quote',founder,body,key,fetcher);assert.equal(quote.body.totalMicros,1000000);assert.equal(quote.body.purchasesPerformed,0);assert.equal(calls.n,0);assert.equal(await env.DB.prepare("SELECT name FROM sqlite_master WHERE name='zx_product_payments'").first(),null);
+ assert.equal((await route(env,'/supplier/buy',founder,{...input,supplierConfirmed:false},key,fetcher)).status,400);
+ const a=await route(env,'/supplier/buy',founder,input,key,fetcher);assert.equal(a.body.delivery.state,'COMPLETED');assert.equal(calls.n,1);
+ await route(env,'/supplier/buy',founder,input,key,fetcher);assert.equal(calls.n,1);
+ const row=await env.DB.prepare('SELECT * FROM zx_diamond_orders').first(),snapshot=JSON.parse(row.snapshot_json);assert.equal(row.sale_price_cents,0);assert.equal(snapshot.retailPriceCents,1800);assert.equal(snapshot.billingMode,'owner-provider');
+ assert.equal((await env.DB.prepare('SELECT * FROM zx_product_payments').first()).method,'ra-funds');assert.equal((await walletState(env.DB,'owner')).availableCents,0);assert.equal((await env.DB.prepare('SELECT COUNT(*) n FROM zx_wallet_ledger').first()).n,0);
+ const empty=(url,opts)=>url.endsWith('/wallet')?response({success:true,data:{balance:0,currency:'USD'}}):fetcher(url,opts);
+ assert.equal((await route(env,'/supplier/quote',founder,body,key,empty)).body.existingOrderId,a.body.orderId);
+ assert.equal((await route(env,'/supplier/buy',{...founder,isFounder:false},input,key,()=>{throw Error('must not read')})).status,403);
+ await assert.rejects(reconcileProductPayment(env,{external_reference:a.body.orderId},fetcher),/EVIDENCE/);
+});
+test('supplier maximum cost and insufficient balance block before order creation',async()=>{
+ const env=await setup(),calls={n:0},base=upstream({submitted:calls});
+ assert.equal((await route(env,'/supplier/buy',founder,{...body,supplierConfirmed:true,maxTotalMicros:900000},crypto.randomUUID(),base)).body.error,'SUPPLIER_PRICE_CHANGED');
+ assert.equal(await env.DB.prepare("SELECT name FROM sqlite_master WHERE name='zx_product_payments'").first(),null);
+ const empty=(url,opts)=>url.endsWith('/wallet')?response({success:true,data:{balance:0,currency:'USD'}}):base(url,opts);
+ assert.equal((await route(env,'/supplier/buy',founder,{...body,supplierConfirmed:true,maxTotalMicros:1000000},crypto.randomUUID(),empty)).body.error,'RA_INSUFFICIENT_FUNDS');assert.equal(calls.n,0);
+});
+test('supplier lost response never submits twice and never debits internal wallet',async()=>{
+ const env=await setup(),calls={n:0},fetcher=upstream({submitted:calls,lost:true}),key=crypto.randomUUID(),input={...body,supplierConfirmed:true,maxTotalMicros:1000000};
+ const a=await route(env,'/supplier/buy',founder,input,key,fetcher);assert.equal(a.body.delivery.state,'REQUIRES_REVIEW');
+ await route(env,'/supplier/buy',founder,input,key,fetcher);await route(env,'/resume',founder,{orderId:a.body.orderId},key,fetcher);assert.equal(calls.n,1);assert.equal((await walletState(env.DB,'owner')).availableCents,0);
+ assert.equal((await route(env,'/wallet',founder,body,key,fetcher)).body.error,'PAYMENT_METHOD_CONFLICT');
+});
+test('supplier crash before funding retains frozen price and cannot become a free wallet order',async()=>{
+ const env=await setup(),calls={n:0},base=upstream({submitted:calls}),key=crypto.randomUUID(),input={...body,supplierConfirmed:true,maxTotalMicros:1000000};
+ const batch=env.DB.batch.bind(env.DB);
+ // Inject failure at the durable funding batch, after order creation.
+ env.DB.batch=async stmts=>{if(env.DB.sql.prepare("SELECT COUNT(*) n FROM sqlite_master WHERE name='zx_diamond_orders'").get().n&&env.DB.sql.prepare('SELECT COUNT(*) n FROM zx_diamond_orders').get().n)throw Error('CRASH');return batch(stmts);};
+ await route(env,'/supplier/buy',founder,input,key,base);env.DB.batch=batch;
+ const cheap=(url,opts)=>url.endsWith('/products/catalog')?response({success:true,data:[{id:123,sku:'FF100',name:'FF100 plus bonus',type:'recharge',price:0.5,required_fields:['player_id']}]}):base(url,opts);
+ const retry=await route(env,'/supplier/buy',founder,{...input,maxTotalMicros:500000},key,cheap);assert.equal(retry.body.error,'SUPPLIER_PRICE_CHANGED');assert.equal(calls.n,0);
+ assert.equal((await route(env,'/wallet',founder,body,key,cheap)).body.error,'PAYMENT_METHOD_CONFLICT');assert.equal((await walletState(env.DB,'owner')).availableCents,0);
+});
