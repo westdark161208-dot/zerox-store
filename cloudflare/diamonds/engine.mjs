@@ -4,12 +4,13 @@ import {makeSnapshot} from './catalog.mjs';
 import {disabledProvider} from './provider.mjs';
 const now=()=>new Date().toISOString();
 const uuid=()=>crypto.randomUUID();
-export async function createOrder(db,{userId,requestKey,productId,playerId,fulfillmentPlan=null}){
+export async function createOrder(db,{userId,requestKey,productId,playerId,fulfillmentPlan=null,billingMode='customer'}){
  if(!userId||!/^[A-Za-z0-9_-]{16,100}$/.test(requestKey))throw Error('INVALID_REQUEST_KEY');
  const existing=await db.prepare('SELECT * FROM zx_diamond_orders WHERE user_id=? AND request_key=?').bind(userId,requestKey).first();
  if(existing){if(existing.product_id!==productId||existing.player_id!==playerId)throw Error('IDEMPOTENCY_CONFLICT');return existing;}
  const product=await publishedProduct(db,getProduct(productId));if(!product)throw Error('PRODUCT_UNAVAILABLE');
  const snapshot={...makeSnapshot(productId,playerId),salePriceCents:product.salePriceCents,...(fulfillmentPlan?{fulfillmentPlan,providerCostCents:0,providerCostEstimated:false}: {})},id=uuid(),at=now();
+ if(billingMode==='owner-provider'){if(!fulfillmentPlan)throw Error('RA_PLAN_MISMATCH');snapshot.retailPriceCents=snapshot.salePriceCents;snapshot.salePriceCents=0;snapshot.billingMode='owner-provider';}
  if(fulfillmentPlan){
   const packs=fulfillmentPlan.packs;
   if(fulfillmentPlan.provider!=='recargas-america'||fulfillmentPlan.playerId!==playerId||!Array.isArray(packs)||!packs.length||packs.some(p=>!Number.isSafeInteger(p.diamonds)||p.diamonds<1||!Number.isSafeInteger(p.quantity)||p.quantity<1)||packs.reduce((n,p)=>n+p.diamonds*p.quantity,0)!==snapshot.diamonds)throw Error('RA_PLAN_MISMATCH');

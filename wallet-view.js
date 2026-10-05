@@ -2,7 +2,7 @@
 (()=>{
  const el=id=>document.getElementById(id);let generation=0;
  const money=cents=>new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'}).format(cents/100)+' MXN';
- function clear(){generation++;el('zx-wallet-balance').hidden=true;el('zx-wallet-balance').textContent='';el('zx-wallet-movements').replaceChildren();el('zx-wallet-refresh').disabled=false;el('zx-wallet-status').textContent='La wallet está en preparación. Las recargas y compras con saldo aún no están habilitadas.';}
+ function clear(){generation++;el('zx-wallet-balance').hidden=true;el('zx-wallet-balance').textContent='';el('zx-wallet-movements').replaceChildren();el('zx-wallet-refresh').disabled=false;el('zx-wallet-status').textContent='Consulta tu saldo y movimientos.';}
  window.zxResetWalletView=clear;
  el('zx-wallet-refresh').addEventListener('click',async()=>{
   clear();const version=generation,token=getZeroXSession()?.token;if(!token)return;
@@ -12,7 +12,7 @@
    const d=await zeroxAuthRequest('/api/wallet/me',{cache:'no-store'});if(!valid())return;
    if(d.currency!=='MXN'||!Number.isSafeInteger(d.availableCents)||d.availableCents<0||!Array.isArray(d.movements))throw Error('INVALID_RESPONSE');
    el('zx-wallet-balance').textContent=money(d.availableCents);el('zx-wallet-balance').hidden=false;
-   el('zx-wallet-status').textContent='Consulta de saldo. Las recargas y compras con wallet aún no están habilitadas.';
+   el('zx-wallet-status').textContent='Saldo interno de tu cuenta. Los fondos del proveedor, si aparecen debajo, se usan por separado.';
    for(const m of d.movements){
     if(!Number.isSafeInteger(m.amountCents))throw Error('INVALID_RESPONSE');
     const row=document.createElement('li'),label=document.createElement('strong'),detail=document.createElement('small');
@@ -25,7 +25,7 @@
   finally{if(valid())el('zx-wallet-refresh').disabled=false}
  });
  window.addEventListener('storage',e=>{if(e.key==='zerox-session')clear()});
- window.addEventListener('pagehide',clear);
+ window.addEventListener('pagehide',clear);window.addEventListener('zx-account-ready',()=>el('zx-wallet-refresh').click());
  document.addEventListener('visibilitychange',()=>{if(document.hidden)clear()});
  el('account-modal').addEventListener('close',clear);clear();
 })();

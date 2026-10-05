@@ -34,7 +34,7 @@
   >
   <link rel="stylesheet" href="./styles.css?v=36">
   <link rel="stylesheet" href="./diamond-collection.css?v=4">
-  <link rel="stylesheet" href="./responsive.css?v=13">
+  <link rel="stylesheet" href="./responsive.css?v=14">
   <link rel="stylesheet" href="./region-selector.css?v=2">
   <script>
   /* Zero'X emergency cache reset: keep the storefront accessible even if app JS fails */
@@ -93,11 +93,6 @@
         <button type="button" id="zx-region-open" aria-haspopup="dialog" aria-controls="zx-region-dialog" aria-label="País México, moneda MXN">🇲🇽 MXN</button>
       </div>
 
-      <div id="zx-founder-balances" hidden aria-label="Saldos privados de proveedores">
-        <button type="button" id="zx-balance-ra" title="Consultar saldo de Recargas América"><small>Saldo RA</small><strong>Consultar</strong></button>
-        <button type="button" id="zx-balance-sf" title="Consultar saldo de Sixofire"><small>Saldo SF</small><strong>Consultar</strong></button>
-        <span id="zx-provider-balance-note" role="status" aria-live="polite"></span>
-      </div>
       <button
         class="icon-btn cart-btn"
         id="open-cart"
@@ -1110,9 +1105,14 @@
       </section>
       <section class="zx-account-panel zx-wallet-panel" aria-label="Saldo Zero’X">
         <div class="zx-panel-heading"><div><small>MI SALDO</small><h3>Zero’X Wallet</h3></div></div>
-        <p id="zx-wallet-status" role="status" aria-live="polite">La wallet está en preparación. Las recargas y compras con saldo aún no están habilitadas.</p>
+        <p id="zx-wallet-status" role="status" aria-live="polite">Consulta tu saldo y movimientos.</p>
         <strong id="zx-wallet-balance" class="zx-wallet-balance" hidden></strong>
         <button id="zx-wallet-refresh" type="button">Consultar saldo y movimientos</button>
+      <div id="zx-founder-balances" hidden aria-label="Saldos privados de proveedores">
+        <button type="button" id="zx-balance-ra" title="Consultar saldo de Recargas América"><small>Saldo RA</small><strong>Consultar</strong></button>
+        <button type="button" id="zx-balance-sf" title="Consultar saldo de Sixofire"><small>Saldo SF</small><strong>Consultar</strong></button>
+        <span id="zx-provider-balance-note" role="status" aria-live="polite"></span>
+      </div>
         <ul id="zx-wallet-movements" class="zx-wallet-movements"></ul>
       </section>
       <section class="zx-account-panel zx-public-panel" aria-label="Perfil para compartir">
@@ -1299,10 +1299,10 @@
 <script src="./diamonds.js?v=1" defer></script>
 <script src="./diamond-catalog.js?v=4" defer></script>
 <script src="./diamond-collection.js?v=6" defer></script>
-<script src="./app.js?v=42" defer></script>
-<script src="./wallet-view.js?v=1" defer></script>
+<script src="./app.js?v=43" defer></script>
+<script src="./wallet-view.js?v=2" defer></script>
 <script src="./header-wallet.js?v=4" defer></script>
-<script src="./founder-balances.js?v=1" defer></script>
+<script src="./founder-balances.js?v=2" defer></script>
 <script src="./resellers.js?v=3" defer></script>
 <script src="./region-selector.js?v=2" defer></script>
 
