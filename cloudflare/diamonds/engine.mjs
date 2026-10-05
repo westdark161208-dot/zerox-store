@@ -10,6 +10,11 @@ export async function createOrder(db,{userId,requestKey,productId,playerId,fulfi
  if(existing){if(existing.product_id!==productId||existing.player_id!==playerId)throw Error('IDEMPOTENCY_CONFLICT');return existing;}
  const product=await publishedProduct(db,getProduct(productId));if(!product)throw Error('PRODUCT_UNAVAILABLE');
  const snapshot={...makeSnapshot(productId,playerId),salePriceCents:product.salePriceCents,...(fulfillmentPlan?{fulfillmentPlan,providerCostCents:0,providerCostEstimated:false}: {})},id=uuid(),at=now();
+ if(fulfillmentPlan){
+  const packs=fulfillmentPlan.packs;
+  if(fulfillmentPlan.provider!=='recargas-america'||fulfillmentPlan.playerId!==playerId||!Array.isArray(packs)||!packs.length||packs.some(p=>!Number.isSafeInteger(p.diamonds)||p.diamonds<1||!Number.isSafeInteger(p.quantity)||p.quantity<1)||packs.reduce((n,p)=>n+p.diamonds*p.quantity,0)!==snapshot.diamonds)throw Error('RA_PLAN_MISMATCH');
+  snapshot.recipe=packs.map(p=>({diamonds:p.diamonds,quantity:p.quantity,costCents:0}));
+ }
  // All operations derive from a trusted catalogue, never from a browser recipe.
  const statements=[db.prepare(`INSERT OR IGNORE INTO zx_diamond_orders(id,user_id,request_key,product_id,player_id,diamonds,sale_price_cents,provider_cost_cents,snapshot_json,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)`).bind(id,userId,requestKey,productId,playerId,snapshot.diamonds,snapshot.salePriceCents,snapshot.providerCostCents,JSON.stringify(snapshot),at,at)];
  let seq=0;for(const p of snapshot.recipe)for(let n=0;n<p.quantity;n++){

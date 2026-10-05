@@ -14,7 +14,7 @@
     q('wallet-audit-next').hidden=true;q('payment-audit-id').value='';
     for(const id of ['wallet-audit-refresh','wallet-audit-next','provider-check','provider-balance','payment-config-check','payment-audit-check','payment-account-check'])q(id).disabled=true;
   }
-  const reasons={PRODUCT_PAYMENTS_DISABLED:'pagos de productos pendientes de activación',DELIVERY_DISABLED:'entrega automática pendiente',PROVIDER_CONTRACT_UNVERIFIED:'contrato de entrega por confirmar',RA_MAPPING_MISSING:'paquetes de diamantes por asociar',RA_MAPPING_INVALID:'asociación de paquetes por revisar',RA_READ_DISABLED:'consultas del proveedor desactivadas',PROVIDER_KEY_MISSING:'credencial del proveedor pendiente',PROVIDER_TEST_KEY:'la credencial es de prueba',PRODUCTION_PAYMENT_CONFIG_MISSING:'configuración de pagos pendiente'};
+  const reasons={PLAYER_VERIFIER_MISSING:'API de verificación de jugadores pendiente',PRODUCT_PAYMENTS_DISABLED:'pagos de productos pendientes de activación',DELIVERY_DISABLED:'entrega automática pendiente',PROVIDER_CONTRACT_UNVERIFIED:'contrato de entrega por confirmar',RA_MAPPING_MISSING:'paquetes de diamantes por asociar',RA_MAPPING_INVALID:'asociación de paquetes por revisar',RA_READ_DISABLED:'consultas del proveedor desactivadas',PROVIDER_KEY_MISSING:'credencial del proveedor pendiente',PROVIDER_TEST_KEY:'la credencial es de prueba',PRODUCTION_PAYMENT_CONFIG_MISSING:'configuración de pagos pendiente'};
   const diagnostics={
     MP_PRODUCTION_READ_DISABLED:'La consulta de producción está desactivada en el servidor.',
     MP_PRODUCTION_CONFIG_MISSING:'Falta la credencial de producción o la cuenta receptora en el servidor.',

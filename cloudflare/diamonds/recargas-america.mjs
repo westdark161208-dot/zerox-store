@@ -1,3 +1,4 @@
+import {createPlanner} from './catalog.mjs';
 import {readRecargasAmerica,validateRecargasAccount} from '../providers/recargas-america.mjs';
 const BASE='https://panel.recargasamerica.com/api/v1';
 const safeRef=v=>typeof v==='string'&&/^[A-Za-z0-9_-]{1,120}$/.test(v);
@@ -28,6 +29,35 @@ export async function raPreflight(env,recipe,region,uid,fetcher=fetch){
  if(packs.reduce((n,p)=>n+Number(p.price)*p.quantity,0)>Number(wallet.balance))throw Error('RA_INSUFFICIENT_FUNDS');
  for(const p of packs){const result=await validateRecargasAccount(env,p.productId,uid,fetcher);if(result.supported&&result.status!==true)throw Error('RA_PLAYER_REJECTED');}
  return {provider:'recargas-america',version:1,region,playerId:uid,currency:wallet.currency,packs};
+}
+// Fresh supplier quotes choose the cheapest exact recipe, then fewer provider calls.
+export function quoteRaAmount(items,map,amount,region){
+ if(!Number.isSafeInteger(amount)||amount<1||amount>100930)throw Error('RA_AMOUNT_INVALID');
+ if(!Object.keys(map).length)throw Error('RA_MAPPING_MISSING');
+ const candidates=Object.entries(map).filter(([,p])=>p.regions.includes(region)).map(([total])=>{
+  const pack=validateRaPlan(items,[{diamonds:Number(total),quantity:1}],map,region)[0];
+  const micros=Math.ceil(Number(pack.price)*1e6);
+  if(!Number.isSafeInteger(micros)||micros<1||micros>1000000000)throw Error('RA_PRICE_INVALID');
+  return {...pack,costCents:micros};
+ });
+ if(!candidates.length)throw Error('RA_REGION_UNAVAILABLE');
+ let packs;try{packs=createPlanner(candidates,amount)(amount);}catch{throw Error('RA_EXACT_RECIPE_UNAVAILABLE');}
+ const totalMicros=packs.reduce((n,p)=>n+p.costCents*p.quantity,0);
+ if(!Number.isSafeInteger(totalMicros))throw Error('RA_PRICE_INVALID');
+ return {packs:packs.map(({costCents,...p})=>p),totalMicros,operationCount:packs.reduce((n,p)=>n+p.quantity,0)};
+}
+export async function raLiveQuote(env,amount,region,uid,fetcher=fetch){
+ const [items,wallet]=await Promise.all([readRecargasAmerica(env,'catalog',fetcher),readRecargasAmerica(env,'wallet',fetcher)]);
+ if(wallet.currency!=='USD')throw Error('RA_CURRENCY_UNVERIFIED');
+ const quote=quoteRaAmount(items,raMapping(env),amount,region),balanceMicros=Math.floor(Number(wallet.balance)*1e6);
+ if(!Number.isSafeInteger(balanceMicros))throw Error('RA_CURRENCY_UNVERIFIED');
+ return {plan:{provider:'recargas-america',version:1,region,playerId:uid,currency:'USD',quotedAt:new Date().toISOString(),...quote},wallet,canAfford:balanceMicros>=quote.totalMicros};
+}
+export async function raAmountPreflight(env,amount,region,uid,fetcher=fetch){
+ const quote=await raLiveQuote(env,amount,region,uid,fetcher);
+ if(!quote.canAfford)throw Error('RA_INSUFFICIENT_FUNDS');
+ for(const p of quote.plan.packs){const result=await validateRecargasAccount(env,p.productId,uid,fetcher);if(result.supported&&result.status!==true)throw Error('RA_PLAYER_REJECTED');}
+ return quote.plan;
 }
 // Immutable checkout plan protects already-paid orders from later SKU/region/configuration changes.
 async function recheck(env,plan,pack,uid,fetcher){

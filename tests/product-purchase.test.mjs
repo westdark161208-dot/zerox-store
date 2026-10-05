@@ -25,7 +25,7 @@ function upstream({submitted={n:0},lost=false}={}){return async(url,options={})=
 };}
 const body={productId:'zx-diamonds-110',playerId:'1136210821',playerConfirmed:true,method:'card'};
 test('missing live prerequisites and non-founder reject before DB, debit or upstream; never trust browser paid',async()=>{
- assert.equal(purchaseConfiguration(config).enabled,true);assert.equal(purchaseConfiguration({...config,RA_CONTRACT_VERIFIED:''}).enabled,false);
+ assert.equal(purchaseConfiguration(config).enabled,true);assert.equal(purchaseConfiguration({...config,FF_INFO_API_KEY:''}).enabled,false);assert.equal(purchaseConfiguration({...config,RA_CONTRACT_VERIFIED:''}).enabled,false);
  const noDB={...config,DIAMOND_PRODUCTION_ENABLED:''};assert.equal((await route(noDB,'/wallet',founder,{...body,paid:true})).status,503);
  assert.equal((await route(config,'/checkout',{...founder,isFounder:false},body)).status,403);
  assert.equal((await route(config,'/status',null)).status,401);
@@ -99,4 +99,14 @@ test('insufficient RA supplier funds reject before checkout creation or wallet d
  const env=await setup(),base=upstream(),submitted={n:0};const fetcher=async(url,opts)=>url.endsWith('/wallet')?response({success:true,data:{balance:0,currency:'USD'}}):url.endsWith('/checkout/preferences')?(submitted.n++,base(url,opts)):base(url,opts);
  const r=await route(env,'/checkout',founder,body,crypto.randomUUID(),fetcher);assert.equal(r.body.error,'RA_INSUFFICIENT_FUNDS');assert.equal(submitted.n,0);
  assert.equal(await env.DB.prepare("SELECT name FROM sqlite_master WHERE name='zx_product_payments'").first(),null);
+});
+
+test('live recipe is frozen into operations instead of the historical recipe',async()=>{
+ const env=await setup(),map=JSON.parse(env.RA_DIAMOND_PACKS);map['220']={...map['110'],productId:124,sku:'FF200',name:'FF200 plus bonus',baseDiamonds:200,bonusDiamonds:20};env.RA_DIAMOND_PACKS=JSON.stringify(map);
+ await postMovement(env.DB,{userId:'owner',kind:'credit',amountCents:10000,currency:'MXN',source:'fixture',reference:'live-recipe',requestKey:'credit-live-recipe',actor:'fixture'});
+ const base=upstream();let purchases=0;
+ const fetcher=async(url,opts)=>{if(url.endsWith('/products/catalog'))return response({success:true,data:[{id:123,sku:'FF100',name:'FF100 plus bonus',type:'recharge',price:2,required_fields:['player_id']},{id:124,sku:'FF200',name:'FF200 plus bonus',type:'recharge',price:3,required_fields:['player_id']}]});if(url.endsWith('/buy/catalog')){purchases++;assert.equal(JSON.parse(opts.body).product_id,124);return response({success:true,data:{order_id:'RAAPI-220',status:'COMPLETED',amount_charged:3,item:'FF200 plus bonus'}});}return base(url,opts);};
+ const r=await route(env,'/wallet',founder,{...body,productId:'zx-diamonds-220'},crypto.randomUUID(),fetcher);assert.equal(r.body.ok,true);assert.equal(r.body.delivery.delivered,220);assert.equal(purchases,1);
+ const ops=(await env.DB.prepare('SELECT * FROM zx_diamond_operations').all()).results;assert.equal(ops.length,1);assert.equal(ops[0].diamonds,220);
+ const snap=JSON.parse((await env.DB.prepare('SELECT snapshot_json FROM zx_diamond_orders').first()).snapshot_json);assert.equal(snap.recipe[0].diamonds,220);assert.equal(snap.fulfillmentPlan.totalMicros,3000000);
 });

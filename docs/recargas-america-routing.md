@@ -48,3 +48,11 @@ El video del propietario muestra ADS001 semanal básica, ADS002 semanal, ADS003 
 ADS006 (310 +10%), ADS007 (520 +10%) y ADS010 (5.600 +10%) aparecen como recharge con required_fields=[manual_id]. La asociación financiera debe declarar playerField=manual_id; el adaptador verifica el campo real y congela la asociación. Sin playerField conserva player_id para pedidos anteriores. Nunca acepta claves arbitrarias. Los productos PIN ADS012/014/015/016 son códigos, no entregas directas al ID.
 
 Control dispone de comparador privado de referencias, historial de precios, regiones y comisiones configuradas. Lunes resume observaciones mediante reglas. No autoriza compras por inferencia ni cambia pedidos pagados. Los servicios nuevos permanecen en consulta hasta implementar y verificar su flujo financiero y de entrega. El saldo puede prepararse desde la isla del inicio usando el piloto existente; no se ampliaron permisos financieros ni límites de cuentas.
+
+## Planificación por coste vivo y diagnóstico del creador
+
+Las nuevas compras calculan la combinación exacta con precios USD del catálogo vivo y asociaciones verificadas, usando enteros en micro-USD; menos llamadas desempata costes iguales. El plan de proveedor y las operaciones usan esa misma combinación. Las recetas históricas MXN permanecen para pedidos anteriores y no eligen las operaciones RA nuevas. El coste mostrado es precio de catálogo, sin inventar costes adicionales ni conversión USD/MXN.
+
+Control ofrece GET/POST privado `/api/admin/providers/recargas-america/readiness`: paquetes publicados, ID y región verificados, coste cotizado, wallet USD, validación de cuenta y motivos de bloqueo. Funciona con entrega pausada; jamás crea preferencias de Mercado Pago, pedidos, movimientos de Wallet ni compras del proveedor. Validación unsupported se informa como limitación, no como confirmación del proveedor. El diagnóstico no activa banderas ni constituye autorización reutilizable para una compra posterior; checkout repite la comprobación viva.
+
+Comprobaciones: 115 tests Node, build público 222 archivos. La primera recarga real todavía no se ha ejecutado ni demostrado. Continúan pendientes la asociación completa RA_DIAMOND_PACKS, regiones/bonus, moneda/saldo vivo y configuración de las banderas del piloto; las fichas de servicios aún necesitan su flujo de pedido y entrega independiente.
