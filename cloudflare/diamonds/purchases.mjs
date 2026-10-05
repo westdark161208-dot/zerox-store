@@ -2,13 +2,18 @@ import {getProduct} from './catalog.mjs';
 import {publishedProduct} from '../editor/catalog.mjs';
 import {diamondSchema} from './schema.mjs';
 import {createOrder,runOrder} from './engine.mjs';
-import {directPreflight,directProvider} from './sixofire-direct.mjs';
+import {raPreflight,raProvider,raMapping} from './recargas-america.mjs';
 import {productionToken,productionAccount,productionEvidence} from '../payments/mercadopago-production.mjs';
 import {checkoutMethods} from '../payments/mercadopago-test.mjs';
 import {walletSchema,postMovement} from '../wallet/ledger.mjs';
 import {safeProviderError} from '../providers/sixofire-read.mjs';
 const ROOT='/api/diamonds/purchase';
-export function purchaseConfiguration(env){const reasons=[];for(const [key,reason] of [['DIAMOND_PRODUCTION_ENABLED','PRODUCT_PAYMENTS_DISABLED'],['SIXOFIRE_DELIVERY_ENABLED','DELIVERY_DISABLED'],['SIXOFIRE_FUNDS_VERIFIED','SUPPLIER_FUNDS_UNVERIFIED'],['SIXOFIRE_CONTRACT_VERIFIED','PROVIDER_CONTRACT_UNVERIFIED']])if(env[key]!=='true')reasons.push(reason);if(!env.SIXOFIRE_API_KEY)reasons.push('PROVIDER_KEY_MISSING');if(!env.SIXOFIRE_DIRECT_SKUS)reasons.push('PROVIDER_MAPPING_MISSING');if(env.MP_PRODUCTION_READ_ENABLED!=='true'||!productionToken(env)||!env.MP_COLLECTOR_ID_PRODUCTION||!env.MP_WEBHOOK_SECRET_PRODUCTION)reasons.push('PRODUCTION_PAYMENT_CONFIG_MISSING');return {enabled:!reasons.length,reasons};}
+export function purchaseConfiguration(env){
+ const reasons=[];for(const [key,reason] of [['DIAMOND_PRODUCTION_ENABLED','PRODUCT_PAYMENTS_DISABLED'],['RA_READ_ENABLED','RA_READ_DISABLED'],['RA_DELIVERY_ENABLED','DELIVERY_DISABLED'],['RA_CONTRACT_VERIFIED','PROVIDER_CONTRACT_UNVERIFIED']])if(env[key]!=='true')reasons.push(reason);
+ if(!env.RECARGAS_AMERICA_API_KEY)reasons.push('PROVIDER_KEY_MISSING');else if(String(env.RECARGAS_AMERICA_API_KEY).startsWith('ra_test_'))reasons.push('PROVIDER_TEST_KEY');
+ try{if(!Object.keys(raMapping(env)).length)reasons.push('RA_MAPPING_MISSING');}catch{reasons.push('RA_MAPPING_INVALID');}
+ if(env.MP_PRODUCTION_READ_ENABLED!=='true'||!productionToken(env)||!env.MP_COLLECTOR_ID_PRODUCTION||!env.MP_WEBHOOK_SECRET_PRODUCTION)reasons.push('PRODUCTION_PAYMENT_CONFIG_MISSING');return {enabled:!reasons.length,reasons};
+}
 async function schemas(db){await diamondSchema(db);await walletSchema(db);await db.prepare(`CREATE TABLE IF NOT EXISTS zx_product_payments (order_id TEXT PRIMARY KEY,user_id TEXT NOT NULL,method TEXT NOT NULL,region TEXT NOT NULL,collector_id TEXT NOT NULL,amount_cents INTEGER NOT NULL,checkout_url TEXT,preference_id TEXT,payment_id TEXT UNIQUE,state TEXT NOT NULL DEFAULT 'creating',created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)`).run();}
 async function verifiedPlayer(env,uid,fetcher){if(!env.FF_INFO_API_KEY)throw Error('PLAYER_VERIFIER_MISSING');const r=await fetcher('https://developers.freefirecommunity.com/api/v1/info?'+new URLSearchParams({uid,region:'br'}),{method:'GET',redirect:'manual',headers:{'x-api-key':env.FF_INFO_API_KEY},signal:AbortSignal.timeout(12000)});if(!r.ok)throw Error('PLAYER_VERIFICATION_FAILED');const b=(await r.json()).basicInfo;if(String(b?.accountId)!==uid||!b?.nickname||!/^[A-Z]{2,5}$/.test(String(b.region)))throw Error('PLAYER_VERIFICATION_FAILED');return String(b.region);}
 export async function spendOrderWallet(db,order,user){
@@ -29,9 +34,12 @@ export async function reconcileProductPayment(env,p,fetcher=fetch){
  return {paid:true,...await fulfill(env,row.order_id,fetcher)};
 }
 async function fulfill(env,id,fetcher){const order=await env.DB.prepare('SELECT * FROM zx_diamond_orders WHERE id=?').bind(id).first(),payment=await env.DB.prepare('SELECT region,state FROM zx_product_payments WHERE order_id=?').bind(id).first();if(!order?.paid_at||payment?.state!=='paid')return {deliveryPending:true};
- const plan=await directPreflight(env,JSON.parse(order.snapshot_json).recipe,payment.region,fetcher);const provider=directProvider(env,plan,payment.region,fetcher);
+ const plan=JSON.parse(order.snapshot_json).fulfillmentPlan;
+ // Old Sixofire orders stay in review; never reroute an already-paid order to another supplier.
+ if(plan?.provider!=='recargas-america')return {deliveryPending:true,reviewRequired:true};
+ if(plan.playerId!==order.player_id||plan.region!==payment.region)throw Error('RA_PLAN_MISMATCH');const provider=raProvider(env,plan,fetcher);
  // Bound work per request. Lost responses remain PROCESSING; no automatic resubmission.
- const result=await runOrder(env.DB,id,{provider,skuMap:Object.fromEntries(plan.map(p=>[p.diamonds,p.sku])),maxOperations:4,maxAttempts:1});return {delivery:result};
+ const result=await runOrder(env.DB,id,{provider,skuMap:Object.fromEntries(plan.packs.map(p=>[p.diamonds,p.sku])),maxOperations:4,maxAttempts:1});return {delivery:result};
 }
 export async function purchaseRoute(request,env,url,user,json,fetcher=fetch){
  const reply=(body,status=200)=>{const r=json(body,status);r.headers?.set('Cache-Control','no-store');return r;};
@@ -57,8 +65,9 @@ export async function purchaseRoute(request,env,url,user,json,fetcher=fetch){
   const key=request.headers.get('Idempotency-Key'),uid=String(body.playerId||''),method=url.pathname.endsWith('/wallet')?'wallet':body.method||'all';
   if(!/^[a-f0-9-]{36}$/.test(key||'')||!/^\d{5,15}$/.test(uid)||body.playerConfirmed!==true||!['wallet','card','oxxo','spei','all'].includes(method))return reply({ok:false,error:'INVALID_REQUEST'},400);
   const product=await publishedProduct(env.DB,getProduct(body.productId));if(!product||product.salePriceCents>20000)return reply({ok:false,error:'PRODUCT_OUTSIDE_PILOT'},400);
-  const region=await verifiedPlayer(env,uid,fetcher);await directPreflight(env,product.recipe,region,fetcher);if(method!=='wallet')await productionAccount(env,fetcher);
-  await schemas(env.DB);const order=await createOrder(env.DB,{userId:user.id,requestKey:key,productId:product.id,playerId:uid});
+  const region=await verifiedPlayer(env,uid,fetcher);const plan=await raPreflight(env,product.recipe,region,uid,fetcher);if(method!=='wallet')await productionAccount(env,fetcher);
+  await schemas(env.DB);const order=await createOrder(env.DB,{userId:user.id,requestKey:key,productId:product.id,playerId:uid,fulfillmentPlan:plan});
+  if(JSON.parse(order.snapshot_json).fulfillmentPlan?.provider!=='recargas-america')return reply({ok:false,error:'LEGACY_ORDER_REVIEW_REQUIRED',orderId:order.id},409);
   const old=await env.DB.prepare('SELECT * FROM zx_product_payments WHERE order_id=?').bind(order.id).first();
   if(old&&old.method!==method)return reply({ok:false,error:'PAYMENT_METHOD_CONFLICT'},409);
   if(method==='wallet'){
@@ -73,5 +82,5 @@ export async function purchaseRoute(request,env,url,user,json,fetcher=fetch){
    const response=await fetcher('https://api.mercadopago.com/checkout/preferences',{method:'POST',redirect:'manual',headers:{Authorization:'Bearer '+productionToken(env),'Content-Type':'application/json'},signal:AbortSignal.timeout(12000),body:JSON.stringify({items:[{id:order.product_id,title:product.name||order.diamonds+' diamantes',quantity:1,currency_id:'MXN',unit_price:order.sale_price_cents/100}],external_reference:order.id,payment_methods:checkoutMethods(method),notification_url:'https://zerox-sixofire-api.westdark161208.workers.dev/api/payments/mercadopago/funding/webhook',back_urls:{success:back,pending:back,failure:back},expires:true,expiration_date_to:new Date(Date.now()+3600000).toISOString()})});if(!response.ok)throw Error('failed');const pref=await response.json(),link=new URL(pref.init_point);if(link.protocol!=='https:'||!['www.mercadopago.com.mx','www.mercadopago.com'].includes(link.hostname)||link.username||link.password||String(pref.collector_id)!==String(env.MP_COLLECTOR_ID_PRODUCTION)||!pref.id)throw Error('failed');
    await env.DB.prepare("UPDATE zx_product_payments SET state='ready',checkout_url=?,preference_id=? WHERE order_id=?").bind(link.href,String(pref.id),order.id).run();return reply({ok:true,orderId:order.id,checkoutUrl:link.href});
   }catch{await env.DB.prepare("UPDATE zx_product_payments SET state='needs_review' WHERE order_id=?").bind(order.id).run();return reply({ok:false,error:'CHECKOUT_RECONCILIATION_REQUIRED',orderId:order.id},503);}
- }catch(error){const explicit=['PROVIDER_MAPPING_INVALID','PROVIDER_MAPPING_MISSING','PROVIDER_DIAMOND_AMOUNT_MISMATCH','PROVIDER_DIRECT_PRODUCT_REQUIRED','PROVIDER_PRODUCT_UNAVAILABLE','PROVIDER_REGION_UNAVAILABLE','PROVIDER_ORDER_ACCESS_UNVERIFIED','PLAYER_VERIFIER_MISSING','PLAYER_VERIFICATION_FAILED','WALLET_MOVEMENT_REJECTED','WALLET_IDEMPOTENCY_CONFLICT','PAYMENT_METHOD_CONFLICT','IDEMPOTENCY_CONFLICT'];return reply({ok:false,error:explicit.includes(error.message)?error.message:safeProviderError(error)},503);}
+ }catch(error){const explicit=['PROVIDER_MAPPING_INVALID','PROVIDER_MAPPING_MISSING','PROVIDER_DIAMOND_AMOUNT_MISMATCH','PROVIDER_DIRECT_PRODUCT_REQUIRED','PROVIDER_PRODUCT_UNAVAILABLE','PROVIDER_REGION_UNAVAILABLE','PROVIDER_ORDER_ACCESS_UNVERIFIED','PLAYER_VERIFIER_MISSING','PLAYER_VERIFICATION_FAILED','WALLET_MOVEMENT_REJECTED','WALLET_IDEMPOTENCY_CONFLICT','PAYMENT_METHOD_CONFLICT','IDEMPOTENCY_CONFLICT'];return reply({ok:false,error:explicit.includes(error.message)||/^RA_(READ_DISABLED|KEY_MISSING|UNAVAILABLE|INVALID_RESPONSE|INVALID_QUERY|HTTP_\d{3}|MAPPING_INVALID|MAPPING_MISSING|REGION_UNVERIFIED|REGION_UNAVAILABLE|PRODUCT_UNAVAILABLE|PRODUCT_MISMATCH|CURRENCY_UNVERIFIED|INSUFFICIENT_FUNDS|PLAYER_REJECTED|PLAN_MISMATCH)$/.test(error.message)?error.message:safeProviderError(error)},503);}
 }

@@ -1,11 +1,18 @@
+import {readLevelUp,readServiceCatalog} from './sixofire-services.mjs';
 import {readSixofire,safeProviderError} from './sixofire-read.mjs';
 // Private read-only adapters. Fixed origins and no raw provider payloads or errors.
 const text=v=>['string','number'].includes(typeof v)?String(v).slice(0,120):null;
 const count=v=>v!==null&&v!==undefined&&v!==''&&Number.isSafeInteger(Number(v))&&Number(v)>=0?Number(v):null;
 export async function integrationRead(env,url,reply,fetcher=fetch){
  const path=url.pathname;
+ if(path==='/api/admin/providers/sixofire/services'||path==='/api/admin/providers/sixofire/level-up'){
+  try{return reply({ok:true,data:path.endsWith('/services')?await readServiceCatalog(env,fetcher):await readLevelUp(env,url.searchParams.get('uid'),fetcher),queriedAt:new Date().toISOString(),purchasesEnabled:false});}
+  catch(error){return reply({ok:false,error:['INVALID_PLAYER_QUERY','PROVIDER_SERVICE_MAPPING_INVALID'].includes(error.message)?error.message:safeProviderError(error)},503);}
+ }
+
  if(path==='/api/admin/providers/integrations/status')return reply({ok:true,integrations:[
-  {id:'sixofire',name:'Sixofire',keyConfigured:!!env.SIXOFIRE_API_KEY,capabilities:['catalog'],purchasesEnabled:false},
+  {id:'recargas-america',name:'Recargas América',keyConfigured:!!env.RECARGAS_AMERICA_API_KEY,capabilities:['wallet','catalog','validate'],purchasesEnabled:false},
+  {id:'sixofire',name:'Sixofire',keyConfigured:!!env.SIXOFIRE_API_KEY,capabilities:['services','level-up'],purchasesEnabled:false},
   {id:'freefire-info',name:'Free Fire Community',keyConfigured:!!env.FF_INFO_API_KEY,capabilities:['player'],purchasesEnabled:false}
  ]});
  let endpoint,headers,kind;

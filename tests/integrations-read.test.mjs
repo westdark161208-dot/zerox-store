@@ -4,7 +4,7 @@ const reply=(body,status=200)=>({body,status}),url=path=>new URL('https://test/a
 test('integration status reveals capabilities only; provider admin denies guests and writes',async()=>{
  const u=url('integrations/status');for(const user of [null,{status:'active',isFounder:false},{status:'disabled',isFounder:true}])assert.notEqual((await providerRoute(new Request(u),env,u,user,reply)).status,200);
  assert.equal((await providerRoute(new Request(u,{method:'POST'}),env,u,{status:'active',isFounder:true},reply)).status,405);
- const r=await integrationRead(env,u,reply);assert(!JSON.stringify(r).includes('private-key'));assert.equal(r.body.integrations[0].keyConfigured,true);
+ const r=await integrationRead(env,u,reply);assert(!JSON.stringify(r).includes('private-key'));assert.equal(r.body.integrations.find(i=>i.id==='sixofire').keyConfigured,true);
 });
 test('Sixofire reads fixed catalog host without forwarding redirects or private fields',async()=>{
  const u=url('sixofire/catalog');let calls=0;const r=await integrationRead(env,u,reply,async(endpoint,options)=>{calls++;assert.equal(endpoint,'https://api.sixofire.net/account/shop/items');assert.equal(options.method,'GET');assert.equal(options.redirect,'manual');return Response.json({data:[{id:9149,name:'Diamantes',secret:'PRIVATE'}]});});assert.equal(calls,1);assert.equal(r.body.data.items[0].name,'Diamantes');assert(!JSON.stringify(r).includes('PRIVATE'));

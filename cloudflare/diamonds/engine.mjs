@@ -4,17 +4,17 @@ import {makeSnapshot} from './catalog.mjs';
 import {disabledProvider} from './provider.mjs';
 const now=()=>new Date().toISOString();
 const uuid=()=>crypto.randomUUID();
-export async function createOrder(db,{userId,requestKey,productId,playerId}){
+export async function createOrder(db,{userId,requestKey,productId,playerId,fulfillmentPlan=null}){
  if(!userId||!/^[A-Za-z0-9_-]{16,100}$/.test(requestKey))throw Error('INVALID_REQUEST_KEY');
  const existing=await db.prepare('SELECT * FROM zx_diamond_orders WHERE user_id=? AND request_key=?').bind(userId,requestKey).first();
  if(existing){if(existing.product_id!==productId||existing.player_id!==playerId)throw Error('IDEMPOTENCY_CONFLICT');return existing;}
  const product=await publishedProduct(db,getProduct(productId));if(!product)throw Error('PRODUCT_UNAVAILABLE');
- const snapshot={...makeSnapshot(productId,playerId),salePriceCents:product.salePriceCents},id=uuid(),at=now();
+ const snapshot={...makeSnapshot(productId,playerId),salePriceCents:product.salePriceCents,...(fulfillmentPlan?{fulfillmentPlan,providerCostCents:0,providerCostEstimated:false}: {})},id=uuid(),at=now();
  // All operations derive from a trusted catalogue, never from a browser recipe.
  const statements=[db.prepare(`INSERT OR IGNORE INTO zx_diamond_orders(id,user_id,request_key,product_id,player_id,diamonds,sale_price_cents,provider_cost_cents,snapshot_json,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)`).bind(id,userId,requestKey,productId,playerId,snapshot.diamonds,snapshot.salePriceCents,snapshot.providerCostCents,JSON.stringify(snapshot),at,at)];
  let seq=0;for(const p of snapshot.recipe)for(let n=0;n<p.quantity;n++){
   const sequence=seq++;
-  statements.push(db.prepare(`INSERT INTO zx_diamond_operations(id,order_id,sequence,diamonds,player_id,provider_cost_cents,created_at,updated_at) SELECT ?,?,?,?,?,?,?,? WHERE EXISTS(SELECT 1 FROM zx_diamond_orders WHERE id=?)`).bind(`${id}:${sequence}`,id,sequence,p.diamonds,playerId,p.costCents,at,at,id));
+  statements.push(db.prepare(`INSERT INTO zx_diamond_operations(id,order_id,sequence,diamonds,player_id,provider_cost_cents,created_at,updated_at) SELECT ?,?,?,?,?,?,?,? WHERE EXISTS(SELECT 1 FROM zx_diamond_orders WHERE id=?)`).bind(`${id}:${sequence}`,id,sequence,p.diamonds,playerId,fulfillmentPlan?0:p.costCents,at,at,id));
  }
  await db.batch(statements);
  const order=await db.prepare('SELECT * FROM zx_diamond_orders WHERE user_id=? AND request_key=?').bind(userId,requestKey).first();
