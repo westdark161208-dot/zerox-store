@@ -64,3 +64,8 @@ test('method preferences are server-controlled and existing checkout remains uni
  }
  const db=await setup(),request=new Request('https://test/api/payments/mercadopago/funding/checkout',{method:'POST',headers:{'Idempotency-Key':id},body:JSON.stringify({amountCents:1000,method:'malicious'})});assert.equal((await fundingRoute(request,enabled(db),new URL(request.url),owner,reply,()=>{throw Error('must not call')})).status,400);
 });
+
+test('inline store funding returns to a fixed store URL and preserves default Pay return',async()=>{
+ for(const returnTo of ['store','https://untrusted.test']){const db=await setup();let seen=false;const req=new Request('https://test/api/payments/mercadopago/funding/checkout',{method:'POST',headers:{'Idempotency-Key':id},body:JSON.stringify({amountCents:1000,returnTo})});
+ const r=await fundingRoute(req,enabled(db),new URL(req.url),owner,reply,async(url,opts)=>{const b=JSON.parse(opts.body);seen=true;for(const v of Object.values(b.back_urls)){assert.equal(new URL(v).origin,'https://zerox-store.pages.dev');assert.equal(new URL(v).pathname,returnTo==='store'?'/':'/wallet-payment.html');}return {ok:true,json:async()=>({id:'pref',collector_id:123,init_point:'https://www.mercadopago.com.mx/checkout/test'})};});assert.equal(r.status,200);assert(seen);}
+});
