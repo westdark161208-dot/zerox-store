@@ -56,3 +56,11 @@ Las nuevas compras calculan la combinación exacta con precios USD del catálogo
 Control ofrece GET/POST privado `/api/admin/providers/recargas-america/readiness`: paquetes publicados, ID y región verificados, coste cotizado, wallet USD, validación de cuenta y motivos de bloqueo. Funciona con entrega pausada; jamás crea preferencias de Mercado Pago, pedidos, movimientos de Wallet ni compras del proveedor. Validación unsupported se informa como limitación, no como confirmación del proveedor. El diagnóstico no activa banderas ni constituye autorización reutilizable para una compra posterior; checkout repite la comprobación viva.
 
 Comprobaciones: 115 tests Node, build público 222 archivos. La primera recarga real todavía no se ha ejecutado ni demostrado. Continúan pendientes la asociación completa RA_DIAMOND_PACKS, regiones/bonus, moneda/saldo vivo y configuración de las banderas del piloto; las fichas de servicios aún necesitan su flujo de pedido y entrega independiente.
+
+## Asociaciones desde Control
+
+La captura 832351 confirma RA_MAPPING_MISSING. Se añadió el formulario privado `/api/admin/providers/recargas-america/associations` para relacionar los seis paquetes base con referencias del catálogo vivo. Se requieren tipo recharge, un solo campo player_id/manual_id, cantidad base en el nombre, marca explícita +10%, SKU exacto, regiones declaradas y referencia de confirmación de bonus/región. Se excluyen PINs y servicios. Guardar no activa flags de producción.
+
+Las asociaciones se conservan en D1 con revisión concurrente e historial transaccional. Cuando RA_DIAMOND_PACKS existe en Cloudflare, tiene prioridad y Control no lo sustituye. Sin esa variable, checkout, reconciliación, diagnóstico, status y disponibilidad de compra de Wallet resuelven el mapa D1. Cada pedido conserva su plan inmutable; editar asociaciones solo afecta pedidos posteriores. No se reemplazan órdenes ni se compran recargas al guardar.
+
+Validación: 120 tests, incluidos persistencia→diagnóstico, rechazo de variantes incompatibles, conflictos concurrentes, rollback ante fallo de auditoría, autorización y prioridad de configuración Cloudflare. Build público 223 archivos.
