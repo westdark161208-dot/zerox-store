@@ -7,7 +7,11 @@
     "MP_PRODUCTION_READ_ENABLED": "true",
     "MP_WALLET_PILOT_ENABLED": "true",
     "WALLET_READ_ENABLED": "true",
-    "RA_READ_ENABLED": "true"
+    "RA_READ_ENABLED": "true",
+    "RA_AUTO_ASSOCIATE_US": "true",
+    "RA_CONTRACT_VERIFIED": "true",
+    "RA_DELIVERY_ENABLED": "true",
+    "DIAMOND_PRODUCTION_ENABLED": "true"
   },
   "d1_databases": [
     {
