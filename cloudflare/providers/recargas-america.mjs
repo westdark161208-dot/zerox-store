@@ -1,5 +1,5 @@
 // Contract: supplied RecargasAmerica_API.postman_collection v1.0.0.
-// Read-only adapter: intentionally has no purchase method.
+// Read/validation adapter. Financial calls live in the diamond fulfillment adapter.
 const BASE='https://panel.recargasamerica.com/api/v1';
 export async function readRecargasAmerica(env, resource, fetcher=fetch) {
   if (env.RA_READ_ENABLED !== 'true') throw Error('RA_READ_DISABLED');
@@ -23,7 +23,7 @@ export async function readRecargasAmerica(env, resource, fetcher=fetch) {
     // Report currency as returned. USD is not assumed to be USDT or customer MXN.
     return {balance:String(data.balance),currency:data.currency};
   }
-  if (!Array.isArray(body.data)) throw Error('RA_INVALID_RESPONSE');
+  if (!Array.isArray(body.data)||body.data.length>2000) throw Error('RA_INVALID_RESPONSE');
   return body.data.map(p=>{
     if (!p || !Number.isSafeInteger(p.id) || p.id<=0 || typeof p.name!=='string' ||
         !['number','string'].includes(typeof p.price) || String(p.price).trim()==='' ||
@@ -31,4 +31,13 @@ export async function readRecargasAmerica(env, resource, fetcher=fetch) {
     return {id:p.id,sku:String(p.sku||''),name:p.name,type:String(p.type||''),price:String(p.price),
       requiredFields:p.required_fields.filter(v=>typeof v==='string')};
   });
+}
+// Informational POST: provider account validation, never a purchase.
+export async function validateRecargasAccount(env,productId,uid,fetcher=fetch){
+ if(env.RA_READ_ENABLED!=='true')throw Error('RA_READ_DISABLED');if(!env.RECARGAS_AMERICA_API_KEY)throw Error('RA_KEY_MISSING');
+ if(!Number.isSafeInteger(productId)||productId<1||!/^\d{5,15}$/.test(uid||''))throw Error('RA_INVALID_QUERY');
+ let response,body;try{response=await fetcher(BASE+'/catalog/validate',{method:'POST',redirect:'manual',headers:{Authorization:'Bearer '+env.RECARGAS_AMERICA_API_KEY,Accept:'application/json','Content-Type':'application/json'},signal:AbortSignal.timeout(10000),body:JSON.stringify({product_id:productId,service_user_id:uid})});body=await response.json();}catch{throw Error('RA_UNAVAILABLE');}
+ if(!response.ok)throw Error('RA_HTTP_'+response.status);
+ if(body?.success!==true||typeof body.data?.supported!=='boolean'||body.data.supported&&typeof body.data.status!=='boolean')throw Error('RA_INVALID_RESPONSE');
+ return {supported:body.data.supported,status:body.data.supported?body.data.status:null,accountName:body.data.supported&&typeof body.data.account_name==='string'?body.data.account_name.slice(0,120):null};
 }
