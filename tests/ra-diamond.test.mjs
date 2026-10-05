@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {raMapping,validateRaPlan,raProvider,raPreflight} from '../cloudflare/diamonds/recargas-america.mjs';
+import {raMapping,validateRaPlan,raProvider,raPreflight,quoteRaAmount} from '../cloudflare/diamonds/recargas-america.mjs';
 import {serviceCatalog,readLevelUp} from '../cloudflare/providers/sixofire-services.mjs';
 const mapping={'572':{productId:1,sku:'FF520',name:'Free Fire 520 + bonus',baseDiamonds:520,bonusDiamonds:52,regions:['US'],bonusEvidence:'supplier-confirmed contract fixture'}};
 const env={RA_READ_ENABLED:'true',RA_DELIVERY_ENABLED:'true',RECARGAS_AMERICA_API_KEY:'fixture',RA_DIAMOND_PACKS:JSON.stringify(mapping)};
@@ -48,4 +48,13 @@ test('manual_id is sent only from an explicit immutable mapping matching the liv
  const p={...plan,packs:validateRaPlan([manual],recipe,map,'US')};let posts=0;
  const adapter=raProvider(env,p,async(url,opts)=>{if(url.endsWith('/products/catalog'))return response({success:true,data:[{...manual,required_fields:['manual_id']}]});if(!url.endsWith('/buy/catalog'))return fetcher(url);posts++;assert.deepEqual(JSON.parse(opts.body),{product_id:1,quantity:1,manual_id:p.playerId});return response({success:true,data:{order_id:'RAAPI-M',status:'COMPLETED',amount_charged:5,item:item.name}});});
  assert.equal((await adapter.submit({sku:'1',playerId:p.playerId,idempotencyKey:'operation-manual'})).status,'SUCCESS');assert.equal(posts,1);
+});
+
+test('live RA prices select cheapest exact recipe and fewer operations on ties',()=>{
+ const map={'110':{productId:1,sku:'S100',name:'100+10',baseDiamonds:100,bonusDiamonds:10,regions:['US'],bonusEvidence:'fixture'},'220':{productId:2,sku:'S200',name:'200+20',baseDiamonds:200,bonusDiamonds:20,regions:['US'],bonusEvidence:'fixture'}};
+ const items=[{...item,id:1,sku:'S100',name:'100+10',price:'1'},{...item,id:2,sku:'S200',name:'200+20',price:'3'}];
+ let q=quoteRaAmount(items,map,220,'US');assert.equal(q.operationCount,2);assert.equal(q.totalMicros,2000000);assert.equal(q.packs[0].diamonds,110);
+ q=quoteRaAmount([items[0],{...items[1],price:'1.5'}],map,220,'US');assert.equal(q.operationCount,1);assert.equal(q.packs[0].diamonds,220);assert.equal(q.totalMicros,1500000);
+ q=quoteRaAmount([items[0],{...items[1],price:'2'}],map,220,'US');assert.equal(q.operationCount,1);
+ assert.throws(()=>quoteRaAmount(items,map,341,'US'),/EXACT_RECIPE/);assert.throws(()=>quoteRaAmount(items,map,220,'BR'),/REGION/);assert.throws(()=>quoteRaAmount([{...items[0],type:'pin'},items[1]],map,220,'US'),/MISMATCH/);
 });
