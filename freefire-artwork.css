@@ -1,0 +1,4 @@
+/* Preserve the entire supplied artwork, including its product lettering. */
+.ff-membership-image{width:100%;aspect-ratio:4/3;overflow:hidden;border-radius:14px;background:#070c16}
+.ff-membership-image img{display:block;width:100%;height:100%;object-fit:contain;transform:none;filter:none}
+#freefire-menu .zx-sub-grid>button img[src*="freefire-2026-10"]{object-fit:contain;transform:none;filter:none}
