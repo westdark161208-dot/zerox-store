@@ -48,7 +48,7 @@ async function fulfill(env,id,fetcher){const order=await env.DB.prepare('SELECT 
 export async function purchaseRoute(request,env,url,user,json,fetcher=fetch){
  const reply=(body,status=200)=>{const r=json(body,status);r.headers?.set('Cache-Control','no-store');return r;};
  if(!user||user.status!=='active')return reply({ok:false,error:'LOGIN_REQUIRED'},401);
- if(user.isFounder!==true){if(url.pathname===ROOT+'/status'&&request.method==='GET')return reply({ok:true,pilot:true,enabled:false,walletEnabled:false,reasons:['FOUNDER_PILOT_ONLY']});return reply({ok:false,error:'FOUNDER_PILOT_ONLY'},403);}
+ if(user.isFounder!==true&&!(request.method==='GET'&&/^\/api\/diamonds\/purchase\/orders\/[a-f0-9-]{36}(?:\/receipt)?$/.test(url.pathname))){if(url.pathname===ROOT+'/status'&&request.method==='GET')return reply({ok:true,pilot:true,enabled:false,walletEnabled:false,reasons:['FOUNDER_PILOT_ONLY']});return reply({ok:false,error:'FOUNDER_PILOT_ONLY'},403);}
  if(!(request.method==='GET'&&url.pathname.startsWith(ROOT+'/orders/')))env=await resolvedRaEnvironment(env,fetcher);
  const config=purchaseConfiguration(env);
  if(url.pathname===ROOT+'/status'&&request.method==='GET')return reply({ok:true,pilot:true,enabled:user.isFounder===true&&config.enabled,walletEnabled:user.isFounder===true&&config.enabled,supplierEnabled:!config.reasons.filter(r=>r!=='PRODUCTION_PAYMENT_CONFIG_MISSING').length,reasons:user.isFounder===true?config.reasons:['FOUNDER_PILOT_ONLY']});
