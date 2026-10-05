@@ -40,3 +40,16 @@ test('missing association reports verified player region without authorizing or 
  const r=await readinessRoute(new Request(target,{method:'POST',body:JSON.stringify({productId:'zx-diamonds-110',uid:'612418245'})}),e,target,owner,reply,async(endpoint,opts)=>{if(endpoint.includes('freefirecommunity'))return Response.json({basicInfo:{accountId:'612418245',nickname:'Fixture',region:'US'}});if(endpoint.endsWith('/wallet'))return Response.json({success:true,data:{balance:10,currency:'USD'}});return fetcher()(endpoint,opts);});
  assert.equal(r.body.error,'RA_MAPPING_MISSING');assert.equal(r.body.region,'US');assert.equal(await e.DB.prepare("SELECT name FROM sqlite_master WHERE name='zx_diamond_orders'").first(),null);
 });
+
+test('owner-confirmed US automatic association uses unique live exact recharge references only',async()=>{
+ const {automaticUsMapping}=await import('../cloudflare/providers/ra-associations.mjs');
+ const e={...env(),RA_AUTO_ASSOCIATE_US:'true'},item={...product,id:5,sku:'ADS005',name:'Recarga Free Fire - 100 Diamantes +10% Bono'};
+ assert.deepEqual(automaticUsMapping(env(),[item]),{});
+ const resolved=await resolvedRaEnvironment(e,fetcher(item)),map=JSON.parse(resolved.RA_DIAMOND_PACKS);
+ assert.equal(map['110'].productId,5);assert.deepEqual(map['110'].regions,['US']);assert.equal(map['110'].bonusDiamonds,10);
+ for(const items of [[{...item,type:'pin'}],[{...item,name:'Free Fire 100 Diamantes'}],[item,{...item,id:55,sku:'ALT'}],[item,item]])assert.deepEqual(automaticUsMapping(e,items),{});
+ const d=await associationRoute(request(),e,url,owner,reply,fetcher(item));assert.equal(d.body.associations[0].entry.productId,5);
+ await associationRoute(request('POST',{...body,regions:['BR']}),e,url,owner,reply,fetcher());
+ const overridden=JSON.parse((await resolvedRaEnvironment(e,fetcher())).RA_DIAMOND_PACKS);assert.deepEqual(overridden['572'].regions,['BR']);
+ const unavailable=await resolvedRaEnvironment({...env(),RA_AUTO_ASSOCIATE_US:'true'},async()=>{throw Error('offline')});assert.equal(unavailable.RA_DIAMOND_PACKS,undefined);
+});

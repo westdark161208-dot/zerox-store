@@ -37,3 +37,12 @@ Documentación contrastada: [notificaciones oficiales](https://www.mercadopago.c
 51 pruebas Node y suite revendedores aprobadas; sintaxis y build público aprobados. Tests usan SQLite local y respuestas simuladas. No equivalen a una prueba real de pago, de D1 remoto ni a validación visual.
 
 Revertir este incremento restaura ee99042. No hay migración remota ni saldo modificado que revertir. La siguiente etapa es el orquestador de checkout/webhook y abono con reintentos, seguido de prueba controlada con credenciales configuradas en servidor.
+
+
+## US delivery activation, 2026-10-05 UTC
+
+Owner confirmed previous successful Recargas América US purchases and authorized activation. `RA_AUTO_ASSOCIATE_US=true` resolves the six base totals from the current authenticated catalog: exactly one direct recharge per base, explicit +10% name, unique ID and SKU, one player_id/manual_id field, positive current price. PINs, services, duplicates and absent bonuses are excluded. No IDs/prices from Postman examples are used. Only US is authorized automatically. Saved D1 associations override automatic entries; an external RA_DIAMOND_PACKS map remains authoritative. Paid orders retain their frozen plan.
+
+Wrangler now enables DIAMOND_PRODUCTION_ENABLED, RA_DELIVERY_ENABLED and RA_CONTRACT_VERIFIED. Existing founder-only purchase scope and 200 MXN maximum remain in place. API secrets remain server-only. Status availability does not prove a completed live delivery: it still depends on production credentials, current supplier funds, verified player region and fresh exact quotes. No real transaction was submitted by the agent, which lacks a signed-in founder browser session.
+
+Tests cover live automatic reference resolution, conflicting/invalid products, saved override, non-founder rejection before supplier calls, wallet debit once, asynchronous provider receipt lookup and exact delivery without repeating supplier submission.

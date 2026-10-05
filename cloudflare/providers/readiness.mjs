@@ -9,7 +9,7 @@ export async function readinessRoute(request,env,url,user,reply,fetcher=fetch){
  if(!user?.isFounder||user.status!=='active')return reply({ok:false,error:'FORBIDDEN'},403);
  let detectedRegion=null;
  try{
-  env=await resolvedRaEnvironment(env);
+  env=await resolvedRaEnvironment(env,fetcher);
   if(request.method==='GET'){
    const edits=await publishedCatalog(env.DB);
    return reply({ok:true,products:catalog.filter(p=>edits[p.id]?.active!==false).map(p=>({id:p.id,name:edits[p.id]?.name||p.name,diamonds:p.diamonds,amountCents:edits[p.id]?.priceCents||p.salePriceCents})),configuration:purchaseConfiguration(env)});

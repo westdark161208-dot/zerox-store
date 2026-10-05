@@ -110,3 +110,22 @@ test('live recipe is frozen into operations instead of the historical recipe',as
  const ops=(await env.DB.prepare('SELECT * FROM zx_diamond_operations').all()).results;assert.equal(ops.length,1);assert.equal(ops[0].diamonds,220);
  const snap=JSON.parse((await env.DB.prepare('SELECT snapshot_json FROM zx_diamond_orders').first()).snapshot_json);assert.equal(snap.recipe[0].diamonds,220);assert.equal(snap.fulfillmentPlan.totalMicros,3000000);
 });
+
+test('automatic live US mapping completes a paid wallet purchase once and tracks async delivery',async()=>{
+ const env=await setup();delete env.RA_DIAMOND_PACKS;env.RA_AUTO_ASSOCIATE_US='true';
+ await postMovement(env.DB,{userId:'owner',kind:'credit',amountCents:10000,currency:'MXN',source:'fixture',reference:'auto',requestKey:'auto-credit',actor:'fixture'});
+ const key=crypto.randomUUID(),calls={buy:0,lookup:0},name='Recarga Free Fire - 100 Diamantes +10% Bono';
+ const fetcher=async(url,options={})=>{
+  if(url.endsWith('/products/catalog'))return response({success:true,data:[{id:5,sku:'ADS005',name,type:'recharge',price:1,required_fields:['manual_id']}]});
+  if(url.endsWith('/buy/catalog')){calls.buy++;assert.deepEqual(JSON.parse(options.body),{product_id:5,quantity:1,manual_id:'1136210821'});return response({success:true,data:{order_id:'RAAPI-AUTO-5',status:'PROCESSING_PROVIDER',amount_charged:1,item:name,delivery:[]}});}
+  if(url.endsWith('/catalog/orders/RAAPI-AUTO-5')){calls.lookup++;return response({success:true,data:{order_id:'RAAPI-AUTO-5',status:'COMPLETED',product:name,delivery:[]}});}
+  return upstream()(url,options);
+ };
+ const status=await route(env,'/status',founder,null,key,fetcher);assert.equal(status.body.enabled,true);
+ const a=await route(env,'/wallet',founder,body,key,fetcher);assert.equal(a.body.ok,true);assert.equal(calls.buy,1);
+ await route(env,'/resume',founder,{orderId:a.body.orderId},key,fetcher);
+ const tracked=await route(env,'/orders/'+a.body.orderId,founder,null,key,fetcher);assert.equal(tracked.body.order.delivered,110);assert.equal(tracked.body.order.state,'COMPLETED');assert.equal(calls.buy,1);assert(calls.lookup>=1);
+ assert.equal((await walletState(env.DB,'owner')).availableCents,8200);
+ await route(env,'/wallet',founder,body,key,fetcher);assert.equal(calls.buy,1);
+ const forbidden=await route(env,'/checkout',{...founder,isFounder:false},body,key,()=>{throw Error('must not read provider')});assert.equal(forbidden.status,403);
+});
