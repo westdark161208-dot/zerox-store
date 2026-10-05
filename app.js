@@ -849,6 +849,10 @@ function updateCartUI() {
    ========================================================= */
 
 function artFor(product) {
+  const membershipImages={'weekly-basic':'tarjeta-basica','weekly':'tarjeta-semanal','monthly':'tarjeta-mensual','booyah-premium':'pase-premium'};
+  const membershipImage=membershipImages[product.providerProductKey];
+  if(membershipImage&&!product.editorImage)return `<div class="ff-membership-image"><img src="./assets/freefire-2026-10/${membershipImage}.webp" alt="${esc(product.name)}" width="960" height="720" loading="lazy" decoding="async"></div>`;
+
   if(product.providerProductKey&&!product.editorImage){const premium=product.providerProductKey==='booyah-premium';return `<div class="ff-membership-art ${premium?'ff-membership-premium':''}" aria-hidden="true"><div class="ff-member-orbit"></div><span>${premium?'✦':'▦'}</span><strong>${premium?'+50':esc(product.badge)}</strong><small>${premium?'MEDALLAS / BOOYAH':'MEMBRESÍA / FREE FIRE'}</small></div>`;}
   if(product.editorImage&&!product.zxDiamond)return `<div class="zx-media-art"><img src="${esc(product.editorImage)}" alt="${esc(product.name)}" loading="lazy"></div>`;
   const collectionArt = globalThis.ZXCollection?.art(product);
