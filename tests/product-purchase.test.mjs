@@ -167,3 +167,16 @@ test('supplier crash before funding retains frozen price and cannot become a fre
  const retry=await route(env,'/supplier/buy',founder,{...input,maxTotalMicros:500000},key,cheap);assert.equal(retry.body.error,'SUPPLIER_PRICE_CHANGED');assert.equal(calls.n,0);
  assert.equal((await route(env,'/wallet',founder,body,key,cheap)).body.error,'PAYMENT_METHOD_CONFLICT');assert.equal((await walletState(env.DB,'owner')).availableCents,0);
 });
+
+test('receipt is private, read-only, paused-readable and available only for complete persisted supplier delivery',async()=>{
+ const env=await setup(),key=crypto.randomUUID(),calls={n:0},fetcher=upstream({submitted:calls});const input={...body,supplierConfirmed:true,maxTotalMicros:1000000};
+ const a=await route(env,'/supplier/buy',founder,input,key,fetcher),path='/orders/'+a.body.orderId+'/receipt';assert.equal(a.body.delivery.state,'COMPLETED');
+ const paused={...env,DIAMOND_PRODUCTION_ENABLED:'',RA_AUTO_ASSOCIATE_US:'true'};delete paused.RA_DIAMOND_PACKS;const r=await route(paused,path,founder,null,key,()=>{throw Error('receipt must not call upstream')});assert.equal(r.status,200);assert.equal(r.body.receipt.playerId,body.playerId);assert.equal(r.body.receipt.diamonds,110);assert.equal(r.body.receipt.supplierQuotedCostMicros,1000000);assert.equal(r.body.receipt.references[0].reference,'RAAPI-123');assert.equal(r.body.receipt.amountCents,0);assert.equal(calls.n,1);
+ assert.equal((await route(paused,path,{...founder,id:'other'},null,key,fetcher)).status,404);
+ await env.DB.prepare("UPDATE zx_diamond_operations SET state='PROCESSING' WHERE order_id=?").bind(a.body.orderId).run();assert.equal((await route(paused,path,founder,null,key,fetcher)).body.error,'RECEIPT_NOT_READY');
+ await env.DB.prepare("UPDATE zx_diamond_operations SET state='SUCCESS',player_id='999999999' WHERE order_id=?").bind(a.body.orderId).run();assert.equal((await route(paused,path,founder,null,key,fetcher)).status,409);
+});
+test('lost supplier response cannot produce a success receipt',async()=>{
+ const env=await setup(),fetcher=upstream({lost:true}),a=await route(env,'/supplier/buy',founder,{...body,supplierConfirmed:true,maxTotalMicros:1000000},crypto.randomUUID(),fetcher);
+ assert.equal((await route(env,'/orders/'+a.body.orderId+'/receipt',founder,null,crypto.randomUUID(),fetcher)).body.error,'RECEIPT_NOT_READY');
+});

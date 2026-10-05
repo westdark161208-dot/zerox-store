@@ -1,3 +1,4 @@
+import {orderReceipt} from './receipt.mjs';
 import {resolvedRaEnvironment} from '../providers/ra-associations.mjs';
 import {getProduct} from './catalog.mjs';
 import {publishedProduct} from '../editor/catalog.mjs';
@@ -48,10 +49,12 @@ export async function purchaseRoute(request,env,url,user,json,fetcher=fetch){
  const reply=(body,status=200)=>{const r=json(body,status);r.headers?.set('Cache-Control','no-store');return r;};
  if(!user||user.status!=='active')return reply({ok:false,error:'LOGIN_REQUIRED'},401);
  if(user.isFounder!==true){if(url.pathname===ROOT+'/status'&&request.method==='GET')return reply({ok:true,pilot:true,enabled:false,walletEnabled:false,reasons:['FOUNDER_PILOT_ONLY']});return reply({ok:false,error:'FOUNDER_PILOT_ONLY'},403);}
- env=await resolvedRaEnvironment(env,fetcher);
+ if(!(request.method==='GET'&&url.pathname.startsWith(ROOT+'/orders/')))env=await resolvedRaEnvironment(env,fetcher);
  const config=purchaseConfiguration(env);
  if(url.pathname===ROOT+'/status'&&request.method==='GET')return reply({ok:true,pilot:true,enabled:user.isFounder===true&&config.enabled,walletEnabled:user.isFounder===true&&config.enabled,supplierEnabled:!config.reasons.filter(r=>r!=='PRODUCTION_PAYMENT_CONFIG_MISSING').length,reasons:user.isFounder===true?config.reasons:['FOUNDER_PILOT_ONLY']});
  try{
+  const receiptMatch=url.pathname.match(/^\/api\/diamonds\/purchase\/orders\/([a-f0-9-]{36})\/receipt$/);
+  if(receiptMatch&&request.method==='GET'){const receipt=await orderReceipt(env.DB,receiptMatch[1],user.id);return !receipt?reply({ok:false,error:'NOT_FOUND'},404):receipt.pending?reply({ok:false,error:'RECEIPT_NOT_READY'},409):reply({ok:true,receipt});}
   const match=url.pathname.match(/^\/api\/diamonds\/purchase\/orders\/([a-f0-9-]{36})$/);
   if(match&&request.method==='GET'){
    const table=await env.DB.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='zx_product_payments'").first();if(!table)return reply({ok:false,error:'NOT_FOUND'},404);

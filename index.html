@@ -34,7 +34,7 @@
   >
   <link rel="stylesheet" href="./styles.css?v=36">
   <link rel="stylesheet" href="./diamond-collection.css?v=4">
-  <link rel="stylesheet" href="./responsive.css?v=14">
+  <link rel="stylesheet" href="./responsive.css?v=15">
   <link rel="stylesheet" href="./region-selector.css?v=2">
   <script>
   /* Zero'X emergency cache reset: keep the storefront accessible even if app JS fails */
@@ -124,6 +124,7 @@
 
     </div>
   </header>
+<div id="zx-home-provider-balances" class="zx-provider-balances" data-zx-provider-balances hidden aria-label="Saldos privados del fundador"><button type="button" data-provider="ra"><small>Saldo RA</small><strong>Consultar</strong></button><button type="button" data-provider="sf"><small>Saldo SF</small><strong>Consultar</strong></button><span data-provider-note role="status" aria-live="polite"></span></div>
 
 
   <!-- =====================================================
@@ -1108,10 +1109,10 @@
         <p id="zx-wallet-status" role="status" aria-live="polite">Consulta tu saldo y movimientos.</p>
         <strong id="zx-wallet-balance" class="zx-wallet-balance" hidden></strong>
         <button id="zx-wallet-refresh" type="button">Consultar saldo y movimientos</button>
-      <div id="zx-founder-balances" hidden aria-label="Saldos privados de proveedores">
-        <button type="button" id="zx-balance-ra" title="Consultar saldo de Recargas América"><small>Saldo RA</small><strong>Consultar</strong></button>
-        <button type="button" id="zx-balance-sf" title="Consultar saldo de Sixofire"><small>Saldo SF</small><strong>Consultar</strong></button>
-        <span id="zx-provider-balance-note" role="status" aria-live="polite"></span>
+      <div id="zx-founder-balances" data-zx-provider-balances hidden aria-label="Saldos privados de proveedores">
+        <button type="button" id="zx-balance-ra" data-provider="ra" title="Consultar saldo de Recargas América"><small>Saldo RA</small><strong>Consultar</strong></button>
+        <button type="button" id="zx-balance-sf" data-provider="sf" title="Consultar saldo de Sixofire"><small>Saldo SF</small><strong>Consultar</strong></button>
+        <span id="zx-provider-balance-note" data-provider-note role="status" aria-live="polite"></span>
       </div>
         <ul id="zx-wallet-movements" class="zx-wallet-movements"></ul>
       </section>
@@ -1289,6 +1290,7 @@
 <dialog id="zx-wallet-island" aria-labelledby="zx-wallet-island-title">
  <div class="zx-island-heading"><span class="zx-island-kicker">ZERO’X PAY / MI CUENTA</span><button type="button" id="zx-wallet-island-close" aria-label="Cerrar saldo">×</button></div>
  <h2 id="zx-wallet-island-title">Tu saldo, a un toque.</h2><div class="zx-island-balance"><span>Saldo disponible</span><strong id="zx-wallet-island-value">Consultando…</strong><small>MXN · saldo interno de tu cuenta</small></div>
+<div id="zx-island-provider-balances" class="zx-provider-balances" data-zx-provider-balances hidden aria-label="Saldos privados del fundador"><button type="button" data-provider="ra"><small>Saldo RA</small><strong>Consultar</strong></button><button type="button" data-provider="sf"><small>Saldo SF</small><strong>Consultar</strong></button><span data-provider-note role="status" aria-live="polite"></span></div>
  <p id="zx-wallet-island-status" role="status" aria-live="polite"></p><button type="button" id="zx-wallet-island-refresh">Actualizar saldo</button>
  <h3>Recargar saldo</h3><p class="zx-island-note">Elige un método para preparar tu pago. Mercado Pago procesa y confirma la operación.</p>
  <div class="zx-island-methods" id="zx-wallet-island-methods" aria-label="Métodos de recarga"></div>
@@ -1299,10 +1301,10 @@
 <script src="./diamonds.js?v=1" defer></script>
 <script src="./diamond-catalog.js?v=4" defer></script>
 <script src="./diamond-collection.js?v=6" defer></script>
-<script src="./app.js?v=43" defer></script>
+<script src="./app.js?v=44" defer></script>
 <script src="./wallet-view.js?v=2" defer></script>
 <script src="./header-wallet.js?v=4" defer></script>
-<script src="./founder-balances.js?v=2" defer></script>
+<script src="./founder-balances.js?v=3" defer></script>
 <script src="./resellers.js?v=3" defer></script>
 <script src="./region-selector.js?v=2" defer></script>
 
