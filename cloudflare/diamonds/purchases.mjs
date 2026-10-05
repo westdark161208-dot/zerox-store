@@ -1,3 +1,4 @@
+import {resolvedRaEnvironment} from '../providers/ra-associations.mjs';
 import {getProduct} from './catalog.mjs';
 import {publishedProduct} from '../editor/catalog.mjs';
 import {diamondSchema} from './schema.mjs';
@@ -31,6 +32,7 @@ export async function reconcileProductPayment(env,p,fetcher=fetch){
  if(p.status==='refunded'||p.status==='charged_back'||Number(p.transaction_amount_refunded||0)>0){await env.DB.prepare("UPDATE zx_product_payments SET state='review_required' WHERE order_id=?").bind(row.order_id).run();return {reviewRequired:true};}
  if(p.status!=='approved'||row.state==='review_required')return {pending:true};
  await env.DB.batch([env.DB.prepare("UPDATE zx_product_payments SET state='paid',payment_id=? WHERE order_id=? AND state IN ('creating','needs_review','ready','paid') AND (payment_id IS NULL OR payment_id=?)").bind(String(p.id),row.order_id,String(p.id)),env.DB.prepare("UPDATE zx_diamond_orders SET state='PAID',payment_reference=?,paid_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP WHERE id=? AND paid_at IS NULL AND state='PENDING_PAYMENT' AND EXISTS(SELECT 1 FROM zx_product_payments WHERE order_id=? AND state='paid' AND payment_id=?)").bind('mercadopago:'+p.id,row.order_id,row.order_id,String(p.id))]);
+ env=await resolvedRaEnvironment(env);
  if(!purchaseConfiguration(env).enabled)return {paid:true,deliveryPending:true};
  return {paid:true,...await fulfill(env,row.order_id,fetcher)};
 }
@@ -45,6 +47,7 @@ async function fulfill(env,id,fetcher){const order=await env.DB.prepare('SELECT 
 export async function purchaseRoute(request,env,url,user,json,fetcher=fetch){
  const reply=(body,status=200)=>{const r=json(body,status);r.headers?.set('Cache-Control','no-store');return r;};
  if(!user||user.status!=='active')return reply({ok:false,error:'LOGIN_REQUIRED'},401);
+ env=await resolvedRaEnvironment(env);
  const config=purchaseConfiguration(env);
  if(url.pathname===ROOT+'/status'&&request.method==='GET')return reply({ok:true,pilot:true,enabled:user.isFounder===true&&config.enabled,walletEnabled:user.isFounder===true&&config.enabled,reasons:user.isFounder===true?config.reasons:['FOUNDER_PILOT_ONLY']});
  if(user.isFounder!==true)return reply({ok:false,error:'FOUNDER_PILOT_ONLY'},403);
