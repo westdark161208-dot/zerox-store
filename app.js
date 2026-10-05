@@ -1876,7 +1876,7 @@ ${zxPaymentAction(order)}
 
 function openStatus() {
   if ($("#status")) {
-    $("#status").showModal();
+    window.ZXOrderHistory?.open();
   }
 }
 
@@ -1896,69 +1896,6 @@ if ($("#drawer-orders")) {
       closeDrawer();
       openStatus();
     };
-}
-
-if ($("#status-form")) {
-  $("#status-form").addEventListener(
-    "submit",
-    event => {
-      event.preventDefault();
-
-      const id =
-        new FormData(
-          event.currentTarget
-        )
-          .get("orderId")
-          ?.trim();
-
-      const order =
-        getOrders().find(
-          item =>
-            item.id === id
-        );
-
-      if (!order) {
-        $("#status-result").innerHTML = `
-          <div class="error">
-            Pedido no encontrado
-          </div>
-        `;
-
-        return;
-      }
-
-      $("#status-result").innerHTML = `
-        <div class="success">
-
-          <b>
-            ${esc(order.status)}
-          </b>
-
-          <br>
-
-          <small>
-            ${esc(order.id)}
-          </small>
-
-          <br><br>
-
-          ${esc(order.productName)}
-
-          —
-
-          ${new Intl.NumberFormat(
-            "es-MX",
-            {
-              style: "currency",
-              currency: "MXN"
-            }
-          ).format(order.total)}
-          MXN
-
-        </div>
-      `;
-    }
-  );
 }
 
 /* =========================================================

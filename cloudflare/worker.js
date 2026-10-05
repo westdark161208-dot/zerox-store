@@ -1,3 +1,4 @@
+import {orderHistoryRoute} from './order-history.mjs';
 import {purchaseRoute} from './diamonds/purchases.mjs';
 import {fundingRoute} from "./payments/funding-routes.mjs";
 import {productionReadRoute} from "./payments/mercadopago-production.mjs";
@@ -215,6 +216,7 @@ export default {
         if(!url.pathname.endsWith("/webhook")){await authSchema(env);user=await currentUser(request,env);}
         return await mpTestRoute(request,env,url,user,json);
       }
+      if(url.pathname.startsWith("/api/orders/")){await authSchema(env);return await orderHistoryRoute(request,env,url,await currentUser(request,env),json);}
       if(url.pathname.startsWith("/api/diamonds/purchase/")){await authSchema(env);return await purchaseRoute(request,env,url,await currentUser(request,env),json);}
       if(url.pathname.startsWith("/api/diamonds/")){
         let user=null;
