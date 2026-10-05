@@ -33,6 +33,7 @@ export async function raPreflight(env,recipe,region,uid,fetcher=fetch){
 // Fresh supplier quotes choose the cheapest exact recipe, then fewer provider calls.
 export function quoteRaAmount(items,map,amount,region){
  if(!Number.isSafeInteger(amount)||amount<1||amount>100930)throw Error('RA_AMOUNT_INVALID');
+ if(!Object.keys(map).length)throw Error('RA_MAPPING_MISSING');
  const candidates=Object.entries(map).filter(([,p])=>p.regions.includes(region)).map(([total])=>{
   const pack=validateRaPlan(items,[{diamonds:Number(total),quantity:1}],map,region)[0];
   const micros=Math.ceil(Number(pack.price)*1e6);

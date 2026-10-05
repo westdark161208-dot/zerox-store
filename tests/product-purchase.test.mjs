@@ -25,7 +25,7 @@ function upstream({submitted={n:0},lost=false}={}){return async(url,options={})=
 };}
 const body={productId:'zx-diamonds-110',playerId:'1136210821',playerConfirmed:true,method:'card'};
 test('missing live prerequisites and non-founder reject before DB, debit or upstream; never trust browser paid',async()=>{
- assert.equal(purchaseConfiguration(config).enabled,true);assert.equal(purchaseConfiguration({...config,RA_CONTRACT_VERIFIED:''}).enabled,false);
+ assert.equal(purchaseConfiguration(config).enabled,true);assert.equal(purchaseConfiguration({...config,FF_INFO_API_KEY:''}).enabled,false);assert.equal(purchaseConfiguration({...config,RA_CONTRACT_VERIFIED:''}).enabled,false);
  const noDB={...config,DIAMOND_PRODUCTION_ENABLED:''};assert.equal((await route(noDB,'/wallet',founder,{...body,paid:true})).status,503);
  assert.equal((await route(config,'/checkout',{...founder,isFounder:false},body)).status,403);
  assert.equal((await route(config,'/status',null)).status,401);

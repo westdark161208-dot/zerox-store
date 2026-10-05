@@ -10,6 +10,7 @@ import {safeProviderError} from '../providers/sixofire-read.mjs';
 const ROOT='/api/diamonds/purchase';
 export function purchaseConfiguration(env){
  const reasons=[];for(const [key,reason] of [['DIAMOND_PRODUCTION_ENABLED','PRODUCT_PAYMENTS_DISABLED'],['RA_READ_ENABLED','RA_READ_DISABLED'],['RA_DELIVERY_ENABLED','DELIVERY_DISABLED'],['RA_CONTRACT_VERIFIED','PROVIDER_CONTRACT_UNVERIFIED']])if(env[key]!=='true')reasons.push(reason);
+ if(!env.FF_INFO_API_KEY)reasons.push('PLAYER_VERIFIER_MISSING');
  if(!env.RECARGAS_AMERICA_API_KEY)reasons.push('PROVIDER_KEY_MISSING');else if(String(env.RECARGAS_AMERICA_API_KEY).startsWith('ra_test_'))reasons.push('PROVIDER_TEST_KEY');
  try{if(!Object.keys(raMapping(env)).length)reasons.push('RA_MAPPING_MISSING');}catch{reasons.push('RA_MAPPING_INVALID');}
  if(env.MP_PRODUCTION_READ_ENABLED!=='true'||!productionToken(env)||!env.MP_COLLECTOR_ID_PRODUCTION||!env.MP_WEBHOOK_SECRET_PRODUCTION)reasons.push('PRODUCTION_PAYMENT_CONFIG_MISSING');return {enabled:!reasons.length,reasons};
