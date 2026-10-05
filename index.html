@@ -34,7 +34,7 @@
   >
   <link rel="stylesheet" href="./styles.css?v=36">
   <link rel="stylesheet" href="./diamond-collection.css?v=4">
-  <link rel="stylesheet" href="./responsive.css?v=12">
+  <link rel="stylesheet" href="./responsive.css?v=13">
   <link rel="stylesheet" href="./region-selector.css?v=2">
   <script>
   /* Zero'X emergency cache reset: keep the storefront accessible even if app JS fails */
@@ -93,6 +93,11 @@
         <button type="button" id="zx-region-open" aria-haspopup="dialog" aria-controls="zx-region-dialog" aria-label="País México, moneda MXN">🇲🇽 MXN</button>
       </div>
 
+      <div id="zx-founder-balances" hidden aria-label="Saldos privados de proveedores">
+        <button type="button" id="zx-balance-ra" title="Consultar saldo de Recargas América"><small>Saldo RA</small><strong>Consultar</strong></button>
+        <button type="button" id="zx-balance-sf" title="Consultar saldo de Sixofire"><small>Saldo SF</small><strong>Consultar</strong></button>
+        <span id="zx-provider-balance-note" role="status" aria-live="polite"></span>
+      </div>
       <button
         class="icon-btn cart-btn"
         id="open-cart"
@@ -1297,6 +1302,7 @@
 <script src="./app.js?v=42" defer></script>
 <script src="./wallet-view.js?v=1" defer></script>
 <script src="./header-wallet.js?v=4" defer></script>
+<script src="./founder-balances.js?v=1" defer></script>
 <script src="./resellers.js?v=3" defer></script>
 <script src="./region-selector.js?v=2" defer></script>
 
