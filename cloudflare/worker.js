@@ -1,3 +1,5 @@
+import {promotionRoute} from './promotions/purchases.mjs';
+import {locationRoute} from './accounts/geography.mjs';
 import {serviceRoute} from './services/purchases.mjs';
 import {walletAdminRoute} from './wallet/admin.mjs';
 import {orderHistoryRoute} from './order-history.mjs';
@@ -218,6 +220,8 @@ export default {
         if(!url.pathname.endsWith("/webhook")){await authSchema(env);user=await currentUser(request,env);}
         return await mpTestRoute(request,env,url,user,json);
       }
+      if(url.pathname==="/api/auth/location"){await authSchema(env);return await locationRoute(request,env,url,await currentUser(request,env),json);}
+      if(url.pathname.startsWith("/api/promotions/")){await authSchema(env);return await promotionRoute(request,env,url,await currentUser(request,env),json);}
       if(url.pathname.startsWith("/api/orders/")){await authSchema(env);return await orderHistoryRoute(request,env,url,await currentUser(request,env),json);}
       if(url.pathname.startsWith("/api/services/purchase/")){await authSchema(env);return await serviceRoute(request,env,url,await currentUser(request,env),json);}
       if(url.pathname.startsWith("/api/diamonds/purchase/")){await authSchema(env);return await purchaseRoute(request,env,url,await currentUser(request,env),json);}

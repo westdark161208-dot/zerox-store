@@ -45,7 +45,7 @@
   <link rel="stylesheet" href="./panel-theme.css?v=2">
 <link rel="stylesheet" href="purchase-flow.css?v=2">
 <link rel="stylesheet" href="freefire-artwork.css?v=1">
-<link rel="stylesheet" href="order-history.css?v=2"><link rel="stylesheet" href="store-polish.css?v=2"></head>
+<link rel="stylesheet" href="order-history.css?v=2"><link rel="stylesheet" href="store-polish.css?v=3"></head>
 
 <body>
   <div class="zerox-splash" id="zerox-splash" role="status" aria-label="Cargando Zero'X Store">
@@ -1282,7 +1282,7 @@
  <h2 id="zx-wallet-island-title">Tu saldo, a un toque.</h2><div class="zx-island-balance"><span>Saldo disponible</span><strong id="zx-wallet-island-value">Consultando…</strong><small>MXN · saldo interno de tu cuenta</small></div>
 <div id="zx-island-provider-balances" class="zx-provider-balances" data-zx-provider-balances hidden aria-label="Saldos privados del fundador"><button type="button" data-provider="ra"><small>Saldo RA</small><strong>Consultar</strong></button><button type="button" data-provider="sf"><small>Saldo SF</small><strong>Consultar</strong></button><span data-provider-note role="status" aria-live="polite"></span></div>
  <p id="zx-wallet-island-status" role="status" aria-live="polite"></p><button type="button" id="zx-wallet-island-refresh">Actualizar saldo</button>
- <h3>Recargar saldo</h3><a class="zx-manual-oxxo" href="https://wa.me/529514754210?text=Quiero%20recargar%20mi%20saldo%20ZeroX%20por%20OXXO.%20Solicito%20los%20datos%20para%20depositar%20y%20enviar%20mi%20comprobante." target="_blank" rel="noopener">OXXO · Solicitar datos y enviar comprobante ↗</a><p class="zx-island-note">Incluye tu usuario de Zero’X. El saldo se abona después de revisar tu depósito.</p><p class="zx-island-note">Elige un método para preparar tu pago. Mercado Pago procesa y confirma la operación.</p>
+ <h3>Recargar saldo</h3><button type="button" class="zx-manual-oxxo" id="zx-open-oxxo">OXXO · Depositar saldo</button><p class="zx-island-note">Incluye tu usuario de Zero’X. El saldo se abona después de revisar tu depósito.</p><p class="zx-island-note">Elige un método para preparar tu pago. Mercado Pago procesa y confirma la operación.</p>
  <div class="zx-island-methods" id="zx-wallet-island-methods" aria-label="Métodos de recarga"></div>
  <form id="zx-island-funding-form" hidden><label for="zx-island-amount">Importe · MXN</label><input id="zx-island-amount" type="number" min="10" max="5000" step="0.01" value="10" inputmode="decimal" required><p class="zx-island-note">Recarga de saldo · $10 a $5,000 MXN.</p><button id="zx-wallet-island-topup" type="submit" disabled>Preparar recarga →</button></form><p id="zx-island-funding-status" role="status" aria-live="polite"></p><a id="zx-island-checkout" target="_blank" rel="noopener noreferrer" hidden>Continuar al pago seguro ↗</a><button type="button" id="zx-island-funding-refresh" hidden>Consultar recarga</button><button type="button" id="zx-island-new-funding" hidden>Nueva recarga</button><p class="zx-island-note">La moneda del catálogo es una referencia. Tu saldo se registra en MXN. Elige saldo al pagar los productos habilitados.</p>
 </dialog>
@@ -1291,9 +1291,9 @@
 <script src="./diamonds.js?v=1" defer></script>
 <script src="./diamond-catalog.js?v=4" defer></script>
 <script src="./diamond-collection.js?v=6" defer></script>
-<script src="./purchase-flow.js?v=2" defer></script>
-<script src="./app.js?v=49" defer></script>
-<script src="./order-history.js?v=3" defer></script><script src="./store-extras.js?v=2" defer></script>
+<script src="./purchase-flow.js?v=3" defer></script>
+<script src="./app.js?v=50" defer></script>
+<script src="./order-history.js?v=4" defer></script><script src="./store-extras.js?v=3" defer></script>
 <script src="./wallet-view.js?v=2" defer></script>
 <script src="./header-wallet.js?v=5" defer></script>
 <script src="./founder-balances.js?v=3" defer></script>
@@ -1301,6 +1301,6 @@
 <script src="./region-selector.js?v=2" defer></script>
 
 <script src="./editor-elements.js?v=1" defer></script>
-<script src="./store-editor.js?v=3" defer></script>
-<script src="system-holograms.js?v=1" defer></script></body>
+<script src="./store-editor.js?v=4" defer></script>
+<script src="system-holograms.js?v=1" defer></script><script src="oxxo-deposit.js?v=1"></script></body>
 </html>

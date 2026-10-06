@@ -1211,10 +1211,11 @@ function zxRenderPaymentMethods(host,select){
   if(!select){select=document.createElement("select");select.setAttribute("aria-label","Método de pago");host.append(select);}
   select.classList.add("zx-method-native");
   const methods=[["card","Tarjeta"],["spei","Transferencia SPEI"],["all","Mercado Pago"],["wallet","Mi saldo Zero’X"]];
-  if(host.id==="zx-product-methods"&&host.dataset.service!=="true"&&zeroxUser?.isFounder===true)methods.push(["ra","Saldo RA · fundador"]);
+  if(host.id==="zx-product-methods"&&zeroxUser?.isFounder===true)methods.push(["ra","Saldo RA · fundador"],["sf","Saldo SF · fundador"]);
   if(!select.options.length)for(const [value,label] of methods){const option=document.createElement("option");option.value=value;option.textContent=label;select.append(option);}
   const tiles=document.createElement("div");tiles.className="zx-method-tiles";host.append(tiles);
   for(const [value,label] of methods){if(select.options.length&&!Array.from(select.options).some(o=>o.value===value))continue;const button=document.createElement("button");button.type="button";button.dataset.method=value;button.innerHTML=window.ZX_PAYMENT_ICONS?.[value==="ra"?"wallet":value]||"";const name=document.createElement("span");name.textContent=label;button.append(name);button.onclick=()=>{select.value=value;select.dispatchEvent(new Event("change",{bubbles:true}));};tiles.append(button);}
+  const binance=document.createElement("button");binance.type="button";binance.disabled=true;binance.className="zx-binance-soon";binance.textContent="Binance Pay · Próximamente";tiles.append(binance);
   const sync=()=>tiles.querySelectorAll("button").forEach(button=>button.setAttribute("aria-pressed",String(button.dataset.method===select.value)));select.addEventListener("change",sync);sync();return select;
 }
 
@@ -1226,7 +1227,7 @@ function openCheckout(id) {
   if(current.zxDiamond||current.zxService){
     $("#zx-player-confirm-dialog")?.remove();
     $("#zx-diamond-dialog")?.remove();
-    const product=current,service=!!current.zxService,apiPath=service?'/api/services/purchase':'/api/diamonds/purchase';
+    const product=current;let service=!!current.zxService,apiPath=service?'/api/services/purchase':'/api/diamonds/purchase';
     const dialog=document.createElement("dialog");dialog.id="zx-diamond-dialog";
     dialog.innerHTML=`<form method="dialog"><button aria-label="Cerrar">×</button></form><span class="section-kicker">COMPLETAR PEDIDO</span><h2>${esc(current.name)}</h2><strong class="zx-checkout-total">Total ${money(current.price)}</strong><p>Introduce tu ID para consultar tu cuenta de Free Fire. Comprueba el nombre antes de confirmar.</p><form id="zx-diamond-intent"><label>ID de jugador<input placeholder="Ej. 123456789" name="uid" inputmode="numeric" pattern="[0-9]{5,15}" minlength="5" maxlength="15" required></label><button type="submit" class="check-player-btn">🔎 COMPROBAR CUENTA</button><button type="button" id="zx-confirm-diamond-player" hidden>CONFIRMAR MI CUENTA</button></form><div id="zx-diamond-player-card"></div><p id="zx-diamond-intent-status" role="status"></p><section id="zx-diamond-payment" hidden><label>Teléfono de contacto / WhatsApp<input id="zx-purchase-phone" type="tel" autocomplete="tel" placeholder="+52 951 123 4567" maxlength="24" required></label><small>Solo para asistencia con tu pedido.</small><h3>Método de pago</h3><div id="zx-product-methods" class="zx-product-methods"></div><button type="button" id="zx-mp-pay" disabled>Pagar con Mercado Pago →</button><small id="zx-mp-note">Los pagos públicos todavía no están habilitados.</small><a id="zx-mp-open" hidden target="_blank" rel="noopener noreferrer">Abrir Mercado Pago ↗</a></section>`;
     document.body.append(dialog);dialog.showModal();
@@ -1290,11 +1291,11 @@ function openCheckout(id) {
       pay.disabled=true;realAvailable=false;note.textContent="Comprobando si pago y entrega están disponibles…";
       const version=requestVersion,currentToken=getZeroXSession()?.token;
       status.textContent="✓ Cuenta confirmada para esta recarga.";
-      try{const result=await zeroxAuthRequest(apiPath+'/status',{cache:'no-store'});if(version!==requestVersion||!dialog.isConnected||currentToken!==getZeroXSession()?.token)return;customerAvailable=result.enabled===true;supplierAvailable=result.supplierEnabled===true;realAvailable=methodSelect.value==="ra"?supplierAvailable:customerAvailable;pay.disabled=!realAvailable;note.textContent=realAvailable?"Pago disponible. El saldo o Mercado Pago confirman la operación antes de entregar.":"Este paquete todavía no tiene pago y entrega habilitados. No se realizará ningún cobro.";}
+      try{const result=await zeroxAuthRequest(apiPath+'/status',{cache:'no-store'});if(version!==requestVersion||!dialog.isConnected||currentToken!==getZeroXSession()?.token)return;customerAvailable=result.enabled===true;supplierAvailable=result.supplierEnabled===true;realAvailable=["ra","sf"].includes(methodSelect.value)?supplierAvailable:customerAvailable;pay.disabled=!realAvailable;note.textContent=realAvailable?"Pago disponible. El saldo o Mercado Pago confirman la operación antes de entregar.":"Este paquete todavía no tiene pago y entrega habilitados. No se realizará ningún cobro.";}
       catch{if(version===requestVersion)note.textContent="Inicia sesión para consultar la disponibilidad. El servidor debe habilitar pago y entrega antes de cobrar.";}
 
     };
-    methodSelect.addEventListener("change",()=>{if(createdOrder||purchaseStarted)return;attempt="";supplierQuote=null;realAvailable=methodSelect.value==="ra"?supplierAvailable:customerAvailable;payLink.hidden=true;pay.disabled=!realAvailable;pay.textContent=["ra","wallet"].includes(methodSelect.value)?"Pagar con saldo →":"Pagar con Mercado Pago →";});
+    methodSelect.addEventListener("change",()=>{if(createdOrder||purchaseStarted)return;service=!!product.zxService||methodSelect.value==="sf";apiPath=service?"/api/services/purchase":"/api/diamonds/purchase";attempt="";supplierQuote=null;realAvailable=["ra","sf"].includes(methodSelect.value)?supplierAvailable:customerAvailable;payLink.hidden=true;pay.disabled=!realAvailable;pay.textContent=["ra","sf","wallet"].includes(methodSelect.value)?"Pagar con saldo →":"Pagar con Mercado Pago →";});
     pay.onclick=async()=>{
       if(paymentBusy||createdOrder||!realAvailable||!confirmedUid||confirmedUid!==uidInput.value.trim())return;
       if(!/^\+?[0-9 ()-]{8,24}$/.test(phone.value)||phone.value.replace(/\D/g,"").length<8){note.textContent="Agrega un teléfono de contacto válido.";phone.focus();return;}
@@ -1303,31 +1304,31 @@ function openCheckout(id) {
       let pending=null;try{pending=JSON.parse(sessionStorage.getItem(pendingKey)||'null');}catch{}
       const method=pending?.method||methodSelect.value;if(pending?.key)attempt=pending.key;
       paymentBusy=true;pay.disabled=true;methodSelect.disabled=true;dialog.querySelectorAll('.zx-method-tiles button').forEach(b=>b.disabled=true);
-      const unlock=()=>{paymentBusy=false;if(!purchaseStarted&&!createdOrder){pay.disabled=!realAvailable;methodSelect.disabled=false;dialog.querySelectorAll('.zx-method-tiles button').forEach(b=>b.disabled=false);}};
-      if(method==='ra'){
+      const unlock=()=>{paymentBusy=false;if(!purchaseStarted&&!createdOrder){pay.disabled=!realAvailable;methodSelect.disabled=false;dialog.querySelectorAll('.zx-method-tiles button').forEach(b=>b.disabled=b.classList.contains("zx-binance-soon"));}};
+      if(['ra','sf'].includes(method)){
         pay.disabled=true;note.textContent='Consultando el importe y saldo disponible…';
-        try{const quote=await zeroxAuthRequest('/api/diamonds/purchase/supplier/quote',{method:'POST',...(pending?.key?{headers:{'Idempotency-Key':pending.key}}:{}),body:JSON.stringify({productId:product.id,playerId:confirmedUid,playerConfirmed:true})});
-          if(version!==requestVersion||currentToken!==getZeroXSession()?.token||!dialog.open||methodSelect.value!=='ra'){unlock();return;}
+        try{const quote=await zeroxAuthRequest(apiPath+'/supplier/quote',{method:'POST',...(pending?.key?{headers:{'Idempotency-Key':pending.key}}:{}),body:JSON.stringify({productId:product.id,quantity:product.quantity||product.minQuantity||1,method,playerId:confirmedUid,playerConfirmed:true})});
+          if(version!==requestVersion||currentToken!==getZeroXSession()?.token||!dialog.open||methodSelect.value!==method){unlock();return;}
           if(quote.existingOrderId){createdOrder=quote.existingOrderId;const tracking=document.createElement('a');tracking.href='product-payment.html?kind='+(service?'service':'diamond')+'&order='+encodeURIComponent(createdOrder);tracking.textContent='Consultar intento con Saldo RA →';payments.append(tracking);note.textContent='Ya existe este intento. Consultando su entrega…';window.ZXPurchaseFlow.watchOrder(createdOrder,{onComplete:id=>window.ZXPurchaseFlow.openReceipt(id,service?'service':'diamond'),request:path=>zeroxAuthRequest(apiPath+path,{cache:'no-store'})});unlock();return;}
           if(!Number.isSafeInteger(quote.totalMicros)||quote.totalMicros<1||quote.playerId!==confirmedUid||quote.currency!=='USD')throw Error('INVALID_QUOTE');supplierQuote=quote;
         }catch{if(version===requestVersion)note.textContent='No pudimos consultar el importe. No se realizó una compra.';unlock();return;}
       }
-      if(method==='wallet'||method==='ra'){
-        const accepted=await window.ZXPurchaseFlow.confirmBalance({product:product.name,playerId:confirmedUid,amount:method==='ra'?'Autorizar hasta '+(supplierQuote.totalMicros/1e6).toFixed(6)+' USD de tu saldo API':new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'}).format(product.price)+' MXN · Saldo Zero’X'});
+      if(['wallet','ra','sf'].includes(method)){
+        const accepted=await window.ZXPurchaseFlow.confirmBalance({product:product.name,playerId:confirmedUid,amount:['ra','sf'].includes(method)?'Autorizar hasta '+(supplierQuote.totalMicros/1e6).toFixed(6)+' USD de tu saldo API':new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'}).format(product.price)+' MXN · Saldo Zero’X'});
         if(!accepted||version!==requestVersion||currentToken!==getZeroXSession()?.token||!dialog.open||document.hidden){note.textContent='Pago sin confirmar. Puedes continuar cuando estés listo.';unlock();return;}
       }
       pay.disabled=true;methodSelect.disabled=true;dialog.querySelectorAll(".zx-method-tiles button").forEach(b=>b.disabled=true);payLink.hidden=true;note.textContent="Verificando producto, región y entrega antes de preparar el pago…";
       purchaseStarted=true;uidInput.readOnly=true;intent.querySelectorAll("button").forEach(b=>b.disabled=true);
       if(!attempt)attempt=crypto.randomUUID();
       try{sessionStorage.setItem(pendingKey,JSON.stringify({key:attempt,method}));}catch{}
-      try{const result=await zeroxAuthRequest(apiPath+'/'+(service?'checkout':method==="ra"?'supplier/buy':method==="wallet"?'wallet':'checkout'),{method:'POST',headers:{'Idempotency-Key':attempt},body:JSON.stringify({productId:product.id,quantity:product.quantity||product.minQuantity||1,maxAmountCents:Math.round(product.price*100),playerId:confirmedUid,playerConfirmed:true,contactPhone:phone.value.trim(),method,...(method==="ra"?{supplierConfirmed:true,maxTotalMicros:supplierQuote.totalMicros}:{})})});
+      try{const result=await zeroxAuthRequest(apiPath+'/'+(service?'checkout':method==="ra"?'supplier/buy':method==="wallet"?'wallet':'checkout'),{method:'POST',headers:{'Idempotency-Key':attempt},body:JSON.stringify({productId:product.id,quantity:product.quantity||product.minQuantity||1,maxAmountCents:Math.round(product.price*100),playerId:confirmedUid,playerConfirmed:true,contactPhone:phone.value.trim(),method,...(["ra","sf"].includes(method)?{supplierConfirmed:true,maxTotalMicros:supplierQuote.totalMicros}:{})})});
         if(version!==requestVersion||!dialog.isConnected||currentToken!==getZeroXSession()?.token)return;
         if(result.checkoutUrl){const link=new URL(result.checkoutUrl);if(link.protocol!=='https:'||!['www.mercadopago.com.mx','www.mercadopago.com'].includes(link.hostname)||link.username||link.password)throw Error('INVALID_CHECKOUT');payLink.href=link.href;payLink.textContent='Abrir Mercado Pago y pagar ↗';payLink.hidden=false;note.textContent='Pago preparado. Revisa el importe y sigue la confirmación del servidor.';}
         else if(result.delivery?.state==='COMPLETED'){note.textContent='Recarga completada: '+result.delivery.delivered+' diamantes confirmados para el ID '+confirmedUid+'. Preparando tu comprobante…';}else{note.textContent=method==='ra'?'Recarga con saldo registrada. Consulta el estado de tu entrega.':'Compra con saldo registrada. Consulta el estado para confirmar cuántos diamantes se entregaron.';}
         window.dispatchEvent(new Event('zx-provider-balances-refresh'));createdOrder=result.orderId;try{sessionStorage.removeItem(pendingKey);}catch{}const tracking=document.createElement('a');tracking.href='product-payment.html?kind='+(service?'service':'diamond')+'&order='+encodeURIComponent(result.orderId);tracking.textContent=result.delivery?.state==='COMPLETED'?'Ver comprobante de recarga →':'Consultar pago y entrega →';tracking.className='zx-order-payment-link';payments.append(tracking);pay.disabled=true;
         window.ZXPurchaseFlow.watchOrder(createdOrder,{onComplete:id=>window.ZXPurchaseFlow.openReceipt(id,service?'service':'diamond'),request:path=>zeroxAuthRequest(apiPath+path,{cache:'no-store'}),onState:o=>{if(o.state==='COMPLETED'){note.textContent='Recarga completada. Tu comprobante está listo.';window.dispatchEvent(new Event('zx-provider-balances-refresh'));window.dispatchEvent(new Event('zx-account-ready'));}},onError:()=>{note.textContent='Conserva tu enlace para consultar la entrega. No vuelvas a pagar.';}});
       }catch(error){if(version===requestVersion&&currentToken===getZeroXSession()?.token&&dialog.isConnected){const code=error.data?.error||error.message;if(error.data?.orderId){createdOrder=error.data.orderId;const tracking=document.createElement("a");tracking.href="product-payment.html?kind="+(service?"service":"diamond")+"&order="+encodeURIComponent(createdOrder);tracking.textContent="Consultar intento y entrega →";payments.append(tracking);}note.textContent=code==='WALLET_MOVEMENT_REJECTED'?'Saldo insuficiente o movimiento rechazado. No se solicitó una recarga.':'No se pudo preparar la compra. '+({PRODUCT_PRICE_REQUIRED:'Este artículo todavía no tiene precio publicado.',PRODUCT_DELIVERY_MAPPING_REQUIRED:'La entrega automática de este artículo aún no está habilitada en tu región.',MP_PRODUCTION_ACCOUNT_MISMATCH:'Revisa la cuenta receptora en Control.',CONTACT_REQUIRED:'Agrega tu teléfono de contacto.'}[code]||'Consulta el código antes de volver a pagar.')+(/^[A-Z_0-9]{3,80}$/.test(code)?' Código: '+code:'');pay.disabled=true;}}
-      finally{paymentBusy=false;methodSelect.disabled=purchaseStarted;dialog.querySelectorAll(".zx-method-tiles button").forEach(b=>b.disabled=purchaseStarted);}
+      finally{paymentBusy=false;methodSelect.disabled=purchaseStarted;dialog.querySelectorAll(".zx-method-tiles button").forEach(b=>b.disabled=purchaseStarted||b.classList.contains("zx-binance-soon"));}
     };
 
     return;
@@ -1472,7 +1473,7 @@ async function checkFreeFirePlayer() {
   );
 
   const checkButton = document.querySelector(
-    ".check-player-btn"
+    "#checkout .check-player-btn"
   );
 
   const profileCard = document.querySelector(
@@ -1572,7 +1573,7 @@ async function checkFreeFirePlayer() {
 document.addEventListener("click", event => {
 
   const button = event.target.closest(
-    ".check-player-btn"
+    "#checkout .check-player-btn"
   );
 
   if (!button) return;

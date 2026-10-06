@@ -9,7 +9,7 @@ export function normalizeOffers(provider,items){return items.flatMap(i=>{
  if(!/^[A-Za-z0-9_-]{1,80}$/.test(id)||value==null||value===''||!Number.isFinite(Number(value))||Number(value)<=0)return [];
  const priceMicros=Math.round(Number(value)*1e6);if(!Number.isSafeInteger(priceMicros))return [];
  const fields=provider==='recargas-america'?i.requiredFields:null;
- const fulfillment=provider==='recargas-america'?(i.type==='recharge'&&fields?.length===1&&fields[0]==='player_id'?'uid':i.type==='pin'?'pin':'other'):['GIFT','LEVEL_UP_PACKAGE'].includes(i.itemType)?'uid':'other';
+ const fulfillment=provider==='recargas-america'?(i.type==='recharge'&&fields?.length===1&&['player_id','manual_id'].includes(fields[0])?'uid':i.type==='pin'?'pin':'other'):['GIFT','LEVEL_UP_PACKAGE'].includes(i.itemType)?'uid':'other';
  return [{provider,productId:id,name:String(i.name||'').slice(0,120),sku:String(i.sku||id).slice(0,80),priceMicros,currency:'USD',fulfillment,available:provider==='sixofire'?i.available===true&&i.isActive===true:true,itemType:String(i.itemType||i.type||''),regions:provider==='sixofire'&&Array.isArray(i.availableRegions)?i.availableRegions.filter(r=>/^[A-Z]{2,5}$/.test(r)):[]}];
  });}
 export function compareOffers(offers,fees={},fx=null){
