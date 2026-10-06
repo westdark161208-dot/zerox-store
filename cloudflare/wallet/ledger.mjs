@@ -1,5 +1,5 @@
 // Closed customer wallet. MXN integer cents, separate from zx_r_ledger and provider funds.
-// This service is internal: there is NO HTTP route to post arbitrary movements.
+// Only verified settlement, purchase and founder-audited adjustment routes call this service.
 export async function walletSchema(db) {
   for (const sql of [
     `CREATE TABLE IF NOT EXISTS zx_wallet_ledger (
@@ -72,7 +72,7 @@ export async function postMovement(db,m) {
 
 export async function walletState(db,userId) {
   const row=await db.prepare('SELECT COALESCE(SUM(amount_cents),0) balance FROM zx_wallet_ledger WHERE user_id=?').bind(userId).first();
-  const movements=await db.prepare(`SELECT id,kind,amount_cents AS amountCents,currency,
+  const movements=await db.prepare(`SELECT id,kind,source,amount_cents AS amountCents,currency,
     previous_balance AS previousBalanceCents,resulting_balance AS resultingBalanceCents,
     order_id AS orderId,status,created_at AS createdAt FROM zx_wallet_ledger
     WHERE user_id=? ORDER BY rowid DESC LIMIT 50`).bind(userId).all();

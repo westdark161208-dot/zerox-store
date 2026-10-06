@@ -1,3 +1,5 @@
+import {serviceRoute} from './services/purchases.mjs';
+import {walletAdminRoute} from './wallet/admin.mjs';
 import {orderHistoryRoute} from './order-history.mjs';
 import {purchaseRoute} from './diamonds/purchases.mjs';
 import {fundingRoute} from "./payments/funding-routes.mjs";
@@ -217,6 +219,7 @@ export default {
         return await mpTestRoute(request,env,url,user,json);
       }
       if(url.pathname.startsWith("/api/orders/")){await authSchema(env);return await orderHistoryRoute(request,env,url,await currentUser(request,env),json);}
+      if(url.pathname.startsWith("/api/services/purchase/")){await authSchema(env);return await serviceRoute(request,env,url,await currentUser(request,env),json);}
       if(url.pathname.startsWith("/api/diamonds/purchase/")){await authSchema(env);return await purchaseRoute(request,env,url,await currentUser(request,env),json);}
       if(url.pathname.startsWith("/api/diamonds/")){
         let user=null;
@@ -227,6 +230,7 @@ export default {
       if(url.pathname.startsWith("/api/content/")||url.pathname.startsWith("/api/admin/content/"))return await contentRoutes(request,env,url);
 
       if(url.pathname.startsWith('/api/admin/payments/mercadopago/')){await authSchema(env);return await productionReadRoute(request,env,url,await currentUser(request,env),json);}
+      if(url.pathname.startsWith('/api/admin/customers')){await authSchema(env);return await walletAdminRoute(request,env,url,await currentUser(request,env),json);}
       if(url.pathname.startsWith('/api/wallet/')){await authSchema(env);return await walletRoute(request,env,url,await currentUser(request,env),json);}
       if(url.pathname.startsWith('/api/admin/providers/')){await authSchema(env);return await providerRoute(request,env,url,await currentUser(request,env),json);}
       if(url.pathname.startsWith('/api/security/')){await authSchema(env);return await securityRoute(request,env,url,await currentUser(request,env),json);}
