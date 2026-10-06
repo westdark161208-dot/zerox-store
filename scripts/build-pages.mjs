@@ -5,7 +5,7 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 const out = join(root, 'dist');
 // Explicit application entrypoints. Never publish cloudflare/, tests/, docs/ or .git/.
 const files = [
-  'control-customers.js', 'oxxo-deposit.js', 'customer-regions.css', 'account-location.js', 'promotions.html', 'promotions.js',
+  'country-regions.js', 'country-map-points.js', 'control-customers.js', 'oxxo-deposit.js', 'customer-regions.css', 'account-location.js', 'promotions.html', 'promotions.js',
   'store-polish.css', 'store-extras.js',
   'order-history.js', 'order-history.css',
   'freefire-artwork.css', 'purchase-flow.js', 'purchase-flow.css', 'purchase-receipt.css', 'product-payment.html', 'product-payment.js', 'system-holograms.js', 'header-wallet.js', 'wallet-payment.html', 'wallet-payment.js',

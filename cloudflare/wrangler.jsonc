@@ -2,6 +2,7 @@
   "name": "zerox-sixofire-api",
   "main": "worker.js",
   "compatibility_date": "2026-09-10",
+  "triggers": {"crons": ["* * * * *"]},
   "vars": {
     "PUBLIC_COMMERCE_ENABLED": "true",
     "SIXOFIRE_DELIVERY_ENABLED": "true",

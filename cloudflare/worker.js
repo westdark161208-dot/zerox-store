@@ -1,9 +1,9 @@
 import {promotionRoute} from './promotions/purchases.mjs';
-import {locationRoute} from './accounts/geography.mjs';
+import {locationRoute,geographySchema,validLocation,countryRegions} from './accounts/geography.mjs';
 import {serviceRoute} from './services/purchases.mjs';
 import {walletAdminRoute} from './wallet/admin.mjs';
 import {orderHistoryRoute} from './order-history.mjs';
-import {purchaseRoute} from './diamonds/purchases.mjs';
+import {purchaseRoute,continuePaidDiamonds} from './diamonds/purchases.mjs';
 import {fundingRoute} from "./payments/funding-routes.mjs";
 import {productionReadRoute} from "./payments/mercadopago-production.mjs";
 import {walletRoute} from "./wallet/routes.mjs";
@@ -200,6 +200,7 @@ async function contentRoutes(request,env,url){
 }
 
 export default {
+  async scheduled(event,env,ctx){ctx.waitUntil(continuePaidDiamonds(env));},
   async fetch(request, env) {
     try {
       if (request.method === "OPTIONS") {
@@ -268,17 +269,22 @@ export default {
         if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json({ok:false,error:"INVALID_EMAIL"},400);
         if(!/^[A-Za-z0-9_.-]{3,24}$/.test(username)) return json({ok:false,error:"INVALID_USERNAME"},400);
         if(password.length<8||password.length>128) return json({ok:false,error:"INVALID_PASSWORD"},400);
+        if(!validLocation(body)) return json({ok:false,error:"INVALID_LOCATION"},400);
+        await geographySchema(env.DB);
         const exists=await env.DB.prepare("SELECT id FROM zx_users WHERE lower(email)=lower(?) OR lower(username)=lower(?) LIMIT 1").bind(email,username).first();
         if(exists) return json({ok:false,error:"ACCOUNT_EXISTS"},409);
         const id=crypto.randomUUID(), hash=await passwordHash(password);
         try{
-          await env.DB.prepare("INSERT INTO zx_users(id,email,username,password_hash) VALUES(?,?,?,?)").bind(id,email,username,hash).run();
-          await env.DB.prepare("INSERT INTO zx_profiles(user_id,display_name) VALUES(?,?)").bind(id,displayName||username).run();
+          await env.DB.batch([
+            env.DB.prepare("INSERT INTO zx_users(id,email,username,password_hash) VALUES(?,?,?,?)").bind(id,email,username,hash),
+            env.DB.prepare("INSERT INTO zx_profiles(user_id,display_name) VALUES(?,?)").bind(id,displayName||username),
+            env.DB.prepare("INSERT INTO zx_customer_location(user_id,country,state) VALUES(?,?,?)").bind(id,body.country,(body.state||"").trim())
+          ]);
         }catch(e){
           if(String(e.message||"").toLowerCase().includes("unique")) return json({ok:false,error:"ACCOUNT_EXISTS"},409);
           throw e;
         }
-        return json({ok:true,user:{id,email,username,displayName:displayName||username},session:await newSession(env,id)},201);
+        return json({ok:true,user:{id,email,username,displayName:displayName||username,country:body.country,purchaseRegion:countryRegions[body.country]},session:await newSession(env,id)},201);
       }
 
       if(url.pathname==="/api/auth/username" && request.method==="POST"){
