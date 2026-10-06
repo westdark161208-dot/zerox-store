@@ -1,3 +1,4 @@
+import {reconcileBundlePayment} from '../promotions/purchases.mjs';
 import {reconcileServicePayment} from '../services/purchases.mjs';
 import {publicMethods} from './public-checkout.mjs';
 import {reconcileProductPayment} from '../diamonds/purchases.mjs';
@@ -39,7 +40,7 @@ export async function fundingRoute(request,env,url,user,json,fetcher=fetch){
    const payment=await productionPayment(env,id,fetcher);
    await schemas(env.DB);
    const intent=await env.DB.prepare('SELECT id FROM zx_funding_intents WHERE id=?').bind(String(payment.external_reference||'')).first();
-   if(!intent){if(await reconcileServicePayment(env,payment,fetcher))return reply({ok:true});await reconcileProductPayment(env,payment,fetcher);return reply({ok:true});}
+   if(!intent){if(await reconcileBundlePayment(env,payment))return reply({ok:true});if(await reconcileServicePayment(env,payment,fetcher))return reply({ok:true});await reconcileProductPayment(env,payment,fetcher);return reply({ok:true});}
    await processFundingPayment(env,payment);return reply({ok:true});
   }
   if(url.pathname===ROOT+'/checkout'&&request.method==='POST'){

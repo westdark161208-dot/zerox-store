@@ -3,11 +3,12 @@
  const valid=id=>/^[a-f0-9-]{36}$/.test(id||'');
  const token=()=>{try{return JSON.parse(localStorage.getItem('zerox-session')||'null')?.token;}catch{return null;}};
  let consent=null,receiptDialog=null;const watchers=new Set();
- function confirmBalance({product,playerId,amount}){
+ function confirmBalance({product,playerId,amount,paymentLabel}){
   if(consent)return Promise.resolve(false);
   return new Promise(resolve=>{
    const dialog=document.createElement('dialog');dialog.className='zx-balance-confirm';dialog.setAttribute('aria-labelledby','zx-balance-confirm-title');
    dialog.innerHTML='<h2 id="zx-balance-confirm-title">Aceptar pago con saldo</h2><p data-confirm-product></p><p data-confirm-player></p><strong data-confirm-amount></strong><p>Al aceptar, autorizas este pago y la entrega al ID indicado.</p><div><button type="button" data-confirm-cancel>Cancelar</button><button type="button" data-confirm-accept>Aceptar pago con saldo</button></div>';
+   if(paymentLabel){dialog.querySelector('#zx-balance-confirm-title').textContent='Confirmar pago';dialog.querySelector('[data-confirm-accept]').textContent=paymentLabel;dialog.querySelector('strong + p').textContent='Continuarás al método elegido. La entrega comenzará después de confirmar el pago.';}
    dialog.querySelector('[data-confirm-product]').textContent=product;dialog.querySelector('[data-confirm-player]').textContent='ID de jugador: '+playerId;dialog.querySelector('[data-confirm-amount]').textContent=amount;
    let finished=false;const finish=accepted=>{if(finished)return;finished=true;consent=null;dialog.close();dialog.remove();resolve(accepted);};consent=()=>finish(false);
    dialog.querySelector('[data-confirm-cancel]').onclick=()=>finish(false);dialog.querySelector('[data-confirm-accept]').onclick=()=>finish(true);dialog.addEventListener('cancel',e=>{e.preventDefault();finish(false);});dialog.addEventListener('close',()=>finish(false));document.body.append(dialog);dialog.showModal();dialog.querySelector('[data-confirm-cancel]').focus();
