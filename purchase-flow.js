@@ -13,12 +13,12 @@
    dialog.querySelector('[data-confirm-cancel]').onclick=()=>finish(false);dialog.querySelector('[data-confirm-accept]').onclick=()=>finish(true);dialog.addEventListener('cancel',e=>{e.preventDefault();finish(false);});dialog.addEventListener('close',()=>finish(false));document.body.append(dialog);dialog.showModal();dialog.querySelector('[data-confirm-cancel]').focus();
   });
  }
- function openReceipt(id){
+ function openReceipt(id,kind="diamond"){
   if(!valid(id)||!token()||document.hidden)return;
   if(receiptDialog){const old=receiptDialog;old.close();old.remove();}
   const dialog=document.createElement('dialog');dialog.className='zx-receipt-frame';dialog.setAttribute('aria-label','Comprobante de compra');
   const close=document.createElement('button');close.type='button';close.className='zx-receipt-close';close.textContent='Cerrar comprobante ×';
-  const frame=document.createElement('iframe');frame.title='Comprobante confirmado de Zero’X Store';frame.src='product-payment.html?order='+encodeURIComponent(id)+'&embedded=1';
+  const frame=document.createElement('iframe');frame.title='Comprobante confirmado de Zero’X Store';frame.src='product-payment.html?kind='+(kind==='service'?'service':'diamond')+'&order='+encodeURIComponent(id)+'&embedded=1';
   close.onclick=()=>dialog.close();dialog.addEventListener('close',()=>{dialog.remove();if(receiptDialog===dialog)receiptDialog=null;});dialog.append(close,frame);document.body.append(dialog);receiptDialog=dialog;dialog.showModal();close.focus();
  }
  function watchOrder(id,{request,onComplete=openReceipt,onState=()=>{},onError=()=>{}}){

@@ -45,7 +45,7 @@
   <link rel="stylesheet" href="./panel-theme.css?v=2">
 <link rel="stylesheet" href="purchase-flow.css?v=2">
 <link rel="stylesheet" href="freefire-artwork.css?v=1">
-<link rel="stylesheet" href="order-history.css?v=2"><link rel="stylesheet" href="store-polish.css?v=1"></head>
+<link rel="stylesheet" href="order-history.css?v=2"><link rel="stylesheet" href="store-polish.css?v=2"></head>
 
 <body>
   <div class="zerox-splash" id="zerox-splash" role="status" aria-label="Cargando Zero'X Store">
@@ -267,7 +267,7 @@
 
 
     <!-- ZERO'X · PORTAL DE SECCIONES -->
-    <section class="zx-section-hub shell" id="secciones"><aside class="zx-buy-guide" aria-labelledby="zx-buy-guide-title"><div class="zx-buy-guide-heading"><div><small>ANTES DE ELEGIR</small><h2 id="zx-buy-guide-title">¿Cómo comprar en Zero’X?</h2></div><button type="button" id="zx-guide-currency">Elegir moneda ↗</button></div><ol><li><span>01</span><div><strong>Elige tu moneda</strong><p>Consulta precios en tu moneda; la conversión es estimada.</p></div></li><li><span>02</span><div><strong>Registra tu cuenta</strong><p>Inicia sesión para consultar tu saldo y seguir tus pedidos.</p></div></li><li><span>03</span><div><strong>Selecciona y verifica</strong><p>Elige el artículo. Para recargas por ID, confirma jugador y región cuando corresponda.</p></div></li><li><span>04</span><div><strong>Revisa y paga</strong><p>Confirma importe, receptor y método habilitado antes de pagar.</p></div></li><li><span>05</span><div><strong>Sigue la confirmación</strong><p>El pago debe verificarse. Agregar saldo no entrega automáticamente un artículo.</p></div></li></ol><p class="zx-guide-note">Los métodos y la entrega dependen del artículo. El catálogo aún incluye productos por consulta; las compras con Wallet están en preparación.</p></aside>
+    <section class="zx-section-hub shell" id="secciones"><aside class="zx-buy-guide" aria-labelledby="zx-buy-guide-title"><div class="zx-buy-guide-heading"><div><small>ANTES DE ELEGIR</small><h2 id="zx-buy-guide-title">¿Cómo comprar en Zero’X?</h2></div><button type="button" id="zx-guide-currency">Elegir moneda ↗</button></div><ol><li><span>01</span><div><strong>Elige tu moneda</strong><p>Consulta precios en tu moneda; la conversión es estimada.</p></div></li><li><span>02</span><div><strong>Registra tu cuenta</strong><p>Inicia sesión para consultar tu saldo y seguir tus pedidos.</p></div></li><li><span>03</span><div><strong>Selecciona y verifica</strong><p>Elige el artículo. Para recargas por ID, confirma jugador y región cuando corresponda.</p></div></li><li><span>04</span><div><strong>Revisa y paga</strong><p>Confirma importe, receptor y método habilitado antes de pagar.</p></div></li><li><span>05</span><div><strong>Sigue la confirmación</strong><p>El pago debe verificarse. Agregar saldo no entrega automáticamente un artículo.</p></div></li></ol><p class="zx-guide-note">Los métodos y la entrega dependen del artículo. Confirma tu cuenta y el importe antes de pagar.</p></aside>
       <div class="zx-hub-head">
         <span>EXPLORA ZERO'X</span>
         <h2>ELIGE TU <em>SECCIÓN</em></h2>
@@ -734,7 +734,7 @@
 
       </div>
 
-      <p class="zx-payments-note">Las opciones elegidas en el pedido quedan pendientes de confirmación. Próximamente: tarjetas, SPEI y OXXO mediante una pasarela de pago mexicana; aún no son métodos de cobro automático.</p>
+      <p class="zx-payments-note">Tarjeta y transferencia mediante Mercado Pago, o saldo Zero’X. OXXO está disponible únicamente para recargar saldo con confirmación manual.</p>
 
     </section>
 <footer class="footer">
@@ -983,7 +983,7 @@
           name="payment"
           required>
 
-          <option value="card">Tarjeta</option><option value="oxxo">OXXO</option><option value="spei">Transferencia SPEI</option><option value="all">Mercado Pago</option>
+          <option value="card">Tarjeta</option><option value="spei">Transferencia SPEI</option><option value="all">Mercado Pago</option>
         </select><div id="zx-catalog-payment-methods"></div><small>La compra se solicita para confirmación manual. Estos botones no generan un cobro automático.</small>
       </label>
 
@@ -1282,20 +1282,20 @@
  <h2 id="zx-wallet-island-title">Tu saldo, a un toque.</h2><div class="zx-island-balance"><span>Saldo disponible</span><strong id="zx-wallet-island-value">Consultando…</strong><small>MXN · saldo interno de tu cuenta</small></div>
 <div id="zx-island-provider-balances" class="zx-provider-balances" data-zx-provider-balances hidden aria-label="Saldos privados del fundador"><button type="button" data-provider="ra"><small>Saldo RA</small><strong>Consultar</strong></button><button type="button" data-provider="sf"><small>Saldo SF</small><strong>Consultar</strong></button><span data-provider-note role="status" aria-live="polite"></span></div>
  <p id="zx-wallet-island-status" role="status" aria-live="polite"></p><button type="button" id="zx-wallet-island-refresh">Actualizar saldo</button>
- <h3>Recargar saldo</h3><p class="zx-island-note">Elige un método para preparar tu pago. Mercado Pago procesa y confirma la operación.</p>
+ <h3>Recargar saldo</h3><a class="zx-manual-oxxo" href="https://wa.me/529514754210?text=Quiero%20recargar%20mi%20saldo%20ZeroX%20por%20OXXO.%20Solicito%20los%20datos%20para%20depositar%20y%20enviar%20mi%20comprobante." target="_blank" rel="noopener">OXXO · Solicitar datos y enviar comprobante ↗</a><p class="zx-island-note">Incluye tu usuario de Zero’X. El saldo se abona después de revisar tu depósito.</p><p class="zx-island-note">Elige un método para preparar tu pago. Mercado Pago procesa y confirma la operación.</p>
  <div class="zx-island-methods" id="zx-wallet-island-methods" aria-label="Métodos de recarga"></div>
- <form id="zx-island-funding-form" hidden><label for="zx-island-amount">Importe · MXN</label><input id="zx-island-amount" type="number" min="10" max="200" step="0.01" value="10" inputmode="decimal" required><p class="zx-island-note">Recarga real en el piloto habilitado para tu cuenta · $10 a $200 MXN.</p><button id="zx-wallet-island-topup" type="submit" disabled>Preparar recarga →</button></form><p id="zx-island-funding-status" role="status" aria-live="polite"></p><a id="zx-island-checkout" target="_blank" rel="noopener noreferrer" hidden>Continuar al pago seguro ↗</a><button type="button" id="zx-island-funding-refresh" hidden>Consultar recarga</button><button type="button" id="zx-island-new-funding" hidden>Nueva recarga</button><p class="zx-island-note">La moneda del catálogo es una referencia. Tu saldo se registra en MXN. Las compras con saldo aún están en preparación.</p>
+ <form id="zx-island-funding-form" hidden><label for="zx-island-amount">Importe · MXN</label><input id="zx-island-amount" type="number" min="10" max="5000" step="0.01" value="10" inputmode="decimal" required><p class="zx-island-note">Recarga de saldo · $10 a $5,000 MXN.</p><button id="zx-wallet-island-topup" type="submit" disabled>Preparar recarga →</button></form><p id="zx-island-funding-status" role="status" aria-live="polite"></p><a id="zx-island-checkout" target="_blank" rel="noopener noreferrer" hidden>Continuar al pago seguro ↗</a><button type="button" id="zx-island-funding-refresh" hidden>Consultar recarga</button><button type="button" id="zx-island-new-funding" hidden>Nueva recarga</button><p class="zx-island-note">La moneda del catálogo es una referencia. Tu saldo se registra en MXN. Elige saldo al pagar los productos habilitados.</p>
 </dialog>
 <script src="./regional-config.js?v=2" defer></script>
 <script src="./payments-config.js?v=3" defer></script>
 <script src="./diamonds.js?v=1" defer></script>
 <script src="./diamond-catalog.js?v=4" defer></script>
 <script src="./diamond-collection.js?v=6" defer></script>
-<script src="./purchase-flow.js?v=1" defer></script>
-<script src="./app.js?v=48" defer></script>
-<script src="./order-history.js?v=2" defer></script><script src="./store-extras.js?v=1" defer></script>
+<script src="./purchase-flow.js?v=2" defer></script>
+<script src="./app.js?v=49" defer></script>
+<script src="./order-history.js?v=3" defer></script><script src="./store-extras.js?v=2" defer></script>
 <script src="./wallet-view.js?v=2" defer></script>
-<script src="./header-wallet.js?v=4" defer></script>
+<script src="./header-wallet.js?v=5" defer></script>
 <script src="./founder-balances.js?v=3" defer></script>
 <script src="./resellers.js?v=3" defer></script>
 <script src="./region-selector.js?v=2" defer></script>

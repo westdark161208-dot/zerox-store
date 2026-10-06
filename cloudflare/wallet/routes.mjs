@@ -11,5 +11,5 @@ export async function walletRoute(request,env,url,user,json) {
   if(env.WALLET_READ_ENABLED!=='true')return reply({ok:false,error:'WALLET_NOT_ACTIVE'},503);
   await walletSchema(env.DB);
   if(user.isFounder===true)env=await resolvedRaEnvironment(env);
-  return reply({ok:true,...await walletState(env.DB,user.id),topupsEnabled:false,fundingPilotAvailable:user.isFounder===true&&fundingPilotEnabled(env),purchasesEnabled:user.isFounder===true&&purchaseConfiguration(env).enabled});
+  return reply({ok:true,...await walletState(env.DB,user.id),topupsEnabled:false,fundingPilotAvailable:(user.isFounder===true||env.PUBLIC_COMMERCE_ENABLED==='true')&&fundingPilotEnabled(env),purchasesEnabled:(user.isFounder===true||env.PUBLIC_COMMERCE_ENABLED==='true')&&purchaseConfiguration(env).enabled});
 }

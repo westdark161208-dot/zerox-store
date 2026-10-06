@@ -16,7 +16,7 @@ test('wallet island requires login, keeps recarga unavailable unless server enab
 test('inline top-up uses shared server checkout, freezes amount/method and rejects duplicate clicks',async()=>{
  const s=setup();s.calls[0].resolve({currency:'MXN',availableCents:0,fundingPilotAvailable:true});await settle();
  s.e['zx-wallet-island-methods'].children[1].onclick();s.e['zx-island-amount'].value='10';s.e['zx-island-funding-form'].dispatchEvent(new Event('submit',{cancelable:true}));
- assert.equal(s.calls[1].path,'/api/payments/mercadopago/funding/checkout');assert.deepEqual(JSON.parse(s.calls[1].opts.body),{amountCents:1000,method:'oxxo',returnTo:'store'});assert.match(s.calls[1].opts.headers['Idempotency-Key'],/^[a-f0-9-]{36}$/);
+ assert.equal(s.calls[1].path,'/api/payments/mercadopago/funding/checkout');assert.deepEqual(JSON.parse(s.calls[1].opts.body),{amountCents:1000,method:'spei',returnTo:'store'});assert.match(s.calls[1].opts.headers['Idempotency-Key'],/^[a-f0-9-]{36}$/);
  assert.equal(s.e['zx-island-amount'].disabled,true);assert(s.e['zx-wallet-island-methods'].children.every(c=>c.disabled));
  s.e['zx-island-funding-form'].dispatchEvent(new Event('submit',{cancelable:true}));assert.equal(s.calls.length,2);
  s.calls[1].resolve({ok:true,checkoutUrl:'https://www.mercadopago.com.mx/checkout/v1/redirect?pref_id=fixture'});await settle();assert.equal(s.e['zx-island-checkout'].hidden,false);assert(!s.e['zx-island-checkout'].href.includes('wallet-payment'));
