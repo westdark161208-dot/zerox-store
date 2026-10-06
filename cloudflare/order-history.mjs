@@ -10,9 +10,9 @@ export async function orderHistoryRoute(request,env,url,user,json){
  const t=await tables(env.DB),parts=sources(t);
  if(url.pathname===ROOT+'/activity'&&request.method==='GET'){
   if(!parts.length)return reply({ok:true,items:[]});
-  const rows=(await env.DB.prepare(`SELECT kind,id,product,updatedAt FROM (${parts.join(' UNION ALL ')}) WHERE state='COMPLETED' AND paymentState='paid' AND julianday(updatedAt)>=julianday('now','-7 days') ORDER BY julianday(updatedAt) DESC,id DESC LIMIT 15`).all()).results;
-  // No account identifiers or order IDs cross the public boundary.
-  const items=[];for(const r of rows){const hash=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(r.kind+':'+r.id));items.push({event:Array.from(new Uint8Array(hash)).map(n=>n.toString(16).padStart(2,'0')).join(''),customer:'Un cliente',product:r.product,completedAt:r.updatedAt});}
+  const rows=(await env.DB.prepare(`SELECT kind,id,user_id,product,updatedAt FROM (${parts.join(' UNION ALL ')}) WHERE state='COMPLETED' AND paymentState='paid' AND julianday(updatedAt)>=julianday('now','-7 days') ORDER BY julianday(updatedAt) DESC,id DESC LIMIT 15`).all()).results;
+  // Public handle only; respect private avatar visibility. Never return account IDs or player IDs.
+  const items=[];for(const r of rows){const identity=t.has('zx_users')?await env.DB.prepare(t.has('zx_profile_style')?"SELECT u.username,CASE WHEN s.is_public=1 THEN s.avatar ELSE NULL END avatar FROM zx_users u LEFT JOIN zx_profile_style s ON s.user_id=u.id WHERE u.id=? AND u.status='active'":"SELECT username,NULL avatar FROM zx_users WHERE id=? AND status='active'").bind(r.user_id).first():null;const hash=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(r.kind+':'+r.id));items.push({event:Array.from(new Uint8Array(hash)).map(n=>n.toString(16).padStart(2,'0')).join(''),customer:identity?.username?'@'+identity.username:'Un cliente',avatar:identity?.avatar||null,product:r.product,completedAt:r.updatedAt});}
   const references=t.has('zx_order_references')?(await env.DB.prepare(`SELECT r.rating,r.comment,r.created_at AS createdAt FROM zx_order_references r JOIN (${parts.join(' UNION ALL ')}) o ON r.order_key=o.kind||':'||o.id AND r.user_id=o.user_id WHERE r.public=1 AND o.state='COMPLETED' AND o.paymentState='paid' ORDER BY r.created_at DESC LIMIT 6`).all()).results:[];
   return reply({ok:true,items,references});
  }
