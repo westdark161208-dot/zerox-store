@@ -1070,6 +1070,9 @@
         <label>Contraseña
           <span class="password-field"><input name="password" type="password" autocomplete="new-password" required minlength="8" maxlength="128" placeholder="Mínimo 8 caracteres"><button type="button" class="password-toggle" aria-label="Mostrar contraseña" aria-pressed="false">Ver</button></span>
         </label>
+        <label>País de compra<select name="country" autocomplete="country" required><option value="">Selecciona tu país</option></select></label>
+        <p id="register-region" role="status">Tu región de compra se asignará según el país elegido.</p>
+        <label>Estado o provincia (opcional)<input name="state" autocomplete="address-level1" maxlength="100"></label>
         <button type="submit">CREAR MI CUENTA</button>
       </form>
       <div id="auth-result" aria-live="polite"></div>
@@ -1292,10 +1295,12 @@
 <script src="./diamond-catalog.js?v=4" defer></script>
 <script src="./diamond-collection.js?v=6" defer></script>
 <script src="./purchase-flow.js?v=3" defer></script>
-<script src="./app.js?v=50" defer></script>
+<script src="./country-regions.js?v=1"></script>
+<script src="./app.js?v=51" defer></script>
+<script src="./account-location.js?v=2" defer></script>
 <script src="./order-history.js?v=4" defer></script><script src="./store-extras.js?v=3" defer></script>
 <script src="./wallet-view.js?v=2" defer></script>
-<script src="./header-wallet.js?v=5" defer></script>
+<script src="./header-wallet.js?v=6" defer></script>
 <script src="./founder-balances.js?v=3" defer></script>
 <script src="./resellers.js?v=3" defer></script>
 <script src="./region-selector.js?v=2" defer></script>

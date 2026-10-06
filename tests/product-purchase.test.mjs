@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {database} from './helpers/d1.mjs';
-import {purchaseRoute,purchaseConfiguration,reconcileProductPayment,spendOrderWallet} from '../cloudflare/diamonds/purchases.mjs';
+import {purchaseRoute,continuePaidDiamonds,purchaseConfiguration,reconcileProductPayment,spendOrderWallet} from '../cloudflare/diamonds/purchases.mjs';
 import {validateDirectItems,directProvider} from '../cloudflare/diamonds/sixofire-direct.mjs';
 import {walletSchema,postMovement,walletState} from '../cloudflare/wallet/ledger.mjs';
 const founder={id:'owner',status:'active',isFounder:true},reply=(body,status=200)=>({body,status});
@@ -179,4 +179,29 @@ test('receipt is private, read-only, paused-readable and available only for comp
 test('lost supplier response cannot produce a success receipt',async()=>{
  const env=await setup(),fetcher=upstream({lost:true}),a=await route(env,'/supplier/buy',founder,{...body,supplierConfirmed:true,maxTotalMicros:1000000},crypto.randomUUID(),fetcher);
  assert.equal((await route(env,'/orders/'+a.body.orderId+'/receipt',founder,null,crypto.randomUUID(),fetcher)).body.error,'RECEIPT_NOT_READY');
+});
+
+test('large diamond MP checkout uses exact amount and paid continuation completes beyond four operations once',async()=>{
+ const env=await setup();env.PUBLIC_COMMERCE_ENABLED='true';env.RA_DIAMOND_PACKS=JSON.stringify({'6160':{productId:456,sku:'FF5600',name:'5600 diamonds +10%',baseDiamonds:5600,bonusDiamonds:560,regions:['US'],bonusEvidence:'fixture confirmation'}});
+ let sends=0,preferences=0,price=0;
+ const fetcher=async(url,opts={})=>{
+  if(url.endsWith('/products/catalog'))return response({success:true,data:[{id:456,sku:'FF5600',name:'5600 diamonds +10%',type:'recharge',price:20,required_fields:['player_id']}]});
+  if(url.endsWith('/wallet'))return response({success:true,data:{balance:1000,currency:'USD'}});
+  if(url.endsWith('/buy/catalog')){sends++;assert.equal(JSON.parse(opts.body).product_id,456);return response({success:true,data:{order_id:'BIG-'+sends,item:'5600 diamonds +10%',status:'COMPLETED',amount_charged:20}});}
+  if(url.endsWith('/checkout/preferences')){preferences++;price=JSON.parse(opts.body).items[0].unit_price;return response({id:'large-pref',collector_id:456,init_point:'https://www.mercadopago.com.mx/checkout/large'});}
+  return upstream()(url,opts);
+ };
+ const input={...body,productId:'zx-diamonds-30800',contactPhone:'+529511234567'};
+ const r=await route(env,'/checkout',founder,input,crypto.randomUUID(),fetcher);assert.equal(r.status,200,JSON.stringify(r.body));assert.equal(preferences,1);assert.equal(sends,0);
+ assert.equal(price,(await env.DB.prepare('SELECT sale_price_cents FROM zx_diamond_orders').first()).sale_price_cents/100);
+ await continuePaidDiamonds(env,fetcher);assert.equal(sends,0);
+ await reconcileProductPayment(env,{id:98456,live_mode:true,collector_id:456,external_reference:r.body.orderId,currency_id:'MXN',transaction_amount:price,status:'approved'},fetcher);assert.equal(sends,4);
+ await continuePaidDiamonds(env,fetcher);await continuePaidDiamonds(env,fetcher);assert.equal(sends,5);
+ const receipt=await route(env,'/orders/'+r.body.orderId+'/receipt',founder,null,undefined,fetcher);assert.equal(receipt.body.receipt.diamonds,30800);assert.equal(receipt.body.receipt.amountCents,price*100);
+});
+test('web wallet remains available without MP credentials for diamond checkout',async()=>{
+ const env=await setup();env.MP_ACCESS_TOKEN='';env.MP_WEBHOOK_SECRET_PRODUCTION='';
+ await postMovement(env.DB,{userId:'owner',kind:'credit',amountCents:1800,currency:'MXN',source:'fixture',reference:'no-mp',requestKey:'no-mp',actor:'fixture'});
+ const s=await route(env,'/status',founder,null,undefined,upstream());assert.equal(s.body.enabled,false);assert.equal(s.body.walletEnabled,true);
+ const r=await route(env,'/wallet',founder,{...body,method:'wallet'},crypto.randomUUID(),upstream());assert.equal(r.status,200,JSON.stringify(r.body));assert.equal((await walletState(env.DB,'owner')).availableCents,0);
 });
