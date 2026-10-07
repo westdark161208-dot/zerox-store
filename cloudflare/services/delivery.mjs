@@ -1,5 +1,6 @@
+import {giftMessage} from '../providers/gift-message.mjs';
 import {readRecargasAmerica,validateRecargasAccount} from '../providers/recargas-america.mjs';
-import {readSixofire,catalogItems} from '../providers/sixofire-read.mjs';
+import {readSixofire,catalogItems,safeProviderError} from '../providers/sixofire-read.mjs';
 const normalized=s=>String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
 const aliases={'weekly-basic':['Tarjeta Semanal Básica de Free Fire'],'weekly':['Tarjeta Semanal de Free Fire'],'monthly':['Tarjeta Mensual de Free Fire'],'booyah-premium':['Pase Booyah Premium de Free Fire'],'booyah-normal':['Booyah Pass','Pase Booyah'],'fragment':['Token Universal','Fragmento Universal','Fragmentos universales'],'fragment-box':['Caja de Tokens','Caja de fragmentos','Cajas de fragmentos'],'evo-box':['Caja Evo','Cajas Evo']};
 // Normalize only the game's label, never variants, quantities or arbitrary words.
@@ -33,10 +34,10 @@ export async function deliveryQuote(env,key,uid,quantity,region,fetcher=fetch,pr
    if(i.availableRegions?.length&&!i.availableRegions.includes(region)){reject(provider,'REGION_NOT_AVAILABLE');continue;}
    if(quantity>1&&(i.isStackable!==true||quantity<Number(i.minStack)||quantity>Number(i.maxStack))){reject(provider,'QUANTITY_NOT_AVAILABLE');continue;}
    await readSixofire(env,'/account/shop/orders?page=1&limit=1',fetcher);
-   plans.push({provider,productId:String(i.id),sku:String(i.sku||i.id),name:i.name,price,quantity,region,itemType:i.itemType});
+   plans.push({provider,productId:String(i.id),sku:String(i.sku||i.id),name:i.name,price,quantity,region,itemType:i.itemType,...(i.itemType==='GIFT'?{message:giftMessage(settings)}:{})});
   }
-  }catch{reject(provider,'DELIVERY_CONNECTION_FAILED');}}
- if(!plans.length){const reason=issues.some(i=>i.reason==='DELIVERY_FUNDS_UNAVAILABLE')?'DELIVERY_FUNDS_UNAVAILABLE':issues.some(i=>i.reason==='DELIVERY_CONNECTION_FAILED')?'DELIVERY_CONNECTION_FAILED':'PRODUCT_DELIVERY_MAPPING_REQUIRED';const error=Error(reason);error.deliveryIssues=issues;throw error;}
+  }catch(error){const reason=provider==='sixofire'?safeProviderError(error):/^RA_(READ_DISABLED|KEY_MISSING|HTTP_\d{3}|INVALID_RESPONSE|UNAVAILABLE)$/.test(error.message)?error.message:'DELIVERY_CONNECTION_FAILED';reject(provider,reason==='PROVIDER_UNAVAILABLE'?'DELIVERY_CONNECTION_FAILED':reason);}}
+ if(!plans.length){const reason=issues.some(i=>i.reason==='DELIVERY_FUNDS_UNAVAILABLE')?'DELIVERY_FUNDS_UNAVAILABLE':issues.some(i=>i.reason==='DELIVERY_CONNECTION_FAILED'||/^(SIXOFIRE_|PROVIDER_|RA_)/.test(i.reason))?'DELIVERY_CONNECTION_FAILED':'PRODUCT_DELIVERY_MAPPING_REQUIRED';const error=Error(reason);error.deliveryIssues=issues;throw error;}
  return plans.sort((a,b)=>a.price-b.price)[0];
 }
 function sixResult(raw,plan,uid,reference){const d=raw?.data;if(raw.status!==true||![200,201].includes(Number(raw.code))||!/^\d{1,18}$/.test(String(d?.id||''))||reference&&String(d.id)!==reference||String(d.gameAccount?.uid)!==uid||d.gameAccount?.region!==plan.region)return {state:'REQUIRES_REVIEW'};const ref=String(d.id),lines=d.items,price=Number(d.totalPriceUsd??d.totalUsd);if(!Array.isArray(lines)||lines.length!==1||lines[0].name!==plan.name||lines[0].itemType!==plan.itemType||Number(lines[0].quantity)!==plan.quantity||!Number.isFinite(price)||price<=0||price>plan.price*plan.quantity+.000001)return {state:'REQUIRES_REVIEW',reference:ref};return {state:d.status==='COMPLETED'&&lines[0].status==='COMPLETED'?'COMPLETED':['FAILED','REFUNDED','PARTIAL'].includes(d.status)?'REQUIRES_REVIEW':'PROCESSING',reference:ref};}
@@ -46,7 +47,7 @@ export async function submitDelivery(env,plan,uid,key,fetcher=fetch){
   if(env.SIXOFIRE_DELIVERY_ENABLED!=='true')throw Error('DELIVERY_DISABLED');
   const items=catalogItems(await readSixofire(env,'/account/shop/items',fetcher)),item=items.find(i=>String(i.id)===plan.productId);
   if(!item||item.name!==plan.name||!item.available||!item.isActive||item.itemType!==plan.itemType||Number(item.effectivePriceUsd??item.priceUsd)>plan.price)throw Error('PRODUCT_CHANGED');
-  try{const r=await fetcher('https://api.sixofire.net/account/shop/order',{method:'POST',redirect:'manual',headers:{'X-API-Key':env.SIXOFIRE_API_KEY,'Content-Type':'application/json'},signal:AbortSignal.timeout(15000),body:JSON.stringify({uid,product_id:plan.productId,amount:plan.quantity})}),b=await r.json();return r.ok?sixResult(b,plan,uid):{state:'REQUIRES_REVIEW'};}catch{return {state:'REQUIRES_REVIEW'};}
+  try{const r=await fetcher('https://api.sixofire.net/account/shop/order',{method:'POST',redirect:'manual',headers:{'X-API-Key':env.SIXOFIRE_API_KEY,'Content-Type':'application/json'},signal:AbortSignal.timeout(15000),body:JSON.stringify({uid,product_id:plan.productId,amount:plan.quantity,...(plan.itemType==='GIFT'?{message:plan.message||giftMessage(await serviceSettings(env.DB))}:{})})}),b=await r.json();return r.ok?sixResult(b,plan,uid):{state:'REQUIRES_REVIEW'};}catch{return {state:'REQUIRES_REVIEW'};}
  }
  if(!deliveryEnabled(env,'recargas-america'))throw Error('DELIVERY_DISABLED');
  const items=await readRecargasAmerica(env,'catalog',fetcher),wallet=await readRecargasAmerica(env,'wallet',fetcher),item=items.find(i=>i.id===plan.productId&&i.sku===plan.sku&&i.name===plan.name);

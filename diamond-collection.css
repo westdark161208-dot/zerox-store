@@ -134,3 +134,13 @@
 }
 .products .zx-product-card[data-zx-collection] .product-bottom [data-add] {color:rgb(var(--zx-neon));background:linear-gradient(145deg,rgba(var(--zx-neon),.3),#090b13);text-shadow:0 2px 0 #000,0 0 8px rgba(var(--zx-neon),.6)}
 .products .zx-product-card[data-zx-collection] .product-bottom button:focus-visible {outline:3px solid #fff;outline-offset:4px}
+
+/* Neon frames preserve the existing portraits, quantities and purchasing controls. */
+.products .zx-product-card[data-zx-collection]{border:2px solid rgb(var(--zx-neon))!important;background:radial-gradient(ellipse at 50% 8%,rgba(var(--zx-neon),.27),transparent 66%),#080b12!important;box-shadow:inset 0 0 18px rgba(var(--zx-neon),.2),0 0 20px rgba(var(--zx-neon),.36),0 12px 26px #000a!important;border-radius:26px!important}
+.products .zx-product-card[data-zx-collection]::after{inset:7px;border:1px solid rgba(var(--zx-neon),.42);border-radius:19px}
+.zx-collection-art{background:transparent}
+.zx-collection-aura{background:radial-gradient(ellipse at 50% 35%,rgba(var(--zx-neon),.5),transparent 72%)!important}
+.zx-collection-portrait{filter:drop-shadow(0 0 10px rgba(var(--zx-neon),.35))}
+.zx-collection-amount .zx-collection-gem{width:1.05em;height:1.1em;object-fit:contain;vertical-align:-.16em;filter:drop-shadow(0 0 9px #00cfff);margin-right:.08em}
+.products .zx-product-card[data-zx-collection]:focus-within{outline:2px solid #fff;outline-offset:4px}
+@media(hover:hover){.products .zx-product-card[data-zx-collection]:hover{box-shadow:inset 0 0 20px rgba(var(--zx-neon),.24),0 0 32px rgba(var(--zx-neon),.55),0 12px 26px #000a!important}}

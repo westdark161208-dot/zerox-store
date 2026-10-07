@@ -1,7 +1,8 @@
+import {giftMessage,validGiftMessage} from './gift-message.mjs';
 import {publishedCatalog} from '../editor/catalog.mjs';
 import {readRecargasAmerica} from './recargas-america.mjs';
 import {readSixofire,catalogItems,safeProviderError} from './sixofire-read.mjs';
-export const productKeys=Object.freeze({'booyah-normal':'Pase Booyah','booyah-premium':'Pase Booyah Premium + 50 medallas','weekly-basic':'Membresía semanal básica','weekly':'Membresía semanal','monthly':'Membresía mensual','fragment':'Fragmentos universales','fragment-box':'Caja de fragmentos','level-up-6':'Pase de nivel 6','level-up-10':'Pase de nivel 10','level-up-15':'Pase de nivel 15','level-up-20':'Pase de nivel 20','level-up-25':'Pase de nivel 25','level-up-30':'Pase de nivel 30'});
+export const productKeys=Object.freeze({'booyah-normal':'Pase Booyah','booyah-premium':'Pase Booyah Premium + 50 medallas','weekly-basic':'Membresía semanal básica','weekly':'Membresía semanal','monthly':'Membresía mensual','fragment':'Fragmentos universales','fragment-box':'Caja de fragmentos','evo-box':'Caja de fragmentos evolutivos','level-up-6':'Pase de nivel 6','level-up-10':'Pase de nivel 10','level-up-15':'Pase de nivel 15','level-up-20':'Pase de nivel 20','level-up-25':'Pase de nivel 25','level-up-30':'Pase de nivel 30'});
 const defaults=[['weekly-basic',1,'ADS001','Tarjeta Semanal Básica de Free Fire'],['weekly',2,'ADS002','Tarjeta Semanal de Free Fire'],['monthly',3,'ADS003','Tarjeta Mensual de Free Fire'],['booyah-premium',4,'ADS004','Pase Booyah Premium de Free fire']].map(([productKey,productId,sku,name])=>({productKey,provider:'recargas-america',productId:String(productId),sku,name,source:'merchant-video-830668',regions:[]}));
 const cleanName=v=>String(v||'').trim().toLowerCase();
 export function normalizeOffers(provider,items){return items.flatMap(i=>{
@@ -56,6 +57,7 @@ export function variantMatches(key,item){
  if(key==='weekly-basic')return /semanal|weekly/.test(name)&&/basica|basic/.test(name);
  if(key==='weekly')return /semanal|weekly/.test(name)&&!/basica|basic/.test(name);
  if(key==='monthly')return /mensual|monthly/.test(name);
+ if(key==='evo-box')return /evo|evolutiv/.test(name)&&/caja|box/.test(name);
  if(key==='fragment-box')return /fragment/.test(name)&&/caja|box/.test(name);
  if(key==='fragment')return /fragment/.test(name)&&!/caja|box/.test(name);
  if(key.startsWith('level-up-'))return item.itemType==='LEVEL_UP_PACKAGE'&&new RegExp('(?:nivel|level)\\D*'+key.split('-').at(-1)+'(?:\\D|$)').test(name);
@@ -64,6 +66,12 @@ export function variantMatches(key,item){
 export async function marketRoute(request,env,url,user,reply,fetcher=fetch){
  if(!user?.isFounder||user.status!=='active')return reply({ok:false,error:'FORBIDDEN'},403);
  const root='/api/admin/providers/market';try{
+  if(url.pathname===root+'/gift-message'){
+   const config=await settings(env.DB);
+   if(request.method==='GET')return reply({ok:true,message:giftMessage(config),supported:{sixofire:'GIFT',recargasAmerica:false}});
+   if(request.method==='POST'){const b=await request.json();if(!validGiftMessage(b.message))return reply({ok:false,error:'INVALID_GIFT_MESSAGE'},400);config.giftMessage=b.message.trim();await schema(env.DB);await env.DB.prepare('INSERT INTO zx_market_settings VALUES(1,?) ON CONFLICT(id) DO UPDATE SET settings_json=excluded.settings_json').bind(JSON.stringify(config)).run();return reply({ok:true,message:config.giftMessage});}
+  }
+
   if(url.pathname===root+'/refresh'&&request.method==='POST')return reply({ok:true,data:await refreshMarket(env,fetcher)});
   if(url.pathname===root&&request.method==='GET'){
    const exists=await env.DB.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='zx_market_snapshots'").first();
