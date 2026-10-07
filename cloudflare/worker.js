@@ -1,3 +1,4 @@
+import {communityRoute} from './community.mjs';
 import {promotionRoute} from './promotions/purchases.mjs';
 import {locationRoute,geographySchema,validLocation,countryRegions} from './accounts/geography.mjs';
 import {serviceRoute} from './services/purchases.mjs';
@@ -223,6 +224,7 @@ export default {
       }
       if(url.pathname==="/api/auth/location"){await authSchema(env);return await locationRoute(request,env,url,await currentUser(request,env),json);}
       if(url.pathname.startsWith("/api/promotions/")){await authSchema(env);return await promotionRoute(request,env,url,await currentUser(request,env),json);}
+      if(url.pathname.startsWith("/api/community/")){await authSchema(env);return await communityRoute(request,env,url,await currentUser(request,env),json);}
       if(url.pathname.startsWith("/api/orders/")){await authSchema(env);return await orderHistoryRoute(request,env,url,await currentUser(request,env),json);}
       if(url.pathname.startsWith("/api/services/purchase/")){await authSchema(env);return await serviceRoute(request,env,url,await currentUser(request,env),json);}
       if(url.pathname.startsWith("/api/diamonds/purchase/")){await authSchema(env);return await purchaseRoute(request,env,url,await currentUser(request,env),json);}
