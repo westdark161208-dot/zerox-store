@@ -2,7 +2,7 @@ import {giftMessage} from '../providers/gift-message.mjs';
 import {readRecargasAmerica,validateRecargasAccount} from '../providers/recargas-america.mjs';
 import {readSixofire,catalogItems,safeProviderError} from '../providers/sixofire-read.mjs';
 const normalized=s=>String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
-const aliases={'weekly-basic':['Tarjeta Semanal Básica de Free Fire'],'weekly':['Tarjeta Semanal de Free Fire'],'monthly':['Tarjeta Mensual de Free Fire'],'booyah-premium':['Pase Booyah Premium de Free Fire'],'booyah-normal':['Booyah Pass','Pase Booyah'],'fragment':['Token Universal','Fragmento Universal','Fragmentos universales'],'fragment-box':['Caja de Tokens','Caja de fragmentos','Cajas de fragmentos'],'evo-box':['Caja Evo','Cajas Evo']};
+const aliases={'weekly-basic':['Tarjeta Semanal Básica de Free Fire'],'weekly':['Tarjeta Semanal de Free Fire'],'monthly':['Tarjeta Mensual de Free Fire'],'booyah-premium':['Pase Booyah Premium de Free Fire'],'booyah-normal':['Booyah Pass','Pase Booyah','Pase Booya'],'fragment':['Token Universal','Fragmento Universal','Fragmentos universales'],'fragment-box':['Caja de Tokens','Caja de fragmentos','Cajas de fragmentos','Caja de Fragmentos Universales'],'evo-box':['Caja Evo','Cajas Evo']};
 // Normalize only the game's label, never variants, quantities or arbitrary words.
 export function matchesServiceName(key,name){const canonical=value=>normalized(value).replace(/^(?:free fire(?: max)? )/,'').replace(/(?: de)? free fire(?: max)?$/,'').trim();return (aliases[key]||[]).some(a=>canonical(name)===canonical(a));}
 export function deliveryEnabled(env,provider){return provider==='recargas-america'?env.RA_DELIVERY_ENABLED==='true'&&env.RA_CONTRACT_VERIFIED==='true':env.SIXOFIRE_DELIVERY_ENABLED==='true';}
@@ -28,7 +28,7 @@ export async function deliveryQuote(env,key,uid,quantity,region,fetcher=fetch,pr
   }else{
    if(!deliveryEnabled(env,provider)){reject(provider,'DELIVERY_DISABLED');continue;}if(!/^\d{8,12}$/.test(uid)){reject(provider,'DESTINATION_UNVERIFIED');continue;}
    const catalog=catalogItems(await readSixofire(env,'/account/shop/items',fetcher)),mapping=configured[0];
-   const matches=catalog.filter(i=>mapping?String(i.id)===String(mapping.productId)&&String(i.sku||i.id)===mapping.sku&&i.name===mapping.name:(key.startsWith('diamonds:')?i.itemType==='DIAMONDS_DIRECT'&&Number(i.diamondQuantity)===Number(key.split(':')[1]):matchesServiceName(key,i.name)));
+   const matches=catalog.filter(i=>mapping?String(i.id)===String(mapping.productId)&&String(i.sku||i.id)===mapping.sku&&i.name===mapping.name:(key.startsWith('diamonds:')?i.itemType==='DIAMONDS_DIRECT'&&Number(i.diamondQuantity)===Number(key.split(':')[1]):i.itemType==='GIFT'&&matchesServiceName(key,i.name)));
    if(matches.length!==1){reject(provider,matches.length?'AMBIGUOUS_PRODUCT':'PRODUCT_NOT_FOUND');continue;}const i=matches[0],price=Number(i.effectivePriceUsd??i.priceUsd);
    if(i.itemType!==(key.startsWith('diamonds:')?'DIAMONDS_DIRECT':'GIFT')||!i.available||!i.isActive||!(price>0)||!/^\d{4,5}$/.test(String(i.id))){reject(provider,'PRODUCT_NOT_DELIVERABLE');continue;}
    if(i.availableRegions?.length&&!i.availableRegions.includes(region)){reject(provider,'REGION_NOT_AVAILABLE');continue;}
