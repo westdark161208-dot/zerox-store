@@ -53,7 +53,7 @@ export async function refreshMarket(env,fetcher=fetch){
 export function variantMatches(key,item){
  const name=cleanName(item.name).normalize('NFD').replace(/[\u0300-\u036f]/g,'');
  if(key==='booyah-premium')return /booyah/.test(name)&&/premium/.test(name);
- if(key==='booyah-normal')return /booyah/.test(name)&&!/premium/.test(name);
+ if(key==='booyah-normal')return /\b(?:pase booyah?|booyah pass)\b/.test(name)&&!/premium/.test(name);
  if(key==='weekly-basic')return /semanal|weekly/.test(name)&&/basica|basic/.test(name);
  if(key==='weekly')return /semanal|weekly/.test(name)&&!/basica|basic/.test(name);
  if(key==='monthly')return /mensual|monthly/.test(name);
