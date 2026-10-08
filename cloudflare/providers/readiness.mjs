@@ -23,7 +23,7 @@ export async function readinessRoute(request,env,url,user,reply,fetcher=fetch){
   const config=purchaseConfiguration(env),reasons=[...config.reasons];
   if(!quote.canAfford)reasons.push('RA_INSUFFICIENT_FUNDS');
   if(validation.some(v=>v.supported&&v.status!==true))reasons.push('RA_PLAYER_REJECTED');
-  if(product.salePriceCents>20000)reasons.push('PRODUCT_OUTSIDE_PILOT');
+  if(product.salePriceCents>(env.PUBLIC_COMMERCE_ENABLED==='true'?100000000:20000))reasons.push('PRODUCT_OUTSIDE_PILOT');
   return reply({ok:true,checkedAt:new Date().toISOString(),ready:!reasons.length,reasons,region,diamonds:product.diamonds,amountCents:product.salePriceCents,provider:'recargas-america',wallet:quote.wallet,canAfford:quote.canAfford,totalMicros:quote.plan.totalMicros,operationCount:quote.plan.operationCount,packs:quote.plan.packs.map(p=>({productId:p.productId,name:p.providerItemName,sku:p.catalogSku,playerField:p.playerField,diamonds:p.diamonds,quantity:p.quantity,price:p.price})),validation,purchasesPerformed:0});
  }catch(e){const safe=/^RA_(READ_DISABLED|KEY_MISSING|UNAVAILABLE|INVALID_RESPONSE|HTTP_\d{3}|MAPPING_INVALID|MAPPING_MISSING|REGION_UNVERIFIED|REGION_UNAVAILABLE|PRODUCT_UNAVAILABLE|PRODUCT_MISMATCH|CURRENCY_UNVERIFIED|AMOUNT_INVALID|PRICE_INVALID|EXACT_RECIPE_UNAVAILABLE)$/.test(e.message)||['PLAYER_VERIFIER_MISSING','PLAYER_VERIFICATION_FAILED'].includes(e.message);return reply({ok:false,error:safe?e.message:'READINESS_UNAVAILABLE',...(detectedRegion?{region:detectedRegion}:{})},503);}
 }

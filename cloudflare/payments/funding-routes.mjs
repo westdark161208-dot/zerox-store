@@ -45,7 +45,7 @@ export async function fundingRoute(request,env,url,user,json,fetcher=fetch){
   }
   if(url.pathname===ROOT+'/checkout'&&request.method==='POST'){
    const body=await request.json(),key=request.headers.get('Idempotency-Key');
-   if(!/^[a-f0-9-]{36}$/.test(key||'')||!Number.isSafeInteger(body.amountCents)||body.amountCents<1000||body.amountCents>(env.PUBLIC_COMMERCE_ENABLED==='true'?500000:20000)||!['all','card','spei'].includes(body.method||'all'))return reply({ok:false,error:'INVALID_FUNDING_REQUEST'},400);
+   if(!/^[a-f0-9-]{36}$/.test(key||'')||!Number.isSafeInteger(body.amountCents)||body.amountCents<2000||body.amountCents>10000000||!['all','card','spei'].includes(body.method||'all'))return reply({ok:false,error:'INVALID_FUNDING_REQUEST'},400);
    await schemas(env.DB);
    const intent=await createFundingIntent(env.DB,{id:key,userId:user.id,amountCents:body.amountCents,collectorId:String(env.MP_COLLECTOR_ID_PRODUCTION),requestKey:key});
    if(intent.state!=='pending')return reply({ok:false,error:'FUNDING_ATTEMPT_ALREADY_PROCESSED'},409);

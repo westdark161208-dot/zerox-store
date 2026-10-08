@@ -67,7 +67,7 @@ export async function purchaseRoute(request,env,url,user,json,fetcher=fetch){
    const reasons=config.reasons.filter(r=>r!=='PRODUCTION_PAYMENT_CONFIG_MISSING');if(reasons.length)return reply({ok:false,error:'PRODUCT_DELIVERY_NOT_READY',reasons},503);
    const body=await request.json(),uid=String(body.playerId||''),key=request.headers.get('Idempotency-Key'),buy=url.pathname.endsWith('/buy');
    if(!/^\d{5,15}$/.test(uid)||body.playerConfirmed!==true||buy&&(!/^[a-f0-9-]{36}$/.test(key||'')||body.supplierConfirmed!==true||!Number.isSafeInteger(body.maxTotalMicros)||body.maxTotalMicros<1||body.maxTotalMicros>supplierLimit))return reply({ok:false,error:'INVALID_REQUEST'},400);
-   const product=await publishedProduct(env.DB,getProduct(body.productId));if(!product||product.salePriceCents>(env.PUBLIC_COMMERCE_ENABLED==='true'?1000000:20000))return reply({ok:false,error:'PRODUCT_OUTSIDE_PILOT'},400);
+   const product=await publishedProduct(env.DB,getProduct(body.productId));if(!product||product.salePriceCents>(env.PUBLIC_COMMERCE_ENABLED==='true'?100000000:20000))return reply({ok:false,error:'PRODUCT_OUTSIDE_PILOT'},400);
    const exists=await env.DB.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='zx_product_payments'").first();
    if(exists&&/^[a-f0-9-]{36}$/.test(key||'')){
     const old=await env.DB.prepare('SELECT o.*,p.method FROM zx_diamond_orders o JOIN zx_product_payments p ON p.order_id=o.id WHERE o.user_id=? AND o.request_key=?').bind(user.id,key).first();
@@ -100,7 +100,7 @@ export async function purchaseRoute(request,env,url,user,json,fetcher=fetch){
   }
   const key=request.headers.get('Idempotency-Key'),uid=String(body.playerId||''),method=url.pathname.endsWith('/wallet')?'wallet':body.method||'all';
   if(!/^[a-f0-9-]{36}$/.test(key||'')||!/^\d{5,15}$/.test(uid)||body.playerConfirmed!==true||!['wallet','card','spei','all'].includes(method))return reply({ok:false,error:'INVALID_REQUEST'},400);
-  const product=await publishedProduct(env.DB,getProduct(body.productId));if(!product||product.salePriceCents>(env.PUBLIC_COMMERCE_ENABLED==='true'?1000000:20000))return reply({ok:false,error:'PRODUCT_OUTSIDE_PILOT'},400);
+  const product=await publishedProduct(env.DB,getProduct(body.productId));if(!product||product.salePriceCents>(env.PUBLIC_COMMERCE_ENABLED==='true'?100000000:20000))return reply({ok:false,error:'PRODUCT_OUTSIDE_PILOT'},400);
   const region=await verifiedPlayer(env,uid,fetcher);const plan=await raAmountPreflight(env,product.diamonds,region,uid,fetcher);if(method!=='wallet')await productionAccount(env,fetcher);
   await schemas(env.DB);const order=await createOrder(env.DB,{userId:user.id,requestKey:key,productId:product.id,playerId:uid,fulfillmentPlan:plan});
   await saveContact(env.DB,order.id,user.id,body.contactPhone);
