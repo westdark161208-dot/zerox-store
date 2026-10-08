@@ -1,16 +1,20 @@
+import {activitySchema,accountLifecycle} from '../accounts/lifecycle.mjs';
 import {countryRegions,geographySchema} from '../accounts/geography.mjs';
 import {walletSchema,walletState,postMovement} from './ledger.mjs';
 export async function walletAdminRoute(request,env,url,user,json){
  const reply=(b,s=200)=>{const r=json(b,s);r.headers?.set('Cache-Control','private, no-store');return r;};
  if(user?.isFounder!==true||user.status!=='active')return reply({ok:false,error:'FORBIDDEN'},403);
- await geographySchema(env.DB);await walletSchema(env.DB);await env.DB.prepare('CREATE TABLE IF NOT EXISTS zx_purchase_contacts(order_id TEXT PRIMARY KEY,user_id TEXT NOT NULL,phone TEXT NOT NULL,created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)').run();
+ await activitySchema(env.DB);await geographySchema(env.DB);await walletSchema(env.DB);await env.DB.prepare('CREATE TABLE IF NOT EXISTS zx_purchase_contacts(order_id TEXT PRIMARY KEY,user_id TEXT NOT NULL,phone TEXT NOT NULL,created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)').run();
+ if(url.pathname==='/api/admin/customers/account')return accountLifecycle(request,env,user,reply);
  if(url.pathname==='/api/admin/customers'&&request.method==='GET'){
   const q=(url.searchParams.get('q')||'').trim().slice(0,120),page=Math.max(0,parseInt(url.searchParams.get('page'))||0);
   const region=url.searchParams.get('region')||'',country=url.searchParams.get('country')||'';const codes=Object.entries(countryRegions).filter(([,r])=>r===region).map(([c])=>c);
   const geo=region==='unknown'?" AND l.country IS NULL":codes.length?" AND l.country IN ("+codes.map(()=>'?').join(',')+")":'';
+  const activity=url.searchParams.get('activity')||'';
+  const activityFilter=activity==='inactive'?" AND COALESCE(a.last_seen_at,u.created_at)<datetime('now','-30 days') AND u.status!='deleted'":activity==='deleted'?" AND u.status='deleted'":" AND u.status!='deleted'";
   const args=[q,q,q,...codes,...(country?[country]:[]),page*25];
-  const rows=(await env.DB.prepare(`SELECT u.id,u.username,u.email,u.status,u.created_at AS createdAt,l.country,l.state,(SELECT phone FROM zx_purchase_contacts c WHERE c.user_id=u.id ORDER BY created_at DESC LIMIT 1) phone,COALESCE((SELECT SUM(amount_cents) FROM zx_wallet_ledger l WHERE l.user_id=u.id),0) balanceCents FROM zx_users u LEFT JOIN zx_customer_location l ON l.user_id=u.id WHERE (?='' OR instr(lower(u.username),lower(?))>0 OR instr(lower(u.email),lower(?))>0)${geo}${country?' AND l.country=?':''} ORDER BY u.created_at DESC,u.id LIMIT 26 OFFSET ?`).bind(...args).all()).results;
-  const counts=(await env.DB.prepare('SELECT country,COUNT(*) count FROM zx_users u LEFT JOIN zx_customer_location l ON l.user_id=u.id GROUP BY country').all()).results;return reply({ok:true,users:rows.slice(0,25),hasMore:rows.length>25,countries:counts.map(c=>({...c,region:countryRegions[c.country]||'unknown'}))});
+  const rows=(await env.DB.prepare(`SELECT u.id,u.username,u.email,u.status,u.created_at AS createdAt,a.last_seen_at AS lastSeenAt,l.country,l.state,(SELECT phone FROM zx_purchase_contacts c WHERE c.user_id=u.id ORDER BY created_at DESC LIMIT 1) phone,COALESCE((SELECT SUM(amount_cents) FROM zx_wallet_ledger l WHERE l.user_id=u.id),0) balanceCents FROM zx_users u LEFT JOIN zx_customer_location l ON l.user_id=u.id LEFT JOIN zx_account_activity a ON a.user_id=u.id WHERE (?='' OR instr(lower(u.username),lower(?))>0 OR instr(lower(u.email),lower(?))>0)${activityFilter}${geo}${country?' AND l.country=?':''} ORDER BY u.created_at DESC,u.id LIMIT 26 OFFSET ?`).bind(...args).all()).results;
+  const counts=(await env.DB.prepare("SELECT country,COUNT(*) count FROM zx_users u LEFT JOIN zx_customer_location l ON l.user_id=u.id WHERE u.status!='deleted' GROUP BY country").all()).results;return reply({ok:true,users:rows.slice(0,25),hasMore:rows.length>25,countries:counts.map(c=>({...c,region:countryRegions[c.country]||'unknown'}))});
  }
  if(url.pathname!=='/api/admin/customers/balance'||request.method!=='POST')return reply({ok:false,error:'NOT_FOUND'},404);
  const b=await request.json(),key=request.headers.get('Idempotency-Key');

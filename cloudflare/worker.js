@@ -1,3 +1,4 @@
+import {touchActivity} from './accounts/lifecycle.mjs';
 import {communityRoute} from './community.mjs';
 import {promotionRoute} from './promotions/purchases.mjs';
 import {locationRoute,geographySchema,validLocation,countryRegions} from './accounts/geography.mjs';
@@ -99,6 +100,7 @@ async function currentUser(request,env){
   if(!m)return null;
   const tokenHash=await digest(m[1].trim());
   const user=await env.DB.prepare("SELECT s.id AS sessionId,u.id,u.email,u.username,u.status,u.created_at,p.display_name,p.avatar_url,p.xp,p.level FROM zx_sessions s JOIN zx_users u ON u.id=s.user_id LEFT JOIN zx_profiles p ON p.user_id=u.id WHERE s.token_hash=? AND s.revoked_at IS NULL AND s.expires_at>? LIMIT 1").bind(tokenHash,new Date().toISOString()).first();
+  if(user?.status === "active")await touchActivity(env.DB,user.id);
   return user && user.status === "active" ? {...user,isFounder:!!FOUNDER_USER_ID && user.id===FOUNDER_USER_ID} : null;
 }
 

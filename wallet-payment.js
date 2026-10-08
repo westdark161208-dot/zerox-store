@@ -7,11 +7,11 @@
  let attempt=new URL(location.href).searchParams.get('attempt');
  if(!/^[a-f0-9-]{36}$/.test(attempt||''))attempt=null;
  const preferred=new URL(location.href).searchParams.get('method');
- if(!attempt&&['all','card','oxxo','spei'].includes(preferred)){const radio=document.querySelector?.('input[name=method][value='+preferred+']');if(radio)radio.checked=true;}
+ if(!attempt&&['all','card','spei'].includes(preferred)){const radio=document.querySelector?.('input[name=method][value='+preferred+']');if(radio)radio.checked=true;}
  function clear(){generation++;enabled=false;q('funding-create').disabled=true;q('funding-refresh').disabled=true;q('funding-checkout').hidden=true;q('funding-checkout').removeAttribute('href');q('funding-result').textContent='';q('funding-status').textContent='Inicia sesión en la tienda y vuelve a consultar.';}
  async function api(path,options={}){
   const current=token(),version=generation;
-  if(!current)throw Error('Inicia sesión con tu cuenta fundadora.');
+  if(!current)throw Error('Inicia sesión con tu cuenta de Zero’X.');
   const response=await fetch(API+path,{...options,headers:{Authorization:'Bearer '+current,'Content-Type':'application/json',...options.headers},cache:'no-store',signal:AbortSignal.timeout(15000)});
   const data=await response.json();
   if(version!==generation||token()!==current||document.hidden)throw Error('STALE_RESPONSE');
@@ -25,8 +25,8 @@
   q('funding-result').textContent=(names[data.state]||'Estado pendiente de revisión')+' · '+new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'}).format(data.amountCents/100);
  }catch(e){if(version===generation&&e.message!=='STALE_RESPONSE')q('funding-result').textContent=e.message;}finally{if(version===generation)q('funding-refresh').disabled=false;}}
  async function init(){clear();const version=generation;try{
-  const data=await api('/api/admin/payments/mercadopago/status');enabled=data.checkoutEnabled===true;
-  q('funding-status').textContent=enabled?'Prueba real habilitada solo para la cuenta fundadora.':'Prueba desactivada: pendiente de configuración y validación del servidor.';
+  const data=await api('/api/wallet/me');enabled=data.fundingPilotAvailable===true;
+  q('funding-status').textContent=enabled?'Recarga de saldo disponible desde $20 MXN.':'Prueba desactivada: pendiente de configuración y validación del servidor.';
   q('funding-create').disabled=!enabled||!!attempt;q('funding-amount').disabled=!!attempt;for(const input of document.querySelectorAll?.('input[name=method]')||[])input.disabled=!!attempt;
   q('funding-refresh').disabled=!enabled||!attempt;
   if(enabled&&attempt)await refresh();
@@ -34,14 +34,14 @@
  q('funding-form').addEventListener('submit',async event=>{
   event.preventDefault();if(!enabled||q('funding-create').disabled)return;
   const amount=q('funding-amount').value;
-  if(!/^\d{1,3}(\.\d{1,2})?$/.test(amount)){q('funding-result').textContent='Indica un importe con máximo dos decimales.';return;}
-  const cents=Math.round(Number(amount)*100);if(cents<1000||cents>20000)return;
+  if(!/^\d{1,6}(\.\d{1,2})?$/.test(amount)){q('funding-result').textContent='Indica un importe con máximo dos decimales.';return;}
+  const cents=Math.round(Number(amount)*100);if(!Number.isSafeInteger(cents)||cents<2000||cents>10000000)return;
   const version=generation;q('funding-create').disabled=true;q('funding-amount').disabled=true;
   for(const input of document.querySelectorAll?.('input[name=method]')||[])input.disabled=true;
   attempt=attempt||crypto.randomUUID();history.replaceState(null,'','?attempt='+attempt);
   try{const data=await api(ROOT+'/checkout',{method:'POST',headers:{'Idempotency-Key':attempt},body:JSON.stringify({amountCents:cents,method:document.querySelector?.('input[name=method]:checked')?.value||'all'})});
    const link=new URL(data.checkoutUrl);if(link.protocol!=='https:'||!['www.mercadopago.com.mx','www.mercadopago.com'].includes(link.hostname))throw Error('Enlace de pago inválido.');
-   q('funding-checkout').href=link.href;q('funding-checkout').hidden=false;q('funding-result').textContent='Pago preparado. Abre Mercado Pago para revisar y pagar el importe.';
+   q('funding-checkout').href=link.href;q('funding-checkout').hidden=false;location.assign(link.href);
   }catch(e){if(version===generation&&e.message!=='STALE_RESPONSE')q('funding-result').textContent=e.message;}
   finally{if(version===generation)q('funding-refresh').disabled=false;}
  });
