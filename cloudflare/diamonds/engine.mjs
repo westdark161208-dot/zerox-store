@@ -1,15 +1,18 @@
+import {retailDiscount,assertCouponRetry} from '../coupons.mjs';
 import {publishedProduct} from '../editor/catalog.mjs';
 import {getProduct} from './catalog.mjs';
 import {makeSnapshot} from './catalog.mjs';
 import {disabledProvider} from './provider.mjs';
 const now=()=>new Date().toISOString();
 const uuid=()=>crypto.randomUUID();
-export async function createOrder(db,{userId,requestKey,productId,playerId,fulfillmentPlan=null,billingMode='customer'}){
+export async function createOrder(db,{userId,requestKey,productId,playerId,fulfillmentPlan=null,billingMode='customer',couponCode='',maxAmountCents=null}){
  if(!userId||!/^[A-Za-z0-9_-]{16,100}$/.test(requestKey))throw Error('INVALID_REQUEST_KEY');
  const existing=await db.prepare('SELECT * FROM zx_diamond_orders WHERE user_id=? AND request_key=?').bind(userId,requestKey).first();
- if(existing){if(existing.product_id!==productId||existing.player_id!==playerId)throw Error('IDEMPOTENCY_CONFLICT');return existing;}
+ if(existing){assertCouponRetry(JSON.parse(existing.snapshot_json).retailPricing,couponCode);if(existing.product_id!==productId||existing.player_id!==playerId)throw Error('IDEMPOTENCY_CONFLICT');return existing;}
  const product=await publishedProduct(db,getProduct(productId));if(!product)throw Error('PRODUCT_UNAVAILABLE');
  const snapshot={...makeSnapshot(productId,playerId),salePriceCents:product.salePriceCents,...(fulfillmentPlan?{fulfillmentPlan,providerCostCents:0,providerCostEstimated:false}: {})},id=uuid(),at=now();
+ if(couponCode&&billingMode!=='customer')throw Error('COUPON_RETAIL_ONLY');
+ if(billingMode==='customer'){const pricing=await retailDiscount(db,product.salePriceCents,couponCode);if(maxAmountCents!==null&&maxAmountCents!==pricing.amountCents)throw Error('PRODUCT_PRICE_CHANGED');snapshot.retailPricing=pricing;snapshot.salePriceCents=pricing.amountCents;}
  if(billingMode==='owner-provider'){if(!fulfillmentPlan)throw Error('RA_PLAN_MISMATCH');snapshot.retailPriceCents=snapshot.salePriceCents;snapshot.salePriceCents=0;snapshot.billingMode='owner-provider';}
  if(fulfillmentPlan){
   const packs=fulfillmentPlan.packs;
@@ -24,6 +27,7 @@ export async function createOrder(db,{userId,requestKey,productId,playerId,fulfi
  }
  await db.batch(statements);
  const order=await db.prepare('SELECT * FROM zx_diamond_orders WHERE user_id=? AND request_key=?').bind(userId,requestKey).first();
+ assertCouponRetry(JSON.parse(order.snapshot_json).retailPricing,couponCode);
  if(order.product_id!==productId||order.player_id!==playerId)throw Error('IDEMPOTENCY_CONFLICT');
  return order;
 }

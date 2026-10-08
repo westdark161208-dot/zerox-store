@@ -1,3 +1,4 @@
+import {couponRoute} from './coupons.mjs';
 import {touchActivity} from './accounts/lifecycle.mjs';
 import {communityRoute} from './community.mjs';
 import {promotionRoute} from './promotions/purchases.mjs';
@@ -225,6 +226,7 @@ export default {
         return await mpTestRoute(request,env,url,user,json);
       }
       if(url.pathname==="/api/auth/location"){await authSchema(env);return await locationRoute(request,env,url,await currentUser(request,env),json);}
+      if(url.pathname==='/api/admin/coupons'||url.pathname==='/api/coupons/validate'){await authSchema(env);return await couponRoute(request,env,url,await currentUser(request,env),json);}
       if(url.pathname.startsWith("/api/promotions/")){await authSchema(env);return await promotionRoute(request,env,url,await currentUser(request,env),json);}
       if(url.pathname.startsWith("/api/community/")){await authSchema(env);return await communityRoute(request,env,url,await currentUser(request,env),json);}
       if(url.pathname.startsWith("/api/orders/")){await authSchema(env);return await orderHistoryRoute(request,env,url,await currentUser(request,env),json);}

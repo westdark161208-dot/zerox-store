@@ -205,3 +205,11 @@ test('web wallet remains available without MP credentials for diamond checkout',
  const s=await route(env,'/status',founder,null,undefined,upstream());assert.equal(s.body.enabled,false);assert.equal(s.body.walletEnabled,true);
  const r=await route(env,'/wallet',founder,{...body,method:'wallet'},crypto.randomUUID(),upstream());assert.equal(r.status,200,JSON.stringify(r.body));assert.equal((await walletState(env.DB,'owner')).availableCents,0);
 });
+
+import {couponSchema} from '../cloudflare/coupons.mjs';
+test('diamond discount is immutable, debits net cents and never changes diamond quantity',async()=>{
+ const env=await setup(),fetcher=upstream(),key=crypto.randomUUID();await couponSchema(env.DB);env.DB.sql.exec("INSERT INTO zx_discount_codes VALUES('ZX-ABCDEF123456',10,'2099-01-01T00:00:00.000Z',1,'owner','fixture',CURRENT_TIMESTAMP)");
+ await postMovement(env.DB,{userId:'owner',kind:'credit',amountCents:10000,currency:'MXN',source:'fixture',reference:'discount',requestKey:'discount',actor:'fixture'});
+ const b={...body,couponCode:'ZX-ABCDEF123456',maxAmountCents:1620};const r=await route(env,'/wallet',founder,b,key,fetcher);assert.equal(r.body.ok,true,JSON.stringify(r));assert.equal(r.body.delivery.delivered,110);assert.equal((await walletState(env.DB,'owner')).availableCents,8380);
+ env.DB.sql.exec('UPDATE zx_discount_codes SET active=0');await route(env,'/wallet',founder,b,key,fetcher);assert.equal((await walletState(env.DB,'owner')).availableCents,8380);assert.equal((await route(env,'/wallet',founder,{...b,couponCode:''},key,fetcher)).body.error,'IDEMPOTENCY_CONFLICT');
+});
