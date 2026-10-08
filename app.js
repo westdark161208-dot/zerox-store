@@ -1236,7 +1236,7 @@ function openCheckout(id) {
     $("#zx-diamond-dialog")?.remove();
     const product=current;let service=!!current.zxService,apiPath=service?'/api/services/purchase':'/api/diamonds/purchase';
     const dialog=document.createElement("dialog");dialog.id="zx-diamond-dialog";
-    dialog.innerHTML=`<form method="dialog"><button aria-label="Cerrar">×</button></form><span class="section-kicker">COMPLETAR PEDIDO</span><h2>${esc(current.name)}</h2><strong class="zx-checkout-total">Total ${money(current.price)}</strong><p>Introduce tu ID para consultar tu cuenta de Free Fire. Comprueba el nombre antes de confirmar.</p><form id="zx-diamond-intent"><label>ID de jugador<input placeholder="Ej. 123456789" name="uid" inputmode="numeric" pattern="[0-9]{5,15}" minlength="5" maxlength="15" required></label><button type="submit" class="check-player-btn">🔎 COMPROBAR CUENTA</button><button type="button" id="zx-confirm-diamond-player" hidden>CONFIRMAR MI CUENTA</button></form><div id="zx-diamond-player-card"></div><p id="zx-diamond-intent-status" role="status"></p><section id="zx-diamond-payment" hidden><label>Teléfono de contacto / WhatsApp<input id="zx-purchase-phone" type="tel" autocomplete="tel" placeholder="+52 951 123 4567" maxlength="24" required></label><small>Solo para asistencia con tu pedido.</small><h3>Método de pago</h3><div id="zx-product-methods" class="zx-product-methods"></div><button type="button" id="zx-mp-pay" disabled>Pagar con Mercado Pago →</button><small id="zx-mp-note">Los pagos públicos todavía no están habilitados.</small><a id="zx-mp-open" hidden target="_blank" rel="noopener noreferrer">Abrir Mercado Pago ↗</a></section>`;
+    dialog.innerHTML=`<form method="dialog"><button aria-label="Cerrar">×</button></form><span class="section-kicker">COMPLETAR PEDIDO</span><h2>${esc(current.name)}</h2><strong class="zx-checkout-total">Total ${money(current.price)}</strong><p>Introduce tu ID para consultar tu cuenta de Free Fire. Comprueba el nombre antes de confirmar.</p><form id="zx-diamond-intent"><label>ID de jugador<input placeholder="Ej. 123456789" name="uid" inputmode="numeric" pattern="[0-9]{5,15}" minlength="5" maxlength="15" required></label><button type="submit" class="check-player-btn">🔎 COMPROBAR CUENTA</button><button type="button" id="zx-confirm-diamond-player" hidden>CONFIRMAR MI CUENTA</button></form><div id="zx-diamond-player-card"></div><p id="zx-diamond-intent-status" role="status"></p><section id="zx-diamond-payment" hidden><label>Teléfono de contacto / WhatsApp<input id="zx-purchase-phone" type="tel" autocomplete="tel" placeholder="+52 951 123 4567" maxlength="24" required></label><small>Solo para asistencia con tu pedido.</small><div id="zx-purchase-code"></div><h3>Método de pago</h3><div id="zx-product-methods" class="zx-product-methods"></div><button type="button" id="zx-mp-pay" disabled>Pagar con Mercado Pago →</button><small id="zx-mp-note">Los pagos públicos todavía no están habilitados.</small><a id="zx-mp-open" hidden target="_blank" rel="noopener noreferrer">Abrir Mercado Pago ↗</a></section>`;
     document.body.append(dialog);dialog.showModal();
     const intent=dialog.querySelector("#zx-diamond-intent"), uidInput=intent.elements.uid;
     const status=dialog.querySelector("#zx-diamond-intent-status"), confirm=dialog.querySelector("#zx-confirm-diamond-player");
@@ -1244,6 +1244,7 @@ function openCheckout(id) {
     if(service)dialog.querySelector('#zx-product-methods').dataset.service='true';
     const phone=dialog.querySelector("#zx-purchase-phone");phone.value=zeroxUser?.phone||"";
     const methodSelect=zxRenderPaymentMethods(dialog.querySelector("#zx-product-methods"));
+    const couponControl=window.ZXCoupons.mount(dialog.querySelector("#zx-purchase-code"),Math.round(product.price*100),s=>{dialog.querySelector(".zx-checkout-total").textContent="Total "+money(s.amountCents/100);});
     const playerDialog=document.createElement("dialog");
     playerDialog.id="zx-player-confirm-dialog";
     playerDialog.setAttribute("aria-labelledby","zx-player-confirm-title");
@@ -1302,7 +1303,7 @@ function openCheckout(id) {
       catch{if(version===requestVersion)note.textContent="Inicia sesión para consultar la disponibilidad. El servidor debe habilitar pago y entrega antes de cobrar.";}
 
     };
-    methodSelect.addEventListener("change",()=>{if(createdOrder||purchaseStarted)return;service=!!product.zxService||methodSelect.value==="sf";apiPath=service?"/api/services/purchase":"/api/diamonds/purchase";attempt="";supplierQuote=null;realAvailable=["ra","sf"].includes(methodSelect.value)?supplierAvailable:methodSelect.value==="wallet"?walletAvailable:customerAvailable;payLink.hidden=true;pay.disabled=!realAvailable;pay.textContent=["ra","sf","wallet"].includes(methodSelect.value)?"Pagar con saldo →":"Pagar con Mercado Pago →";});
+    methodSelect.addEventListener("change",()=>{if(createdOrder||purchaseStarted)return;couponControl.setRetail(!["ra","sf"].includes(methodSelect.value));service=!!product.zxService||methodSelect.value==="sf";apiPath=service?"/api/services/purchase":"/api/diamonds/purchase";attempt="";supplierQuote=null;realAvailable=["ra","sf"].includes(methodSelect.value)?supplierAvailable:methodSelect.value==="wallet"?walletAvailable:customerAvailable;payLink.hidden=true;pay.disabled=!realAvailable;pay.textContent=["ra","sf","wallet"].includes(methodSelect.value)?"Pagar con saldo →":"Pagar con Mercado Pago →";});
     pay.onclick=async()=>{
       if(paymentBusy||createdOrder||!realAvailable||!confirmedUid||confirmedUid!==uidInput.value.trim())return;
       if(!/^\+?[0-9 ()-]{8,24}$/.test(phone.value)||phone.value.replace(/\D/g,"").length<8){note.textContent="Agrega un teléfono de contacto válido.";phone.focus();return;}
@@ -1310,8 +1311,9 @@ function openCheckout(id) {
       const pendingKey='zx-pending-purchase:'+String(zeroxUser?.id||'')+':'+product.id+':'+confirmedUid;
       let pending=null;try{pending=JSON.parse(sessionStorage.getItem(pendingKey)||'null');}catch{}
       const method=pending?.method||methodSelect.value;if(pending?.key)attempt=pending.key;
-      paymentBusy=true;pay.disabled=true;methodSelect.disabled=true;dialog.querySelectorAll('.zx-method-tiles button').forEach(b=>b.disabled=true);
-      const unlock=()=>{paymentBusy=false;if(!purchaseStarted&&!createdOrder){pay.disabled=!realAvailable;methodSelect.disabled=false;dialog.querySelectorAll('.zx-method-tiles button').forEach(b=>b.disabled=b.classList.contains("zx-binance-soon"));}};
+      const discount=couponControl.state();if(pending&&((pending.couponCode||'')!==discount.couponCode||pending.amountCents!=null&&pending.amountCents!==discount.amountCents)){note.textContent='Hay un intento anterior con otro importe o código. Consulta Mis pedidos antes de iniciar otro pago.';return;}
+      couponControl.lock();paymentBusy=true;pay.disabled=true;methodSelect.disabled=true;dialog.querySelectorAll('.zx-method-tiles button').forEach(b=>b.disabled=true);
+      const unlock=()=>{paymentBusy=false;couponControl.lock(false);if(!purchaseStarted&&!createdOrder){pay.disabled=!realAvailable;methodSelect.disabled=false;dialog.querySelectorAll('.zx-method-tiles button').forEach(b=>b.disabled=b.classList.contains("zx-binance-soon"));}};
       if(['ra','sf'].includes(method)){
         pay.disabled=true;note.textContent='Consultando el importe y saldo disponible…';
         try{const quote=await zeroxAuthRequest(apiPath+'/supplier/quote',{method:'POST',...(pending?.key?{headers:{'Idempotency-Key':pending.key}}:{}),body:JSON.stringify({productId:product.id,quantity:product.quantity||product.minQuantity||1,method,playerId:confirmedUid,playerConfirmed:true})});
@@ -1321,20 +1323,20 @@ function openCheckout(id) {
         }catch{if(version===requestVersion)note.textContent='No pudimos consultar el importe. No se realizó una compra.';unlock();return;}
       }
       if(['wallet','ra','sf'].includes(method)){
-        const accepted=await window.ZXPurchaseFlow.confirmBalance({product:product.name,playerId:confirmedUid,amount:['ra','sf'].includes(method)?'Autorizar hasta '+(supplierQuote.totalMicros/1e6).toFixed(6)+' USD de tu saldo API':new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'}).format(product.price)+' MXN · Saldo Zero’X'});
+        const accepted=await window.ZXPurchaseFlow.confirmBalance({product:product.name,playerId:confirmedUid,amount:['ra','sf'].includes(method)?'Autorizar hasta '+(supplierQuote.totalMicros/1e6).toFixed(6)+' USD de tu saldo API':new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'}).format(discount.amountCents/100)+' MXN · Saldo Zero’X'});
         if(!accepted||version!==requestVersion||currentToken!==getZeroXSession()?.token||!dialog.open||document.hidden){note.textContent='Pago sin confirmar. Puedes continuar cuando estés listo.';unlock();return;}
       }
       pay.disabled=true;methodSelect.disabled=true;dialog.querySelectorAll(".zx-method-tiles button").forEach(b=>b.disabled=true);payLink.hidden=true;note.textContent="Verificando producto, región y entrega antes de preparar el pago…";
       purchaseStarted=true;uidInput.readOnly=true;intent.querySelectorAll("button").forEach(b=>b.disabled=true);
       if(!attempt)attempt=crypto.randomUUID();
-      try{sessionStorage.setItem(pendingKey,JSON.stringify({key:attempt,method}));}catch{}
-      try{const result=await zeroxAuthRequest(apiPath+'/'+(service?'checkout':method==="ra"?'supplier/buy':method==="wallet"?'wallet':'checkout'),{method:'POST',headers:{'Idempotency-Key':attempt},body:JSON.stringify({productId:product.id,quantity:product.quantity||product.minQuantity||1,maxAmountCents:Math.round(product.price*100),playerId:confirmedUid,playerConfirmed:true,contactPhone:phone.value.trim(),method,...(["ra","sf"].includes(method)?{supplierConfirmed:true,maxTotalMicros:supplierQuote.totalMicros}:{})})});
+      try{sessionStorage.setItem(pendingKey,JSON.stringify({key:attempt,method,couponCode:discount.couponCode,amountCents:discount.amountCents}));}catch{}
+      try{const result=await zeroxAuthRequest(apiPath+'/'+(service?'checkout':method==="ra"?'supplier/buy':method==="wallet"?'wallet':'checkout'),{method:'POST',headers:{'Idempotency-Key':attempt},body:JSON.stringify({productId:product.id,quantity:product.quantity||product.minQuantity||1,maxAmountCents:discount.amountCents,couponCode:discount.couponCode,playerId:confirmedUid,playerConfirmed:true,contactPhone:phone.value.trim(),method,...(["ra","sf"].includes(method)?{supplierConfirmed:true,maxTotalMicros:supplierQuote.totalMicros}:{})})});
         if(version!==requestVersion||!dialog.isConnected||currentToken!==getZeroXSession()?.token)return;
         if(result.checkoutUrl){const link=new URL(result.checkoutUrl);if(link.protocol!=='https:'||!['www.mercadopago.com.mx','www.mercadopago.com'].includes(link.hostname)||link.username||link.password)throw Error('INVALID_CHECKOUT');createdOrder=result.orderId;try{sessionStorage.removeItem(pendingKey);}catch{}payLink.hidden=true;note.textContent='Abriendo Mercado Pago…';pay.textContent='Continuar a Mercado Pago →';pay.onclick=()=>location.assign(link.href);pay.disabled=false;location.assign(link.href);return;}
         else if(result.delivery?.state==='COMPLETED'){note.textContent='Recarga completada: '+result.delivery.delivered+' diamantes confirmados para el ID '+confirmedUid+'. Preparando tu comprobante…';}else{note.textContent=method==='ra'?'Recarga con saldo registrada. Consulta el estado de tu entrega.':'Compra con saldo registrada. Consulta el estado para confirmar cuántos diamantes se entregaron.';}
         window.dispatchEvent(new Event('zx-provider-balances-refresh'));createdOrder=result.orderId;try{sessionStorage.removeItem(pendingKey);}catch{}const tracking=document.createElement('a');tracking.href='product-payment.html?kind='+(service?'service':'diamond')+'&order='+encodeURIComponent(result.orderId);tracking.textContent=result.delivery?.state==='COMPLETED'?'Ver comprobante de recarga →':'Consultar pago y entrega →';tracking.className='zx-order-payment-link';payments.append(tracking);pay.disabled=true;
         window.ZXPurchaseFlow.watchOrder(createdOrder,{onComplete:id=>window.ZXPurchaseFlow.openReceipt(id,service?'service':'diamond'),request:path=>zeroxAuthRequest(apiPath+path,{cache:'no-store'}),onState:o=>{if(o.state==='COMPLETED'){note.textContent='Recarga completada. Tu comprobante está listo.';window.dispatchEvent(new Event('zx-provider-balances-refresh'));window.dispatchEvent(new Event('zx-account-ready'));}},onError:()=>{note.textContent='Conserva tu enlace para consultar la entrega. No vuelvas a pagar.';}});
-      }catch(error){if(version===requestVersion&&currentToken===getZeroXSession()?.token&&dialog.isConnected){const code=error.data?.error||error.message;if(error.data?.orderId){createdOrder=error.data.orderId;const tracking=document.createElement("a");tracking.href="product-payment.html?kind="+(service?"service":"diamond")+"&order="+encodeURIComponent(createdOrder);tracking.textContent="Consultar intento y entrega →";payments.append(tracking);}note.textContent=code==='WALLET_MOVEMENT_REJECTED'?'Saldo insuficiente o movimiento rechazado. No se solicitó una recarga.':'No se pudo preparar la compra. '+({PRODUCT_PRICE_REQUIRED:'Este artículo todavía no tiene precio publicado.',PRODUCT_DELIVERY_MAPPING_REQUIRED:'No hay una entrega confirmada para este artículo y cuenta. No se descontó saldo.',DELIVERY_CONNECTION_FAILED:'No se pudo consultar la disponibilidad de entrega. No se descontó saldo.',DELIVERY_FUNDS_UNAVAILABLE:'La entrega está temporalmente sin disponibilidad. Tu saldo no se ha descontado.',RA_INSUFFICIENT_FUNDS:'La tienda no tiene disponibilidad suficiente para entregar esta cantidad ahora. No se realizó el cobro.',RA_EXACT_RECIPE_UNAVAILABLE:'No hay una combinación exacta disponible para esta cantidad. No se realizó el cobro.',RA_REGION_UNAVAILABLE:'La entrega no está confirmada para la región de esta cuenta.',RA_PRODUCT_MISMATCH:'El catálogo de entrega cambió y necesita actualizarse. No se realizó el cobro.',RA_PRODUCT_UNAVAILABLE:'Uno de los paquetes necesarios no está disponible. No se realizó el cobro.',MP_PRODUCTION_ACCOUNT_MISMATCH:'Revisa la cuenta receptora en Control.',CONTACT_REQUIRED:'Agrega tu teléfono de contacto.'}[code]||'Consulta el código antes de volver a pagar.')+(/^[A-Z_0-9]{3,80}$/.test(code)?' Código: '+code:'');pay.disabled=true;if(Array.isArray(error.data?.deliveryIssues)){const reasons={PRODUCT_NOT_FOUND:'No se encontró el artículo',AMBIGUOUS_PRODUCT:'Más de una referencia coincide',AMBIGUOUS_MAPPING:'Asociación duplicada',REGION_NOT_CONFIGURED:'Falta asociar la región',REGION_NOT_AVAILABLE:'Región no disponible',DELIVERY_DISABLED:'Entrega deshabilitada',PRODUCT_NOT_DELIVERABLE:'Artículo no disponible para entrega',DESTINATION_UNVERIFIED:'Destino no validado',DELIVERY_FUNDS_UNAVAILABLE:'Saldo de entrega insuficiente',DELIVERY_CONNECTION_FAILED:'No se pudo consultar la conexión',QUANTITY_NOT_AVAILABLE:'Cantidad no disponible',SIXOFIRE_PERMISSION_DENIED:'La licencia no permite crear pedidos',SIXOFIRE_SUBSCRIPTION_REQUIRED:'Falta suscripción de pedidos',SIXOFIRE_SUBSCRIPTION_INACTIVE:'Suscripción inactiva',SIXOFIRE_SUBSCRIPTION_REQUESTS_EXHAUSTED:'Cuota de pedidos agotada',SIXOFIRE_INVALID_API_KEY:'Credencial rechazada',PROVIDER_KEY_MISSING:'Falta configurar la credencial',PROVIDER_PERMISSION_OR_SUBSCRIPTION:'Revisa permiso y suscripción'};const detail=document.createElement('p');detail.textContent=error.data.deliveryIssues.map(i=>(i.provider==='sixofire'?'SF':'RA')+': '+(reasons[i.reason]||'Revisar configuración')).join(' · ');note.after(detail);const link=document.createElement('a');link.href='control.html#provider-intelligence';link.textContent='Revisar asociación del producto en Control →';detail.after(link);}}}
+      }catch(error){if(version===requestVersion&&currentToken===getZeroXSession()?.token&&dialog.isConnected){const code=error.data?.error||error.message;if(error.data?.orderId){createdOrder=error.data.orderId;const tracking=document.createElement("a");tracking.href="product-payment.html?kind="+(service?"service":"diamond")+"&order="+encodeURIComponent(createdOrder);tracking.textContent="Consultar intento y entrega →";payments.append(tracking);}note.textContent=code==='WALLET_MOVEMENT_REJECTED'?'Saldo insuficiente o movimiento rechazado. No se solicitó una recarga.':'No se pudo preparar la compra. '+({...window.ZXCoupons.errors,PRODUCT_PRICE_CHANGED:'El precio o descuento cambió. Vuelve a abrir el artículo para revisar el total.',PRODUCT_PRICE_REQUIRED:'Este artículo todavía no tiene precio publicado.',PRODUCT_DELIVERY_MAPPING_REQUIRED:'No hay una entrega confirmada para este artículo y cuenta. No se descontó saldo.',DELIVERY_CONNECTION_FAILED:'No se pudo consultar la disponibilidad de entrega. No se descontó saldo.',DELIVERY_FUNDS_UNAVAILABLE:'La entrega está temporalmente sin disponibilidad. Tu saldo no se ha descontado.',RA_INSUFFICIENT_FUNDS:'La tienda no tiene disponibilidad suficiente para entregar esta cantidad ahora. No se realizó el cobro.',RA_EXACT_RECIPE_UNAVAILABLE:'No hay una combinación exacta disponible para esta cantidad. No se realizó el cobro.',RA_REGION_UNAVAILABLE:'La entrega no está confirmada para la región de esta cuenta.',RA_PRODUCT_MISMATCH:'El catálogo de entrega cambió y necesita actualizarse. No se realizó el cobro.',RA_PRODUCT_UNAVAILABLE:'Uno de los paquetes necesarios no está disponible. No se realizó el cobro.',MP_PRODUCTION_ACCOUNT_MISMATCH:'Revisa la cuenta receptora en Control.',CONTACT_REQUIRED:'Agrega tu teléfono de contacto.'}[code]||'Consulta el código antes de volver a pagar.')+(/^[A-Z_0-9]{3,80}$/.test(code)?' Código: '+code:'');pay.disabled=true;if(Array.isArray(error.data?.deliveryIssues)){const reasons={PRODUCT_NOT_FOUND:'No se encontró el artículo',AMBIGUOUS_PRODUCT:'Más de una referencia coincide',AMBIGUOUS_MAPPING:'Asociación duplicada',REGION_NOT_CONFIGURED:'Falta asociar la región',REGION_NOT_AVAILABLE:'Región no disponible',DELIVERY_DISABLED:'Entrega deshabilitada',PRODUCT_NOT_DELIVERABLE:'Artículo no disponible para entrega',DESTINATION_UNVERIFIED:'Destino no validado',DELIVERY_FUNDS_UNAVAILABLE:'Saldo de entrega insuficiente',DELIVERY_CONNECTION_FAILED:'No se pudo consultar la conexión',QUANTITY_NOT_AVAILABLE:'Cantidad no disponible',SIXOFIRE_PERMISSION_DENIED:'La licencia no permite crear pedidos',SIXOFIRE_SUBSCRIPTION_REQUIRED:'Falta suscripción de pedidos',SIXOFIRE_SUBSCRIPTION_INACTIVE:'Suscripción inactiva',SIXOFIRE_SUBSCRIPTION_REQUESTS_EXHAUSTED:'Cuota de pedidos agotada',SIXOFIRE_INVALID_API_KEY:'Credencial rechazada',PROVIDER_KEY_MISSING:'Falta configurar la credencial',PROVIDER_PERMISSION_OR_SUBSCRIPTION:'Revisa permiso y suscripción'};const detail=document.createElement('p');detail.textContent=error.data.deliveryIssues.map(i=>(i.provider==='sixofire'?'SF':'RA')+': '+(reasons[i.reason]||'Revisar configuración')).join(' · ');note.after(detail);const link=document.createElement('a');link.href='control.html#provider-intelligence';link.textContent='Revisar asociación del producto en Control →';detail.after(link);}}}
       finally{paymentBusy=false;methodSelect.disabled=purchaseStarted;dialog.querySelectorAll(".zx-method-tiles button").forEach(b=>b.disabled=purchaseStarted||b.classList.contains("zx-binance-soon"));}
     };
 
@@ -1398,40 +1400,9 @@ function renderSummary(data) {
   `;
 }
 
-/* Cupón demo */
-if ($("#apply-coupon")) {
-  $("#apply-coupon").onclick = () => {
-    if (!current) return;
-
-    const code =
-      ($("#coupon")?.value || "")
-        .trim()
-        .toUpperCase();
-
-    let discount = 0;
-
-    if (code === "ZEROX5") {
-      discount =
-        current.price * 0.05;
-    }
-
-    renderSummary({
-      subtotal: current.price,
-      discount,
-      total:
-        current.price - discount
-    });
-
-    $("#apply-coupon").textContent =
-      discount
-        ? "Aplicado ✓"
-        : "No válido";
-
-    setTimeout(() => {
-      $("#apply-coupon").textContent =
-        "Aplicar";
-    }, 1400);
-  };
+/* The manual request form uses the same server-validated codes. */
+if ($('#apply-coupon')) {
+ $('#apply-coupon').onclick=async()=>{if(!current)return;const button=$('#apply-coupon'),product=current,code=($('#coupon')?.value||'').trim();button.disabled=true;try{const coupon=code?await window.ZXCoupons.validate(code):null;if(current!==product)return;const subtotal=Math.round(product.price*100),discount=Math.floor(subtotal*(coupon?.percent||0)/100);renderSummary({subtotal:subtotal/100,discount:discount/100,total:(subtotal-discount)/100});button.textContent=coupon?'Aplicado ✓':'Sin descuento';}catch(e){renderSummary({subtotal:product.price,discount:0,total:product.price});button.textContent=window.ZXCoupons.errors[e.message]||'Código no válido';}finally{button.disabled=false;}};
 }
 
 /* =========================================================
@@ -1775,15 +1746,15 @@ if (sixofireProduct) {
           .trim()
           .toUpperCase();
 
-      const discount =
-        coupon === "ZEROX5"
-          ? product.price * 0.05
-          : 0;
+      let couponInfo=null;
+      try{if(coupon)couponInfo=await window.ZXCoupons.validate(coupon);}catch(e){if(button){button.disabled=false;button.textContent='CREAR PEDIDO';}$('#checkout-result').textContent=window.ZXCoupons.errors[e.message]||'No se pudo validar el código.';return;}
+      const discount = Math.floor(Math.round(product.price*100)*(couponInfo?.percent||0)/100)/100;
 
       const order = {
         id: createOrderId(),
         productId: product.id,
         productName: product.name,
+        coupon: couponInfo,
         diamondPlan: product.diamondPlan || null,
         category: product.category,
         price: product.price,
