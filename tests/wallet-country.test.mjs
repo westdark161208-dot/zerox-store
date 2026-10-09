@@ -48,3 +48,12 @@ test('registration validates country, derives purchase region, persists geograph
  const update=await worker.fetch(new Request('https://test/api/auth/location',{method:'POST',headers:{Authorization:'Bearer '+data.session.token},body:JSON.stringify({country:'CO',state:'Bogotá'})}),env);assert.equal(update.status,200);
  const refreshed=await(await walletAdminRoute(new Request(url),env,url,{id:'founder',isFounder:true,status:'active'},reply)).json();assert.equal(refreshed.users.length,0);assert.deepEqual(refreshed.countries,[{country:'CO',count:1,region:'south'}]);
 });
+test('an unfunded service retry stays unpaid, then one funded retry debits and delivers once',async()=>{
+ const env=await setup(),up=upstream(),key=crypto.randomUUID();
+ await postMovement(env.DB,{userId:user.id,kind:'purchase',orderId:'fixture-lower',amountCents:1,currency:'MXN',source:'test',reference:'lower',requestKey:'lower',actor:'test'});
+ for(let i=0;i<2;i++){const r=await call(env,'/api/services/purchase/checkout',buy,up.fetcher,key);assert.equal(r.status,409);assert.equal((await r.json()).error,'WALLET_MOVEMENT_REJECTED');}
+ assert.equal(up.count(),0);assert.equal((await walletState(env.DB,user.id)).availableCents,4131);
+ await postMovement(env.DB,{userId:user.id,kind:'credit',amountCents:1,currency:'MXN',source:'test',reference:'restore',requestKey:'restore',actor:'test'});
+ for(let i=0;i<2;i++)assert.equal((await call(env,'/api/services/purchase/checkout',buy,up.fetcher,key)).status,200);
+ assert.equal(up.count(),1);assert.equal((await walletState(env.DB,user.id)).availableCents,0);
+});

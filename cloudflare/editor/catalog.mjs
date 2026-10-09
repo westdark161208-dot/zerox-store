@@ -1,3 +1,5 @@
+import '../../game-sections.js';
+import {gameCatalog} from '../services/games.mjs';
 import '../../diamond-catalog.js';
 import '../../editor-elements.js';
 import staticIds from './static-products.json' with {type:'json'};
@@ -15,9 +17,9 @@ export async function publishedProduct(db,base){
  return p?{...base,name:p.name,salePriceMXN:p.priceCents/100,salePriceCents:p.priceCents}:base;
 }
 export function validateEdit(p){
- if(!p||typeof p!=='object'||(!bases.some(b=>b.id===p.id)&&!staticIds.includes(p.id)&&!/^entity:(catalog|streaming|ads):[a-f0-9-]{36}$/.test(p.id)&&!globalThis.ZXEditorElements.some(e=>'page:'+e.id===p.id)))return null;
+ if(!p||typeof p!=='object'||(!bases.some(b=>b.id===p.id)&&!staticIds.includes(p.id)&&!/^ra-game-[1-9][0-9]{0,6}$/.test(p.id)&&!/^custom:(block|product):[a-f0-9-]{36}$/.test(p.id)&&!/^entity:(catalog|streaming|ads):[a-f0-9-]{36}$/.test(p.id)&&!globalThis.ZXEditorElements.some(e=>'page:'+e.id===p.id)))return null;
  if(typeof p.name!=='string'||!p.name.trim()||p.name.length>100||typeof p.description!=='string'||p.description.length>1500||typeof p.character!=='string'||p.character.length>100||typeof p.active!=='boolean')return null;
- if(!Number.isSafeInteger(p.priceCents)||p.priceCents<(p.id.startsWith('page:')||p.id.startsWith('entity:ads:')?0:1)||p.priceCents>100000000)return null;
+ if(!Number.isSafeInteger(p.priceCents)||p.priceCents<(p.id.startsWith('page:')||p.id.startsWith('entity:ads:')||p.id.startsWith('ra-game-')||p.id.startsWith('custom:')?0:1)||p.priceCents>100000000)return null;
  // Local artwork or existing server media only; no arbitrary tracking or script URLs.
  if(typeof p.image!=='string'||p.image.length>500||p.image.includes('..')||!(/^(?:|(?:\.\/)?(?:assets\/)?[a-zA-Z0-9_.% /-]+\.(?:png|jpg|jpeg|webp)|https:\/\/zerox-sixofire-api\.westdark161208\.workers\.dev\/api\/catalog\/media\/[a-f0-9-]{36}\.(?:png|jpg|webp))$/).test(p.image))return null;
  if(p.category!==undefined&&(typeof p.category!=='string'||p.category.length>80))return null;
@@ -28,9 +30,11 @@ export function validateEdit(p){
 }
 export async function editorRoute(request,env,url,user,respond){
  const json=(data,status=200)=>{const response=respond(data,status);response.headers?.set('Cache-Control','no-store');return response;};
- const publicRead=url.pathname==='/api/store-editor/catalog'&&request.method==='GET';
+ const gamesRead=url.pathname==='/api/store-editor/games'&&request.method==='GET';
+ const publicRead=url.pathname==='/api/store-editor/catalog'&&request.method==='GET'||gamesRead;
  if(!publicRead&&(!user||user.status!=='active'||user.isFounder!==true))return json({ok:false,error:'FORBIDDEN'},403);
  await editorSchema(env.DB);
+ if(gamesRead){try{return json({ok:true,products:await gameCatalog(env)})}catch{return json({ok:false,error:'CATALOG_UNAVAILABLE'},503)}}
  if(publicRead)return json({ok:true,products:await publishedCatalog(env.DB)});
  if(request.method==='GET')return json({ok:true,...await env.DB.prepare('SELECT revision,draft,published FROM zx_store_editor WHERE id=1').first()});
  if(request.method!=='POST')return json({ok:false,error:'METHOD_NOT_ALLOWED'},405);
@@ -45,7 +49,9 @@ export async function editorRoute(request,env,url,user,respond){
   const entity=/^entity:(catalog|streaming|ads):(.+)$/.exec(p.id);
   if(entity&&p.image&&!p.image.startsWith('https://zerox-sixofire-api.westdark161208.workers.dev/api/catalog/media/'))return json({ok:false,error:'UPLOAD_IMAGE_REQUIRED'},400);
   if(entity){const table={catalog:'zx_catalog',streaming:'zx_streaming',ads:'zx_ads'}[entity[1]];if(!await env.DB.prepare('SELECT id FROM '+table+' WHERE id=?').bind(entity[2]).first())return json({ok:false,error:'UNKNOWN_PRODUCT'},400);}
-  const draft=JSON.parse(row.draft);draft[p.id]=p;
+  const draft=JSON.parse(row.draft);
+  if(p.id.startsWith('ra-game-')){const item=(await gameCatalog(env)).find(i=>i.id===p.id);if(!item)return json({ok:false,error:'UNKNOWN_PRODUCT'},400);p.deliverySource=draft[p.id]?.deliverySource||{id:item.providerId,sku:item.sku,name:item.name,field:item.field};}
+  draft[p.id]=p;
   result=await env.DB.prepare('UPDATE zx_store_editor SET draft=?,revision=revision+1,updated_by=?,updated_at=CURRENT_TIMESTAMP WHERE id=1 AND revision=?').bind(JSON.stringify(draft),user.id,b.revision).run();
  }else if(url.pathname==='/api/admin/store-editor/publish'){
   if(b.confirm!==true)return json({ok:false,error:'CONFIRM_REQUIRED'},400);

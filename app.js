@@ -1027,7 +1027,7 @@ function setFilter(category, scroll = true) {
 function zxShow(el,show){if(!el)return;el.hidden=!show;el.style.display=show?"":"none"}
 function zxScroll(el){requestAnimationFrame(()=>{if(!el)return;const offset=document.querySelector(".topbar")?.getBoundingClientRect().height||0;window.scrollTo({top:Math.max(0,window.scrollY+el.getBoundingClientRect().top-offset-16),behavior:"smooth"});})}
 function zxCloseViews(){["#freefire-menu","#zx-id-gate","#zx-managed","#zx-reseller-panel","#zx-coming"].forEach(id=>zxShow($(id),false));$("#catalogo")?.classList.add("zx-catalog-hidden")}
-function zxOpenCatalog(category){if(category==="Streaming"){zxOpenStreaming();return}zxCloseViews();zxShow($("#secciones"),false);setFilter(category,false);$("#catalogo")?.classList.remove("zx-catalog-hidden");zxScroll($("#catalogo"))}
+function zxOpenCatalog(category){zxCloseViews();zxShow($("#secciones"),false);setFilter(category,false);$("#catalogo")?.classList.remove("zx-catalog-hidden");zxScroll($("#catalogo"))}
 const ZX_MANAGED={
  streaming:{title:"STREAMING",note:"Elige tu combo y consulta por WhatsApp para confirmar disponibilidad y pago.",category:"Streaming"},
  accounts:{title:"CUENTAS",note:"Catálogo preparado para productos con imágenes, video, descripción y precio editables.",category:"Cuentas"},
@@ -1228,6 +1228,7 @@ function zxRenderPaymentMethods(host,select){
 
 function openCheckout(id) {
   current = selectedProduct(id);
+  if(current?.zxGame){window.ZXGameStore.checkout(current);return;}
 
   if (!current) return;
   if(current.providerProductKey||['ff-booyah-76828','ff-frag-17729','ff-cajas-8816'].includes(current.id))current.zxService=true;
