@@ -1,3 +1,4 @@
+import {FOUNDER_USER_ID} from './security/founder.mjs';
 import {couponRoute} from './coupons.mjs';
 import {touchActivity} from './accounts/lifecycle.mjs';
 import {communityRoute} from './community.mjs';
@@ -18,7 +19,7 @@ import { mpTestRoute } from "./payments/mercadopago-test.mjs";
 import { diamondRoute } from "./diamonds/routes.mjs";
 import { resellerRoute } from "./resellers.js";
 // Immutable account ID, assigned only after the account owner verifies it.
-const FOUNDER_USER_ID = "d8573fe7-331f-4248-a0ad-d99288c9a472";
+
 
 const PRODUCT_MAP = {
   "ff-110": {
@@ -246,7 +247,7 @@ export default {
       if(url.pathname.startsWith('/api/admin/providers/')){await authSchema(env);return await providerRoute(request,env,url,await currentUser(request,env),json);}
       if(url.pathname.startsWith('/api/security/')){await authSchema(env);return await securityRoute(request,env,url,await currentUser(request,env),json);}
       if(url.pathname.startsWith('/api/admin/control/')){await authSchema(env);return await controlRoute(request,env,url,await currentUser(request,env),json);}
-      if(url.pathname.startsWith('/api/admin/store-editor')||url.pathname==='/api/store-editor/catalog'){
+      if(url.pathname.startsWith('/api/admin/store-editor')||['/api/store-editor/catalog','/api/store-editor/games'].includes(url.pathname)){
         await authSchema(env);
         return await editorRoute(request,env,url,url.pathname.startsWith('/api/admin/')?await currentUser(request,env):null,json);
       }
