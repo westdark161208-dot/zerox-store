@@ -36,7 +36,7 @@ export async function deliveryQuote(env,key,uid,quantity,region,fetcher=fetch,pr
    await readSixofire(env,'/account/shop/orders?page=1&limit=1',fetcher);
    plans.push({provider,productId:String(i.id),sku:String(i.sku||i.id),name:i.name,price,quantity,region,itemType:i.itemType,...(i.itemType==='GIFT'?{message:giftMessage(settings)}:{})});
   }
-  }catch(error){const reason=provider==='sixofire'?safeProviderError(error):/^RA_(READ_DISABLED|KEY_MISSING|HTTP_\d{3}|INVALID_RESPONSE|UNAVAILABLE)$/.test(error.message)?error.message:'DELIVERY_CONNECTION_FAILED';reject(provider,reason==='PROVIDER_UNAVAILABLE'?'DELIVERY_CONNECTION_FAILED':reason);}}
+  }catch(error){const reason=provider==='sixofire'?safeProviderError(error):/^RA_(READ_DISABLED|KEY_MISSING|HTTP_\d{3}|INVALID_RESPONSE|UNAVAILABLE)$/.test(error.message)?error.message:'DELIVERY_CONNECTION_FAILED';reject(provider,['PROVIDER_UNAVAILABLE','PROVIDER_CONNECTION_FAILED','PROVIDER_TIMEOUT'].includes(reason)?'DELIVERY_CONNECTION_FAILED':reason);}}
  if(!plans.length){const reason=issues.some(i=>i.reason==='DELIVERY_FUNDS_UNAVAILABLE')?'DELIVERY_FUNDS_UNAVAILABLE':issues.some(i=>i.reason==='DELIVERY_CONNECTION_FAILED'||/^(SIXOFIRE_|PROVIDER_|RA_)/.test(i.reason))?'DELIVERY_CONNECTION_FAILED':'PRODUCT_DELIVERY_MAPPING_REQUIRED';const error=Error(reason);error.deliveryIssues=issues;throw error;}
  return plans.sort((a,b)=>a.price-b.price)[0];
 }
