@@ -11,9 +11,9 @@ test('invalid product, external images and noninteger cents rejected; disabled p
 test('new orders use published prices, existing order retries retain their original snapshot',async()=>{
  const {readFileSync}=await import('node:fs');const {createOrder}=await import('../cloudflare/diamonds/engine.mjs');const db=database();db.sql.exec(readFileSync(new URL('../cloudflare/diamonds/schema.sql',import.meta.url),'utf8'));
  const order={userId:'owner',requestKey:'editor_order_12345678',productId:product.id,playerId:'123456789'};
- const old=await createOrder(db,order);assert.equal(old.sale_price_cents,1800);
+ const old=await createOrder(db,order);assert.equal(old.sale_price_cents,2360);
  await call(db,'/api/admin/store-editor/draft',{revision:0,product});await call(db,'/api/admin/store-editor/publish',{revision:1,confirm:true});
- assert.equal((await createOrder(db,order)).sale_price_cents,1800);assert.equal((await createOrder(db,{...order,requestKey:'editor_order_87654321'})).sale_price_cents,1900);
+ assert.equal((await createOrder(db,order)).sale_price_cents,2360);assert.equal((await createOrder(db,{...order,requestKey:'editor_order_87654321'})).sale_price_cents,2464);
 });
 test('whole-store content accepts approved page targets and non-diamond products only',()=>{
  assert.ok(validateEdit({...product,id:'d110-1',image:'',category:'Free Fire',region:'México',position:3}));

@@ -1,3 +1,4 @@
+import '../../retail-pricing.js';
 import {retailDiscount,assertCouponRetry} from '../coupons.mjs';
 import {publishedProduct} from '../editor/catalog.mjs';
 import {getProduct} from './catalog.mjs';
@@ -12,7 +13,7 @@ export async function createOrder(db,{userId,requestKey,productId,playerId,fulfi
  const product=await publishedProduct(db,getProduct(productId));if(!product)throw Error('PRODUCT_UNAVAILABLE');
  const snapshot={...makeSnapshot(productId,playerId),salePriceCents:product.salePriceCents,...(fulfillmentPlan?{fulfillmentPlan,providerCostCents:0,providerCostEstimated:false}: {})},id=uuid(),at=now();
  if(couponCode&&billingMode!=='customer')throw Error('COUPON_RETAIL_ONLY');
- if(billingMode==='customer'){const pricing=await retailDiscount(db,product.salePriceCents,couponCode);if(maxAmountCents!==null&&maxAmountCents!==pricing.amountCents)throw Error('PRODUCT_PRICE_CHANGED');snapshot.retailPricing=pricing;snapshot.salePriceCents=pricing.amountCents;}
+ if(billingMode==='customer'){const pricing=await retailDiscount(db,globalThis.ZXRetailPricing.priceCents(product.salePriceCents),couponCode);if(maxAmountCents!==null&&maxAmountCents!==pricing.amountCents)throw Error('PRODUCT_PRICE_CHANGED');snapshot.retailPricing=pricing;snapshot.salePriceCents=pricing.amountCents;}
  if(billingMode==='owner-provider'){if(!fulfillmentPlan)throw Error('RA_PLAN_MISMATCH');snapshot.retailPriceCents=snapshot.salePriceCents;snapshot.salePriceCents=0;snapshot.billingMode='owner-provider';}
  if(fulfillmentPlan){
   const packs=fulfillmentPlan.packs;
