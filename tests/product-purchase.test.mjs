@@ -42,7 +42,7 @@ test('wallet purchase debits once, delivers exact UID once, tracking is private 
  const submitted={n:0},fetcher=upstream({submitted}),key=crypto.randomUUID();
  const a=await route(env,'/wallet',founder,body,key,fetcher);assert.equal(a.body.ok,true);assert.equal(a.body.delivery.state,'COMPLETED');assert.equal(submitted.n,1);
  const b=await route(env,'/wallet',founder,body,key,fetcher);assert.equal(b.body.orderId,a.body.orderId);assert.equal(submitted.n,1);
- assert.equal((await walletState(env.DB,'owner')).availableCents,8200);
+ assert.equal((await walletState(env.DB,'owner')).availableCents,7640);
  const paused={...env,DIAMOND_PRODUCTION_ENABLED:''};assert.equal((await route(paused,'/orders/'+a.body.orderId)).body.order.delivered,110);
  assert.equal((await route(paused,'/orders/'+a.body.orderId,{...founder,id:'other'})).status,404);
  await assert.rejects(spendOrderWallet(env.DB,await env.DB.prepare('SELECT * FROM zx_diamond_orders').first(),{...founder,id:'other'}),/OWNER/);
@@ -52,12 +52,12 @@ test('insufficient wallet never submits; lost supplier response preserves one de
  assert.equal((await route(env,'/wallet',founder,body,crypto.randomUUID(),fetcher)).body.error,'WALLET_MOVEMENT_REJECTED');assert.equal(submitted.n,0);
  await postMovement(env.DB,{userId:'owner',kind:'credit',amountCents:10000,currency:'MXN',source:'fixture',reference:'1',requestKey:'credit',actor:'fixture'});
  const key=crypto.randomUUID(),a=await route(env,'/wallet',founder,body,key,fetcher);assert.equal(a.body.delivery.state,'REQUIRES_REVIEW');assert.equal(submitted.n,1);
- await route(env,'/wallet',founder,body,key,fetcher);assert.equal(submitted.n,1);assert.equal((await walletState(env.DB,'owner')).availableCents,8200);
+ await route(env,'/wallet',founder,body,key,fetcher);assert.equal(submitted.n,1);assert.equal((await walletState(env.DB,'owner')).availableCents,7640);
 });
 test('server-priced production checkout reconciles only matching live evidence; duplicate webhook no second delivery',async()=>{
  const env=await setup(),submitted={n:0},fetcher=upstream({submitted});
  const a=await route(env,'/checkout',founder,{...body,price:0,amountCents:1,paid:true},crypto.randomUUID(),fetcher);assert.equal(a.body.ok,true);assert.equal(submitted.n,1);
- const p={id:555,external_reference:a.body.orderId,transaction_amount:18,currency_id:'MXN',collector_id:456,live_mode:true,status:'approved'};
+ const p={id:555,external_reference:a.body.orderId,transaction_amount:23.60,currency_id:'MXN',collector_id:456,live_mode:true,status:'approved'};
  for(const patch of [{live_mode:false},{transaction_amount:1},{collector_id:777},{currency_id:'USD'}])await assert.rejects(reconcileProductPayment(env,{...p,...patch},fetcher),/EVIDENCE/);
  assert.equal(submitted.n,1);const paid=await reconcileProductPayment(env,p,fetcher);assert.equal(paid.delivery.state,'COMPLETED');assert.equal(submitted.n,2);
  await reconcileProductPayment(env,p,fetcher);assert.equal(submitted.n,2);assert.equal((await walletState(env.DB,'owner')).availableCents,0);
@@ -71,7 +71,7 @@ test('recovery after wallet debit state-write failure only repairs existing debi
  const env=await setup(),fetcher=upstream();await postMovement(env.DB,{userId:'owner',kind:'credit',amountCents:10000,currency:'MXN',source:'fixture',reference:'1',requestKey:'credit',actor:'fixture'});
  const batch=env.DB.batch.bind(env.DB);let fail=true;env.DB.batch=async statements=>{if(fail&&env.DB.sql.prepare("SELECT COUNT(*) n FROM zx_wallet_ledger WHERE kind='purchase'").get().n){fail=false;throw Error('DB_WRITE_FAILED');}return batch(statements);};
  const a=await route(env,'/wallet',founder,body,crypto.randomUUID(),fetcher);assert.equal(a.body.error,'WALLET_RECONCILIATION_REQUIRED');assert.ok(a.body.orderId);
- await route(env,'/resume',founder,{orderId:a.body.orderId},crypto.randomUUID(),fetcher);assert.equal((await walletState(env.DB,'owner')).availableCents,8200);assert.equal((await env.DB.prepare('SELECT state FROM zx_diamond_orders').first()).state,'COMPLETED');
+ await route(env,'/resume',founder,{orderId:a.body.orderId},crypto.randomUUID(),fetcher);assert.equal((await walletState(env.DB,'owner')).availableCents,7640);assert.equal((await env.DB.prepare('SELECT state FROM zx_diamond_orders').first()).state,'COMPLETED');
 });
 test('accepted supplier order resumes with expected UID via lookup and no repeated POST',async()=>{
  const env=await setup();await postMovement(env.DB,{userId:'owner',kind:'credit',amountCents:10000,currency:'MXN',source:'fixture',reference:'1',requestKey:'credit',actor:'fixture'});let sends=0,reads=0;const base=upstream();
@@ -92,7 +92,7 @@ test('legacy paid orders never switch supplier; new plans record RA cost in USD'
  const row=await env.DB.prepare('SELECT * FROM zx_diamond_orders WHERE id=?').bind(checkout.body.orderId).first();const snapshot=JSON.parse(row.snapshot_json);
  assert.equal(snapshot.fulfillmentPlan.provider,'recargas-america');assert.equal(snapshot.providerCostCents,0);assert.equal(snapshot.providerCostEstimated,false);
  delete snapshot.fulfillmentPlan;await env.DB.prepare('UPDATE zx_diamond_orders SET snapshot_json=? WHERE id=?').bind(JSON.stringify(snapshot),row.id).run();
- const result=await reconcileProductPayment(env,{id:555,external_reference:row.id,transaction_amount:18,currency_id:'MXN',collector_id:456,live_mode:true,status:'approved'},fetcher);
+ const result=await reconcileProductPayment(env,{id:555,external_reference:row.id,transaction_amount:23.60,currency_id:'MXN',collector_id:456,live_mode:true,status:'approved'},fetcher);
  assert.equal(result.reviewRequired,true);assert.equal(submitted.n,1);
 });
 test('insufficient RA supplier funds reject before checkout creation or wallet debit',async()=>{
@@ -125,7 +125,7 @@ test('automatic live US mapping completes a paid wallet purchase once and tracks
  const a=await route(env,'/wallet',founder,body,key,fetcher);assert.equal(a.body.ok,true);assert.equal(calls.buy,1);
  await route(env,'/resume',founder,{orderId:a.body.orderId},key,fetcher);
  const tracked=await route(env,'/orders/'+a.body.orderId,founder,null,key,fetcher);assert.equal(tracked.body.order.delivered,110);assert.equal(tracked.body.order.state,'COMPLETED');assert.equal(calls.buy,1);assert(calls.lookup>=1);
- assert.equal((await walletState(env.DB,'owner')).availableCents,8200);
+ assert.equal((await walletState(env.DB,'owner')).availableCents,7640);
  await route(env,'/wallet',founder,body,key,fetcher);assert.equal(calls.buy,1);
  const forbidden=await route(env,'/checkout',{...founder,isFounder:false},body,key,()=>{throw Error('must not read provider')});assert.equal(forbidden.status,403);
 });
@@ -201,7 +201,7 @@ test('large diamond MP checkout uses exact amount and paid continuation complete
 });
 test('web wallet remains available without MP credentials for diamond checkout',async()=>{
  const env=await setup();env.MP_ACCESS_TOKEN='';env.MP_WEBHOOK_SECRET_PRODUCTION='';
- await postMovement(env.DB,{userId:'owner',kind:'credit',amountCents:1800,currency:'MXN',source:'fixture',reference:'no-mp',requestKey:'no-mp',actor:'fixture'});
+ await postMovement(env.DB,{userId:'owner',kind:'credit',amountCents:2360,currency:'MXN',source:'fixture',reference:'no-mp',requestKey:'no-mp',actor:'fixture'});
  const s=await route(env,'/status',founder,null,undefined,upstream());assert.equal(s.body.enabled,false);assert.equal(s.body.walletEnabled,true);
  const r=await route(env,'/wallet',founder,{...body,method:'wallet'},crypto.randomUUID(),upstream());assert.equal(r.status,200,JSON.stringify(r.body));assert.equal((await walletState(env.DB,'owner')).availableCents,0);
 });
@@ -210,6 +210,6 @@ import {couponSchema} from '../cloudflare/coupons.mjs';
 test('diamond discount is immutable, debits net cents and never changes diamond quantity',async()=>{
  const env=await setup(),fetcher=upstream(),key=crypto.randomUUID();await couponSchema(env.DB);env.DB.sql.exec("INSERT INTO zx_discount_codes VALUES('ZX-ABCDEF123456',10,'2099-01-01T00:00:00.000Z',1,'owner','fixture',CURRENT_TIMESTAMP)");
  await postMovement(env.DB,{userId:'owner',kind:'credit',amountCents:10000,currency:'MXN',source:'fixture',reference:'discount',requestKey:'discount',actor:'fixture'});
- const b={...body,couponCode:'ZX-ABCDEF123456',maxAmountCents:1620};const r=await route(env,'/wallet',founder,b,key,fetcher);assert.equal(r.body.ok,true,JSON.stringify(r));assert.equal(r.body.delivery.delivered,110);assert.equal((await walletState(env.DB,'owner')).availableCents,8380);
- env.DB.sql.exec('UPDATE zx_discount_codes SET active=0');await route(env,'/wallet',founder,b,key,fetcher);assert.equal((await walletState(env.DB,'owner')).availableCents,8380);assert.equal((await route(env,'/wallet',founder,{...b,couponCode:''},key,fetcher)).body.error,'IDEMPOTENCY_CONFLICT');
+ const b={...body,couponCode:'ZX-ABCDEF123456',maxAmountCents:2124};const r=await route(env,'/wallet',founder,b,key,fetcher);assert.equal(r.body.ok,true,JSON.stringify(r));assert.equal(r.body.delivery.delivered,110);assert.equal((await walletState(env.DB,'owner')).availableCents,7876);
+ env.DB.sql.exec('UPDATE zx_discount_codes SET active=0');await route(env,'/wallet',founder,b,key,fetcher);assert.equal((await walletState(env.DB,'owner')).availableCents,7876);assert.equal((await route(env,'/wallet',founder,{...b,couponCode:''},key,fetcher)).body.error,'IDEMPOTENCY_CONFLICT');
 });

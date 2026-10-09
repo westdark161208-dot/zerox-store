@@ -8,9 +8,9 @@ import {walletSchema,postMovement,walletState} from '../cloudflare/wallet/ledger
 import {walletAdminRoute} from '../cloudflare/wallet/admin.mjs';
 const reply=(b,s=200)=>new Response(JSON.stringify(b),{status:s});
 const user={id:'buyer',status:'active',isFounder:false};
-const buy={productId:'ff-booyah-76828',quantity:1,maxAmountCents:3500,playerId:'1136210821',playerConfirmed:true,contactPhone:'+529511234567',method:'wallet'};
+const buy={productId:'ff-booyah-76828',quantity:1,maxAmountCents:4132,playerId:'1136210821',playerConfirmed:true,contactPhone:'+529511234567',method:'wallet'};
 const call=(env,path,body,fetcher,key=crypto.randomUUID(),account=user)=>serviceRoute(new Request('https://test'+path,{method:body?'POST':'GET',headers:{'Idempotency-Key':key},body:body?JSON.stringify(body):undefined}),env,new URL('https://test'+path),account,reply,fetcher);
-async function setup(){const DB=database();DB.sql.exec("CREATE TABLE zx_users(id TEXT PRIMARY KEY,status TEXT);INSERT INTO zx_users VALUES('buyer','active')");await walletSchema(DB);await postMovement(DB,{userId:'buyer',kind:'credit',amountCents:3500,currency:'MXN',source:'test',reference:'seed',requestKey:'seed',actor:'test'});return {DB,PUBLIC_COMMERCE_ENABLED:'true',SIXOFIRE_DELIVERY_ENABLED:'true',SIXOFIRE_API_KEY:'fixture',FF_INFO_API_KEY:'fixture'};}
+async function setup(){const DB=database();DB.sql.exec("CREATE TABLE zx_users(id TEXT PRIMARY KEY,status TEXT);INSERT INTO zx_users VALUES('buyer','active')");await walletSchema(DB);await postMovement(DB,{userId:'buyer',kind:'credit',amountCents:4132,currency:'MXN',source:'test',reference:'seed',requestKey:'seed',actor:'test'});return {DB,PUBLIC_COMMERCE_ENABLED:'true',SIXOFIRE_DELIVERY_ENABLED:'true',SIXOFIRE_API_KEY:'fixture',FF_INFO_API_KEY:'fixture'};}
 function upstream({ambiguous=false,unavailable=false}={}){let buys=0;const item={id:'1042',name:'Pase Booyah de Free Fire',itemType:'GIFT',available:true,isActive:true,priceUsd:1,availableRegions:['US']};return {count:()=>buys,fetcher:async(url,opts={})=>{
  let b;
  if(url.includes('freefirecommunity'))b={basicInfo:{accountId:buy.playerId,nickname:'Player',region:'US'}};
@@ -20,12 +20,12 @@ function upstream({ambiguous=false,unavailable=false}={}){let buys=0;const item=
  else throw Error('Unexpected request '+url);
  return new Response(JSON.stringify(b));
  }};}
-test('exact 35 MXN web balance buys Booyah once without MP or RA configuration',async()=>{
+test('exact published 41.32 MXN web balance buys Booyah once without MP or RA configuration',async()=>{
  const env=await setup(),up=upstream(),key=crypto.randomUUID();
  const status=await(await call(env,'/api/services/purchase/status')).json();assert.equal(status.walletEnabled,true);assert.equal(status.enabled,false);
  const result=await call(env,'/api/services/purchase/checkout',buy,up.fetcher,key),data=await result.json();assert.equal(result.status,200,JSON.stringify(data));
  await call(env,'/api/services/purchase/checkout',buy,up.fetcher,key);assert.equal(up.count(),1);assert.equal((await walletState(env.DB,user.id)).availableCents,0);
- const receipt=await(await call(env,'/api/services/purchase/orders/'+data.orderId+'/receipt')).json();assert.equal(receipt.receipt.amountCents,3500);assert.doesNotMatch(JSON.stringify(receipt),/sixofire|1042/);
+ const receipt=await(await call(env,'/api/services/purchase/orders/'+data.orderId+'/receipt')).json();assert.equal(receipt.receipt.amountCents,4132);assert.doesNotMatch(JSON.stringify(receipt),/sixofire|1042/);
 });
 test('matching the game suffix never substitutes Premium, quantity bundles or another variant',()=>{
  for(const name of ['Pase Booyah','Pase Booyah de Free Fire','Free Fire Booyah Pass'])assert.equal(matchesServiceName('booyah-normal',name),true);
@@ -34,7 +34,7 @@ test('matching the game suffix never substitutes Premium, quantity bundles or an
 test('ambiguous or unavailable delivery cannot debit wallet; connection failures are not missing products',async()=>{
  for(const opts of [{ambiguous:true},{unavailable:true}]){
  const env=await setup(),up=upstream(opts),data=await(await call(env,'/api/services/purchase/checkout',buy,up.fetcher)).json();
- assert.equal(data.error,opts.unavailable?'DELIVERY_CONNECTION_FAILED':'PRODUCT_DELIVERY_MAPPING_REQUIRED');assert.equal(data.deliveryIssues,undefined);assert.equal(up.count(),0);assert.equal((await walletState(env.DB,user.id)).availableCents,3500);
+ assert.equal(data.error,opts.unavailable?'DELIVERY_CONNECTION_FAILED':'PRODUCT_DELIVERY_MAPPING_REQUIRED');assert.equal(data.deliveryIssues,undefined);assert.equal(up.count(),0);assert.equal((await walletState(env.DB,user.id)).availableCents,4132);
  const founder=await(await call(env,'/api/services/purchase/checkout',buy,up.fetcher,crypto.randomUUID(),{...user,isFounder:true})).json();assert.ok(founder.deliveryIssues.some(i=>i.reason===(opts.unavailable?'DELIVERY_CONNECTION_FAILED':'AMBIGUOUS_PRODUCT')));
  }
 });

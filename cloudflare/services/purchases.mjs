@@ -1,3 +1,4 @@
+import '../../retail-pricing.js';
 import {retailDiscount,assertCouponRetry} from '../coupons.mjs';
 import {getProduct} from '../diamonds/catalog.mjs';
 import {deliveryQuote,submitDelivery,lookupDelivery} from './delivery.mjs';
@@ -14,7 +15,7 @@ export async function quote(env,id,uid,quantity,fetcher,preferred=null){
  const diamond=getProduct(id),base=serviceProducts[id]||(diamond?{key:'diamonds:'+diamond.diamonds,name:diamond.diamonds+' diamantes Free Fire',priceCents:diamond.salePriceCents}:null);if(!base)throw Error('PRODUCT_NOT_CONNECTED');const published=await publishedCatalog(env.DB),p=published[id],price=p?.priceCents??base.priceCents;
  if(p?.active===false||!Number.isSafeInteger(price)||price<1)throw Error('PRODUCT_PRICE_REQUIRED');
  if(!Number.isSafeInteger(quantity)||quantity<(base.min||1)||quantity>(base.max||1))throw Error('INVALID_QUANTITY');
- const amount=price*quantity;if(amount>1000000)throw Error('AMOUNT_LIMIT');
+ const amount=globalThis.ZXRetailPricing.priceCents(price*quantity);if(amount>100000000)throw Error('AMOUNT_LIMIT');
  const region=await verifiedPlayer(env,uid,fetcher),plan=await deliveryQuote(env,base.key,uid,quantity,region,fetcher,preferred);
  return {productName:p?.name||base.name,amountCents:amount,plan};
 }
