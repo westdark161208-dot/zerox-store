@@ -106,3 +106,17 @@ para la configuración completa solicitada. Ninguna variable productiva se cambi
 
 Siguen pendientes notificaciones, recargas manuales, navegación/soporte y la
 verificación real de asociaciones de todos los productos con sus proveedores.
+
+## Evidencia de tarifa — 10 de octubre, cierre
+
+El propietario proporcionó capturas de Checkout y de una venta por $20 MXN
+con cargo MP de $5.45. El cargo observado coincide al centavo con
+(20 × 0.0349 + 4) × 1.16 = 5.44968. La tarifa de Checkout mostrada es
+3.49% + $4 para tarjeta, saldo MP y SPEI; la evidencia de operación corresponde
+a transferencia electrónica. Se configura 349 bps, 400 centavos y 1600 bps de IVA.
+No se incluyen identificadores de la operación ni datos del comprador aquí.
+
+Configuración preparada en wrangler para ambos flags V3; aún no desplegada.
+La evidencia resuelve el bloqueo de tarifa. Siguen pendientes la validación
+integrada y el despliegue coordinado. No acredita por sí sola la entrega de
+productos por los proveedores. OXXO manual sigue fuera de esta tarifa.
