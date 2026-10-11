@@ -9,3 +9,9 @@
 .zx-toast-run{animation:zx-purchase-travel 4s both}.zx-purchase-toast:hover,.zx-purchase-toast:focus-within{animation-play-state:paused}
 @keyframes zx-purchase-travel{0%{opacity:0;transform:translateX(calc(100% + 24px))}12%,82%{opacity:1;transform:translateX(0)}100%{opacity:0;transform:translateX(calc(-100vw - 24px))}}
 @media(prefers-reduced-motion:reduce){.zx-toast-run{animation:none}}
+
+/* Compact V3 receipt activity, above the navigation rather than the hero. */
+.zx-purchase-toast{bottom:calc(88px + env(safe-area-inset-bottom));width:260px;padding:9px;gap:8px;border-radius:10px}
+.zx-purchase-toast .zx-activity-avatar{border-radius:7px;flex-basis:42px;width:42px;height:42px}
+.zx-purchase-toast small{margin:2px 0;font-size:11px;white-space:nowrap;display:block;text-overflow:ellipsis}
+.zx-purchase-toast strong{font-size:12px}
