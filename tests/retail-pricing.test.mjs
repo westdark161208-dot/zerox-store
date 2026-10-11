@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
 import '../retail-pricing.js';
-const {priceCents}=globalThis.ZXRetailPricing;
+const {legacyPriceCents:priceCents}=globalThis.ZXRetailPricing;
 test('published totals cover processing reference and VAT with cent rounding, never per fragment',()=>{
  assert.equal(priceCents(3500),4132);
  assert.equal(priceCents(1800),2360);
@@ -21,9 +21,9 @@ test('cart and checkout price a whole quantity once without mutating editable ba
  const selection=app.slice(app.indexOf('function selectedProduct('),app.indexOf('function productSelection('));
  const products=[{id:'pass',price:35},{id:'box',price:3.5,minQuantity:7,maxQuantity:100}];
  const c=vm.createContext({PRODUCTS:products,ZXRetailPricing:globalThis.ZXRetailPricing});vm.runInContext(selection,c);
- assert.equal(c.selectedProduct('pass').price,41.32);
- assert.equal(c.selectedProduct('pass').price,41.32);
- assert.equal(c.selectedProduct('box::7').price,priceCents(2450)/100);
+ assert.equal(c.selectedProduct('pass').price,35);
+ assert.equal(c.selectedProduct('pass').price,35);
+ assert.equal(c.selectedProduct('box::7').price,24.5);
  assert.equal(c.selectedProduct('box::6'),null);
  assert.equal(products[0].price,35);assert.equal(products[1].price,3.5);
 });

@@ -213,3 +213,22 @@ test('diamond discount is immutable, debits net cents and never changes diamond 
  const b={...body,couponCode:'ZX-ABCDEF123456',maxAmountCents:2124};const r=await route(env,'/wallet',founder,b,key,fetcher);assert.equal(r.body.ok,true,JSON.stringify(r));assert.equal(r.body.delivery.delivered,110);assert.equal((await walletState(env.DB,'owner')).availableCents,7876);
  env.DB.sql.exec('UPDATE zx_discount_codes SET active=0');await route(env,'/wallet',founder,b,key,fetcher);assert.equal((await walletState(env.DB,'owner')).availableCents,7876);assert.equal((await route(env,'/wallet',founder,{...b,couponCode:''},key,fetcher)).body.error,'IDEMPOTENCY_CONFLICT');
 });
+
+test('V3 diamonds debit Editor base for wallet and verify gross MP total; retries do not reprice',async()=>{
+ for(const method of ['wallet','card']){
+  const env={...await setup(),MP_PRODUCT_QUOTES_V3:'true',MP_FEE_POLICY_VERIFIED:'true',MP_FEE_POLICY_VERSION:'fixture',MP_FEE_RATE_BPS:'349',MP_FEE_FIXED_CENTS:'400',MP_FEE_TAX_BPS:'0'};
+  await postMovement(env.DB,{userId:'owner',kind:'credit',amountCents:10000,currency:'MXN',source:'fixture',reference:'v3',requestKey:'v3-credit',actor:'fixture'});
+  const submitted={n:0},fetcher=upstream({submitted}),key=crypto.randomUUID(),b={...body,method};
+  const quoted=await route(env,'/quote',founder,b,key,fetcher);assert.equal(quoted.status,200,JSON.stringify(quoted));
+  assert.equal(quoted.body.quote.baseCents,1800);assert.equal(quoted.body.amountCents,method==='wallet'?1800:2280);
+  const accepted={...b,quoteId:quoted.body.quote.id,maxAmountCents:quoted.body.amountCents};
+  const first=await route(env,method==='wallet'?'/wallet':'/checkout',founder,accepted,key,fetcher);assert.equal(first.status,200,JSON.stringify(first));
+  const repeat=await route(env,method==='wallet'?'/wallet':'/checkout',founder,accepted,key,fetcher);assert.equal(repeat.body.orderId,first.body.orderId);
+  assert.equal(submitted.n,1);assert.equal((await walletState(env.DB,'owner')).availableCents,method==='wallet'?8200:10000);
+  if(method==='card'){
+   const payment={id:9009,external_reference:first.body.orderId,transaction_amount:22.80,currency_id:'MXN',collector_id:456,live_mode:true,status:'approved'};
+   await assert.rejects(reconcileProductPayment(env,{...payment,transaction_amount:18},fetcher));
+   await reconcileProductPayment(env,payment,fetcher);assert.equal(submitted.n,2);
+  }
+ }
+});

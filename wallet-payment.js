@@ -3,12 +3,12 @@
  const ROOT='/api/payments/mercadopago/funding';
  const q=id=>document.getElementById(id);
  const token=()=>{try{return JSON.parse(localStorage.getItem('zerox-session')||'null')?.token;}catch{return null;}};
- let generation=0,enabled=false;
+ let generation=0,enabled=false,quotesV3=false,paymentQuote=null,quoteSequence=0;
  let attempt=new URL(location.href).searchParams.get('attempt');
  if(!/^[a-f0-9-]{36}$/.test(attempt||''))attempt=null;
  const preferred=new URL(location.href).searchParams.get('method');
  if(!attempt&&['all','card','spei'].includes(preferred)){const radio=document.querySelector?.('input[name=method][value='+preferred+']');if(radio)radio.checked=true;}
- function clear(){generation++;enabled=false;q('funding-create').disabled=true;q('funding-refresh').disabled=true;q('funding-checkout').hidden=true;q('funding-checkout').removeAttribute('href');q('funding-result').textContent='';q('funding-status').textContent='Inicia sesión en la tienda y vuelve a consultar.';}
+ function clear(){generation++;invalidateQuote();enabled=false;q('funding-create').disabled=true;q('funding-refresh').disabled=true;q('funding-checkout').hidden=true;q('funding-checkout').removeAttribute('href');q('funding-result').textContent='';q('funding-status').textContent='Inicia sesión en la tienda y vuelve a consultar.';}
  async function api(path,options={}){
   const current=token(),version=generation;
   if(!current)throw Error('Inicia sesión con tu cuenta de Zero’X.');
@@ -25,21 +25,33 @@
   q('funding-result').textContent=(names[data.state]||'Estado pendiente de revisión')+' · '+new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'}).format(data.amountCents/100);
  }catch(e){if(version===generation&&e.message!=='STALE_RESPONSE')q('funding-result').textContent=e.message;}finally{if(version===generation)q('funding-refresh').disabled=false;}}
  async function init(){clear();const version=generation;try{
-  const data=await api('/api/wallet/me');enabled=data.fundingPilotAvailable===true;
+  const data=await api('/api/wallet/me');enabled=data.fundingPilotAvailable===true;quotesV3=data.fundingQuotesV3===true;
   q('funding-status').textContent=enabled?'Recarga de saldo disponible desde $20 MXN.':'Prueba desactivada: pendiente de configuración y validación del servidor.';
   q('funding-create').disabled=!enabled||!!attempt;q('funding-amount').disabled=!!attempt;for(const input of document.querySelectorAll?.('input[name=method]')||[])input.disabled=!!attempt;
   q('funding-refresh').disabled=!enabled||!attempt;
-  if(enabled&&attempt)await refresh();
+  if(enabled&&attempt)await refresh();else if(enabled)await refreshQuote();
  }catch(e){if(version===generation&&e.message!=='STALE_RESPONSE')q('funding-status').textContent=e.message;}}
+ function invalidateQuote(){paymentQuote=null;quoteSequence++;if(quotesV3){q('funding-create').disabled=true;if(q('funding-quote'))q('funding-quote').textContent='Consulta el total antes de pagar.';}}
+ async function refreshQuote(){
+  if(!quotesV3||!enabled||attempt)return;
+  invalidateQuote();const seq=quoteSequence,version=generation,cents=Math.round(Number(q('funding-amount').value)*100),method=document.querySelector?.('input[name=method]:checked')?.value||'all';
+  if(!Number.isSafeInteger(cents)||cents<2000||cents>10000000)return;
+  try{const data=await api(ROOT+'/quote',{method:'POST',body:JSON.stringify({amountCents:cents,method})});if(seq!==quoteSequence||version!==generation)return;
+   const v=data.quote;if(!v||v.baseCents!==cents||v.method!==method||v.expiresAt<=Date.now())throw Error('Cotización inválida.');
+   const summary=ZXRetailPricing.quoteSummary(v).replace('Producto:','Saldo a recibir:');paymentQuote=v;q('funding-quote').textContent=summary;q('funding-create').disabled=false;
+  }catch(e){if(seq===quoteSequence&&version===generation&&e.message!=='STALE_RESPONSE')q('funding-quote').textContent='No se pudo calcular la comisión. Actualiza el importe para consultar nuevamente.';}
+ }
+ q('funding-amount').addEventListener('input',invalidateQuote);q('funding-amount').addEventListener('change',refreshQuote);
+ for(const input of document.querySelectorAll?.('input[name=method]')||[])input.addEventListener('change',refreshQuote);
  q('funding-form').addEventListener('submit',async event=>{
   event.preventDefault();if(!enabled||q('funding-create').disabled)return;
   const amount=q('funding-amount').value;
   if(!/^\d{1,6}(\.\d{1,2})?$/.test(amount)){q('funding-result').textContent='Indica un importe con máximo dos decimales.';return;}
   const cents=Math.round(Number(amount)*100);if(!Number.isSafeInteger(cents)||cents<2000||cents>10000000)return;
-  const version=generation;q('funding-create').disabled=true;q('funding-amount').disabled=true;
+  if(quotesV3&&(!paymentQuote||paymentQuote.baseCents!==cents||paymentQuote.expiresAt<=Date.now())){await refreshQuote();return;}const acceptedQuote=paymentQuote;const version=generation;q('funding-create').disabled=true;q('funding-amount').disabled=true;
   for(const input of document.querySelectorAll?.('input[name=method]')||[])input.disabled=true;
   attempt=attempt||crypto.randomUUID();history.replaceState(null,'','?attempt='+attempt);
-  try{const data=await api(ROOT+'/checkout',{method:'POST',headers:{'Idempotency-Key':attempt},body:JSON.stringify({amountCents:cents,method:document.querySelector?.('input[name=method]:checked')?.value||'all'})});
+  try{const data=await api(ROOT+'/checkout',{method:'POST',headers:{'Idempotency-Key':attempt},body:JSON.stringify({amountCents:cents,...(quotesV3?{quoteId:acceptedQuote.id,maxAmountCents:acceptedQuote.totalCents}:{}),method:document.querySelector?.('input[name=method]:checked')?.value||'all'})});
    const link=new URL(data.checkoutUrl);if(link.protocol!=='https:'||!['www.mercadopago.com.mx','www.mercadopago.com'].includes(link.hostname))throw Error('Enlace de pago inválido.');
    q('funding-checkout').href=link.href;q('funding-checkout').hidden=false;location.assign(link.href);
   }catch(e){if(version===generation&&e.message!=='STALE_RESPONSE')q('funding-result').textContent=e.message;}

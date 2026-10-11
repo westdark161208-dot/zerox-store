@@ -1,7 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';import vm from 'node:vm';import {readFileSync} from 'node:fs';
 function setup(initial='one'){
  class El extends EventTarget{textContent='';hidden=false;open=false;children=[];attrs={};value='20';disabled=false;removeAttribute(k){delete this.attrs[k];}click(){this.dispatchEvent(new Event('click'));}replaceChildren(){this.children=[];}append(...c){this.children.push(...c);}setAttribute(k,v){this.attrs[k]=v;}showModal(){this.open=true;}close(){this.open=false;}focus(){}}
- const e=Object.fromEntries(['zx-header-wallet','zx-header-wallet-value','open-account','zx-wallet-refresh','zx-wallet-island','zx-wallet-island-value','zx-wallet-island-status','zx-wallet-island-methods','zx-wallet-island-topup','zx-wallet-island-close','zx-wallet-island-refresh','zx-island-funding-form','zx-island-amount','zx-island-checkout','zx-island-funding-status','zx-island-funding-refresh','zx-island-new-funding'].map(id=>[id,new El()]));let token=initial;const win=new EventTarget(),doc=new EventTarget(),calls=[],redirects=[];doc.getElementById=id=>e[id];doc.createElement=()=>new El();doc.hidden=false;
+ const e=Object.fromEntries(['zx-header-wallet','zx-header-wallet-value','open-account','zx-wallet-refresh','zx-wallet-island','zx-wallet-island-value','zx-wallet-island-status','zx-wallet-island-methods','zx-wallet-island-topup','zx-wallet-island-close','zx-wallet-island-refresh','zx-island-funding-form','zx-island-amount','zx-island-checkout','zx-island-funding-status','zx-island-funding-refresh','zx-island-new-funding','zx-island-quote'].map(id=>[id,new El()]));let token=initial;const win=new EventTarget(),doc=new EventTarget(),calls=[],redirects=[];doc.getElementById=id=>e[id];doc.createElement=()=>new El();doc.hidden=false;
  vm.runInNewContext(readFileSync(new URL('../header-wallet.js',import.meta.url),'utf8'),{document:doc,window:win,location:{href:"https://zerox-store.pages.dev/",assign:url=>redirects.push(url)},Intl,AbortController,getZeroXSession:()=>({token,userId:token?'user-'+token:null}),crypto,URL,sessionStorage:{getItem:()=>null,setItem(){},removeItem(){}},zeroxAuthRequest:(path,opts)=>new Promise((resolve,reject)=>calls.push({path,opts,resolve,reject}))});return {e,win,doc,calls,redirects,change:t=>{token=t;win.dispatchEvent(new Event('zx-session-change'));}};
 }
 const settle=()=>new Promise(r=>setImmediate(r));
@@ -24,4 +24,20 @@ test('inline top-up uses shared server checkout, freezes amount/method and rejec
 test('inline funding response cannot expose checkout after account changes; guests cannot prepare top-ups',async()=>{
  const guest=setup(null);guest.e['zx-island-funding-form'].dispatchEvent(new Event('submit',{cancelable:true}));assert.equal(guest.calls.length,0);
  const s=setup();s.calls[0].resolve({currency:'MXN',availableCents:0,fundingPilotAvailable:true});await settle();s.e['zx-island-funding-form'].dispatchEvent(new Event('submit',{cancelable:true}));s.change('other');s.calls[1].resolve({checkoutUrl:'https://www.mercadopago.com.mx/private'});await settle();assert.equal(s.e['zx-island-checkout'].hidden,true);assert.equal(s.e['zx-island-funding-status'].textContent,'');
+});
+
+test('V3 displays server fee before checkout and sends the accepted quote with one payment action',async()=>{
+ const s=setup();s.calls[0].resolve({currency:'MXN',availableCents:0,fundingPilotAvailable:true,fundingQuotesV3:true});await settle();
+ assert.equal(s.calls[1].path,'/api/payments/mercadopago/funding/quote');assert.equal(s.e['zx-wallet-island-topup'].disabled,true);
+ const quote={id:crypto.randomUUID(),baseCents:2000,feeCents:487,taxCents:0,totalCents:2487,method:'all',currency:'MXN',expiresAt:Date.now()+300000};
+ s.calls[1].resolve({quote});await settle();assert.match(s.e['zx-island-quote'].textContent,/20.00.*4.87.*24.87/);assert.equal(s.e['zx-wallet-island-topup'].disabled,false);
+ s.e['zx-island-funding-form'].dispatchEvent(new Event('submit',{cancelable:true}));
+ const body=JSON.parse(s.calls[2].opts.body);assert.equal(body.quoteId,quote.id);assert.equal(body.maxAmountCents,2487);assert.equal(body.amountCents,2000);
+});
+test('V3 ignores a late quote after amount editing and waits for renewed consent',async()=>{
+ const s=setup();s.calls[0].resolve({currency:'MXN',availableCents:0,fundingPilotAvailable:true,fundingQuotesV3:true});await settle();
+ s.e['zx-island-amount'].value='30';s.e['zx-island-amount'].dispatchEvent(new Event('input'));
+ s.calls[1].resolve({quote:{id:crypto.randomUUID(),baseCents:2000,feeCents:487,taxCents:0,totalCents:2487,method:'all',currency:'MXN',expiresAt:Date.now()+300000}});await settle();
+ assert.equal(s.e['zx-wallet-island-topup'].disabled,true);assert.doesNotMatch(s.e['zx-island-quote'].textContent,/24.87/);
+ s.e['zx-island-funding-form'].dispatchEvent(new Event('submit',{cancelable:true}));assert.equal(s.calls[2].path,'/api/payments/mercadopago/funding/quote');assert.equal(JSON.parse(s.calls[2].opts.body).amountCents,3000);
 });

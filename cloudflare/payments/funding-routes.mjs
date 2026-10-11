@@ -7,6 +7,7 @@ import {walletSchema} from '../wallet/ledger.mjs';
 import {settleFunding} from './settlement.mjs';
 import {productionPayment,productionToken} from './mercadopago-production.mjs';
 import {validSignature} from './mercadopago-test.mjs';
+import {quoteSchema,createQuote,acceptQuote,feePolicy} from './quotes-v3.mjs';
 const ROOT='/api/payments/mercadopago/funding';
 const SITE='https://zerox-store.pages.dev';
 const HOOK='https://zerox-sixofire-api.westdark161208.workers.dev'+ROOT+'/webhook';
@@ -47,7 +48,12 @@ export async function fundingRoute(request,env,url,user,json,fetcher=fetch){
    const body=await request.json(),key=request.headers.get('Idempotency-Key');
    if(!/^[a-f0-9-]{36}$/.test(key||'')||!Number.isSafeInteger(body.amountCents)||body.amountCents<2000||body.amountCents>10000000||!['all','card','spei'].includes(body.method||'all'))return reply({ok:false,error:'INVALID_FUNDING_REQUEST'},400);
    await schemas(env.DB);
-   const intent=await createFundingIntent(env.DB,{id:key,userId:user.id,amountCents:body.amountCents,collectorId:String(env.MP_COLLECTOR_ID_PRODUCTION),requestKey:key});
+   let quote;
+   if(env.MP_FUNDING_QUOTES_V3==='true'){
+    await quoteSchema(env.DB);
+    quote=await acceptQuote(env.DB,{id:body.quoteId,userId:user.id,context:'funding:'+body.amountCents,method:body.method||'all',maxAmountCents:body.maxAmountCents,orderId:key});
+   }
+   const intent=await createFundingIntent(env.DB,{id:key,userId:user.id,amountCents:body.amountCents,collectorId:String(env.MP_COLLECTOR_ID_PRODUCTION),requestKey:key,quote});
    if(intent.state!=='pending')return reply({ok:false,error:'FUNDING_ATTEMPT_ALREADY_PROCESSED'},409);
    // Claim once before remote call. Ambiguous failures are not automatically retried.
    const claim=await env.DB.prepare('INSERT INTO zx_funding_checkouts(intent_id) VALUES(?) ON CONFLICT DO NOTHING').bind(intent.id).run();
@@ -59,7 +65,7 @@ export async function fundingRoute(request,env,url,user,json,fetcher=fetch){
    let pref;
    try{
     const response=await fetcher('https://api.mercadopago.com/checkout/preferences',{method:'POST',redirect:'manual',headers:{Authorization:'Bearer '+productionToken(env),'Content-Type':'application/json'},signal:AbortSignal.timeout(12000),body:JSON.stringify({
-     items:[{id:intent.id,title:'Recarga de saldo Zero’X',quantity:1,currency_id:'MXN',unit_price:intent.amount_cents/100}],external_reference:intent.id,
+     items:[{id:intent.id,title:'Recarga de saldo Zero’X',quantity:1,currency_id:'MXN',unit_price:(intent.charge_cents??intent.amount_cents)/100}],external_reference:intent.id,
      payment_methods:publicMethods(body.method||'all'),
      back_urls:{success:back,pending:back,failure:back},notification_url:HOOK,expires:true,expiration_date_to:new Date(Date.now()+3600000).toISOString()
     })});
@@ -73,6 +79,14 @@ export async function fundingRoute(request,env,url,user,json,fetcher=fetch){
     return reply({ok:false,error:'CHECKOUT_RECONCILIATION_REQUIRED'},503);
    }
   }
+  if(url.pathname===ROOT+'/quote'&&request.method==='POST'){
+   if(env.MP_FUNDING_QUOTES_V3!=='true')return reply({ok:false,error:'QUOTES_V3_DISABLED'},503);
+   const body=await request.json();
+   if(!Number.isSafeInteger(body.amountCents)||body.amountCents<2000||body.amountCents>10000000||!['all','card','spei'].includes(body.method))return reply({ok:false,error:'INVALID_FUNDING_REQUEST'},400);
+   await quoteSchema(env.DB);
+   const quote=await createQuote(env.DB,{userId:user.id,context:'funding:'+body.amountCents,baseCents:body.amountCents,method:body.method,policy:feePolicy(env)});
+   return reply({ok:true,quote});
+  }
   const match=url.pathname.match(/^\/api\/payments\/mercadopago\/funding\/intents\/([a-f0-9-]{36})$/);
   if(match&&request.method==='GET'){
    await schemas(env.DB);
@@ -85,6 +99,8 @@ export async function fundingRoute(request,env,url,user,json,fetcher=fetch){
   }
   return reply({ok:false,error:'NOT_FOUND'},404);
  }catch(e){
+  if(['QUOTE_NOT_FOUND','QUOTE_CHANGED','QUOTE_EXPIRED','QUOTE_ALREADY_USED','INVALID_QUOTE_CONTEXT','FUNDING_QUOTE_REQUIRED'].includes(e.message))return reply({ok:false,error:e.message},409);
+  if(['FEE_POLICY_NOT_VERIFIED','INVALID_FEE_POLICY'].includes(e.message))return reply({ok:false,error:e.message},503);
   const safe=['FUNDING_CONFLICT','FUNDING_EVIDENCE_REJECTED','FUNDING_PAYMENT_CONFLICT','FUNDING_NOT_VERIFIED','FUNDING_SETTLEMENT_REJECTED'].includes(e.message)?e.message:'FUNDING_UNAVAILABLE';
   return reply({ok:false,error:safe},safe==='FUNDING_CONFLICT'?409:503);
  }
