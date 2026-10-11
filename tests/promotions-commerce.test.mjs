@@ -19,3 +19,23 @@ test('promotion discount persists net total and cannot be replaced on retry',asy
  const r=await call(promotionRoute,e,'/api/promotions/checkout',user,b,key,up.fetcher);assert.equal(r.status,200,JSON.stringify(await r.json()));assert.equal((await walletState(e.DB,user.id)).availableCents,14165);
  e.DB.sql.exec('UPDATE zx_discount_codes SET active=0');await call(promotionRoute,e,'/api/promotions/checkout',user,b,key,up.fetcher);assert.equal((await walletState(e.DB,user.id)).availableCents,14165);assert.equal((await call(promotionRoute,e,'/api/promotions/checkout',user,{...b,couponCode:''},key,up.fetcher)).status,409);
 });
+
+test('V3 promotions charge the base wallet total and reject changed destination quotes',async()=>{
+ const e={...await env(),MP_PRODUCT_QUOTES_V3:'true'},up=upstream(),key=crypto.randomUUID();
+ const quoted=await(await call(promotionRoute,e,'/api/promotions/quote',user,purchase,key,up.fetcher)).json();assert.equal(quoted.amountCents,7000);assert.equal(quoted.quote.feeCents,0);
+ const b={...purchase,maxAmountCents:7000,quoteId:quoted.quote.id};
+ const wrong=await call(promotionRoute,e,'/api/promotions/checkout',user,{...b,playerId:'987654321'},key,up.fetcher);assert.equal(wrong.status,409);assert.equal((await walletState(e.DB,user.id)).availableCents,20000);
+ const r=await call(promotionRoute,e,'/api/promotions/checkout',user,b,key,up.fetcher);assert.equal(r.status,200,JSON.stringify(await r.json()));
+ assert.equal((await walletState(e.DB,user.id)).availableCents,13000);
+});
+
+test('V3 promotion insufficient balance can resume after funding without duplicate debit',async()=>{
+ const e={...await env(),MP_PRODUCT_QUOTES_V3:'true'},up=upstream(),key=crypto.randomUUID();
+ await postMovement(e.DB,{userId:user.id,kind:'purchase',amountCents:19000,currency:'MXN',source:'test-spend',reference:'spend',requestKey:'spend',orderId:'prior-order',actor:'test'});
+ const q=await(await call(promotionRoute,e,'/api/promotions/quote',user,purchase,key,up.fetcher)).json(),b={...purchase,maxAmountCents:7000,quoteId:q.quote.id};
+ const first=await call(promotionRoute,e,'/api/promotions/checkout',user,b,key,up.fetcher);assert.equal(first.status,409);assert.equal((await walletState(e.DB,user.id)).availableCents,1000);
+ await postMovement(e.DB,{userId:user.id,kind:'credit',amountCents:10000,currency:'MXN',source:'test-fund',reference:'fund',requestKey:'fund',actor:'test'});
+ const retry=await call(promotionRoute,e,'/api/promotions/checkout',user,b,key,up.fetcher);assert.equal(retry.status,200,JSON.stringify(await retry.json()));
+ await call(promotionRoute,e,'/api/promotions/checkout',user,b,key,up.fetcher);assert.equal((await walletState(e.DB,user.id)).availableCents,4000);
+ assert.equal(e.DB.sql.prepare("SELECT COUNT(*) n FROM zx_wallet_ledger WHERE source='bundle-wallet'").get().n,1);
+});

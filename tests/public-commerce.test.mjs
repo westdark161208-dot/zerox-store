@@ -26,3 +26,26 @@ test('service discounts debit net total once and MP requires net payment evidenc
   if(method==='wallet'){assert.equal((await walletState(env.DB,'customer')).availableCents,14874);assert.equal(u.counts.buys,1);}else{const evidence={id:789,live_mode:true,external_reference:d.orderId,collector_id:123,currency_id:'MXN',transaction_amount:51.26,status:'approved'};await assert.rejects(reconcileServicePayment(env,{...evidence,transaction_amount:50},u.fetcher));await reconcileServicePayment(env,evidence,u.fetcher);assert.equal(u.counts.buys,1);}
  }
 });
+
+test('V3 service coupons reduce base before commission and exact gross authorizes delivery',async()=>{
+ for(const method of ['wallet','all']){
+  const env={...await services(),MP_PRODUCT_QUOTES_V3:'true',MP_FEE_POLICY_VERIFIED:'true',MP_FEE_POLICY_VERSION:'fixture',MP_FEE_RATE_BPS:'349',MP_FEE_FIXED_CENTS:'400',MP_FEE_TAX_BPS:'0'},u=upstream(),key=crypto.randomUUID();
+  await couponSchema(env.DB);env.DB.sql.exec("INSERT INTO zx_discount_codes VALUES('ZX-ABCDEF123456',10,'2099-01-01T00:00:00.000Z',1,'founder','fixture',CURRENT_TIMESTAMP)");
+  const selection={...body,method,couponCode:'ZX-ABCDEF123456'};
+  const qr=await call(serviceRoute,env,'/api/services/purchase/quote',customer,selection,key,u.fetcher),q=await qr.json();assert.equal(qr.status,200,JSON.stringify(q));
+  assert.equal(q.quote.baseCents,4500);assert.equal(q.quote.totalCents,method==='wallet'?4500:5078);
+  const accepted={...selection,quoteId:q.quote.id,maxAmountCents:q.quote.totalCents};
+  const r=await call(serviceRoute,env,'/api/services/purchase/checkout',customer,accepted,key,u.fetcher),order=await r.json();assert.equal(r.status,200,JSON.stringify(order));
+  await call(serviceRoute,env,'/api/services/purchase/checkout',customer,accepted,key,u.fetcher);
+  if(method==='wallet'){assert.equal((await walletState(env.DB,'customer')).availableCents,15500);assert.equal(u.counts.buys,1);}
+  else{assert.equal(u.counts.preferences,1);assert.equal(u.counts.buys,0);await reconcileServicePayment(env,{id:223344,live_mode:true,external_reference:order.orderId,collector_id:123,currency_id:'MXN',transaction_amount:50.78,status:'approved'},u.fetcher);assert.equal(u.counts.buys,1);}
+ }
+});
+
+test('V3 service rejects changed catalog after quote without debit or provider submission',async()=>{
+ const env={...await services(),MP_PRODUCT_QUOTES_V3:'true'},u=upstream(),key=crypto.randomUUID(),b={...body,method:'wallet'};
+ const q=await(await call(serviceRoute,env,'/api/services/purchase/quote',customer,b,key,u.fetcher)).json();
+ env.DB.sql.exec(`UPDATE zx_store_editor SET published='{"ff-ra-weekly":{"name":"Membresía semanal","priceCents":6000,"active":true}}'`);
+ const r=await call(serviceRoute,env,'/api/services/purchase/checkout',customer,{...b,quoteId:q.quote.id,maxAmountCents:q.quote.totalCents},key,u.fetcher);assert.equal(r.status,409);assert.equal((await r.json()).error,'QUOTE_CHANGED');
+ assert.equal(u.counts.buys,0);assert.equal(u.counts.preferences,0);assert.equal((await walletState(env.DB,'customer')).availableCents,20000);
+});
