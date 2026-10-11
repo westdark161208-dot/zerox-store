@@ -19,7 +19,7 @@ function upstream({submitted={n:0},lost=false}={}){return async(url,options={})=
  if(url.endsWith('/account/shop/items'))return response({status:true,code:200,data:[item]});
  if(url.includes('/account/shop/orders?'))return response({status:true,code:200,data:{items:[]}});
  if(url.endsWith('/users/me'))return response({id:456,site_id:'MLM'});
- if(url.endsWith('/checkout/preferences')){submitted.n++;return response({id:'pref',collector_id:456,init_point:'https://www.mercadopago.com.mx/checkout/v1/redirect?pref_id=fixture'});}
+ if(url.endsWith('/checkout/preferences')){const preference=JSON.parse(options.body);assert.equal(preference.expires,true);assert.ok(Date.parse(preference.expiration_date_from)<Date.parse(preference.expiration_date_to));submitted.n++;return response({id:'pref',collector_id:456,init_point:'https://www.mercadopago.com.mx/checkout/v1/redirect?pref_id=fixture'});}
  if(url.endsWith('/buy/catalog')){submitted.n++;if(lost)throw Error('TIMEOUT');assert.deepEqual(JSON.parse(options.body),{product_id:123,quantity:1,player_id:'1136210821'});assert.ok(options.headers['Idempotency-Key']);return response({success:true,data:{order_id:'RAAPI-123',status:'COMPLETED',amount_charged:1,item:'FF100 plus bonus',delivery:[]}});}
  throw Error('UNEXPECTED_UPSTREAM '+url);
 };}
