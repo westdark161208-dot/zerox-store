@@ -24,3 +24,5 @@ details.zx-buy-guide{padding:0;overflow:hidden;margin-bottom:20px}
 .zx-manual-methods #zx-open-oxxo{border-color:#ff935b;box-shadow:0 0 12px #ff612d35}
 .zx-manual-methods img{width:84px;height:44px;object-fit:contain;border-radius:6px}
 .zx-manual-methods button:focus-visible{outline:3px solid #fff;outline-offset:3px}
+
+.zx-transfer-bank{color:#59e4fa;text-shadow:0 0 12px #35cfee55}.zx-transfer-details{padding:16px;border:1px solid #7556aa;border-radius:14px;background:#0b111c}.zx-transfer-details dt{color:#afb5ce;font:12px system-ui;margin-top:12px}.zx-transfer-details dd{margin:5px 0 14px;color:#dcd0ff;overflow-wrap:anywhere;display:flex;flex-wrap:wrap;align-items:center;gap:10px}.zx-transfer-details code{font:16px/1.5 monospace;user-select:all;color:#9af4dc}.zx-transfer-details button{font:12px system-ui;padding:8px;border:1px solid #558a96;border-radius:8px;background:#132936;color:#e7fcff;cursor:pointer}

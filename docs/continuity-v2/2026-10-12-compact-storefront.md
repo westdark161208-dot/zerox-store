@@ -12,3 +12,6 @@
 Validation: 40 automated tests passed (public commerce, product purchases, editor), including a new test of founder-only manual transfer credit, duplicate reference rejection, retries and debit prohibition. JS syntax and diff whitespace checks passed. Local visual browser test could not run: no browser executable; browser download returned an invalid archive. No real payment or manual balance mutation performed.
 
 Pending: production Mercado Pago CHECKOUT_RECONCILIATION_REQUIRED still needs the actual upstream rejection/log evidence. Do not reset uncertain attempts or report this as fixed. Bank details confirmation and a mobile visual review remain pending.
+
+## Bank confirmation received
+Owner confirmed the transfer account ending 8570 and Alexander Hernández in this conversation. The modal now shows the confirmed CLABE and copy controls, retaining manual review and receipt submission. Concept uses the actual purpose “Recarga ZeroX”; unrelated goods/donation concepts were not used. No production charge or credit performed.
