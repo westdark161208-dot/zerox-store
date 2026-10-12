@@ -20,3 +20,8 @@
 .zx-purchase-toast{border:1px solid #51e8f1;box-shadow:0 0 8px #35ddeb70,0 0 20px #9060ed40,inset 0 0 8px #35ddeb18,0 8px 24px #000b}
 .zx-purchase-toast .zx-activity-avatar{overflow:hidden;display:grid;place-items:center}
 .zx-purchase-toast .zx-activity-avatar img{width:100%;height:100%;object-fit:cover}
+
+/* Size the notice to its content, with a safe mobile maximum. */
+.zx-purchase-toast{width:max-content;max-width:min(260px,calc(100vw - 28px));padding:7px;gap:7px}
+.zx-purchase-toast>div{flex:0 1 auto;min-width:0}
+.zx-purchase-toast .zx-activity-avatar{flex:0 0 38px;width:38px;height:38px}

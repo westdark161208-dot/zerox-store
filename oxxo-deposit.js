@@ -5,3 +5,13 @@
  document.body.append(dialog);trigger.onclick=()=>dialog.showModal();dialog.querySelector('[data-close]').onclick=()=>dialog.close();
  dialog.querySelector('[data-copy]').onclick=async()=>{try{await navigator.clipboard.writeText('2242170100323890');dialog.querySelector('[data-status]').textContent='Número copiado.';}catch{dialog.querySelector('[data-status]').textContent='Selecciona y copia el número que aparece arriba.';}};
 })();
+
+// Manual transfers are reviewed by the founder; opening WhatsApp never credits a wallet.
+(()=>{
+ const trigger=document.getElementById('zx-open-transfer');if(!trigger)return;
+ const dialog=document.createElement('dialog');dialog.className='zx-oxxo-modal';dialog.setAttribute('aria-labelledby','zx-transfer-title');
+ dialog.innerHTML='<button type="button" data-close aria-label="Cerrar transferencia">Cerrar ×</button><h2 id="zx-transfer-title">Transferencia manual</h2><img src="assets/payments/mercadopago.jpg" alt="Mercado Pago" style="max-width:150px"><p>Solicita los datos bancarios vigentes al administrador antes de transferir. Recarga mínima: $20 MXN.</p><a class="zx-order-payment-link" data-instructions target="_blank" rel="noopener noreferrer">Solicitar datos para transferir ↗</a><p>Zero’X Store no cobra comisión por esta recarga manual. El tiempo de acreditación puede ser de minutos a horas, según la disponibilidad del administrador.</p><p>Después de transferir, envía la captura de tu comprobante e incluye tu usuario, importe, fecha y referencia. El saldo se acredita después de verificar el ingreso y comprobar que no se ha abonado antes.</p><a class="zx-order-payment-link" data-receipt target="_blank" rel="noopener noreferrer">Comparte tu comprobante aquí ↗</a><p>Adjunta el comprobante en WhatsApp. Abrir el chat no lo envía automáticamente.</p>';
+ document.body.append(dialog);
+ trigger.onclick=()=>{const user=typeof zeroxUser!=='undefined'?zeroxUser?.username||'':'';dialog.querySelector('[data-instructions]').href='https://wa.me/529514754210?text='+encodeURIComponent('Hola, quiero recargar mi saldo Zero’X Store por transferencia manual. Mi usuario es: '+user+'. ¿Me compartes los datos bancarios vigentes?');dialog.querySelector('[data-receipt]').href='https://wa.me/529514754210?text='+encodeURIComponent('Hola, comparto mi comprobante de transferencia manual para recargar saldo Zero’X Store. Usuario: '+user+'\nImporte: $___ MXN\nFecha: ___\nReferencia de transferencia: ___\nAdjunto mi comprobante para revisión.');dialog.showModal();};
+ dialog.querySelector('[data-close]').onclick=()=>dialog.close();
+})();

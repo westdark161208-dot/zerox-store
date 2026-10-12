@@ -4,3 +4,23 @@
 #zx-player-confirm-dialog .zx-ff-card{position:relative;background:radial-gradient(ellipse at 50% 25%,#ea15392b,transparent 65%),#070c15;border-color:#fe345b;box-shadow:0 0 28px #ff193c24}#zx-player-confirm-dialog .zx-ff-identity{position:relative;padding:24px 12px 32px;background:radial-gradient(ellipse at 50% 100%,#f51e4955,transparent 60%)}#zx-player-confirm-dialog .zx-ff-identity:after{content:"";position:absolute;bottom:8px;left:10%;width:80%;height:18px;border:2px solid #ff365a;border-radius:50%;box-shadow:0 0 16px #e82045;pointer-events:none}
 
 .zx-hub-card.zx-bot-coming{opacity:1}.zx-hub-card.zx-bot-coming img{width:100%;height:100%;object-fit:cover}.zx-hub-card[data-game-section][hidden]{display:none}.zx-hub-card[data-game-section] img{object-fit:cover}.zx-price-policy{font:12px/1.5 system-ui;color:#abb9cc}#zx-editor-dialog [data-final-price]{padding:12px;border:1px solid #32645b;border-radius:10px;color:#b5f6dc}#zx-editor-dialog [data-remove]{color:#ff9aab}
+
+/* Compact guides and a shared neon outline for storefront sections. */
+details.zx-buy-guide{padding:0;overflow:hidden;margin-bottom:20px}
+.zx-buy-guide>summary{cursor:pointer;list-style:none;padding:17px 20px;display:grid;gap:4px;position:relative;padding-right:48px}
+.zx-buy-guide>summary::-webkit-details-marker{display:none}
+.zx-buy-guide>summary:after{content:'＋';position:absolute;right:20px;top:22px;color:#6af3ed}
+.zx-buy-guide[open]>summary:after{content:'−'}
+.zx-buy-guide>summary strong{font:700 17px/1.4 system-ui;color:#edfaff}
+.zx-buy-guide>summary span{font:12px/1.4 system-ui;color:#bcb9dc}
+.zx-buy-guide>div,.zx-buy-guide>ol,.zx-buy-guide>.zx-guide-note{margin:16px 20px}
+.zx-intro-card>summary{cursor:pointer;font-weight:700;color:#c6f9ff}
+.zx-hub-card,.zx-sub-grid>button{border:1px solid #4ce6e6!important;box-shadow:0 0 7px #30d9e754,0 0 17px #9264ef33,inset 0 0 9px #34dddf17!important}
+.zx-hub-card:nth-child(3n+2){border-color:#b780ff!important;box-shadow:0 0 9px #a460ee60,inset 0 0 10px #a460ee18!important}
+.zx-hub-card:nth-child(3n){border-color:#6fe7b7!important}
+.zx-hub-card:focus-visible,.zx-buy-guide>summary:focus-visible{outline:3px solid white;outline-offset:4px}
+.zx-manual-methods{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0}
+.zx-manual-methods button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:14px 10px;background:linear-gradient(150deg,#13232d,#080b12);border:1px solid #58dff5;border-radius:16px;box-shadow:0 0 12px #24bbe02b,inset 0 1px #ffffff29;color:#eefaff;font:600 13px/1.4 system-ui;cursor:pointer}
+.zx-manual-methods #zx-open-oxxo{border-color:#ff935b;box-shadow:0 0 12px #ff612d35}
+.zx-manual-methods img{width:84px;height:44px;object-fit:contain;border-radius:6px}
+.zx-manual-methods button:focus-visible{outline:3px solid #fff;outline-offset:3px}
