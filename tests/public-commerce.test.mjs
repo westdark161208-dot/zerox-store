@@ -49,3 +49,17 @@ test('V3 service rejects changed catalog after quote without debit or provider s
  const r=await call(serviceRoute,env,'/api/services/purchase/checkout',customer,{...b,quoteId:q.quote.id,maxAmountCents:q.quote.totalCents},key,u.fetcher);assert.equal(r.status,409);assert.equal((await r.json()).error,'QUOTE_CHANGED');
  assert.equal(u.counts.buys,0);assert.equal(u.counts.preferences,0);assert.equal((await walletState(env.DB,'customer')).availableCents,20000);
 });
+
+test('manual bank transfers require founder confirmation and cannot credit twice or debit',async()=>{
+ const env=await setup(),path='/api/admin/customers/balance';
+ const body={userId:'customer',action:'credit',source:'transfer',amountCents:2000,reference:'BANK-TRACK-20261012',reason:'Ingreso bancario verificado',confirmed:true},key=crypto.randomUUID();
+ assert.equal((await call(walletAdminRoute,env,path,customer,body,key)).status,403);
+ assert.equal((await call(walletAdminRoute,env,path,owner,{...body,confirmed:false},key)).status,400);
+ assert.equal((await call(walletAdminRoute,env,path,owner,{...body,reference:''},key)).status,400);
+ for(let i=0;i<2;i++)assert.equal((await call(walletAdminRoute,env,path,owner,body,key)).status,200);
+ assert.equal((await call(walletAdminRoute,env,path,owner,body)).status,409);
+ assert.equal((await call(walletAdminRoute,env,path,owner,{...body,userId:'other'})).status,409);
+ assert.equal((await call(walletAdminRoute,env,path,owner,{...body,action:'debit'})).status,400);
+ assert.equal((await walletState(env.DB,'customer')).availableCents,2000);
+ assert.equal(env.DB.sql.prepare('SELECT COUNT(*) n FROM zx_wallet_ledger').get().n,1);
+});

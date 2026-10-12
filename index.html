@@ -42,13 +42,13 @@
   if ('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister();});}).catch(function(){});
   if ('caches' in window) caches.keys().then(function(keys){keys.forEach(function(k){caches.delete(k);});}).catch(function(){});
   </script>
-  <link rel="stylesheet" href="./store-editor.css?v=2">
+  <link rel="stylesheet" href="./store-editor.css?v=compact-20261012">
   <link rel="stylesheet" href="./panel-theme.css?v=2">
 <link rel="stylesheet" href="purchase-flow.css?v=2">
 <link rel="stylesheet" href="freefire-artwork.css?v=1">
-<link rel="stylesheet" href="store-polish.css?v=4"><link rel="stylesheet" href="community.css?v=1">
+<link rel="stylesheet" href="store-polish.css?v=compact-20261012"><link rel="stylesheet" href="community.css?v=1">
 <script defer src="community.js?v=1"></script>
-<link rel="stylesheet" href="discount-codes.css?v=1"><link rel="stylesheet" href="order-history.css?v=neon-travel-7">
+<link rel="stylesheet" href="discount-codes.css?v=1"><link rel="stylesheet" href="order-history.css?v=compact-20261012">
 </head>
 
 <body>
@@ -271,7 +271,7 @@
 
 
     <!-- ZERO'X · PORTAL DE SECCIONES -->
-    <section class="zx-section-hub shell" id="secciones"><aside class="zx-buy-guide" aria-labelledby="zx-buy-guide-title"><div class="zx-buy-guide-heading"><div><small>ANTES DE ELEGIR</small><h2 id="zx-buy-guide-title">¿Cómo comprar en Zero’X?</h2></div><button type="button" id="zx-guide-currency">Elegir moneda ↗</button></div><ol><li><span>01</span><div><strong>Elige tu moneda</strong><p>Consulta precios en tu moneda; la conversión es estimada.</p></div></li><li><span>02</span><div><strong>Registra tu cuenta</strong><p>Inicia sesión para consultar tu saldo y seguir tus pedidos.</p></div></li><li><span>03</span><div><strong>Selecciona y verifica</strong><p>Elige el artículo. Para recargas por ID, confirma jugador y región cuando corresponda.</p></div></li><li><span>04</span><div><strong>Revisa y paga</strong><p>Confirma importe, receptor y método habilitado antes de pagar.</p></div></li><li><span>05</span><div><strong>Sigue la confirmación</strong><p>El pago debe verificarse. Agregar saldo no entrega automáticamente un artículo.</p></div></li></ol><p class="zx-guide-note">Los métodos y la entrega dependen del artículo. Confirma tu cuenta y el importe antes de pagar.</p></aside>
+    <section class="zx-section-hub shell" id="secciones"><details class="zx-buy-guide" aria-labelledby="zx-guide-toggle"><summary id="zx-guide-toggle"><strong>Cómo comprar en Zero’X Store</strong><span>Pasos e indicaciones · Toca para ver</span></summary><div class="zx-buy-guide-heading"><div><small>ANTES DE ELEGIR</small><h2 id="zx-buy-guide-title">¿Cómo comprar en Zero’X?</h2></div><button type="button" id="zx-guide-currency">Elegir moneda ↗</button></div><ol><li><span>01</span><div><strong>Elige tu moneda</strong><p>Consulta precios en tu moneda; la conversión es estimada.</p></div></li><li><span>02</span><div><strong>Registra tu cuenta</strong><p>Inicia sesión para consultar tu saldo y seguir tus pedidos.</p></div></li><li><span>03</span><div><strong>Selecciona y verifica</strong><p>Elige el artículo. Para recargas por ID, confirma jugador y región cuando corresponda.</p></div></li><li><span>04</span><div><strong>Revisa y paga</strong><p>Confirma importe, receptor y método habilitado antes de pagar.</p></div></li><li><span>05</span><div><strong>Sigue la confirmación</strong><p>El pago debe verificarse. Agregar saldo no entrega automáticamente un artículo.</p></div></li></ol><p class="zx-guide-note">Los métodos y la entrega dependen del artículo. Confirma tu cuenta y el importe antes de pagar.</p></details>
       <div class="zx-hub-head">
         <span>EXPLORA ZERO'X</span>
         <h2>ELIGE TU <em>SECCIÓN</em></h2>
@@ -286,14 +286,14 @@
         <button type="button" class="zx-hub-card zx-accounts" data-zone="accounts"><img src="./assets/categories/venta%20de%20cuentas.png" alt="Cuentas" loading="lazy" decoding="async"><div><small>MARKET</small><strong>CUENTAS</strong><span>Fotos, videos, descripción y precio editable</span></div></button>
         <button type="button" class="zx-hub-card zx-clans" data-zone="clans"><img src="./assets/categories/venta%20de%20clanes.png" alt="Venta de clanes" loading="lazy" decoding="async"><div><small>FREE FIRE</small><strong>VENTA DE CLANES</strong><span>Catálogo multimedia de clanes disponibles</span></div></button>
         <button type="button" class="zx-hub-card zx-honor" data-zone="honor"><img src="./assets/categories/honor%20para%20clanes.png" alt="Honor de clanes" loading="lazy" decoding="async"><div><small>CLANES</small><strong>HONOR DE CLANES</strong><span>Servicios y opciones de honor</span></div></button>
-        <button type="button" class="zx-hub-card zx-reseller" data-zone="resellers"><img src="./assets/categories/revendedores%20seccion.png" alt="Revendedores" loading="lazy" decoding="async"><div><small>ZERO'X PARTNERS</small><strong>REVENDEDORES</strong><span>Subtienda, niveles y precios especiales</span></div></button><button type="button" class="zx-hub-card zx-bot-coming" data-zone="zerito" disabled><img src="assets/categories/zerito.webp" alt="Zerito Bot" loading="lazy"><div><small>PRÓXIMAMENTE</small><strong>ZERITO BOT</strong><span>Asistente para WhatsApp · En preparación</span></div></button>
+        <button type="button" class="zx-hub-card zx-reseller" data-zone="resellers"><img src="./assets/categories/revendedores%20seccion.png" alt="Revendedores" loading="lazy" decoding="async"><div><small>ZERO'X PARTNERS</small><strong>REVENDEDORES</strong><span>Subtienda, niveles y precios especiales</span></div></button>
       </div>
     </section>
 
     <section id="zx-coming" class="shell" hidden><button type="button" class="zx-back" data-back-zones>← SECCIONES</button><h2>PRÓXIMAMENTE</h2></section>
     <section class="zx-freefire-menu shell" id="freefire-menu" hidden>
       <button class="zx-back" type="button" data-back-zones>← SECCIONES</button>
-      <div class="zx-intro-card"><span>GUÍA RÁPIDA</span><h2>¿CÓMO RECARGAR?</h2><div class="zx-steps"><b>1</b><p>Elige el tipo de recarga.</p><b>2</b><p>En promociones de primera vez, verifica primero tu ID.</p><b>3</b><p>Selecciona el paquete y continúa al pedido.</p></div></div>
+      <details class="zx-intro-card"><summary>Cómo comprar en Free Fire · Ver pasos</summary><h2>¿CÓMO RECARGAR?</h2><div class="zx-steps"><b>1</b><p>Elige el tipo de recarga.</p><b>2</b><p>En promociones de primera vez, verifica primero tu ID.</p><b>3</b><p>Selecciona el paquete y continúa al pedido.</p></div></details>
       <div class="zx-hub-head"><span>FREE FIRE</span><h2>ELIGE UNA <em>SUBSECCIÓN</em></h2></div>
       <div class="zx-sub-grid">
         <button type="button" data-zx-sub="first"><img src="./assets/freefire-2026-10/diamantes-primera-vez.webp" alt=""><strong>DIAMANTES 1ª VEZ</strong><span>Verifica tu ID antes de comprar</span></button>
@@ -738,7 +738,7 @@
 
       </div>
 
-      <p class="zx-payments-note">Tarjeta y transferencia mediante Mercado Pago, o saldo Zero’X. OXXO está disponible únicamente para recargar saldo con confirmación manual.</p>
+      <p class="zx-payments-note">Tarjeta y transferencia mediante Mercado Pago, o saldo Zero’X. OXXO y transferencia manual están disponibles únicamente para recargar saldo con confirmación manual.</p>
 
     </section>
 <footer class="footer">
@@ -1289,7 +1289,7 @@
  <h2 id="zx-wallet-island-title">Tu saldo, a un toque.</h2><div class="zx-island-balance"><span>Saldo disponible</span><strong id="zx-wallet-island-value">Consultando…</strong><small>MXN · saldo interno de tu cuenta</small></div>
 <div id="zx-island-provider-balances" class="zx-provider-balances" data-zx-provider-balances hidden aria-label="Saldos privados del fundador"><button type="button" data-provider="ra"><small>Saldo RA</small><strong>Consultar</strong></button><button type="button" data-provider="sf"><small>Saldo SF</small><strong>Consultar</strong></button><span data-provider-note role="status" aria-live="polite"></span></div>
  <p id="zx-wallet-island-status" role="status" aria-live="polite"></p><button type="button" id="zx-wallet-island-refresh">Actualizar saldo</button>
- <h3>Recargar saldo</h3><button type="button" class="zx-manual-oxxo" id="zx-open-oxxo">OXXO · Depositar saldo</button><p class="zx-island-note">Incluye tu usuario de Zero’X. El saldo se abona después de revisar tu depósito.</p><p class="zx-island-note">Elige un método para preparar tu pago. Mercado Pago procesa y confirma la operación.</p>
+ <h3>Recargar saldo</h3><div class="zx-manual-methods"><button type="button" class="zx-manual-oxxo" id="zx-open-oxxo"><img src="assets/payments/oxxo.jpg" alt="OXXO">Depósito manual</button><button type="button" class="zx-manual-transfer" id="zx-open-transfer"><img src="assets/payments/mercadopago.jpg" alt="Mercado Pago">Transferencia manual</button></div><p class="zx-island-note">Incluye tu usuario de Zero’X. El saldo se abona después de revisar tu depósito.</p><p class="zx-island-note">Elige un método para preparar tu pago. Mercado Pago procesa y confirma la operación.</p>
  <div class="zx-island-methods" id="zx-wallet-island-methods" aria-label="Métodos de recarga"></div>
  <form id="zx-island-funding-form" hidden><label for="zx-island-amount">Importe · MXN</label><input id="zx-island-amount" type="number" min="20" max="100000" step="0.01" value="20" inputmode="decimal" required><p class="zx-island-note">Recarga mínima: $20 MXN. Hasta $100,000 MXN por operación; tu saldo acumulado no tiene ese límite. Los $200 MXN corresponden al ingreso a revendedores.</p><p id="zx-island-quote" class="zx-island-note" role="status" aria-live="polite"></p><button id="zx-wallet-island-topup" type="submit" disabled>Preparar recarga →</button></form><p id="zx-island-funding-status" role="status" aria-live="polite"></p><a id="zx-island-checkout" target="_blank" rel="noopener noreferrer" hidden>Continuar al pago seguro ↗</a><button type="button" id="zx-island-funding-refresh" hidden>Consultar recarga</button><button type="button" id="zx-island-new-funding" hidden>Nueva recarga</button><p class="zx-island-note">La moneda del catálogo es una referencia. Tu saldo se registra en MXN. Elige saldo al pagar los productos habilitados.</p>
 </dialog>
@@ -1301,7 +1301,7 @@
 <script src="./purchase-flow.js?v=3" defer></script>
 <script src="game-sections.js?v=1"></script>
 <script src="./country-regions.js?v=1"></script>
-<script src="discount-codes.js?v=2" defer></script><script src="./app.js?v=56" defer></script>
+<script src="discount-codes.js?v=2" defer></script><script src="./app.js?v=compact-20261012" defer></script>
 <script src="./account-location.js?v=2" defer></script>
 <script src="./order-history.js?v=neon-travel-7" defer></script><script src="./store-extras.js?v=community-3" defer></script>
 <script src="./wallet-view.js?v=2" defer></script>
@@ -1312,6 +1312,6 @@
 
 <script src="game-store.js?v=2" defer></script>
 <script src="./editor-elements.js?v=1" defer></script>
-<script src="./store-editor.js?v=7" defer></script>
-<script src="system-holograms.js?v=1" defer></script><script src="oxxo-deposit.js?v=1"></script></body>
+<script src="./store-editor.js?v=compact-20261012" defer></script>
+<script src="system-holograms.js?v=1" defer></script><script src="oxxo-deposit.js?v=compact-20261012"></script></body>
 </html>

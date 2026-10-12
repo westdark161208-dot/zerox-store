@@ -1017,7 +1017,7 @@ function setFilter(category, scroll = true) {
   });
   if ($("#catalog-title")) $("#catalog-title").textContent = category;
   if ($("#catalog-note")) {
-    const note = category === "Diamantes 1 vez" ? "Cada paquete promocional se usa una sola vez por ID. Verificamos tu ID antes de continuar." : category === "Diamantes ilimitados" ? "Elige tu paquete y confirma tu cuenta. Verificamos la disponibilidad antes de cobrar." : category === "Cajas y Fragmentos" || category === "Fragmentos" || category === "Cajas" ? "Elige el tipo y la cantidad. El precio total se actualiza antes de continuar." : "Elige tu producto y consulta los detalles antes de continuar.";
+    const note = category === "Diamantes 1 vez" ? "Cada paquete promocional se usa una sola vez por ID. Verificamos tu ID antes de continuar." : category === "Diamantes ilimitados" ? "Elige tu paquete y confirma tu cuenta. Verificamos la disponibilidad antes de cobrar." : category === "Cajas y Fragmentos" || category === "Fragmentos" || category === "Cajas" ? "Elige el tipo y la cantidad. El precio total se actualiza antes de continuar." : category === "Streaming" ? "Elige tu servicio y confirma duración, disponibilidad y entrega. No necesitas un ID de jugador." : "Elige tu producto y consulta los detalles antes de continuar.";
     $("#catalog-note").textContent = note;
   }
   if (scroll) $("#catalogo")?.scrollIntoView({ behavior:"smooth", block:"start" });
@@ -1231,6 +1231,11 @@ function openCheckout(id) {
   if(current?.zxGame){window.ZXGameStore.checkout(current);return;}
 
   if (!current) return;
+  if(current.category==='Streaming'){
+    const d=document.createElement('dialog');d.className='zx-reference-modal';d.setAttribute('aria-label','Comprar streaming');
+    d.innerHTML=`<button type="button" data-close aria-label="Cerrar">Cerrar ×</button><h2>${esc(current.name)}</h2><p>${esc(current.description||'')}</p><strong>${money(current.price)}</strong><p>Selecciona tu servicio y confirma disponibilidad, duración y condiciones de entrega con soporte. Streaming no requiere un ID de jugador.</p><a class="zx-order-payment-link" target="_blank" rel="noopener noreferrer" href="https://wa.me/529514754210?text=${encodeURIComponent('Hola, quiero comprar '+current.name+'. Precio de catálogo: '+money(current.price)+'. ¿Me confirmas disponibilidad, entrega y forma de pago?')}">Consultar disponibilidad y pago ↗</a><p>La solicitud no genera un cobro ni confirma la entrega.</p>`;
+    document.body.append(d);d.querySelector('[data-close]').onclick=()=>d.close();d.addEventListener('close',()=>d.remove());d.showModal();return;
+  }
   if(current.providerProductKey||['ff-booyah-76828','ff-frag-17729','ff-cajas-8816'].includes(current.id))current.zxService=true;
   if(current.zxDiamond||current.zxService){
     $("#zx-player-confirm-dialog")?.remove();
