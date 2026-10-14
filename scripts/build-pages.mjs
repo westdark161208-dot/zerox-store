@@ -8,7 +8,7 @@ const files = [
   'game-sections.js', 'game-store.js', 'retail-pricing.js', 'discount-codes.js', 'discount-codes.css', 'control-codes.js',
   'community.js', 'community.css', 'control-gift-message.js',
   'country-regions.js', 'country-map-points.js', 'control-customers.js', 'oxxo-deposit.js', 'customer-regions.css', 'account-location.js', 'promotions.html', 'promotions.js',
-  'store-polish.css', 'store-extras.js',
+  'store-polish.css', 'store-extras.js', 'premium-store.css', 'storefront-community.js',
   'order-history.js', 'order-history.css',
   'freefire-artwork.css', 'purchase-flow.js', 'purchase-flow.css', 'purchase-receipt.css', 'product-payment.html', 'product-payment.js', 'system-holograms.js', 'header-wallet.js', 'wallet-payment.html', 'wallet-payment.js',
   'founder-balances.js', 'provider-intelligence.js','delivery-readiness.js','ra-associations.js', 'control-visuals.js', 'providers-panel.js', 'console.css', 'panel-theme.css', 'wallet-view.js',
