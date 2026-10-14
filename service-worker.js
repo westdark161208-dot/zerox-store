@@ -1,4 +1,4 @@
-const CACHE_NAME = 'zerox-store-v21';
+const CACHE_NAME = 'zerox-store-v22';
 
 const APP_SHELL = [
   './',
