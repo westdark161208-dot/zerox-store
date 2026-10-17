@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "id": "ff-craftland-level6-nickcolor",
+  "category": "free-fire",
+  "subcategory": "craftland",
+  "title": "Craftland Premium — Nivel 6 + Nick Colorido",
+  "description": "Solicitud de servicio Craftland para Free Fire. La entrega y los beneficios están sujetos a verificación con un proveedor autorizado.",
+  "features": [
+    {
+      "key": "colored_nick",
+      "label": "Nick colorido",
+      "verification": "pending"
+    },
+    {
+      "key": "followers",
+      "label": "Hasta 60,000 seguidores de Craftland",
+      "verification": "pending"
+    },
+    {
+      "key": "avatars",
+      "label": "Avatares exclusivos",
+      "verification": "pending"
+    },
+    {
+      "key": "banners",
+      "label": "Banners exclusivos",
+      "verification": "pending"
+    },
+    {
+      "key": "level6",
+      "label": "Emblema nivel 6",
+      "verification": "pending"
+    },
+    {
+      "key": "customization",
+      "label": "Personalizaciones adicionales",
+      "verification": "pending"
+    }
+  ],
+  "status": "draft",
+  "publicVisible": false,
+  "checkoutEnabled": false,
+  "priceMXN": null,
+  "stock": null,
+  "delivery": {
+    "mode": "manual_review",
+    "slaHours": null,
+    "requiredFields": [
+      "freeFireUid",
+      "region"
+    ],
+    "requiresPassword": false,
+    "requiresOtp": false,
+    "precondition": "Verify that the user's Craftland workshop is public, if the supplier confirms this requirement."
+  },
+  "supplier": {
+    "name": null,
+    "authorized": false,
+    "sourceReference": "https://ggmax.com.br/anuncio/nick-colorido-ff-craftland-nivel-6-todos-os-beneficios",
+    "sourceIsNotIntegration": true
+  },
+  "payments": {
+    "mercadoPago": false,
+    "wallet": false
+  },
+  "orderFlow": [
+    "draft",
+    "awaiting_manual_validation",
+    "awaiting_payment",
+    "paid",
+    "sent_to_authorized_supplier",
+    "delivery_evidence_review",
+    "completed_or_refunded"
+  ],
+  "safety": {
+    "noAutomaticGGMAXRequests": true,
+    "noCredentialCollection": true,
+    "noGuaranteedBenefitsUntilVerified": true,
+    "refundOnUnfulfillablePaidOrder": true
+  }
+}
