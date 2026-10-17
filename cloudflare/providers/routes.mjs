@@ -1,12 +1,13 @@
 import {founderBalancesRoute} from './founder-balances.mjs';
-import {associationRoute,resolvedRaEnvironment} from './ra-associations.mjs';
+import {associationRoute} from './ra-associations.mjs';
 import {readinessRoute} from './readiness.mjs';
 import {marketRoute} from './market.mjs';
 import {purchaseConfiguration} from '../diamonds/purchases.mjs';
 import {quotesRoute} from './quotes.mjs';
 import {integrationRead} from './integrations.mjs';
 import {can} from '../security/permissions.mjs';
-import {readRecargasAmerica,validateRecargasAccount} from './recargas-america.mjs';
+import {validateRecargasAccount} from './recargas-america.mjs';
+import {readRaAdminService} from './ra-admin-service.mjs';
 export async function providerRoute(request,env,url,user,json) {
   const reply=(body,status=200)=>{const response=json(body,status);response.headers?.set('Cache-Control','no-store');return response;};
   if (!user || user.status!=='active') return reply({ok:false,error:'LOGIN_REQUIRED'},401);
@@ -17,6 +18,8 @@ export async function providerRoute(request,env,url,user,json) {
   if(url.pathname.startsWith('/api/admin/providers/market'))return marketRoute(request,env,url,user,reply);
   if(url.pathname==='/api/admin/providers/sixofire/quotes')return quotesRoute(request,env,url,user,reply);
   if(url.pathname==='/api/admin/providers/recargas-america/validate'&&request.method==='POST'){
+    // This stage is strictly GET-only; never fall back to RA directly.
+    if(env.RA_ADMIN_READ_ENABLED==='true')return reply({ok:false,error:'RA_VALIDATION_UNAVAILABLE'},503);
     try{const body=await request.json();return reply({ok:true,data:await validateRecargasAccount(env,body.productId,String(body.uid||'')),purchasesEnabled:false});}
     catch{return reply({ok:false,error:'RA_VALIDATION_UNAVAILABLE'},503);}
   }
@@ -25,11 +28,11 @@ export async function providerRoute(request,env,url,user,json) {
   const root='/api/admin/providers/recargas-america/';
   const resource=url.pathname.slice(root.length);
   if (!url.pathname.startsWith(root) || !['status','wallet','catalog'].includes(resource)) return reply({ok:false,error:'NOT_FOUND'},404);
-  if (resource==='status'){env=await resolvedRaEnvironment(env);return reply({ok:true,readEnabled:env.RA_READ_ENABLED==='true',keyConfigured:!!env.RECARGAS_AMERICA_API_KEY,purchasesEnabled:purchaseConfiguration(env).enabled,reasons:purchaseConfiguration(env).reasons,providerFor:'diamonds'});}
+  if (resource==='status'){const ready=env.RA_ADMIN_READ_ENABLED==='true'&&env.RA_ADMIN_READ_TRANSPORT==='service-binding'&&env.RA_ADMIN_READ_CONTRACT_VERIFIED==='true'&&typeof env.RA_READ_SERVICE?.fetch==='function'&&/^[0-9a-f]{64}$/.test(env.RA_READ_ADMIN_TOKEN||'');return reply({ok:true,readEnabled:ready,keyConfigured:typeof env.RA_READ_ADMIN_TOKEN==='string',readTransport:'service-binding',purchasesEnabled:purchaseConfiguration(env).enabled,reasons:purchaseConfiguration(env).reasons,providerFor:'diamonds'});}
   try {
-    return reply({ok:true,provider:'recargas-america',resource,data:await readRecargasAmerica(env,resource),syncedAt:new Date().toISOString(),purchasesEnabled:false});
+    return reply({ok:true,provider:'recargas-america',resource,data:await readRaAdminService(env,resource),syncedAt:new Date().toISOString(),purchasesEnabled:false});
   } catch(error) {
-    const safe=/^RA_(READ_DISABLED|KEY_MISSING|UNAVAILABLE|INVALID_RESPONSE|HTTP_\d{3})$/.test(error.message)?error.message:'RA_UNAVAILABLE';
+    const safe=/^RA_(READ_DISABLED|KEY_MISSING|UNAVAILABLE|INVALID_RESPONSE|HTTP_\d{3}|ADMIN_READ_DISABLED|ADMIN_READ_UNAVAILABLE)$/.test(error.message)?error.message:'RA_UNAVAILABLE';
     return reply({ok:false,error:safe},503);
   }
 }
