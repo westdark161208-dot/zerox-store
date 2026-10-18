@@ -1,0 +1,66 @@
+name: ZeroX RA staging - build only
+on:
+  push:
+    branches:
+      - codex/ra-founder-private-bridge-20261017
+    paths:
+      - '.github/workflows/zerox-ra-staging-build.yml'
+      - 'cloudflare/staging/**'
+      - 'cloudflare/providers/ra-admin-service.mjs'
+      - 'cloudflare/providers/founder-balances.mjs'
+      - 'cloudflare/security/founder.mjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+
+jobs:
+  staging-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout staging branch
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify target and isolated D1 binding
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import assert from 'node:assert/strict';
+          const m = JSON.parse(fs.readFileSync('cloudflare/staging/wrangler.jsonc','utf8'));
+          assert.equal(m.name,'zerox-ra-founder-staging');
+          assert.equal(m.workers_dev,false);
+          assert.equal(m.preview_urls,false);
+          assert.equal(m.main,'worker.mjs');
+          assert.deepEqual(m.services,[{binding:'RA_READ_SERVICE',service:'zerox-ra-vpc-test'}]);
+          assert.deepEqual(m.d1_databases,[{binding:'STAGING_AUTH_DB',database_name:'zerox-ra-founder-staging-auth',database_id:'a54b8020-71a4-4d4d-a576-800ee112a5cf'}]);
+          for(const k of ['RA_DELIVERY_ENABLED','RA_CONTRACT_VERIFIED','DIAMOND_PRODUCTION_ENABLED'])assert.equal(m.vars[k],'false');
+          assert.equal(m.vars.STAGING_READ_ONLY,'true');
+          assert.equal(m.routes,undefined);
+          assert.equal(m.route,undefined);
+          assert.equal(m.triggers,undefined);
+          console.log('STAGING_MANIFEST_OK');
+          NODE
+      - name: Check JavaScript syntax
+        shell: bash
+        run: |
+          node --check cloudflare/staging/worker.mjs
+          node --check cloudflare/staging/auth.mjs
+          node --check cloudflare/staging/panel.mjs
+          node --check cloudflare/providers/ra-admin-service.mjs
+          node --check cloudflare/providers/founder-balances.mjs
+          node --check cloudflare/security/founder.mjs
+      - name: Run mocked staging tests
+        run: node --test cloudflare/providers/ra-admin-service.test.mjs cloudflare/staging/worker.test.mjs cloudflare/staging/auth.test.mjs
+      - name: Compile without publishing
+        shell: bash
+        run: |
+          npx --yes wrangler@4 deploy --config cloudflare/staging/wrangler.jsonc --dry-run --outdir "$RUNNER_TEMP/zerox-ra-build"
+          test -d "$RUNNER_TEMP/zerox-ra-build"
+          echo 'STAGING_DRY_RUN_OK'
+          echo 'CLOUDFLARE_UNCHANGED'
