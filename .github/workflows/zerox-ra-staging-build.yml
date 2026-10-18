@@ -8,6 +8,13 @@ on:
       - 'cloudflare/staging/**'
       - 'cloudflare/providers/ra-admin-service.mjs'
       - 'cloudflare/providers/founder-balances.mjs'
+      - 'cloudflare/providers/ra-founder-read.mjs'
+      - 'cloudflare/providers/routes.mjs'
+      - 'tests/ra-founder-phase2.test.mjs'
+      - 'control.html'
+      - 'control.css'
+      - 'console.css'
+      - 'panel-theme.css'
       - 'cloudflare/security/founder.mjs'
   workflow_dispatch:
 permissions:
@@ -46,6 +53,10 @@ jobs:
           assert.equal(m.triggers,undefined);
           console.log('STAGING_MANIFEST_OK');
           NODE
+      - name: Verify original panel preview is current
+        run: |
+          node cloudflare/staging/build-control-preview.mjs
+          git diff --exit-code -- cloudflare/staging/control-preview.mjs
       - name: Check JavaScript syntax
         shell: bash
         run: |
@@ -56,7 +67,7 @@ jobs:
           node --check cloudflare/providers/founder-balances.mjs
           node --check cloudflare/security/founder.mjs
       - name: Run mocked staging tests
-        run: node --test cloudflare/providers/ra-admin-service.test.mjs cloudflare/staging/worker.test.mjs cloudflare/staging/auth.test.mjs
+        run: node --test tests/ra-founder-phase2.test.mjs cloudflare/providers/ra-admin-service.test.mjs cloudflare/staging/worker.test.mjs cloudflare/staging/auth.test.mjs
       - name: Compile without publishing
         shell: bash
         run: |

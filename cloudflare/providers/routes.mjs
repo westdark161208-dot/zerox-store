@@ -1,3 +1,4 @@
+import {raFounderRead} from './ra-founder-read.mjs';
 import {founderBalancesRoute} from './founder-balances.mjs';
 import {associationRoute} from './ra-associations.mjs';
 import {readinessRoute} from './readiness.mjs';
@@ -13,6 +14,10 @@ export async function providerRoute(request,env,url,user,json) {
   if (!user || user.status!=='active') return reply({ok:false,error:'LOGIN_REQUIRED'},401);
   if(url.pathname==='/api/admin/providers/founder-balances')return founderBalancesRoute(request,env,user,reply);
   if (!can(user,'providers.read')) return reply({ok:false,error:'FORBIDDEN'},403);
+  const raRoot='/api/admin/providers/recargas-america/';
+  if(url.pathname.startsWith(raRoot)&&(env.RA_ADMIN_READ_ENABLED==='true'||['wallet','catalog','status'].includes(url.pathname.slice(raRoot.length))))return raFounderRead(request,env,user,reply);
+  // Market queries combine legacy providers and may write snapshots; unavailable in private RA phase.
+  if(env.RA_ADMIN_READ_ENABLED==='true'&&url.pathname.startsWith('/api/admin/providers/market'))return reply({ok:false,error:'RA_PRIVATE_READ_ONLY'},403);
   if(url.pathname==='/api/admin/providers/recargas-america/associations')return associationRoute(request,env,url,user,reply);
   if(url.pathname==='/api/admin/providers/recargas-america/readiness')return readinessRoute(request,env,url,user,reply);
   if(url.pathname.startsWith('/api/admin/providers/market'))return marketRoute(request,env,url,user,reply);

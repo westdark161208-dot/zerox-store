@@ -1,10 +1,10 @@
 import {COOKIE,digest,sessionToken,login} from './auth.mjs';
 import {page,css,js} from './panel.mjs';
 import {FOUNDER_USER_ID} from '../security/founder.mjs';
-import {readRaAdminService} from '../providers/ra-admin-service.mjs';
+import {raFounderRead} from '../providers/ra-founder-read.mjs';
 import {founderBalancesRoute} from '../providers/founder-balances.mjs';
 const ROOT='/api/admin/providers/';
-const routes=new Map([[ROOT+'founder-balances','balances'],[ROOT+'recargas-america/wallet','wallet'],[ROOT+'recargas-america/catalog','catalog']]);
+const routes=new Map([[ROOT+'recargas-america/status','status'],[ROOT+'founder-balances','balances'],[ROOT+'recargas-america/wallet','wallet'],[ROOT+'recargas-america/catalog','catalog']]);
 function reply(body,status=200){return Response.json(body,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer'}});}
 // Only a separately provisioned staging identity database. No schema or activity writes.
 export default {async fetch(request,env){
@@ -33,6 +33,6 @@ export default {async fetch(request,env){
   }
   if(url.pathname==='/panel')return html(page(true));
   if(resource==='balances')return founderBalancesRoute(request,env,{...user,isFounder:true},reply);
-  return reply({ok:true,provider:'recargas-america',resource,data:await readRaAdminService(env,resource),purchasesEnabled:false});
+  return raFounderRead(request,env,{...user,isFounder:true},reply);
  }catch{return reply({ok:false,error:'PRIVATE_READ_UNAVAILABLE'},503);}
 }};
