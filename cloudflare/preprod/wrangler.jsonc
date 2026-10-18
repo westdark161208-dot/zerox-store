@@ -1,0 +1,24 @@
+{
+  "name": "zerox-ra-original-review-only",
+  "main": "../worker.js",
+  "compatibility_date": "2026-09-10",
+  "workers_dev": false,
+  "preview_urls": false,
+  "vars": {
+    "RA_ADMIN_READ_ENABLED": "true",
+    "RA_ADMIN_READ_TRANSPORT": "service-binding",
+    "RA_ADMIN_READ_CONTRACT_VERIFIED": "true",
+    "RA_READ_ENABLED": "false",
+    "RA_AUTO_ASSOCIATE_US": "false",
+    "RA_DELIVERY_ENABLED": "false",
+    "RA_CONTRACT_VERIFIED": "false",
+    "DIAMOND_PRODUCTION_ENABLED": "false",
+    "SIXOFIRE_DELIVERY_ENABLED": "false"
+  },
+  "services": [
+    {
+      "binding": "RA_READ_SERVICE",
+      "service": "zerox-ra-vpc-test"
+    }
+  ]
+}

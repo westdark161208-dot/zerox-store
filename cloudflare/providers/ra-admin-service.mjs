@@ -1,3 +1,4 @@
+import {raFinancialConflict} from './ra-private-policy.mjs';
 // Read-only service-binding bridge for the separately verified RA test Worker.
 // Never fall back to the provider's public origin or to an unauthenticated request.
 const RESOURCES = Object.freeze({
@@ -40,6 +41,7 @@ export async function readRaAdminService(env, resource) {
   if (env?.RA_ADMIN_READ_ENABLED !== 'true' ||
       env.RA_ADMIN_READ_TRANSPORT !== 'service-binding' ||
       env.RA_ADMIN_READ_CONTRACT_VERIFIED !== 'true') throw Error('RA_ADMIN_READ_DISABLED');
+  if (raFinancialConflict(env)) throw Error('RA_PRIVATE_READ_PRODUCTION_GUARD');
   const token = env.RA_READ_ADMIN_TOKEN;
   if (typeof token !== 'string' || !/^[0-9a-f]{64}$/.test(token) ||
       token === env.RA_PROXY_SECRET || token === env.RECARGAS_AMERICA_API_KEY ||
@@ -72,17 +74,21 @@ export async function readRaAdminService(env, resource) {
   if (!Array.isArray(data.data) || data.data.length > 2000 ||
       data.productCount !== data.data.length || data.invalidProducts !== 0)
     throw Error(FAILURE);
+  const ids = new Set(), skus = new Set();
   return data.data.map(item => {
     if (!item || !Number.isSafeInteger(item.id) || item.id <= 0 ||
-        typeof item.name !== 'string' || item.name.length > 240 ||
+        typeof item.name !== 'string' || !item.name.trim() || item.name.length > 240 ||
+        ids.has(item.id) || typeof item.sku !== 'string' || !item.sku.trim() || item.sku.length > 120 || skus.has(item.sku) ||
+        typeof item.type !== 'string' || !item.type.trim() || item.type.length > 120 ||
         !['string','number'].includes(typeof item.price) ||
         String(item.price).trim() === '' ||
         !Number.isFinite(Number(item.price)) || Number(item.price) < 0 ||
         !Array.isArray(item.requiredFields) || item.requiredFields.length > 30 ||
         !item.requiredFields.every(field => typeof field === 'string' && field.length <= 120))
       throw Error(FAILURE);
-    return {id: item.id, sku: String(item.sku || '').slice(0, 120),
-      name: item.name, type: String(item.type || '').slice(0, 120),
+    ids.add(item.id); skus.add(item.sku);
+    return {id: item.id, sku: item.sku,
+      name: item.name, type: item.type,
       price: String(item.price), requiredFields: [...item.requiredFields]};
   });
 }

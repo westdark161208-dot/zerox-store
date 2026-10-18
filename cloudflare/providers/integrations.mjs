@@ -1,3 +1,4 @@
+import {raPrivateMode} from './ra-private-policy.mjs';
 import {readLevelUp,readServiceCatalog} from './sixofire-services.mjs';
 import {readSixofire,safeProviderError} from './sixofire-read.mjs';
 // Private read-only adapters. Fixed origins and no raw provider payloads or errors.
@@ -11,7 +12,7 @@ export async function integrationRead(env,url,reply,fetcher=fetch){
  }
 
  if(path==='/api/admin/providers/integrations/status')return reply({ok:true,integrations:[
-  {id:'recargas-america',name:'Recargas América',keyConfigured:!!env.RECARGAS_AMERICA_API_KEY,capabilities:['wallet','catalog','validate'],purchasesEnabled:false},
+  {id:'recargas-america',name:'Recargas América',keyConfigured:raPrivateMode(env)?!!env.RA_READ_ADMIN_TOKEN:!!env.RECARGAS_AMERICA_API_KEY,capabilities:raPrivateMode(env)?['wallet','catalog']:['wallet','catalog','validate'],purchasesEnabled:false},
   {id:'sixofire',name:'Sixofire',keyConfigured:!!env.SIXOFIRE_API_KEY,capabilities:['services','level-up'],purchasesEnabled:false},
   {id:'freefire-info',name:'Free Fire Community',keyConfigured:!!env.FF_INFO_API_KEY,capabilities:['player'],purchasesEnabled:false}
  ]});

@@ -27,3 +27,6 @@
 6. Verificar que el token temporal de edición Cloudflare usado en la prueba previa fue revocado; conservar los secretos permanentes existentes.
 
 **Ramas:** base staging validada `codex/ra-founder-private-bridge-20261017`; desarrollo de auditoría `codex/ra-preprod-safety-audit-20261018`. La rama de auditoría NO altera el staging desplegado, el Worker productivo, D1, Oracle, pagos, Zerito Bot ni main.
+
+## Revisión incremental en PR #47
+Las correcciones de transporte heredado, guard de saldo combinado y separación del marketplace están propuestas en esta misma rama. Véase `cloudflare/preprod/RELEASE-REVIEW.md` para alcance, plan de reversión y bloqueos externos que permanecen. El estado continúa **NO APTO PARA PRODUCCIÓN** hasta auditoría remota y aprobación; los hallazgos anteriores describen el punto de partida.

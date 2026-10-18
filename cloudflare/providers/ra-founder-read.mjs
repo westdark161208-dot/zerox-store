@@ -1,3 +1,4 @@
+import {raFinancialConflict} from './ra-private-policy.mjs';
 import {readRaAdminService} from './ra-admin-service.mjs';
 export async function raFounderRead(request,env,user,reply){
  if(!user||user.status!=='active')return reply({ok:false,error:'LOGIN_REQUIRED'},401);
@@ -7,7 +8,7 @@ export async function raFounderRead(request,env,user,reply){
  if(url.search)return reply({ok:false,error:'INVALID_REQUEST'},400);
  // Private-read status must never imply commerce is disabled while legacy RA purchases may be enabled.
  // Refuse even administrative reads in a mixed deployment until the production contracts are audited.
- if(['RA_DELIVERY_ENABLED','RA_CONTRACT_VERIFIED','DIAMOND_PRODUCTION_ENABLED'].some(flag=>env?.[flag]==='true'))
+ if(raFinancialConflict(env))
   return reply({ok:false,error:'RA_PRIVATE_READ_PRODUCTION_GUARD'},503);
  if(!['wallet','catalog','status'].includes(resource))return reply({ok:false,error:'RA_PRIVATE_READ_ONLY'},403);
  if(resource==='status'){

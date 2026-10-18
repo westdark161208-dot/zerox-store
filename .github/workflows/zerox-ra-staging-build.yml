@@ -10,7 +10,11 @@ on:
       - 'cloudflare/providers/ra-admin-service.mjs'
       - 'cloudflare/providers/founder-balances.mjs'
       - 'cloudflare/providers/ra-founder-read.mjs'
-      - 'cloudflare/providers/routes.mjs'
+      - 'cloudflare/providers/**'
+      - 'cloudflare/services/**'
+      - 'cloudflare/diamonds/**'
+      - 'tests/**'
+      - 'cloudflare/preprod/**'
       - 'tests/ra-founder-phase2.test.mjs'
       - 'control.html'
       - 'control.css'
@@ -68,12 +72,13 @@ jobs:
           node --check cloudflare/providers/founder-balances.mjs
           node --check cloudflare/security/founder.mjs
       - name: Run mocked staging tests
-        run: node --test tests/ra-founder-phase2.test.mjs cloudflare/providers/ra-admin-service.test.mjs cloudflare/staging/worker.test.mjs cloudflare/staging/auth.test.mjs
+        run: node --test tests/*.test.mjs cloudflare/providers/ra-admin-service.test.mjs cloudflare/staging/*.test.mjs
       - name: Compile without publishing
         shell: bash
         run: |
           npx --yes wrangler@4 deploy --config cloudflare/staging/wrangler.jsonc --dry-run --outdir "$RUNNER_TEMP/zerox-ra-build"
           test -d "$RUNNER_TEMP/zerox-ra-build"
+          npx --yes wrangler@4 deploy --config cloudflare/preprod/wrangler.jsonc --dry-run --outdir "$RUNNER_TEMP/zerox-original-build"
           echo 'STAGING_DRY_RUN_OK'
           echo 'CLOUDFLARE_UNCHANGED'
 
