@@ -1,3 +1,4 @@
+import {raPrivateMode} from './ra-private-policy.mjs';
 import {giftMessage,validGiftMessage} from './gift-message.mjs';
 import {publishedCatalog} from '../editor/catalog.mjs';
 import {readRecargasAmerica} from './recargas-america.mjs';
@@ -33,8 +34,9 @@ async function settings(db){const table=await db.prepare("SELECT name FROM sqlit
 const mappingKey=m=>m.productKey+':'+m.provider;
 async function catalog(env,provider,fetcher){return provider==='recargas-america'?normalizeOffers(provider,await readRecargasAmerica(env,'catalog',fetcher)):normalizeOffers(provider,catalogItems(await readSixofire(env,'/account/shop/items',fetcher)));}
 export async function refreshMarket(env,fetcher=fetch){
- const config=await settings(env.DB),results=await Promise.allSettled(['recargas-america','sixofire'].map(p=>catalog(env,p,fetcher))),at=new Date().toISOString(),offers=[],errors=[];
- results.forEach((r,i)=>{const provider=['recargas-america','sixofire'][i];if(r.status==='fulfilled')offers.push(...r.value);else errors.push({provider,error:provider==='sixofire'?safeProviderError(r.reason):/^RA_(READ_DISABLED|KEY_MISSING|HTTP_\d{3}|INVALID_RESPONSE|UNAVAILABLE)$/.test(r.reason.message)?r.reason.message:'RA_UNAVAILABLE'});});
+ const providers=raPrivateMode(env)?['sixofire']:['recargas-america','sixofire'];
+ const config=await settings(env.DB),results=await Promise.allSettled(providers.map(p=>catalog(env,p,fetcher))),at=new Date().toISOString(),offers=[],errors=[];
+ results.forEach((r,i)=>{const provider=providers[i];if(r.status==='fulfilled')offers.push(...r.value);else errors.push({provider,error:provider==='sixofire'?safeProviderError(r.reason):/^RA_(READ_DISABLED|KEY_MISSING|HTTP_\d{3}|INVALID_RESPONSE|UNAVAILABLE)$/.test(r.reason.message)?r.reason.message:'RA_UNAVAILABLE'});});
  const published=await publishedCatalog(env.DB);const publicIds={'booyah-normal':'ff-booyah-76828','booyah-premium':'ff-ra-booyah-premium','weekly-basic':'ff-ra-weekly-basic','weekly':'ff-ra-weekly','monthly':'ff-ra-monthly'};
  const mappings=[...new Map([...defaults,...(config.mappings||[])].map(m=>[mappingKey(m),m])).values()],groups=[];
  for(const [key,label] of Object.entries(productKeys)){
@@ -80,7 +82,7 @@ export async function marketRoute(request,env,url,user,reply,fetcher=fetch){
    return reply({ok:true,data:rows.length?JSON.parse(rows.at(-1).data_json):null,settings:await settings(env.DB),productKeys,history});
   }
   if(url.pathname===root+'/mapping'&&request.method==='POST'){
-   const b=await request.json();if(!productKeys[b.productKey]||!['recargas-america','sixofire'].includes(b.provider)||typeof b.productId!=='string'||!Array.isArray(b.regions)||!b.regions.length||b.regions.some(r=>!/^[A-Z]{2,5}$/.test(r)))return reply({ok:false,error:'INVALID_MAPPING'},400);
+   const b=await request.json();if(raPrivateMode(env)&&b.provider==='recargas-america')return reply({ok:false,error:'RA_PRIVATE_READ_ONLY'},403);if(!productKeys[b.productKey]||!['recargas-america','sixofire'].includes(b.provider)||typeof b.productId!=='string'||!Array.isArray(b.regions)||!b.regions.length||b.regions.some(r=>!/^[A-Z]{2,5}$/.test(r)))return reply({ok:false,error:'INVALID_MAPPING'},400);
    const items=await catalog(env,b.provider,fetcher),item=items.find(i=>i.productId===b.productId);if(!item||item.fulfillment!=='uid'||!item.available)return reply({ok:false,error:'UID_PRODUCT_REQUIRED'},400);
    if(!variantMatches(b.productKey,item))return reply({ok:false,error:'VARIANT_MISMATCH'},400);
    const config=await settings(env.DB),mapping={productKey:b.productKey,provider:b.provider,productId:item.productId,sku:item.sku,name:item.name,regions:b.regions,source:'creator-association'};config.mappings=[...(config.mappings||[]).filter(m=>mappingKey(m)!==mappingKey(mapping)),mapping];

@@ -1,7 +1,10 @@
+import {raPrivateMode,requireLegacyRa} from './ra-private-policy.mjs';
+import {readRaAdminService} from './ra-admin-service.mjs';
 // Contract: supplied RecargasAmerica_API.postman_collection v1.0.0.
 // Read/validation adapter. Financial calls live in the diamond fulfillment adapter.
 const BASE='https://panel.recargasamerica.com/api/v1';
 export async function readRecargasAmerica(env, resource, fetcher=fetch) {
+  if (raPrivateMode(env)) return readRaAdminService(env, resource);
   if (env.RA_READ_ENABLED !== 'true') throw Error('RA_READ_DISABLED');
   if (!env.RECARGAS_AMERICA_API_KEY) throw Error('RA_KEY_MISSING');
   const path={wallet:'/wallet',catalog:'/products/catalog'}[resource];
@@ -34,6 +37,7 @@ export async function readRecargasAmerica(env, resource, fetcher=fetch) {
 }
 // Informational POST: provider account validation, never a purchase.
 export async function validateRecargasAccount(env,productId,uid,fetcher=fetch){
+ requireLegacyRa(env);
  if(env.RA_READ_ENABLED!=='true')throw Error('RA_READ_DISABLED');if(!env.RECARGAS_AMERICA_API_KEY)throw Error('RA_KEY_MISSING');
  if(!Number.isSafeInteger(productId)||productId<1||!/^\d{5,15}$/.test(uid||''))throw Error('RA_INVALID_QUERY');
  let response,body;try{response=await fetcher(BASE+'/catalog/validate',{method:'POST',redirect:'manual',headers:{Authorization:'Bearer '+env.RECARGAS_AMERICA_API_KEY,Accept:'application/json','Content-Type':'application/json'},signal:AbortSignal.timeout(10000),body:JSON.stringify({product_id:productId,service_user_id:uid})});body=await response.json();}catch{throw Error('RA_UNAVAILABLE');}

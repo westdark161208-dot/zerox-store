@@ -1,3 +1,4 @@
+import {raPrivateMode} from '../providers/ra-private-policy.mjs';
 import {productQuotesEnabled,productPricing,prepareProductQuote,acceptProductQuote} from '../payments/product-pricing-v3.mjs';
 import {publicMethods,validContact,saveContact} from '../payments/public-checkout.mjs';
 import {orderReceipt} from './receipt.mjs';
@@ -13,7 +14,7 @@ import {walletSchema,postMovement} from '../wallet/ledger.mjs';
 import {safeProviderError} from '../providers/sixofire-read.mjs';
 const ROOT='/api/diamonds/purchase';
 export function purchaseConfiguration(env){
- const reasons=[];for(const [key,reason] of [['DIAMOND_PRODUCTION_ENABLED','PRODUCT_PAYMENTS_DISABLED'],['RA_READ_ENABLED','RA_READ_DISABLED'],['RA_DELIVERY_ENABLED','DELIVERY_DISABLED'],['RA_CONTRACT_VERIFIED','PROVIDER_CONTRACT_UNVERIFIED']])if(env[key]!=='true')reasons.push(reason);
+ const reasons=[];if(raPrivateMode(env))reasons.push('RA_PRIVATE_READ_ONLY');for(const [key,reason] of [['DIAMOND_PRODUCTION_ENABLED','PRODUCT_PAYMENTS_DISABLED'],['RA_READ_ENABLED','RA_READ_DISABLED'],['RA_DELIVERY_ENABLED','DELIVERY_DISABLED'],['RA_CONTRACT_VERIFIED','PROVIDER_CONTRACT_UNVERIFIED']])if(env[key]!=='true')reasons.push(reason);
  if(!env.FF_INFO_API_KEY)reasons.push('PLAYER_VERIFIER_MISSING');
  if(!env.RECARGAS_AMERICA_API_KEY)reasons.push('PROVIDER_KEY_MISSING');else if(String(env.RECARGAS_AMERICA_API_KEY).startsWith('ra_test_'))reasons.push('PROVIDER_TEST_KEY');
  try{if(!Object.keys(raMapping(env)).length)reasons.push('RA_MAPPING_MISSING');}catch{reasons.push('RA_MAPPING_INVALID');}
@@ -140,7 +141,7 @@ export async function purchaseRoute(request,env,url,user,json,fetcher=fetch){
 
 // Continue only paid immutable plans. Unknown deliveries are never submitted again.
 export async function continuePaidDiamonds(env,fetcher=fetch){
- if(env.RA_DELIVERY_ENABLED!=='true'||env.RA_CONTRACT_VERIFIED!=='true'||env.RA_READ_ENABLED!=='true'||!env.RECARGAS_AMERICA_API_KEY)return {processed:0};
+ if(raPrivateMode(env)||env.RA_DELIVERY_ENABLED!=='true'||env.RA_CONTRACT_VERIFIED!=='true'||env.RA_READ_ENABLED!=='true'||!env.RECARGAS_AMERICA_API_KEY)return {processed:0};
  const exists=await env.DB.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='zx_product_payments'").first();if(!exists)return {processed:0};
  const {results:rows}=await env.DB.prepare("SELECT o.id FROM zx_diamond_orders o JOIN zx_product_payments p ON p.order_id=o.id WHERE o.paid_at IS NOT NULL AND p.state='paid' AND o.state IN ('PAID','PROCESSING','PARTIALLY_COMPLETED') AND o.lock_until<? ORDER BY o.updated_at,o.id LIMIT 2").bind(Date.now()).all();
  let processed=0;for(const row of rows){try{await fulfill(env,row.id,fetcher,2);processed++;}catch{ /* Next tick may retry preflight; the engine never resends uncertain operations. */ }}return {processed};
