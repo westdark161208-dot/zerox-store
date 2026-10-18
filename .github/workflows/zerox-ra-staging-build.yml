@@ -64,3 +64,11 @@ jobs:
           test -d "$RUNNER_TEMP/zerox-ra-build"
           echo 'STAGING_DRY_RUN_OK'
           echo 'CLOUDFLARE_UNCHANGED'
+
+      - name: Save isolated staging bundle for local review
+        uses: actions/upload-artifact@v4
+        with:
+          name: zerox-ra-founder-staging-dryrun
+          path: ${{ runner.temp }}/zerox-ra-build/
+          if-no-files-found: error
+          retention-days: 3
