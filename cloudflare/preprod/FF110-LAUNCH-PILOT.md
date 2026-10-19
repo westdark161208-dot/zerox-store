@@ -16,6 +16,8 @@
 3. Las compras RA de otros servicios y juegos se bloquean en piloto; **Sixofire no se modifica**.
 4. El descubrimiento automático de SKU por nombre queda inactivo durante el piloto: se necesita asociación explicita y verificada; órdenes e histórico D1 existentes se conservan.
 5. Pruebas de unidad introducidas y workflow dry-run sin deploy; no se activaron las banderas de producción.
+6. **Guard temporal intencional:** mientras no exista el transporte de compra Oracle, `purchaseConfiguration()` incluye `RA_FF110_PURCHASE_TRANSPORT_PENDING`; proveedor legacy `raProvider` no envía `submit`/`lookup` en piloto y el cron no recorre entregas. Este guard debe sustituirse **solo junto** con el nuevo adaptador de compra privada verificado y sus pruebas de pagos. No basta con cambiar variables de entorno.
+7. Promociones con diamantes que requerirían compras RA quedan fuera del piloto; las que usan Sixofire mantienen su ruta.
 
 ## IMPEDIMENTOS REALES antes de hacer una sola compra
 
