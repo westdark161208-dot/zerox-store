@@ -24,7 +24,8 @@ export function automaticUsMapping(env,items){
 export async function resolvedRaEnvironment(env,fetcher=fetch,items=null){
  if(external(env))return env;
  const saved=await rows(env.DB);let automatic={};
- if(env.RA_AUTO_ASSOCIATE_US==='true'){
+ if(env.RA_AUTO_ASSOCIATE_US==='true'&&env.RA_FF110_PILOT_ONLY!=='true'){
+  // Pilot requires an explicit confirmed SKU; do not infer game/region from product names.
   // An unavailable catalog must not disable balance reads or expose an upstream error.
   // A fresh preflight still blocks every purchase when quotes cannot be verified.
   try{automatic=automaticUsMapping(env,items||await readRecargasAmerica(env,'catalog',fetcher));}catch{}
