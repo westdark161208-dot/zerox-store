@@ -21,3 +21,11 @@ export function ff110PilotDeliveryAllowed(env, order, plan) {
     p?.diamonds === 110 && p?.quantity === 1 &&
     p?.baseDiamonds === 100 && p?.bonusDiamonds === 10;
 }
+
+export function assertFf110PromotionPlan(env, line, preferred) {
+  // Diamond bundles use a different payment+delivery engine and are not in scope
+  // unless fulfilled entirely by Sixofire. This protects old ad/promotion flows.
+  if (ff110PilotOnly(env) && line?.kind === 'diamonds' && preferred !== 'sixofire') {
+    throw Error('PROMOTION_RA_PILOT_BLOCKED');
+  }
+}
