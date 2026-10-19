@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {FF110_PRODUCT_ID, ff110PilotOnly, assertFf110PilotProduct, ff110PilotDeliveryAllowed} from '../cloudflare/diamonds/ff110-pilot.mjs';
+import {FF110_PRODUCT_ID, ff110PilotOnly, assertFf110PilotProduct, ff110PilotDeliveryAllowed, assertFf110PromotionPlan} from '../cloudflare/diamonds/ff110-pilot.mjs';
 import {getProduct} from '../cloudflare/diamonds/catalog.mjs';
 import {deliveryEnabled} from '../cloudflare/services/delivery.mjs';
 import {gameCatalog,gameDelivery} from '../cloudflare/services/games.mjs';
@@ -50,4 +50,12 @@ test('pilot prevents automatic SKU association without a confirmed mapping',asyn
  const env={RA_FF110_PILOT_ONLY:'true',RA_AUTO_ASSOCIATE_US:'true'};
  const out=await resolvedRaEnvironment(env,()=>{throw Error('unexpected catalog fetch');});
  assert.equal(out,env);
+});
+
+test('promotions cannot bypass the FF110 pilot through an RA diamond bundle',()=>{
+ assert.throws(()=>assertFf110PromotionPlan(enabled,{kind:'diamonds',quantity:110},null),/PROMOTION_RA_PILOT_BLOCKED/);
+ assert.throws(()=>assertFf110PromotionPlan(enabled,{kind:'diamonds',quantity:110},'recargas-america'),/PROMOTION_RA_PILOT_BLOCKED/);
+ assert.doesNotThrow(()=>assertFf110PromotionPlan(enabled,{kind:'diamonds',quantity:110},'sixofire'));
+ assert.doesNotThrow(()=>assertFf110PromotionPlan(enabled,{kind:'booyah-normal'},null));
+ assert.doesNotThrow(()=>assertFf110PromotionPlan(disabled,{kind:'diamonds',quantity:110},null));
 });
