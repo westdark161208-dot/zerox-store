@@ -4,6 +4,7 @@ on:
     branches:
       - codex/ra-founder-private-bridge-20261017
       - codex/ra-preprod-safety-audit-20261018
+      - codex/ra-ff110-launch-pilot-20261018
     paths:
       - '.github/workflows/zerox-ra-staging-build.yml'
       - 'cloudflare/staging/**'
@@ -65,6 +66,10 @@ jobs:
       - name: Check JavaScript syntax
         shell: bash
         run: |
+          node --check cloudflare/diamonds/ff110-pilot.mjs
+          node --check cloudflare/diamonds/purchases.mjs
+          node --check cloudflare/services/delivery.mjs
+          node --check cloudflare/services/games.mjs
           node --check cloudflare/staging/worker.mjs
           node --check cloudflare/staging/auth.mjs
           node --check cloudflare/staging/panel.mjs
