@@ -16,7 +16,7 @@
 3. Las compras RA de otros servicios y juegos se bloquean en piloto; **Sixofire no se modifica**.
 4. El descubrimiento automático de SKU por nombre queda inactivo durante el piloto: se necesita asociación explicita y verificada; órdenes e histórico D1 existentes se conservan.
 5. Pruebas de unidad introducidas y workflow dry-run sin deploy; no se activaron las banderas de producción.
-6. **Guard temporal intencional:** mientras no exista el transporte de compra Oracle, `purchaseConfiguration()` incluye `RA_FF110_PURCHASE_TRANSPORT_PENDING`; proveedor legacy `raProvider` no envía `submit`/`lookup` en piloto y el cron no recorre entregas. Este guard debe sustituirse **solo junto** con el nuevo adaptador de compra privada verificado y sus pruebas de pagos. No basta con cambiar variables de entorno.
+6. **Estado inicial del PR (sustituido por la implementación descrita en FF110-TASK49-REVIEW.md):** mientras no exista el transporte de compra Oracle, `purchaseConfiguration()` incluye `RA_FF110_PURCHASE_TRANSPORT_PENDING`; proveedor legacy `raProvider` no envía `submit`/`lookup` en piloto y el cron no recorre entregas. Este guard debe sustituirse **solo junto** con el nuevo adaptador de compra privada verificado y sus pruebas de pagos. No basta con cambiar variables de entorno.
 7. Promociones con diamantes que requerirían compras RA quedan fuera del piloto; las que usan Sixofire mantienen su ruta.
 
 ## IMPEDIMENTOS REALES antes de hacer una sola compra
@@ -44,3 +44,6 @@
 **PENDIENTE:** desarrollo del nuevo transporte de compra por Oracle, pruebas integrales del flujo real de pagos, auditoría efectiva, identificación del SKU correcto, despliegue autorizado y primera compra real autorizada.
 
 **Prohibido por ahora:** merge a `main`, deploy, cambiar banderas productivas, credenciales, D1 productiva, webhook MP, Oracle activo o sesión Zerito Bot. La prioridad del MVP **no es** permiso de cobro o compra de prueba.
+
+## Continuación tarea #49
+Canal privado y pruebas E2E simuladas implementados: consultar `FF110-TASK49-REVIEW.md`. El guard solo se supera con el nuevo transporte y requisitos explícitos. Persisten SKU real, inspección/instalación del delta Oracle-VPC y aprobación; nada desplegado.

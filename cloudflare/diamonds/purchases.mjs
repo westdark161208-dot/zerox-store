@@ -1,3 +1,4 @@
+import {privatePurchaseReady} from './ra-private-purchase.mjs';
 import {raPrivateMode} from '../providers/ra-private-policy.mjs';
 import {FF110_PRODUCT_ID,ff110PilotOnly,assertFf110PilotProduct,ff110PilotDeliveryAllowed} from './ff110-pilot.mjs';
 import {productQuotesEnabled,productPricing,prepareProductQuote,acceptProductQuote} from '../payments/product-pricing-v3.mjs';
@@ -15,11 +16,11 @@ import {walletSchema,postMovement} from '../wallet/ledger.mjs';
 import {safeProviderError} from '../providers/sixofire-read.mjs';
 const ROOT='/api/diamonds/purchase';
 export function purchaseConfiguration(env){
- const reasons=[];if(raPrivateMode(env))reasons.push('RA_PRIVATE_READ_ONLY');
- if(ff110PilotOnly(env))reasons.push('RA_FF110_PURCHASE_TRANSPORT_PENDING');for(const [key,reason] of [['DIAMOND_PRODUCTION_ENABLED','PRODUCT_PAYMENTS_DISABLED'],['RA_READ_ENABLED','RA_READ_DISABLED'],['RA_DELIVERY_ENABLED','DELIVERY_DISABLED'],['RA_CONTRACT_VERIFIED','PROVIDER_CONTRACT_UNVERIFIED']])if(env[key]!=='true')reasons.push(reason);
+ const reasons=[];if(raPrivateMode(env)&&!ff110PilotOnly(env))reasons.push('RA_PRIVATE_READ_ONLY');
+ if(ff110PilotOnly(env)&&!privatePurchaseReady(env))reasons.push('RA_FF110_PURCHASE_TRANSPORT_PENDING');if(!ff110PilotOnly(env))for(const [key,reason] of [['DIAMOND_PRODUCTION_ENABLED','PRODUCT_PAYMENTS_DISABLED'],['RA_READ_ENABLED','RA_READ_DISABLED'],['RA_DELIVERY_ENABLED','DELIVERY_DISABLED'],['RA_CONTRACT_VERIFIED','PROVIDER_CONTRACT_UNVERIFIED']])if(env[key]!=='true')reasons.push(reason);
  if(!env.FF_INFO_API_KEY)reasons.push('PLAYER_VERIFIER_MISSING');
- if(!env.RECARGAS_AMERICA_API_KEY)reasons.push('PROVIDER_KEY_MISSING');else if(String(env.RECARGAS_AMERICA_API_KEY).startsWith('ra_test_'))reasons.push('PROVIDER_TEST_KEY');
- try{if(!Object.keys(raMapping(env)).length)reasons.push('RA_MAPPING_MISSING');}catch{reasons.push('RA_MAPPING_INVALID');}
+ if(!ff110PilotOnly(env)&&!env.RECARGAS_AMERICA_API_KEY)reasons.push('PROVIDER_KEY_MISSING');else if(!ff110PilotOnly(env)&&String(env.RECARGAS_AMERICA_API_KEY).startsWith('ra_test_'))reasons.push('PROVIDER_TEST_KEY');
+ try{const map=raMapping(env);if(!Object.keys(map).length)reasons.push('RA_MAPPING_MISSING');if(ff110PilotOnly(env)&&(Object.keys(map).length!==1||!map[110]||map[110].baseDiamonds!==100||map[110].bonusDiamonds!==10||map[110].regions.length!==1||map[110].regions[0]!=='US'))reasons.push('RA_MAPPING_INVALID');}catch{reasons.push('RA_MAPPING_INVALID');}
  if(env.MP_PRODUCTION_READ_ENABLED!=='true'||!productionToken(env)||!env.MP_COLLECTOR_ID_PRODUCTION||!env.MP_WEBHOOK_SECRET_PRODUCTION)reasons.push('PRODUCTION_PAYMENT_CONFIG_MISSING');return {enabled:!reasons.length,reasons};
 }
 async function schemas(db){await diamondSchema(db);await walletSchema(db);await db.prepare(`CREATE TABLE IF NOT EXISTS zx_product_payments (order_id TEXT PRIMARY KEY,user_id TEXT NOT NULL,method TEXT NOT NULL,region TEXT NOT NULL,collector_id TEXT NOT NULL,amount_cents INTEGER NOT NULL,checkout_url TEXT,preference_id TEXT,payment_id TEXT UNIQUE,state TEXT NOT NULL DEFAULT 'creating',created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)`).run();}
@@ -145,8 +146,8 @@ export async function purchaseRoute(request,env,url,user,json,fetcher=fetch){
 
 // Continue only paid immutable plans. Unknown deliveries are never submitted again.
 export async function continuePaidDiamonds(env,fetcher=fetch){
- if(ff110PilotOnly(env)||raPrivateMode(env)||env.RA_DELIVERY_ENABLED!=='true'||env.RA_CONTRACT_VERIFIED!=='true'||env.RA_READ_ENABLED!=='true'||!env.RECARGAS_AMERICA_API_KEY)return {processed:0};
+ if(ff110PilotOnly(env)?!privatePurchaseReady(env):(raPrivateMode(env)||env.RA_DELIVERY_ENABLED!=='true'||env.RA_CONTRACT_VERIFIED!=='true'||env.RA_READ_ENABLED!=='true'||!env.RECARGAS_AMERICA_API_KEY))return {processed:0};
  const exists=await env.DB.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='zx_product_payments'").first();if(!exists)return {processed:0};
- const {results:rows}=await env.DB.prepare("SELECT o.id FROM zx_diamond_orders o JOIN zx_product_payments p ON p.order_id=o.id WHERE o.paid_at IS NOT NULL AND p.state='paid' AND o.state IN ('PAID','PROCESSING','PARTIALLY_COMPLETED') AND o.lock_until<? ORDER BY o.updated_at,o.id LIMIT 2").bind(Date.now()).all();
+ const {results:rows}=await env.DB.prepare("SELECT o.id FROM zx_diamond_orders o JOIN zx_product_payments p ON p.order_id=o.id WHERE o.paid_at IS NOT NULL AND p.state='paid' AND (o.state IN ('PAID','PROCESSING','PARTIALLY_COMPLETED') OR (?=1 AND o.state='REQUIRES_REVIEW' AND EXISTS(SELECT 1 FROM zx_diamond_operations op WHERE op.order_id=o.id AND op.state='PROCESSING' AND op.provider_reference IS NOT NULL))) AND (?=0 OR (o.product_id='zx-diamonds-110' AND o.diamonds=110)) AND o.lock_until<? ORDER BY o.updated_at,o.id LIMIT 2").bind(ff110PilotOnly(env)?1:0,ff110PilotOnly(env)?1:0,Date.now()).all();
  let processed=0;for(const row of rows){try{await fulfill(env,row.id,fetcher,2);processed++;}catch{ /* Next tick may retry preflight; the engine never resends uncertain operations. */ }}return {processed};
 }

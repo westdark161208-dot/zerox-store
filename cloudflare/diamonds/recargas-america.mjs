@@ -1,3 +1,4 @@
+import {privatePurchaseReady,privatePurchaseCall,privatePayload} from './ra-private-purchase.mjs';
 import {raPrivateMode,requireLegacyRa} from '../providers/ra-private-policy.mjs';
 import {createPlanner} from './catalog.mjs';
 import {readRecargasAmerica,validateRecargasAccount} from '../providers/recargas-america.mjs';
@@ -55,9 +56,10 @@ export async function raLiveQuote(env,amount,region,uid,fetcher=fetch){
  return {plan:{provider:'recargas-america',version:1,region,playerId:uid,currency:'USD',quotedAt:new Date().toISOString(),...quote},wallet,canAfford:balanceMicros>=quote.totalMicros};
 }
 export async function raAmountPreflight(env,amount,region,uid,fetcher=fetch){
+ if(env.RA_FF110_PILOT_ONLY==='true'&&(amount!==110||region!=='US'||!privatePurchaseReady(env)))throw Error('RA_FF110_PURCHASE_TRANSPORT_PENDING');
  const quote=await raLiveQuote(env,amount,region,uid,fetcher);
  if(!quote.canAfford)throw Error('RA_INSUFFICIENT_FUNDS');
- for(const p of quote.plan.packs){const result=await validateRecargasAccount(env,p.productId,uid,fetcher);if(result.supported&&result.status!==true)throw Error('RA_PLAYER_REJECTED');}
+ for(const p of quote.plan.packs){const result=env.RA_FF110_PILOT_ONLY==='true'?await privatePurchaseCall(env,'validate',privatePayload(quote.plan,p,crypto.randomUUID()+':0')):await validateRecargasAccount(env,p.productId,uid,fetcher);if(env.RA_FF110_PILOT_ONLY==='true'?(result.supported!==true||result.status!==true):(result.supported&&result.status!==true))throw Error('RA_PLAYER_REJECTED');}
  return quote.plan;
 }
 // Immutable checkout plan protects already-paid orders from later SKU/region/configuration changes.
@@ -73,7 +75,14 @@ function result(body,pack,reference,submitted=false){
  if(!identity)return {status:'UNKNOWN',reference:ref};
  return {status:d.status==='COMPLETED'&&d.needs_review!==true?'SUCCESS':'PROCESSING',reference:ref,receipt:JSON.stringify({provider:'recargas-america',state:String(d.status||'').slice(0,50)})};
 }
-export function raProvider(env,plan,fetcher=fetch){const allowed=new Map(plan.packs.map(p=>[p.sku,p]));return {
+export function raProvider(env,plan,fetcher=fetch){
+ if(env.RA_FF110_PILOT_ONLY==='true'&&privatePurchaseReady(env)){
+ const pack=plan.packs?.[0];const valid=plan.provider==='recargas-america'&&plan.currency==='USD'&&plan.region==='US'&&plan.packs.length===1&&pack.diamonds===110&&pack.baseDiamonds===100&&pack.bonusDiamonds===10&&pack.quantity===1;
+ return {name:'recargas-america',enabled:valid,supportsIdempotency:false,
+ async submit({sku,playerId,idempotencyKey}){if(!valid||sku!==pack.sku||playerId!==plan.playerId)return {status:'NOT_ACCEPTED'};try{return await privatePurchaseCall(env,'submit',privatePayload(plan,pack,idempotencyKey));}catch{return {status:'UNKNOWN'};}},
+ async lookup({reference,sku,playerId,idempotencyKey}){if(!valid||!safeRef(reference)||sku!==pack.sku||playerId!==plan.playerId)return {status:'UNKNOWN'};try{return await privatePurchaseCall(env,'lookup',{...privatePayload(plan,pack,idempotencyKey),reference});}catch{return {status:'UNKNOWN'};}}};
+ }
+ const allowed=new Map(plan.packs.map(p=>[p.sku,p]));return {
  name:'recargas-america',enabled:env.RA_FF110_PILOT_ONLY!=='true'&&!raPrivateMode(env)&&env.RA_DELIVERY_ENABLED==='true',supportsIdempotency:false,
  async submit({sku,playerId,idempotencyKey}){
   if(env.RA_FF110_PILOT_ONLY==='true')return {status:'NOT_ACCEPTED'};
