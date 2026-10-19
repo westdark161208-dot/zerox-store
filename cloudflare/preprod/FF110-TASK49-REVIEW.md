@@ -35,7 +35,7 @@ Oracle propuesto: Node >=22.13 con node:sqlite, configuración 0600 externa al r
 
 ## Pruebas sin dinero real
 
-12 pruebas nuevas conectan el checkout original -> adaptador -> Worker -> firmas -> gateway -> SQLite durable -> proveedor simulado:
+13 pruebas nuevas conectan el checkout original -> adaptador -> Worker -> firmas -> gateway -> SQLite durable -> proveedor simulado:
 - Wallet V3 debita exactamente $18 MXN una vez y genera comprobante tras entrega.
 - Tarjeta/SPEI/MP respetan la cotización y comisión originales; no entregan antes del webhook firmado y de consulta server-to-server.
 - Firma inválida, pago rechazado o importe falso no entregan; webhook repetido no duplica.
@@ -63,8 +63,10 @@ Reversión: apagar RA_FF110_PURCHASE_ENABLED y RA_FF110_BRIDGE_ENABLED, mantener
 Después del despliegue aprobado se necesita autorización SEPARADA para una única compra real, UID del propietario, coste y total previamente aceptados. Ninguna de esas autorizaciones se presume aquí.
 
 ## Resultado verificable de esta revisión
-- 275/275 pruebas locales aprobadas (263 existentes + 12 nuevas).
+- 276/276 pruebas locales aprobadas (263 existentes + 13 nuevas).
 - Wrangler dry-run: staging de lectura, backend original y bridge privado de compra compilan; no publicación.
 - Sintaxis del servidor/gateway Oracle validada, sin iniciar el proceso.
 - El cron conserva revisión manual para UNKNOWN sin referencia: no lo selecciona para consultas automáticas.
 - No se repitió ninguna consulta autenticada de lectura en la infraestructura real.
+
+Protección adicional de recibos: una referencia RA solo puede pertenecer a una operación del diario. Reutilizarla para otra orden deja la segunda en UNKNOWN, nunca COMPLETED.

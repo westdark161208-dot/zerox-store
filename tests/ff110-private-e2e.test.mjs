@@ -93,3 +93,7 @@ test('wrong payment amount, foreign region/product and disabled private transpor
  assert.equal((await h.gateway(await signed(h,{...payload,region:'BR'}))).status,400);
  h.env.RA_FF110_PURCHASE_ENABLED='false';assert.equal((await h.route('/status')).enabled,false);assert.equal(h.metrics.buys,0);
 });
+test('one supplier reference cannot prove delivery of two different operations',async t=>{
+ const h=await setup(t);const first=await h.gateway(await signed(h,payload));assert.equal((await first.json()).status,'SUCCESS');
+ const second=await h.gateway(await signed(h,{...payload,operationId:'22222222-2222-4222-8222-222222222222:0'}));assert.equal((await second.json()).status,'UNKNOWN');
+});

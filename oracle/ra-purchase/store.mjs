@@ -3,7 +3,8 @@ import {DatabaseSync} from 'node:sqlite';
 export class Journal {
  constructor(path){this.db=new DatabaseSync(path);this.db.exec(`PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL;
  CREATE TABLE IF NOT EXISTS requests(nonce TEXT PRIMARY KEY,at INTEGER NOT NULL);
- CREATE TABLE IF NOT EXISTS operations(id TEXT PRIMARY KEY,hash TEXT NOT NULL,reference TEXT,result TEXT NOT NULL);`);}
+ CREATE TABLE IF NOT EXISTS operations(id TEXT PRIMARY KEY,hash TEXT NOT NULL,reference TEXT,result TEXT NOT NULL);
+ CREATE UNIQUE INDEX IF NOT EXISTS operation_reference_unique ON operations(reference) WHERE reference IS NOT NULL;`);}
  authorize(nonce,now){
  this.db.exec('BEGIN IMMEDIATE');try{
  this.db.prepare('DELETE FROM requests WHERE at<?').run(now-120000);
