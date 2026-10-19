@@ -2,6 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {FF110_PRODUCT_ID, ff110PilotOnly, assertFf110PilotProduct, ff110PilotDeliveryAllowed} from '../cloudflare/diamonds/ff110-pilot.mjs';
 import {getProduct} from '../cloudflare/diamonds/catalog.mjs';
+import {deliveryEnabled} from '../cloudflare/services/delivery.mjs';
+import {gameCatalog,gameDelivery} from '../cloudflare/services/games.mjs';
+import {resolvedRaEnvironment} from '../cloudflare/providers/ra-associations.mjs';
+
 
 const enabled={RA_FF110_PILOT_ONLY:'true'};
 const disabled={RA_FF110_PILOT_ONLY:'false'};
@@ -32,4 +36,18 @@ test('existing unpaid/paid nonpilot orders cannot submit RA deliveries during pi
  assert.equal(ff110PilotDeliveryAllowed(enabled,order,{...plan,packs:[{...plan.packs[0],quantity:2}]}),false);
  assert.equal(ff110PilotDeliveryAllowed(enabled,order,{...plan,packs:[]}),false);
  assert.equal(ff110PilotDeliveryAllowed(disabled,{...order,product_id:'zx-diamonds-220'},plan),true);
+});
+
+test('pilot leaves Sixofire delivery enabled but blocks unrelated RA service purchases',async()=>{
+ const env={RA_FF110_PILOT_ONLY:'true',RA_DELIVERY_ENABLED:'true',RA_CONTRACT_VERIFIED:'true',SIXOFIRE_DELIVERY_ENABLED:'true'};
+ assert.equal(deliveryEnabled(env,'recargas-america'),false);
+ assert.equal(deliveryEnabled(env,'sixofire'),true);
+ const noNetwork=()=>{throw Error('unexpected supplier request');};
+ assert.deepEqual(await gameCatalog(env,noNetwork),[]);
+ await assert.rejects(gameDelivery(env,'ra-game-1','12345678',null,noNetwork),/PRODUCT_NOT_AVAILABLE/);
+});
+test('pilot prevents automatic SKU association without a confirmed mapping',async()=>{
+ const env={RA_FF110_PILOT_ONLY:'true',RA_AUTO_ASSOCIATE_US:'true'};
+ const out=await resolvedRaEnvironment(env,()=>{throw Error('unexpected catalog fetch');});
+ assert.equal(out,env);
 });
