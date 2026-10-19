@@ -68,6 +68,8 @@ jobs:
         run: |
           node --check cloudflare/diamonds/ff110-pilot.mjs
           node --check cloudflare/diamonds/purchases.mjs
+          node --check cloudflare/diamonds/recargas-america.mjs
+          node --check cloudflare/promotions/purchases.mjs
           node --check cloudflare/services/delivery.mjs
           node --check cloudflare/services/games.mjs
           node --check cloudflare/staging/worker.mjs
