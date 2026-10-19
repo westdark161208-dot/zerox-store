@@ -1,6 +1,17 @@
 import {validSecret,verify,canonical,digest,boundedText,validPayload,response} from '../../cloudflare/ra-purchase/protocol.mjs';
 const safeRef=x=>typeof x==='string'&&/^[A-Za-z0-9_-]{1,120}$/.test(x);
 function identity(p,c){return c.verified===true&&c.baseDiamonds===100&&c.bonusDiamonds===10&&c.region==='US'&&typeof c.bonusEvidence==='string'&&!!c.bonusEvidence.trim()&&p.productId===c.productId&&p.catalogSku===c.sku&&p.name===c.name&&p.field===c.field&&Number.isFinite(c.maxPriceUsd)&&c.maxPriceUsd>0&&Number(p.maxPriceUsd)<=c.maxPriceUsd;}
+// Optional provider metadata must agree whenever supplied; malformed review flags
+// cannot be treated as a completed delivery.
+function confirmation(d,p){
+ if(Object.hasOwn(d,'needs_review')&&typeof d.needs_review!=='boolean')return 'UNKNOWN';
+ if(Object.hasOwn(d,'quantity')&&d.quantity!==1)return 'UNKNOWN';
+ for(const field of ['player_id','manual_id','service_user_id'])if(Object.hasOwn(d,field)&&String(d[field])!==p.playerId)return 'UNKNOWN';
+ if(Object.hasOwn(d,'region')&&d.region!==p.region)return 'UNKNOWN';
+ if(d.needs_review===true)return 'UNKNOWN';
+ if(d.status==='COMPLETED')return 'SUCCESS';
+ return d.status==='PROCESSING'?'PROCESSING':'UNKNOWN';
+}
 export function createGateway({config,store,upstream,clock=Date.now}){
  return async request=>{
  const url=new URL(request.url),action=url.pathname.split('/').at(-1);
@@ -18,7 +29,7 @@ export function createGateway({config,store,upstream,clock=Date.now}){
  if(old.result.status==='SUCCESS')return done(old.result);
  const raw=await upstream('/catalog/orders/'+reference,'GET'),d=raw?.data;
  if(raw?.success!==true||d?.order_id!==reference||d.product!==p.name)return done({status:'UNKNOWN',reference});
- const result={status:d.status==='COMPLETED'&&d.needs_review!==true?'SUCCESS':'PROCESSING',reference};store.save(p.operationId,result);return done(result);
+ const result={status:confirmation(d,p),reference};store.save(p.operationId,result);return done(result);
  }
  if(action==='submit'){
  const claim=store.claim(p.operationId,hash);if(claim.hash!==hash)return response({ok:false},409);
@@ -37,7 +48,7 @@ export function createGateway({config,store,upstream,clock=Date.now}){
  submitted=true;
  const rawBuy=await upstream('/buy/catalog','POST',{product_id:p.productId,quantity:1,[p.field]:p.playerId},p.operationId),d=rawBuy?.data;
  let result={status:'UNKNOWN'};
- if(rawBuy?.success===true&&safeRef(d?.order_id)&&d.item===p.name&&Number(d.amount_charged)>0&&Number(d.amount_charged)<=Number(p.maxPriceUsd))result={status:d.status==='COMPLETED'&&d.needs_review!==true?'SUCCESS':'PROCESSING',reference:d.order_id};
+ if(rawBuy?.success===true&&safeRef(d?.order_id)&&d.item===p.name&&Number(d.amount_charged)>0&&Number(d.amount_charged)<=Number(p.maxPriceUsd))result={status:confirmation(d,p),reference:d.order_id};
  store.save(p.operationId,result);return done(result);
  }catch{
  if(action==='validate')return response({ok:false,error:'VALIDATION_UNAVAILABLE'},503);

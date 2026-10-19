@@ -70,3 +70,52 @@ Después del despliegue aprobado se necesita autorización SEPARADA para una ún
 - No se repitió ninguna consulta autenticada de lectura en la infraestructura real.
 
 Protección adicional de recibos: una referencia RA solo puede pertenecer a una operación del diario. Reutilizarla para otra orden deja la segunda en UNKNOWN, nunca COMPLETED.
+
+## Continuación 2026-10-19: confirmación y origen de autenticación
+
+Se conservó el preflight incorporado en 7c864ce. El gateway propuesto rechaza
+como confirmación una bandera needs_review mal tipada o activa, cantidad distinta
+de 1, UID/región contradictorios y estados distintos de COMPLETED. Un resultado
+ambiguo conserva la referencia para consulta, nunca para repetir la compra.
+Una consulta posterior coherente puede resolver la operación; no se genera
+comprobante mientras persista la contradicción.
+
+Validación local: 288/288 pruebas aprobadas (12 casos nuevos de contradicciones
+persistentes en submit y lookup). Todos los proveedores/pagos son simulados.
+El diagnóstico de autenticación pasó una comprobación con secretos centinela:
+no devuelve valores, nombres de variables ni fragmentos del código.
+
+### Paso indispensable en Oracle (solo lectura)
+
+Desde una copia revisada de esta rama en Oracle, ejecutar:
+
+```bash
+sudo python3 oracle/ra-purchase/auth-source-check.py
+```
+
+No ejecutarlo en Termux local: debe correr dentro de la sesión SSH de Oracle.
+Compartir únicamente su JSON. No imprime el entorno, archivos de configuración,
+argumentos del proceso ni errores internos. No llama a RA ni reinicia servicios.
+La detección estática es orientativa: no resuelve imports, alias ni configuración
+dinámica. `inspection_incomplete` requiere revisar permisos/acceso; no significa
+que falten credenciales. La ausencia de proxy.secret y un 401 sin autenticación
+no demuestran una avería.
+
+### Sincronización pendiente, sin rotación automática
+
+1. Identificar la fuente efectiva a partir del diagnóstico; si es indirecta,
+   inspeccionar localmente únicamente su procedencia, sin copiar valores.
+2. Confirmar que RA_PROXY_SECRET en el Worker de lectura corresponde a la fuente
+   efectiva del encabezado x-zerox-proxy-key en el gateway. Cloudflare no permite
+   recuperar el valor del secreto: su presencia por sí sola no prueba igualdad.
+3. Validar mediante /gateway-ready autenticado ya existente. No abrir /wallet
+   públicamente, no deshabilitar autenticación, no rotar ni reiniciar Oracle con
+   la autorización actual. Si el valor no puede recuperarse de forma privada,
+   preparar una rotación coordinada y solicitar autorización específica.
+4. El canal de compras propuesto utiliza secretos NUEVOS y separados para
+   Store→bridge y bridge→Oracle. No reutiliza tokens administrativos de lectura.
+
+Siguen bloqueando producción: identificador/SKU real y evidencia 100+10/región;
+instalación autorizada del canal privado de escritura y su binding efectivo;
+configuración privada de secretos; validación del despliegue y aprobación final.
+No se ha modificado Oracle, producción, main, Zerito ni saldos reales.

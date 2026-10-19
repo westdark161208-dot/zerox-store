@@ -25,8 +25,8 @@ async function setup(t,{buy='success'}={}){
  if(path==='/products/catalog')return {success:true,data:[product]};
  if(path==='/wallet')return {success:true,data:{balance:100,currency:'USD'}};
  if(path==='/catalog/validate')return {success:true,data:{supported:true,status:true}};
- if(path==='/buy/catalog'){metrics.buys++;assert.equal(method,'POST');assert.deepEqual(body,{product_id:product.id,quantity:1,player_id:payload.playerId});if(state.buy==='timeout')throw Error('fixture timeout');if(state.buy==='partial')return {success:true,data:{status:'COMPLETED'}};return {success:true,data:{order_id:'FIX-ORDER',item:product.name,amount_charged:1,status:state.buy==='processing'?'PROCESSING':'COMPLETED'}};}
- if(path==='/catalog/orders/FIX-ORDER'){metrics.lookups++;return {success:true,data:{order_id:'FIX-ORDER',product:product.name,status:'COMPLETED'}};}
+ if(path==='/buy/catalog'){metrics.buys++;assert.equal(method,'POST');assert.deepEqual(body,{product_id:product.id,quantity:1,player_id:payload.playerId});if(state.buy==='timeout')throw Error('fixture timeout');if(state.buy==='partial')return {success:true,data:{status:'COMPLETED'}};return {success:true,data:{order_id:'FIX-ORDER',item:product.name,amount_charged:1,status:state.buy==='processing'?'PROCESSING':'COMPLETED',...state.buyPatch}};}
+ if(path==='/catalog/orders/FIX-ORDER'){metrics.lookups++;return {success:true,data:{order_id:'FIX-ORDER',product:product.name,status:'COMPLETED',...state.lookupPatch}};}
  assert.fail('unexpected Oracle upstream');
  };
  let gateway=createGateway({config,store:journal,upstream});
@@ -97,3 +97,13 @@ test('one supplier reference cannot prove delivery of two different operations',
  const h=await setup(t);const first=await h.gateway(await signed(h,payload));assert.equal((await first.json()).status,'SUCCESS');
  const second=await h.gateway(await signed(h,{...payload,operationId:'22222222-2222-4222-8222-222222222222:0'}));assert.equal((await second.json()).status,'UNKNOWN');
 });
+
+for(const patch of [{needs_review:'true'},{needs_review:true},{quantity:2},{player_id:'998877665'},{region:'BR'},{status:'REJECTED'}]){
+ for(const phase of ['submit','lookup'])test(phase+' contradictory confirmation '+JSON.stringify(patch)+' never issues receipt or resubmits',async t=>{
+  const h=await setup(t,{buy:phase==='lookup'?'processing':'success'});await h.credit();
+  h.state.lookupPatch=patch;if(phase==='submit')h.state.buyPatch=patch;
+  const {result}=await h.checkout('wallet');h.restart();
+  await continuePaidDiamonds(h.env);await h.route('/resume',{orderId:result.orderId});
+  assert.equal(h.metrics.buys,1);assert.equal((await h.route('/orders/'+result.orderId+'/receipt')).ok,false);
+ });
+}
