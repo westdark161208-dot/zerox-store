@@ -2,6 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {FF110_PRODUCT_ID, ff110PilotOnly, assertFf110PilotProduct, ff110PilotDeliveryAllowed, assertFf110PromotionPlan} from '../cloudflare/diamonds/ff110-pilot.mjs';
 import {getProduct} from '../cloudflare/diamonds/catalog.mjs';
+import {purchaseConfiguration} from '../cloudflare/diamonds/purchases.mjs';
+import {raProvider} from '../cloudflare/diamonds/recargas-america.mjs';
 import {deliveryEnabled} from '../cloudflare/services/delivery.mjs';
 import {gameCatalog,gameDelivery} from '../cloudflare/services/games.mjs';
 import {resolvedRaEnvironment} from '../cloudflare/providers/ra-associations.mjs';
@@ -58,4 +60,17 @@ test('promotions cannot bypass the FF110 pilot through an RA diamond bundle',()=
  assert.doesNotThrow(()=>assertFf110PromotionPlan(enabled,{kind:'diamonds',quantity:110},'sixofire'));
  assert.doesNotThrow(()=>assertFf110PromotionPlan(enabled,{kind:'booyah-normal'},null));
  assert.doesNotThrow(()=>assertFf110PromotionPlan(disabled,{kind:'diamonds',quantity:110},null));
+});
+
+test('real payment and legacy Oracle-bypassing supplier requests stay blocked until new transport is wired',async()=>{
+ const env={RA_FF110_PILOT_ONLY:'true',RA_DELIVERY_ENABLED:'true',RA_READ_ENABLED:'true',
+  RA_CONTRACT_VERIFIED:'true',DIAMOND_PRODUCTION_ENABLED:'true'};
+ assert.equal(purchaseConfiguration(env).enabled,false);
+ assert.ok(purchaseConfiguration(env).reasons.includes('RA_FF110_PURCHASE_TRANSPORT_PENDING'));
+ const supplier=raProvider(env,{playerId:'123456789',packs:[{sku:'1',diamonds:110}]},()=>{
+  throw Error('LEGACY_PROVIDER_NETWORK_MUST_NOT_BE_USED');
+ });
+ assert.equal(supplier.enabled,false);
+ assert.deepEqual(await supplier.submit({sku:'1',playerId:'123456789',idempotencyKey:'idempotent-1'}),{status:'NOT_ACCEPTED'});
+ assert.deepEqual(await supplier.lookup({sku:'1',playerId:'123456789',reference:'P-1'}),{status:'UNKNOWN'});
 });
