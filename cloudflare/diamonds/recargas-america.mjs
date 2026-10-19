@@ -74,8 +74,9 @@ function result(body,pack,reference,submitted=false){
  return {status:d.status==='COMPLETED'&&d.needs_review!==true?'SUCCESS':'PROCESSING',reference:ref,receipt:JSON.stringify({provider:'recargas-america',state:String(d.status||'').slice(0,50)})};
 }
 export function raProvider(env,plan,fetcher=fetch){const allowed=new Map(plan.packs.map(p=>[p.sku,p]));return {
- name:'recargas-america',enabled:!raPrivateMode(env)&&env.RA_DELIVERY_ENABLED==='true',supportsIdempotency:false,
+ name:'recargas-america',enabled:env.RA_FF110_PILOT_ONLY!=='true'&&!raPrivateMode(env)&&env.RA_DELIVERY_ENABLED==='true',supportsIdempotency:false,
  async submit({sku,playerId,idempotencyKey}){
+  if(env.RA_FF110_PILOT_ONLY==='true')return {status:'NOT_ACCEPTED'};
   requireLegacyRa(env);
   const pack=allowed.get(sku);if(!pack||playerId!==plan.playerId||!/^\d{5,15}$/.test(playerId)||!idempotencyKey)return {status:'NOT_ACCEPTED'};
   const item=await recheck(env,plan,pack,playerId,fetcher);
@@ -84,6 +85,7 @@ export function raProvider(env,plan,fetcher=fetch){const allowed=new Map(plan.pa
   if(!response.ok)return {status:'UNKNOWN'};return result(body,{...pack,price:item.price},null,true);
  },
  async lookup({reference,playerId,sku}){
+  if(env.RA_FF110_PILOT_ONLY==='true')return {status:'UNKNOWN'};
   requireLegacyRa(env);
   const pack=allowed.get(sku);if(!pack||!safeRef(reference)||playerId!==plan.playerId)return {status:'UNKNOWN'};
   try{const response=await fetcher(BASE+'/catalog/orders/'+reference,{method:'GET',redirect:'manual',headers:{Authorization:'Bearer '+env.RECARGAS_AMERICA_API_KEY,Accept:'application/json'},signal:AbortSignal.timeout(10000)});if(!response.ok)return {status:'UNKNOWN'};return result(await response.json(),pack,reference);}catch{return {status:'UNKNOWN'};}
