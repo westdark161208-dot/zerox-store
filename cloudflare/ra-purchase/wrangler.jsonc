@@ -9,5 +9,12 @@
   },
   "vars": {
     "RA_FF110_BRIDGE_ENABLED": "false"
-  }
+  },
+  "vpc_services": [
+    {
+      "binding": "RA_PURCHASE_GATEWAY",
+      "service_id": "01a15769-3e76-7e51-9a7e-13a628870a2a",
+      "remote": true
+    }
+  ]
 }
