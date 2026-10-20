@@ -9,7 +9,7 @@ import {Journal} from '../oracle/ra-purchase/store.mjs';
 import {createGateway} from '../oracle/ra-purchase/gateway.mjs';
 import bridge from '../cloudflare/ra-purchase/worker.mjs';
 import {sign,canonical} from '../cloudflare/ra-purchase/protocol.mjs';
-import {purchaseRoute,continuePaidDiamonds} from '../cloudflare/diamonds/purchases.mjs';
+import {purchaseRoute,continuePaidDiamonds,refundFailedPilotWallet} from '../cloudflare/diamonds/purchases.mjs';
 import {fundingRoute} from '../cloudflare/payments/funding-routes.mjs';
 import {walletSchema,postMovement,walletState} from '../cloudflare/wallet/ledger.mjs';
 const owner={id:'fixture-owner',status:'active',isFounder:true};
@@ -23,6 +23,7 @@ async function setup(t,{buy='success'}={}){
  const config={enabled:true,proxySecret:'b'.repeat(64),product:{verified:true,productId:product.id,sku:product.sku,name:product.name,field:'player_id',baseDiamonds:100,bonusDiamonds:10,region:'US',bonusEvidence:'TEST FIXTURE ONLY',maxPriceUsd:2}};
  const upstream=async(path,method,body)=>{
  if(path==='/products/catalog')return {success:true,data:[product]};
+ if(path==='/wallet'&&state.rejectAtWallet)throw Error('fixture confirmed pre-submit failure');
  if(path==='/wallet')return {success:true,data:{balance:100,currency:'USD'}};
  if(path==='/catalog/validate')return {success:true,data:{supported:true,status:true}};
  if(path==='/buy/catalog'){metrics.buys++;assert.equal(method,'POST');assert.deepEqual(body,{product_id:product.id,quantity:1,player_id:payload.playerId});if(state.buy==='timeout')throw Error('fixture timeout');if(state.buy==='partial')return {success:true,data:{status:'COMPLETED'}};return {success:true,data:{order_id:'FIX-ORDER',item:product.name,amount_charged:1,status:state.buy==='processing'?'PROCESSING':'COMPLETED',...state.buyPatch}};}
@@ -107,3 +108,30 @@ for(const patch of [{needs_review:'true'},{needs_review:true},{quantity:2},{play
   assert.equal(h.metrics.buys,1);assert.equal((await h.route('/orders/'+result.orderId+'/receipt')).ok,false);
  });
 }
+
+test('wallet pilot refunds confirmed pre-submit failure once and never restores paid state',async t=>{
+ const h=await setup(t);await h.credit();h.state.rejectAtWallet=true;
+ const {result,key,body}=await h.checkout('wallet');assert.equal(result.refunded,true);assert.equal(h.metrics.buys,0);
+ assert.equal((await walletState(h.env.DB,owner.id)).availableCents,10000);
+ await Promise.all([refundFailedPilotWallet(h.env,result.orderId),refundFailedPilotWallet(h.env,result.orderId)]);
+ await h.route('/wallet',body,key);await h.route('/resume',{orderId:result.orderId});
+ assert.equal((await walletState(h.env.DB,owner.id)).availableCents,10000);
+ assert.equal((await h.route('/orders/'+result.orderId)).order.paymentState,'refunded');
+ assert.equal((await h.route('/orders/'+result.orderId+'/receipt')).ok,false);
+});
+test('wallet pilot works without Mercado Pago credentials',async t=>{
+ const h=await setup(t);for(const k of Object.keys(h.env))if(k.startsWith('MP_')&&!['MP_PRODUCT_QUOTES_V3'].includes(k))delete h.env[k];
+ await h.credit();const {result}=await h.checkout('wallet');assert.equal(result.delivery.state,'COMPLETED');assert.equal(h.metrics.preferences,0);
+});
+
+test('failed refund bookkeeping resumes on cron; uncertain delivery cannot refund',async t=>{
+ const h=await setup(t);await h.credit();h.state.rejectAtWallet=true;const {result}=await h.checkout('wallet');
+ await h.env.DB.prepare("UPDATE zx_product_payments SET state='paid' WHERE order_id=?").bind(result.orderId).run();
+ await continuePaidDiamonds(h.env);assert.equal((await h.route('/orders/'+result.orderId)).order.paymentState,'refunded');
+ assert.equal((await walletState(h.env.DB,owner.id)).availableCents,10000);
+});
+test('timeout retains debit for reconciliation, never an automatic refund',async t=>{
+ const h=await setup(t,{buy:'timeout'});await h.credit();const {result}=await h.checkout('wallet');
+ assert.equal(await refundFailedPilotWallet(h.env,result.orderId),false);
+ assert.equal((await walletState(h.env.DB,owner.id)).availableCents,8200);
+});

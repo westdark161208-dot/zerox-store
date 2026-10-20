@@ -27,10 +27,24 @@ async function schemas(db){await diamondSchema(db);await walletSchema(db);await 
 export async function verifiedPlayer(env,uid,fetcher){if(!env.FF_INFO_API_KEY)throw Error('PLAYER_VERIFIER_MISSING');const r=await fetcher('https://developers.freefirecommunity.com/api/v1/info?'+new URLSearchParams({uid,region:'br'}),{method:'GET',redirect:'manual',headers:{'x-api-key':env.FF_INFO_API_KEY},signal:AbortSignal.timeout(12000)});if(!r.ok)throw Error('PLAYER_VERIFICATION_FAILED');const b=(await r.json()).basicInfo;if(String(b?.accountId)!==uid||!b?.nickname||!/^[A-Z]{2,5}$/.test(String(b.region)))throw Error('PLAYER_VERIFICATION_FAILED');return String(b.region);}
 export async function spendOrderWallet(db,order,user){
  if(order.user_id!==user.id||user.status!=='active')throw Error('WALLET_OWNER_MISMATCH');
- const old=await db.prepare('SELECT method FROM zx_product_payments WHERE order_id=?').bind(order.id).first();if(old?.method!=='wallet')throw Error('PAYMENT_METHOD_CONFLICT');
+ const old=await db.prepare('SELECT method,state FROM zx_product_payments WHERE order_id=?').bind(order.id).first();if(old?.method!=='wallet')throw Error('PAYMENT_METHOD_CONFLICT');
+ if(old.state==='refunded')return null;
  const movement=await postMovement(db,{userId:user.id,kind:'purchase',amountCents:order.sale_price_cents,currency:'MXN',source:'diamond-wallet',reference:order.id,requestKey:'diamond:'+order.id,orderId:order.id,actor:'wallet-purchase'});
  // Idempotent recovery after a crash between debit and state update.
  await db.batch([db.prepare("UPDATE zx_diamond_orders SET state='PAID',payment_reference=?,paid_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP WHERE id=? AND paid_at IS NULL AND state='PENDING_PAYMENT'").bind('wallet:'+movement.id,order.id),db.prepare("UPDATE zx_product_payments SET state='paid' WHERE order_id=? AND method='wallet'").bind(order.id)]);return movement;
+}
+// Only the isolated single-operation pilot can refund automatically. UNKNOWN is not failure.
+export async function refundFailedPilotWallet(env,id){
+ if(!ff110PilotOnly(env))return false;
+ const row=await env.DB.prepare("SELECT o.*,p.method,p.state AS payment_state FROM zx_diamond_orders o JOIN zx_product_payments p ON p.order_id=o.id WHERE o.id=?").bind(id).first();
+ if(!row||row.product_id!==FF110_PRODUCT_ID||row.diamonds!==110||row.state!=='FAILED'||row.delivered!==0||!row.paid_at||row.method!=='wallet'||!['paid','refunded'].includes(row.payment_state))return false;
+ const {results:ops}=await env.DB.prepare('SELECT state,receipt_json FROM zx_diamond_operations WHERE order_id=?').bind(id).all();
+ if(ops.length!==1||ops[0].state!=='FAILED'||JSON.parse(ops[0].receipt_json||'{}').status!=='NOT_ACCEPTED')return false;
+ const debit=await env.DB.prepare("SELECT id FROM zx_wallet_ledger WHERE source='diamond-wallet' AND reference=? AND user_id=? AND kind='purchase' AND amount_cents=? AND order_id=?").bind(id,row.user_id,-row.sale_price_cents,id).first();
+ if(!debit)return false;
+ await postMovement(env.DB,{userId:row.user_id,kind:'refund',amountCents:row.sale_price_cents,currency:'MXN',source:'diamond-wallet-refund',reference:id,requestKey:'diamond-refund:'+id,orderId:id,reversesId:debit.id,actor:'ff110-confirmed-failure'});
+ // Retry is safe if the process stops between the immutable reversal and this update.
+ await env.DB.prepare("UPDATE zx_product_payments SET state='refunded' WHERE order_id=? AND method='wallet' AND state='paid'").bind(id).run();return true;
 }
 export async function reconcileProductPayment(env,p,fetcher=fetch){
  const table=await env.DB.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='zx_product_payments'").first();if(!table)return {ignored:true};
@@ -50,7 +64,7 @@ async function fulfill(env,id,fetcher,maxOperations=4){const order=await env.DB.
  if(plan?.provider!=='recargas-america')return {deliveryPending:true,reviewRequired:true};
  if(plan.playerId!==order.player_id||plan.region!==payment.region)throw Error('RA_PLAN_MISMATCH');const provider=raProvider(env,plan,fetcher);
  // Bound work per request. Lost responses remain PROCESSING; no automatic resubmission.
- const result=await runOrder(env.DB,id,{provider,skuMap:Object.fromEntries(plan.packs.map(p=>[p.diamonds,p.sku])),maxOperations,maxAttempts:1});return {delivery:result};
+ const result=await runOrder(env.DB,id,{provider,skuMap:Object.fromEntries(plan.packs.map(p=>[p.diamonds,p.sku])),maxOperations,maxAttempts:1});const refunded=await refundFailedPilotWallet(env,id);return {delivery:result,...(refunded?{refunded:true}:{})};
 }
 export async function purchaseRoute(request,env,url,user,json,fetcher=fetch){
  const reply=(body,status=200)=>{const r=json(body,status);r.headers?.set('Cache-Control','no-store');return r;};
@@ -148,6 +162,6 @@ export async function purchaseRoute(request,env,url,user,json,fetcher=fetch){
 export async function continuePaidDiamonds(env,fetcher=fetch){
  if(ff110PilotOnly(env)?!privatePurchaseReady(env):(raPrivateMode(env)||env.RA_DELIVERY_ENABLED!=='true'||env.RA_CONTRACT_VERIFIED!=='true'||env.RA_READ_ENABLED!=='true'||!env.RECARGAS_AMERICA_API_KEY))return {processed:0};
  const exists=await env.DB.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='zx_product_payments'").first();if(!exists)return {processed:0};
- const {results:rows}=await env.DB.prepare("SELECT o.id FROM zx_diamond_orders o JOIN zx_product_payments p ON p.order_id=o.id WHERE o.paid_at IS NOT NULL AND p.state='paid' AND (o.state IN ('PAID','PROCESSING','PARTIALLY_COMPLETED') OR (?=1 AND o.state='REQUIRES_REVIEW' AND EXISTS(SELECT 1 FROM zx_diamond_operations op WHERE op.order_id=o.id AND op.state='PROCESSING' AND op.provider_reference IS NOT NULL))) AND (?=0 OR (o.product_id='zx-diamonds-110' AND o.diamonds=110)) AND o.lock_until<? ORDER BY o.updated_at,o.id LIMIT 2").bind(ff110PilotOnly(env)?1:0,ff110PilotOnly(env)?1:0,Date.now()).all();
+ const {results:rows}=await env.DB.prepare("SELECT o.id FROM zx_diamond_orders o JOIN zx_product_payments p ON p.order_id=o.id WHERE o.paid_at IS NOT NULL AND p.state='paid' AND (o.state IN ('PAID','PROCESSING','PARTIALLY_COMPLETED') OR (?=1 AND (o.state='FAILED' OR o.state='REQUIRES_REVIEW' AND EXISTS(SELECT 1 FROM zx_diamond_operations op WHERE op.order_id=o.id AND op.state='PROCESSING' AND op.provider_reference IS NOT NULL)))) AND (?=0 OR (o.product_id='zx-diamonds-110' AND o.diamonds=110)) AND o.lock_until<? ORDER BY o.updated_at,o.id LIMIT 2").bind(ff110PilotOnly(env)?1:0,ff110PilotOnly(env)?1:0,Date.now()).all();
  let processed=0;for(const row of rows){try{await fulfill(env,row.id,fetcher,2);processed++;}catch{ /* Next tick may retry preflight; the engine never resends uncertain operations. */ }}return {processed};
 }

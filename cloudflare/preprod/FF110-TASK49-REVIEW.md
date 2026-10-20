@@ -119,3 +119,24 @@ Siguen bloqueando producción: identificador/SKU real y evidencia 100+10/región
 instalación autorizada del canal privado de escritura y su binding efectivo;
 configuración privada de secretos; validación del despliegue y aprobación final.
 No se ha modificado Oracle, producción, main, Zerito ni saldos reales.
+
+## Prioridad saldo Zero'X — 2026-10-20 UTC
+
+Botón existente: app.js, selección wallet → /api/diamonds/purchase/wallet,
+con cotización e Idempotency-Key; no se sustituyó el verificador Free Fire.
+Fallo corregido: NOT_ACCEPTED previo al envío podía dejar el débito sin reversión.
+El piloto de una operación FF110 devuelve exactamente el débito original mediante
+el ledger existente (reverses_id único). Repetir checkout, resume o conciliación no
+reacredita ni restaura un pago refunded a paid. Cron recupera el fallo entre la
+reversión y la actualización del estado. UNKNOWN permanece en revisión con débito;
+no se devuelve dinero basándose en timeout ni se vuelve a enviar la recarga.
+El comprobante de entrega continúa bloqueado para FAILED/refunded. El checkout y
+la página de seguimiento explican la devolución. El movimiento permanece visible
+en el historial del saldo. Recetas y Mercado Pago conservados sin activar paquetes.
+
+292 pruebas backend aprobadas, incluidas cuatro nuevas: devolución única/concurrente,
+recuperación de bookkeeping, timeout sin devolución y wallet sin credenciales MP.
+Primer lanzamiento: priorizar wallet; no se requiere habilitar MP para probarlo.
+Pendientes: diagnóstico VPC autorizado, canal real autenticado/configurado, revisión
+final de configuración y autorización de despliegue. Después autorización separada
+para una compra controlada de ADS005/id 5. No se hizo ninguna operación real.
