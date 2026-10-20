@@ -13,6 +13,7 @@ on:
       - 'cloudflare/providers/ra-founder-read.mjs'
       - 'cloudflare/ra-purchase/**'
       - 'oracle/ra-purchase/**'
+      - 'staging/ff110/**'
       - 'cloudflare/providers/**'
       - 'cloudflare/services/**'
       - 'cloudflare/diamonds/**'
@@ -89,6 +90,7 @@ jobs:
           test -d "$RUNNER_TEMP/zerox-ra-build"
           npx --yes wrangler@4 deploy --config cloudflare/preprod/wrangler.jsonc --dry-run --outdir "$RUNNER_TEMP/zerox-original-build"
           npx --yes wrangler@4 deploy --config cloudflare/ra-purchase/wrangler.jsonc --dry-run --outdir "$RUNNER_TEMP/zerox-ra-purchase-build"
+          npx --yes wrangler@4 deploy --config staging/ff110/wrangler.jsonc --dry-run --outdir "$RUNNER_TEMP/zerox-ff110-sim-build"
           node --check oracle/ra-purchase/server.mjs
           echo 'STAGING_DRY_RUN_OK'
           echo 'CLOUDFLARE_UNCHANGED'

@@ -13,7 +13,7 @@ import {purchaseRoute,continuePaidDiamonds,refundFailedPilotWallet} from '../clo
 import {fundingRoute} from '../cloudflare/payments/funding-routes.mjs';
 import {walletSchema,postMovement,walletState} from '../cloudflare/wallet/ledger.mjs';
 const owner={id:'fixture-owner',status:'active',isFounder:true};
-const product={id:999001,sku:'FIXTURE-ONLY-100',name:'Fixture FF 100 + 10',type:'recharge',price:'1',required_fields:['player_id']}; // NOT a real RA SKU
+import {product} from '../staging/ff110/fixture.mjs';
 const item={...product,requiredFields:product.required_fields};delete item.required_fields;
 const payload={operationId:'11111111-1111-4111-8111-111111111111:0',playerId:'1136210821',region:'US',productId:product.id,catalogSku:product.sku,name:product.name,maxPriceUsd:'1',field:'player_id'};
 const reply=(body,status=200)=>Response.json(body,{status});
