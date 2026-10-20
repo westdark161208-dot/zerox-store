@@ -1,8 +1,8 @@
 // Private scheduled-only staging probe. No fetch handler or public entrypoint.
 import {product} from './fixture.mjs';
 const ID='22222222-2222-4222-8222-222222222222:0';
-const base={operationId:ID,playerId:'SIMULATED-PLAYER',region:'US',productId:product.id,catalogSku:product.sku,name:product.name,maxPriceUsd:'1',field:'player_id'};
-const validSecret=v=>typeof v==='string'&&v.length>=32&&v.length<=256;
+const base={operationId:ID,playerId:'100000001',region:'US',productId:product.id,catalogSku:product.sku,name:product.name,maxPriceUsd:'1',field:'player_id'};
+const validSecret=v=>typeof v==='string'&&/^[0-9a-f]{64}$/.test(v);
 function live(env,now){
  const expires=Number(env.FF110_RUNNER_EXPIRES_AT);
  return Number.isSafeInteger(expires)&&expires>now&&expires-now<=20*60*1000;
