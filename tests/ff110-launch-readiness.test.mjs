@@ -22,7 +22,15 @@ test('complete isolated wallet readiness does not require Mercado Pago; legacy f
 test('committed release manifests are not an enabled FF110 private release',()=>{
  const read=p=>JSON.parse(readFileSync(new URL('../'+p,import.meta.url)));
  const production=read('cloudflare/wrangler.jsonc'),review=read('cloudflare/preprod/wrangler.jsonc'),bridge=read('cloudflare/ra-purchase/wrangler.jsonc');
- assert.equal(production.services?.some(s=>s.binding==='RA_PURCHASE_SERVICE')||false,false);
+ assert.equal(production.services?.some(s=>s.binding==='RA_PURCHASE_SERVICE')||false,true);
+ assert.equal(production.vars.RA_FF110_PURCHASE_ENABLED,'false');
+ assert.equal(production.vars.RA_FF110_CONTRACT_VERIFIED,'false');
+ assert.equal(production.vars.RA_FF110_PRODUCT_VERIFIED,'false');
+ assert.equal(production.vars.RA_FF110_PILOT_ONLY,'true');
+ assert.equal(production.vars.RA_FF110_WALLET_ONLY,'true');
+ assert.equal(production.vars.RA_DELIVERY_ENABLED,'false');
+ assert.equal(production.vars.RA_CONTRACT_VERIFIED,'false');
+ assert.equal(production.vars.DIAMOND_PRODUCTION_ENABLED,'false');
  assert.equal(review.services.some(s=>s.binding==='RA_PURCHASE_SERVICE'),false);
  assert.equal(bridge.vars.RA_FF110_BRIDGE_ENABLED,'false');assert.equal(bridge.workers_dev,false);assert.equal(bridge.preview_urls,false);
 });
