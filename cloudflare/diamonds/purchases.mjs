@@ -70,9 +70,23 @@ export async function purchaseRoute(request,env,url,user,json,fetcher=fetch){
  const reply=(body,status=200)=>{const r=json(body,status);r.headers?.set('Cache-Control','no-store');return r;};
  if(!user||user.status!=='active')return reply({ok:false,error:'LOGIN_REQUIRED'},401);
  if(user.isFounder!==true&&env.PUBLIC_COMMERCE_ENABLED!=='true'&&!(request.method==='GET'&&/^\/api\/diamonds\/purchase\/orders\/[a-f0-9-]{36}(?:\/receipt)?$/.test(url.pathname))){if(url.pathname===ROOT+'/status'&&request.method==='GET')return reply({ok:true,pilot:true,enabled:false,walletEnabled:false,reasons:['FOUNDER_PILOT_ONLY']});return reply({ok:false,error:'FOUNDER_PILOT_ONLY'},403);}
+ // Wallet launch restricts NEW RA purchases without disabling public MP/SF elsewhere.
+ const walletPilot=ff110PilotOnly(env)&&env.RA_FF110_WALLET_ONLY==='true';
+ const historical=url.pathname.startsWith(ROOT+'/orders/')||url.pathname===ROOT+'/resume';
+ if(walletPilot&&!historical){
+  if(user.isFounder!==true){
+   if(url.pathname===ROOT+'/status')return reply({ok:true,enabled:false,walletEnabled:false,supplierEnabled:false,reasons:['FOUNDER_PILOT_ONLY']});
+   return reply({ok:false,error:'FOUNDER_PILOT_ONLY'},403);
+  }
+  if(url.pathname===ROOT+'/checkout'||url.pathname.startsWith(ROOT+'/supplier/'))return reply({ok:false,error:'FF110_WALLET_ONLY'},403);
+  if(url.pathname===ROOT+'/quote'&&request.method==='POST'){
+   let selection;try{selection=await request.clone().json();}catch{return reply({ok:false,error:'INVALID_REQUEST'},400);}
+   if(selection.method!=='wallet')return reply({ok:false,error:'FF110_WALLET_ONLY'},403);
+  }
+ }
  if(!(request.method==='GET'&&url.pathname.startsWith(ROOT+'/orders/')))env=await resolvedRaEnvironment(env,fetcher);
  const config=purchaseConfiguration(env),supplierLimit=env.PUBLIC_COMMERCE_ENABLED==='true'?1000000000:12000000;
- if(url.pathname===ROOT+'/status'&&request.method==='GET')return reply({ok:true,pilot:env.PUBLIC_COMMERCE_ENABLED!=='true',quotesV3:productQuotesEnabled(env),pilotOnly:ff110PilotOnly(env),pilotProductId:ff110PilotOnly(env)?FF110_PRODUCT_ID:null,enabled:(user.isFounder===true||env.PUBLIC_COMMERCE_ENABLED==='true')&&config.enabled,walletEnabled:(user.isFounder===true||env.PUBLIC_COMMERCE_ENABLED==='true')&&!config.reasons.filter(r=>r!=='PRODUCTION_PAYMENT_CONFIG_MISSING').length,supplierEnabled:user.isFounder===true&&!config.reasons.filter(r=>r!=='PRODUCTION_PAYMENT_CONFIG_MISSING').length,reasons:(user.isFounder===true||env.PUBLIC_COMMERCE_ENABLED==='true')?config.reasons:['FOUNDER_PILOT_ONLY']});
+ if(url.pathname===ROOT+'/status'&&request.method==='GET')return reply({ok:true,pilot:env.PUBLIC_COMMERCE_ENABLED!=='true',quotesV3:productQuotesEnabled(env),pilotOnly:ff110PilotOnly(env),pilotProductId:ff110PilotOnly(env)?FF110_PRODUCT_ID:null,enabled:!walletPilot&&(user.isFounder===true||env.PUBLIC_COMMERCE_ENABLED==='true')&&config.enabled,walletEnabled:(user.isFounder===true||env.PUBLIC_COMMERCE_ENABLED==='true')&&!config.reasons.filter(r=>r!=='PRODUCTION_PAYMENT_CONFIG_MISSING').length,supplierEnabled:!walletPilot&&user.isFounder===true&&!config.reasons.filter(r=>r!=='PRODUCTION_PAYMENT_CONFIG_MISSING').length,reasons:(user.isFounder===true||env.PUBLIC_COMMERCE_ENABLED==='true')?config.reasons:['FOUNDER_PILOT_ONLY']});
  try{
   const receiptMatch=url.pathname.match(/^\/api\/diamonds\/purchase\/orders\/([a-f0-9-]{36})\/receipt$/);
   if(receiptMatch&&request.method==='GET'){const receipt=await orderReceipt(env.DB,receiptMatch[1],user.id);return !receipt?reply({ok:false,error:'NOT_FOUND'},404):receipt.pending?reply({ok:false,error:'RECEIPT_NOT_READY'},409):reply({ok:true,receipt});}

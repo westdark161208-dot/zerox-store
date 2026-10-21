@@ -17,7 +17,7 @@ export function ff110PilotDeliveryAllowed(env, order, plan) {
   const p = plan?.packs?.[0];
   return order?.product_id === FF110_PRODUCT_ID &&
     order?.diamonds === 110 && plan?.provider === 'recargas-america' &&
-    plan?.currency === 'USD' && plan.packs.length === 1 &&
+    plan?.currency === 'USD' && plan?.region === 'US' && plan.packs.length === 1 &&
     p?.diamonds === 110 && p?.quantity === 1 &&
     p?.baseDiamonds === 100 && p?.bonusDiamonds === 10;
 }

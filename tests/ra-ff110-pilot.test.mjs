@@ -13,7 +13,7 @@ const enabled={RA_FF110_PILOT_ONLY:'true'};
 const disabled={RA_FF110_PILOT_ONLY:'false'};
 const product=getProduct(FF110_PRODUCT_ID);
 const order={product_id:FF110_PRODUCT_ID,diamonds:110};
-const plan={provider:'recargas-america',currency:'USD',packs:[{diamonds:110,quantity:1,baseDiamonds:100,bonusDiamonds:10}]};
+const plan={provider:'recargas-america',currency:'USD',region:'US',packs:[{diamonds:110,quantity:1,baseDiamonds:100,bonusDiamonds:10}]};
 
 test('catalog identifies the authorized 110 diamond product exactly',()=>{
  assert.equal(product?.diamonds,110);
@@ -30,6 +30,7 @@ test('only the real 110 product may enter new checkout during pilot',()=>{
 });
 test('existing unpaid/paid nonpilot orders cannot submit RA deliveries during pilot',()=>{
  assert.equal(ff110PilotDeliveryAllowed(enabled,order,plan),true);
+ for(const region of ['BR',undefined])assert.equal(ff110PilotDeliveryAllowed(enabled,order,{...plan,region}),false);
  assert.equal(ff110PilotDeliveryAllowed(enabled,{...order,diamonds:220},plan),false);
  assert.equal(ff110PilotDeliveryAllowed(enabled,{...order,product_id:'zx-diamonds-220'},plan),false);
  assert.equal(ff110PilotDeliveryAllowed(enabled,order,{...plan,currency:'MXN'}),false);

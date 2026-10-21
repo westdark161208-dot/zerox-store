@@ -1,0 +1,52 @@
+--- a/cloudflare/wrangler.jsonc
++++ b/cloudflare/wrangler.jsonc
+@@ -14,18 +14,27 @@
+     "MP_PRODUCTION_READ_ENABLED": "true",
+     "MP_WALLET_PILOT_ENABLED": "true",
+     "WALLET_READ_ENABLED": "true",
+-    "RA_READ_ENABLED": "true",
+-    "RA_AUTO_ASSOCIATE_US": "true",
+-    "RA_CONTRACT_VERIFIED": "true",
+-    "RA_DELIVERY_ENABLED": "true",
+-    "DIAMOND_PRODUCTION_ENABLED": "true",
++    "RA_READ_ENABLED": "false",
++    "RA_AUTO_ASSOCIATE_US": "false",
++    "RA_CONTRACT_VERIFIED": "false",
++    "RA_DELIVERY_ENABLED": "false",
++    "DIAMOND_PRODUCTION_ENABLED": "false",
+     "MP_PRODUCT_QUOTES_V3": "true",
+     "MP_FUNDING_QUOTES_V3": "true",
+     "MP_FEE_POLICY_VERIFIED": "true",
+     "MP_FEE_POLICY_VERSION": "mx-checkout-349-400-iva16-20261010",
+     "MP_FEE_RATE_BPS": "349",
+     "MP_FEE_FIXED_CENTS": "400",
+-    "MP_FEE_TAX_BPS": "1600"
++    "MP_FEE_TAX_BPS": "1600",
++    "RA_ADMIN_READ_ENABLED": "true",
++    "RA_ADMIN_READ_TRANSPORT": "service-binding",
++    "RA_ADMIN_READ_CONTRACT_VERIFIED": "false",
++    "RA_FF110_PILOT_ONLY": "true",
++    "RA_FF110_WALLET_ONLY": "true",
++    "RA_FF110_PURCHASE_ENABLED": "false",
++    "RA_FF110_PRODUCT_VERIFIED": "false",
++    "RA_FF110_CONTRACT_VERIFIED": "false",
++    "RA_DIAMOND_PACKS": "{\"110\":{\"productId\":5,\"sku\":\"ADS005\",\"name\":\"Recarga Free Fire - 100 Diamantes + 10% Bono\",\"baseDiamonds\":100,\"bonusDiamonds\":10,\"regions\":[\"US\"],\"playerField\":\"player_id\",\"bonusEvidence\":\"Historical ADS005 catalog; requires approval and live revalidation before activation\"}}"
+   },
+   "d1_databases": [
+     {
+@@ -39,5 +48,15 @@
+       "binding": "MEDIA",
+       "bucket_name": "zerox-store-media"
+     }
++  ],
++  "services": [
++    {
++      "binding": "RA_READ_SERVICE",
++      "service": "zerox-ra-vpc-test"
++    },
++    {
++      "binding": "RA_PURCHASE_SERVICE",
++      "service": "zerox-ra-purchase-bridge"
++    }
+   ]
+ }

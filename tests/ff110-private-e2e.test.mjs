@@ -135,3 +135,24 @@ test('timeout retains debit for reconciliation, never an automatic refund',async
  assert.equal(await refundFailedPilotWallet(h.env,result.orderId),false);
  assert.equal((await walletState(h.env.DB,owner.id)).availableCents,8200);
 });
+test('wallet-only release permits founder wallet, blocks new MP and supplier checkouts with public commerce on',async t=>{
+ const h=await setup(t);h.env.RA_FF110_WALLET_ONLY='true';h.env.PUBLIC_COMMERCE_ENABLED='true';await h.credit();
+ const status=await h.route('/status');assert.equal(status.enabled,false);assert.equal(status.supplierEnabled,false);assert.equal(status.walletEnabled,true);
+ for(const path of ['/checkout','/supplier/buy','/supplier/quote'])assert.equal((await h.route(path,{})).error,'FF110_WALLET_ONLY');
+ assert.equal((await h.route('/quote',{method:'card'})).error,'FF110_WALLET_ONLY');
+ const b={productId:'zx-diamonds-110',playerId:payload.playerId,playerConfirmed:true,method:'wallet',contactPhone:'+525500000000'};
+ const q=await h.route('/quote',b);const r=await h.route('/wallet',{...b,quoteId:q.quote.id,maxAmountCents:q.amountCents});
+ assert.equal(r.delivery.state,'COMPLETED');assert.equal(h.metrics.preferences,0);assert.equal(h.metrics.buys,1);
+});
+test('wallet-only release denies new non-founder RA requests before provider or database access',async()=>{
+ const env={PUBLIC_COMMERCE_ENABLED:'true',RA_FF110_PILOT_ONLY:'true',RA_FF110_WALLET_ONLY:'true'};
+ for(const path of ['/wallet','/checkout','/quote','/supplier/buy']){
+  const r=new Request('https://fixture/api/diamonds/purchase'+path,{method:'POST',body:'{}'});
+  const res=await purchaseRoute(r,env,new URL(r.url),{id:'customer',status:'active',isFounder:false},reply,()=>assert.fail('network'));
+  assert.equal(res.status,403);assert.equal((await res.json()).error,'FOUNDER_PILOT_ONLY');
+ }
+});
+test('wallet-only release preserves reconciliation of an existing MP payment and owner history',async t=>{
+ const h=await setup(t);const {result}=await h.checkout('card');h.env.RA_FF110_WALLET_ONLY='true';
+ assert.equal((await h.hook()).status,200);assert.equal(h.metrics.buys,1);assert.equal((await h.route('/orders/'+result.orderId+'/receipt')).ok,true);
+});
