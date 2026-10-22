@@ -1,6 +1,28 @@
 import {validSecret,digest,sign,canonical,boundedText,validPayload,response} from './protocol.mjs';
 export default {async fetch(request,env){
  const url=new URL(request.url),action=url.pathname.split('/').at(-1);
+ if(request.method==='GET' && url.pathname==='/healthz' && !url.search){
+  const token=env.RA_PURCHASE_SERVICE_TOKEN;
+  if(!validSecret(token))return response({ok:false},503);
+  if(await digest(request.headers.get('authorization')||'')!==await digest('Bearer '+token))
+   return response({ok:false},401);
+  if(env.RA_FF110_BRIDGE_ENABLED!=='false')
+   return response({ok:false},503);
+  if(typeof env.RA_PURCHASE_GATEWAY?.fetch!=='function')
+   return response({ok:false},503);
+  try{
+   const upstream=await env.RA_PURCHASE_GATEWAY.fetch(
+    'http://127.0.0.1:8791/healthz',
+    {method:'GET',redirect:'manual',signal:AbortSignal.timeout(5000)}
+   );
+   if(upstream.status!==200||upstream.redirected)
+    return response({ok:false},503);
+   const data=JSON.parse(await boundedText(upstream));
+   if(data.ok!==true||data.purchasesEnabled!==false)
+    return response({ok:false},503);
+   return response({ok:true,oracleConnected:true,purchasesEnabled:false});
+  }catch{return response({ok:false},503);}
+ }
  if(request.method!=='POST'||url.search||url.pathname!=='/v1/ff110/'+action||!['validate','submit','lookup'].includes(action))return response({ok:false},404);
  const token=env.RA_PURCHASE_SERVICE_TOKEN,proxy=env.RA_PURCHASE_PROXY_SECRET;
  if(env.RA_FF110_BRIDGE_ENABLED!=='true'||!validSecret(token)||!validSecret(proxy)||token===proxy||typeof env.RA_PURCHASE_GATEWAY?.fetch!=='function')return response({ok:false,error:'BRIDGE_DISABLED'},503);

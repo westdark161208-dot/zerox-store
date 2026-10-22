@@ -10,7 +10,7 @@ const fail=()=>{throw Error('RA_GATEWAY_CONFIGURATION_REQUIRED');};
 const configPath=process.env.RA_PURCHASE_CONFIG_FILE;
 if(!configPath)fail();const mode=fs.statSync(configPath).mode;if(mode&0o077)fail();
 const config=JSON.parse(fs.readFileSync(configPath,'utf8'));
-if(config.enabled!==true||!config.apiKey||config.apiKey===config.proxySecret||!config.journalPath?.startsWith('/')||config.sourceAddress!=='10.0.1.170')fail();
+if(typeof config.enabled!=='boolean'||!config.apiKey||config.apiKey===config.proxySecret||!config.journalPath?.startsWith('/')||config.sourceAddress!=='10.0.1.170')fail();
 if(fs.statSync(dirname(config.journalPath)).mode&0o077)fail();
 if(fs.existsSync(config.journalPath)&&(fs.statSync(config.journalPath).mode&0o077))fail();
 process.umask(0o077);
@@ -29,6 +29,18 @@ async function upstream(path,method,body,idempotencyKey){
 const handle=createGateway({config,store,upstream});
 const server=http.createServer(async(req,res)=>{
  try{
+ if(req.method==='GET'&&req.url==='/healthz'){
+  res.writeHead(200,{
+   'Content-Type':'application/json',
+   'Cache-Control':'no-store'
+  });
+  res.end(JSON.stringify({
+   ok:true,
+   service:'zerox-ra-purchase-ff110',
+   purchasesEnabled:config.enabled===true
+  }));
+  return;
+ }
  let size=0,parts=[];for await(const c of req){size+=c.length;if(size>16384){res.writeHead(413);res.end();return;}parts.push(c);}
  const r=await handle(new Request('http://127.0.0.1:8791'+req.url,{method:req.method,headers:req.headers,...(!['GET','HEAD'].includes(req.method)?{body:Buffer.concat(parts)}:{})}));
  res.writeHead(r.status,Object.fromEntries(r.headers));res.end(Buffer.from(await r.arrayBuffer()));
