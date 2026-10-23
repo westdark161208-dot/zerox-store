@@ -1,11 +1,17 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {database} from './helpers/d1.mjs';
-import {associationRoute,resolvedRaEnvironment,matchesDiamondPack} from '../cloudflare/providers/ra-associations.mjs';
+import {associationRoute as privateAssociationRoute,resolvedRaEnvironment,matchesDiamondPack} from '../cloudflare/providers/ra-associations.mjs';
 import {readinessRoute} from '../cloudflare/providers/readiness.mjs';
 const url=new URL('https://fixture/api/admin/providers/recargas-america/associations'),owner={id:'creator',isFounder:true,status:'active'},reply=(body,status=200)=>({body,status}),env=()=>({DB:database(),RA_READ_ENABLED:'true',RECARGAS_AMERICA_API_KEY:'SECRET',FF_INFO_API_KEY:'SECRET'});
 const product={id:7,sku:'ADS007',name:'Recarga Free Fire - 520 Diamantes +10% Bono',type:'recharge',price:'3.38',requiredFields:['manual_id']};
-const body={total:572,productId:7,revision:0,regions:['US'],bonusEvidence:'Supplier terms confirm 520+52 in US for ADS007',confirmed:true};
+const body={total:572,productId:7,sku:product.sku,name:product.name,revision:0,regions:['US'],bonusEvidence:'Supplier terms confirm 520+52 in US for ADS007',confirmed:true};
 const request=(method='GET',data=body)=>new Request(url,{method,...(method==='POST'?{body:JSON.stringify(data)}:{})});
 function fetcher(item=product){return async(endpoint,opts)=>{assert(endpoint==='https://panel.recargasamerica.com/api/v1/products/catalog');assert.equal(opts.method,'GET');assert.equal(opts.redirect,'manual');return Response.json({success:true,data:[{...item,required_fields:item.requiredFields}]});};}
+// Existing regression fixtures now enter the administrative service-binding contract.
+async function associationRoute(request,e,url,user,reply,fixture=fetcher()){
+ e.RA_CATALOG_READ_ENABLED='true';e.RA_CATALOG_READ_CONTRACT_VERIFIED='true';e.RA_CATALOG_READ_TOKEN='c'.repeat(64);
+ e.RA_READ_SERVICE={async fetch(path,opts){assert.equal(path,'https://ra-service.internal/admin/ra/catalog');assert.equal(opts.method,'GET');const r=await fixture('https://panel.recargasamerica.com/api/v1/products/catalog',opts);const b=await r.json();return Response.json({ok:true,resource:'catalog',purchasesEnabled:false,productCount:b.data.length,invalidProducts:0,data:b.data});}};
+ return privateAssociationRoute(request,e,url,user,reply,()=>{throw Error('direct transport forbidden')});
+}
 test('creator associates live exact SKU and manual_id; saved mapping resolves without financial flags or orders',async()=>{
  const e=env(),read=await associationRoute(request(),e,url,owner,reply,fetcher());assert.equal(read.body.catalog.length,1);assert.equal(read.body.associations.find(p=>p.total===572).entry,null);
  const saved=await associationRoute(request('POST'),e,url,owner,reply,fetcher());assert.equal(saved.status,200);assert.equal(saved.body.entry.playerField,'manual_id');assert.equal(saved.body.purchasesEnabled,false);
@@ -48,7 +54,7 @@ test('owner-confirmed US automatic association uses unique live exact recharge r
  const resolved=await resolvedRaEnvironment(e,fetcher(item)),map=JSON.parse(resolved.RA_DIAMOND_PACKS);
  assert.equal(map['110'].productId,5);assert.deepEqual(map['110'].regions,['US']);assert.equal(map['110'].bonusDiamonds,10);
  for(const items of [[{...item,type:'pin'}],[{...item,name:'Free Fire 100 Diamantes'}],[item,{...item,id:55,sku:'ALT'}],[item,item]])assert.deepEqual(automaticUsMapping(e,items),{});
- const d=await associationRoute(request(),e,url,owner,reply,fetcher(item));assert.equal(d.body.associations[0].entry.productId,5);
+ const d=await associationRoute(request(),e,url,owner,reply,fetcher(item));assert.equal(d.body.associations[0].entry,null);assert.equal(d.body.associations[0].status,'pending');
  await associationRoute(request('POST',{...body,regions:['BR']}),e,url,owner,reply,fetcher());
  const overridden=JSON.parse((await resolvedRaEnvironment(e,fetcher())).RA_DIAMOND_PACKS);assert.deepEqual(overridden['572'].regions,['BR']);
  const unavailable=await resolvedRaEnvironment({...env(),RA_AUTO_ASSOCIATE_US:'true'},async()=>{throw Error('offline')});assert.equal(unavailable.RA_DIAMOND_PACKS,undefined);
