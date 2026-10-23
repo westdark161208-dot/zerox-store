@@ -34,7 +34,9 @@
     "RA_FF110_PURCHASE_ENABLED": "false",
     "RA_FF110_PRODUCT_VERIFIED": "false",
     "RA_FF110_CONTRACT_VERIFIED": "false",
-    "RA_DIAMOND_PACKS": "{\"110\":{\"productId\":5,\"sku\":\"ADS005\",\"name\":\"Recarga Free Fire - 100 Diamantes + 10% Bono\",\"baseDiamonds\":100,\"bonusDiamonds\":10,\"regions\":[\"US\"],\"playerField\":\"player_id\",\"bonusEvidence\":\"Historical ADS005 catalog; requires approval and live revalidation before activation\"}}"
+    "RA_DIAMOND_PACKS": "{\"110\":{\"productId\":5,\"sku\":\"ADS005\",\"name\":\"Recarga Free Fire - 100 Diamantes + 10% Bono\",\"baseDiamonds\":100,\"bonusDiamonds\":10,\"regions\":[\"US\"],\"playerField\":\"player_id\",\"bonusEvidence\":\"Historical ADS005 catalog; requires approval and live revalidation before activation\"}}",
+    "RA_CATALOG_READ_ENABLED": "true",
+    "RA_CATALOG_READ_CONTRACT_VERIFIED": "true"
   },
   "d1_databases": [
     {

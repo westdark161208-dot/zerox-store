@@ -1,4 +1,5 @@
 import test from 'node:test';
+import {readFileSync} from 'node:fs';
 import assert from 'node:assert/strict';
 import {providerRoute} from '../cloudflare/providers/routes.mjs';
 import {readRaCatalogService,readRaFounderService} from '../cloudflare/providers/ra-admin-service.mjs';
@@ -40,4 +41,26 @@ for(const [name,response] of [['wrong currency',{ok:true,resource:'wallet',purch
 test('upstream authentication failure and exceptions are sanitized; unknown action cannot reach service',async()=>{
  const {env,calls}=setup();await assert.rejects(readRaCatalogService(env,'buy'));assert.equal(calls.length,0);
  for(const fetcher of [async()=>new Response('sensitive',{status:401}),async()=>{throw Error('sensitive');},async()=>new Response('bad json')]){env.RA_READ_SERVICE.fetch=fetcher;const r=await route(env,root+'wallet');assert.equal(r.status,503);assert.doesNotMatch(await r.text(),/sensitive|bad json/);}
+});
+
+test('deployed alias variables cannot enable reads; corrected manifest enables founder GET only',async()=>{
+ const manifest=JSON.parse(readFileSync(new URL('../cloudflare/wrangler.jsonc',import.meta.url),'utf8'));
+ assert.equal(manifest.services.filter(s=>s.binding==='RA_READ_SERVICE').length,1);
+ assert.equal(manifest.services.find(s=>s.binding==='RA_READ_SERVICE').service,'zerox-ra-vpc-test');
+ assert.equal(Object.hasOwn(manifest.vars,'RA_CATALOG_READ_TOKEN'),false);
+ const {env,calls}=setup();
+ delete env.RA_CATALOG_READ_ENABLED;delete env.RA_CATALOG_READ_CONTRACT_VERIFIED;
+ env.RA_CATALOG_PRIVATE_READ_ENABLED='true';env.RA_WALLET_PRIVATE_READ_ENABLED='true';
+ const before=purchaseConfiguration(env);
+ assert.equal((await (await route(env,root+'status')).json()).readEnabled,false);
+ for(const resource of ['wallet','catalog'])assert.equal((await route(env,root+resource)).status,503);
+ assert.equal(calls.length,0);
+ Object.assign(env,{RA_CATALOG_READ_ENABLED:manifest.vars.RA_CATALOG_READ_ENABLED,RA_CATALOG_READ_CONTRACT_VERIFIED:manifest.vars.RA_CATALOG_READ_CONTRACT_VERIFIED});
+ assert.equal((await (await route(env,root+'status')).json()).readEnabled,true);
+ for(const resource of ['wallet','catalog'])assert.equal((await route(env,root+resource)).status,200);
+ assert.equal(calls.length,2);
+ assert.ok(calls.every(c=>c.opts.method==='GET'&&c.opts.headers.Authorization==='Bearer '+token));
+ assert.deepEqual(purchaseConfiguration(env),before);
+ assert.equal((await route(env,root+'wallet',{status:'active',role:'admin'})).status,403);
+ assert.equal((await route(env,root+'wallet',founder,'POST')).status,405);
 });

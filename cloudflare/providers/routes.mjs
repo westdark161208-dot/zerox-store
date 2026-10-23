@@ -15,9 +15,9 @@ export async function providerRoute(request,env,url,user,json) {
   if (!user || user.status!=='active') return reply({ok:false,error:'LOGIN_REQUIRED'},401);
   if(url.pathname==='/api/admin/providers/founder-balances')return founderBalancesRoute(request,env,user,reply);
   if (!can(user,'providers.read')) return reply({ok:false,error:'FORBIDDEN'},403);
+  if(url.pathname==='/api/admin/providers/recargas-america/associations'&&(!raPrivateMode(env)||env.RA_CATALOG_READ_ENABLED!==undefined))return associationRoute(request,env,url,user,reply);
   const raRoot='/api/admin/providers/recargas-america/';
   if(url.pathname.startsWith(raRoot)&&(raPrivateMode(env)||['wallet','catalog','status'].includes(url.pathname.slice(raRoot.length))))return raFounderRead(request,env,user,reply);
-  if(url.pathname==='/api/admin/providers/recargas-america/associations')return associationRoute(request,env,url,user,reply);
   if(url.pathname==='/api/admin/providers/recargas-america/readiness')return readinessRoute(request,env,url,user,reply);
   if(url.pathname.startsWith('/api/admin/providers/market'))return marketRoute(request,env,url,user,reply);
   if(url.pathname==='/api/admin/providers/sixofire/quotes')return quotesRoute(request,env,url,user,reply);
