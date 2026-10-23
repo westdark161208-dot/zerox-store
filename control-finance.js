@@ -67,7 +67,7 @@
     q('provider-balance-result').textContent='';q('provider-status').textContent='Consultando configuración…';
     read('/api/admin/providers/recargas-america/status',data=>{
       providerReady=data.readEnabled===true&&data.keyConfigured===true;
-      q('provider-status').textContent=providerReady?(data.readOnly?'Lectura privada RA habilitada · USD · sin operaciones de compra':data.purchasesEnabled?'Piloto de diamantes configurado. Cada compra comprobará producto, ID y saldo antes de cobrar.':'Consultas habilitadas. Entrega pendiente: '+(data.reasons||[]).map(r=>reasons[r]||'validación del servidor pendiente').join(' · ')):!data.readEnabled?'Integración de consulta desactivada.':'Integración pendiente de credencial del servidor.';
+      q('provider-status').textContent=providerReady?(data.readOnly?'Consulta privada RA habilitada · USD · esta consulta no realiza compras':data.purchasesEnabled?'Piloto de diamantes configurado. Cada compra comprobará producto, ID y saldo antes de cobrar.':'Consultas habilitadas. Entrega pendiente: '+(data.reasons||[]).map(r=>reasons[r]||'validación del servidor pendiente').join(' · ')):!data.readEnabled?'Integración de consulta desactivada.':'Integración pendiente de credencial del servidor.';
     },message=>{q('provider-status').textContent=message;},()=>{
       q('provider-check').disabled=false;q('provider-balance').disabled=!providerReady;
     });
