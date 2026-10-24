@@ -1,4 +1,7 @@
 import {readRecargasAmerica} from './recargas-america.mjs';
+import {readRaCatalogService} from './ra-admin-service.mjs';
+import {directDiamondPack,namedRegions,compatibleAssociation,associationRecipes} from './ra-association-catalog.mjs';
+import {catalog as storeCatalog} from '../diamonds/catalog.mjs';
 import {raMapping} from '../diamonds/recargas-america.mjs';
 export const raBases=Object.freeze([{total:110,base:100,bonus:10},{total:341,base:310,bonus:31},{total:572,base:520,bonus:52},{total:1166,base:1060,bonus:106},{total:2398,base:2180,bonus:218},{total:6160,base:5600,bonus:560}]);
 export function matchesDiamondPack(item,base){
@@ -24,7 +27,8 @@ export function automaticUsMapping(env,items){
 export async function resolvedRaEnvironment(env,fetcher=fetch,items=null){
  if(external(env))return env;
  const saved=await rows(env.DB);let automatic={};
- if(env.RA_AUTO_ASSOCIATE_US==='true'){
+ if(env.RA_AUTO_ASSOCIATE_US==='true'&&env.RA_FF110_PILOT_ONLY!=='true'){
+  // Pilot requires an explicit confirmed SKU; do not infer game/region from product names.
   // An unavailable catalog must not disable balance reads or expose an upstream error.
   // A fresh preflight still blocks every purchase when quotes cannot be verified.
   try{automatic=automaticUsMapping(env,items||await readRecargasAmerica(env,'catalog',fetcher));}catch{}
@@ -36,21 +40,32 @@ export async function resolvedRaEnvironment(env,fetcher=fetch,items=null){
 }
 async function schema(db){await db.prepare('CREATE TABLE IF NOT EXISTS zx_ra_pack_associations(total INTEGER PRIMARY KEY,entry_json TEXT NOT NULL,revision INTEGER NOT NULL,updated_by TEXT NOT NULL,updated_at TEXT NOT NULL)').run();await db.prepare('CREATE TABLE IF NOT EXISTS zx_ra_pack_association_history(id TEXT PRIMARY KEY,total INTEGER NOT NULL,revision INTEGER NOT NULL,entry_json TEXT NOT NULL,actor TEXT NOT NULL,created_at TEXT NOT NULL,UNIQUE(total,revision))').run();}
 export async function associationRoute(request,env,url,user,reply,fetcher=fetch){
- if(!user?.isFounder||user.status!=='active')return reply({ok:false,error:'FORBIDDEN'},403);
+ if(user?.isFounder!==true||user.status!=='active')return reply({ok:false,error:'FORBIDDEN'},403);
+ if(url.search)return reply({ok:false,error:'INVALID_ASSOCIATION'},400);
  try{
   if(request.method==='GET'){
-   const [items,saved]=await Promise.all([readRecargasAmerica(env,'catalog',fetcher),rows(env.DB)]);
-   const map=raMapping(await resolvedRaEnvironment(env,fetcher,items));
-   return reply({ok:true,managedExternally:external(env),bases:raBases,catalog:items.filter(p=>raBases.some(b=>matchesDiamondPack(p,b.base))),associations:raBases.map(b=>({total:b.total,revision:saved.find(r=>r.total===b.total)?.revision||0,entry:map[b.total]||null})),purchasesEnabled:false});
+   const [items,saved]=await Promise.all([readRaCatalogService(env,'catalog'),rows(env.DB)]);
+   // GET never creates tables or persists automatic suggestions.
+   const map=external(env)?raMapping(env):Object.fromEntries(saved.map(r=>[r.total,JSON.parse(r.entry_json)]));
+   const associations=raBases.map(b=>{const entry=map[b.total]||null;return {total:b.total,revision:saved.find(r=>r.total===b.total)?.revision||0,entry,status:entry?(compatibleAssociation(entry,b,items)?'configured':'incompatible'):'pending'};});
+   const editor=env.DB&&await env.DB.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='zx_store_editor'").first();
+   const edits=editor?JSON.parse((await env.DB.prepare('SELECT published FROM zx_store_editor WHERE id=1').first())?.published||'{}'):{};
+   const products=storeCatalog.filter(p=>edits[p.id]?.active!==false).map(p=>({id:p.id,name:edits[p.id]?.name||p.name,diamonds:p.diamonds}));
+   return reply({ok:true,managedExternally:external(env),currency:'USD',catalogCount:items.length,bases:raBases,catalog:items.flatMap(item=>{const pack=raBases.find(b=>directDiamondPack(item,b));return pack?[{...item,baseDiamonds:pack.base,bonusDiamonds:pack.bonus,totalDiamonds:pack.total,regions:namedRegions(item),regionConfirmationRequired:!namedRegions(item).length}]:[]}),associations,products:associationRecipes(products,associations),recipeMode:'preview-minimum-operations',purchasesEnabled:false});
   }
   if(request.method!=='POST')return reply({ok:false,error:'METHOD_NOT_ALLOWED'},405);
   if(external(env))return reply({ok:false,error:'RA_MAPPING_MANAGED_EXTERNALLY'},409);
   const raw=await request.text();if(raw.length>3000)return reply({ok:false,error:'INVALID_ASSOCIATION'},400);
   let b;try{b=JSON.parse(raw)}catch{return reply({ok:false,error:'INVALID_ASSOCIATION'},400)}
+  if(!b||typeof b!=='object'||Array.isArray(b))return reply({ok:false,error:'INVALID_ASSOCIATION'},400);
   const pack=raBases.find(p=>p.total===b.total);
-  if(!pack||!Number.isSafeInteger(b.productId)||b.productId<1||!Number.isSafeInteger(b.revision)||b.revision<0||b.confirmed!==true||!Array.isArray(b.regions)||!b.regions.length||b.regions.length>10||b.regions.some(r=>typeof r!=='string'||!/^[A-Z]{2,5}$/.test(r))||typeof b.bonusEvidence!=='string'||b.bonusEvidence.trim().length<15||b.bonusEvidence.length>600)return reply({ok:false,error:'INVALID_ASSOCIATION'},400);
-  const matches=(await readRecargasAmerica(env,'catalog',fetcher)).filter(i=>i.id===b.productId),item=matches[0];
-  if(matches.length!==1||!matchesDiamondPack(item,pack.base))return reply({ok:false,error:'RA_DIAMOND_PRODUCT_REQUIRED'},400);
+  if(!pack||typeof b.sku!=='string'||!b.sku.trim()||typeof b.name!=='string'||!b.name.trim()||!Number.isSafeInteger(b.productId)||b.productId<1||!Number.isSafeInteger(b.revision)||b.revision<0||b.confirmed!==true||!Array.isArray(b.regions)||!b.regions.length||b.regions.length>10||new Set(b.regions).size!==b.regions.length||b.regions.some(r=>typeof r!=='string'||!/^[A-Z]{2,5}$/.test(r))||typeof b.bonusEvidence!=='string'||b.bonusEvidence.trim().length<15||b.bonusEvidence.length>600)return reply({ok:false,error:'INVALID_ASSOCIATION'},400);
+  const items=await readRaCatalogService(env,'catalog'),matches=items.filter(i=>i.id===b.productId),item=matches[0];
+  if(matches.length!==1||!directDiamondPack(item,pack)||items.filter(i=>i.sku===item.sku).length!==1)return reply({ok:false,error:'RA_DIAMOND_PRODUCT_REQUIRED'},400);
+  if(namedRegions(item).length&&b.regions.some(r=>!namedRegions(item).includes(r)))return reply({ok:false,error:'RA_REGION_MISMATCH'},400);
+  if((b.sku!==undefined&&b.sku!==item.sku)||(b.name!==undefined&&b.name!==item.name))return reply({ok:false,error:'ASSOCIATION_CONFLICT'},409);
+  const savedRows=await rows(env.DB);
+  if(savedRows.some(r=>r.total!==pack.total&&((e)=>e.productId===item.id||e.sku===item.sku)(JSON.parse(r.entry_json))))return reply({ok:false,error:'RA_DUPLICATE_ASSOCIATION'},409);
   const entry={productId:item.id,sku:item.sku,name:item.name,baseDiamonds:pack.base,bonusDiamonds:pack.bonus,regions:[...new Set(b.regions)],playerField:item.requiredFields[0],bonusEvidence:b.bonusEvidence.trim()};
   raMapping({...env,RA_DIAMOND_PACKS:JSON.stringify({[pack.total]:entry})});
   await schema(env.DB);const old=await env.DB.prepare('SELECT revision FROM zx_ra_pack_associations WHERE total=?').bind(pack.total).first();if((old?.revision||0)!==b.revision)return reply({ok:false,error:'ASSOCIATION_CONFLICT'},409);
@@ -61,5 +76,5 @@ export async function associationRoute(request,env,url,user,reply,fetcher=fetch)
   ]);
   if(!result[0].meta.changes)return reply({ok:false,error:'ASSOCIATION_CONFLICT'},409);
   return reply({ok:true,total:pack.total,revision,entry,purchasesEnabled:false});
- }catch(e){return reply({ok:false,error:/^RA_(READ_DISABLED|KEY_MISSING|UNAVAILABLE|INVALID_RESPONSE|HTTP_\d{3}|MAPPING_INVALID)$/.test(e.message)?e.message:'ASSOCIATION_UNAVAILABLE'},503);}
+ }catch(e){return reply({ok:false,error:/^RA_(ADMIN_READ_UNAVAILABLE|READ_DISABLED|KEY_MISSING|UNAVAILABLE|INVALID_RESPONSE|HTTP_\d{3}|MAPPING_INVALID)$/.test(e.message)?e.message:'ASSOCIATION_UNAVAILABLE'},503);}
 }

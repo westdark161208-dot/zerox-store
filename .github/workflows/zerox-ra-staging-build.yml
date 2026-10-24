@@ -4,12 +4,16 @@ on:
     branches:
       - codex/ra-founder-private-bridge-20261017
       - codex/ra-preprod-safety-audit-20261018
+      - codex/ra-ff110-launch-pilot-20261018
     paths:
       - '.github/workflows/zerox-ra-staging-build.yml'
       - 'cloudflare/staging/**'
       - 'cloudflare/providers/ra-admin-service.mjs'
       - 'cloudflare/providers/founder-balances.mjs'
       - 'cloudflare/providers/ra-founder-read.mjs'
+      - 'cloudflare/ra-purchase/**'
+      - 'oracle/ra-purchase/**'
+      - 'staging/ff110/**'
       - 'cloudflare/providers/**'
       - 'cloudflare/services/**'
       - 'cloudflare/diamonds/**'
@@ -65,6 +69,12 @@ jobs:
       - name: Check JavaScript syntax
         shell: bash
         run: |
+          node --check cloudflare/diamonds/ff110-pilot.mjs
+          node --check cloudflare/diamonds/purchases.mjs
+          node --check cloudflare/diamonds/recargas-america.mjs
+          node --check cloudflare/promotions/purchases.mjs
+          node --check cloudflare/services/delivery.mjs
+          node --check cloudflare/services/games.mjs
           node --check cloudflare/staging/worker.mjs
           node --check cloudflare/staging/auth.mjs
           node --check cloudflare/staging/panel.mjs
@@ -79,6 +89,9 @@ jobs:
           npx --yes wrangler@4 deploy --config cloudflare/staging/wrangler.jsonc --dry-run --outdir "$RUNNER_TEMP/zerox-ra-build"
           test -d "$RUNNER_TEMP/zerox-ra-build"
           npx --yes wrangler@4 deploy --config cloudflare/preprod/wrangler.jsonc --dry-run --outdir "$RUNNER_TEMP/zerox-original-build"
+          npx --yes wrangler@4 deploy --config cloudflare/ra-purchase/wrangler.jsonc --dry-run --outdir "$RUNNER_TEMP/zerox-ra-purchase-build"
+          npx --yes wrangler@4 deploy --config staging/ff110/wrangler.jsonc --dry-run --outdir "$RUNNER_TEMP/zerox-ff110-sim-build"
+          node --check oracle/ra-purchase/server.mjs
           echo 'STAGING_DRY_RUN_OK'
           echo 'CLOUDFLARE_UNCHANGED'
 

@@ -47,6 +47,28 @@ export async function readRaAdminService(env, resource) {
       token === env.RA_PROXY_SECRET || token === env.RECARGAS_AMERICA_API_KEY ||
       typeof env.RA_READ_SERVICE?.fetch !== 'function') throw Error(FAILURE);
 
+  return readPrivateResource(env,resource,path,token);
+}
+
+// Independent panel channel: never changes commercial routing or legacy flags.
+export function catalogReadReady(env){
+ const token=env.RA_CATALOG_READ_TOKEN;
+ return env.RA_CATALOG_READ_ENABLED==='true' && env.RA_CATALOG_READ_CONTRACT_VERIFIED==='true' &&
+ typeof token==='string' && /^[0-9a-f]{64}$/.test(token) &&
+ ![env.RA_READ_ADMIN_TOKEN,env.RA_PROXY_SECRET,env.RECARGAS_AMERICA_API_KEY,env.RA_PURCHASE_SERVICE_TOKEN,env.RA_PURCHASE_PROXY_SECRET].includes(token) &&
+ typeof env.RA_READ_SERVICE?.fetch==='function';
+}
+export async function readRaCatalogService(env,resource){
+ if(!Object.hasOwn(RESOURCES,resource))throw Error('RA_RESOURCE_NOT_ALLOWED');
+ if(!catalogReadReady(env))throw Error(FAILURE);
+ return readPrivateResource(env,resource,RESOURCES[resource],env.RA_CATALOG_READ_TOKEN);
+}
+export function readRaFounderService(env,resource){
+ // Configured but disabled/malformed channel fails closed, never tries another token.
+ return env.RA_CATALOG_READ_ENABLED!==undefined || env.RA_CATALOG_READ_TOKEN!==undefined
+ ? readRaCatalogService(env,resource) : readRaAdminService(env,resource);
+}
+async function readPrivateResource(env,resource,path,token){
   let data;
   try {
     // The host is an internal Request URL placeholder; service binding routes to the bound Worker.

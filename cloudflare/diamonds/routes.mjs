@@ -1,8 +1,9 @@
+import {smartProducts} from '../editor/smart-recipes.mjs';
 import {publishedCatalog,publishedProduct} from '../editor/catalog.mjs';
 import {catalog,getProduct} from './catalog.mjs';
 import {createOrder} from './engine.mjs';
 export async function diamondRoute(request,env,url,user,json){
- if(request.method==='GET'&&url.pathname==='/api/diamonds/catalog'){const overrides=await publishedCatalog(env.DB);return json({ok:true,automaticDelivery:false,paymentsEnabled:false,products:catalog.filter(p=>overrides[p.id]?.active!==false).map(({recipe,salePriceCents,...p})=>({...p,...(overrides[p.id]?{name:overrides[p.id].name,salePriceMXN:overrides[p.id].priceCents/100}: {})}))});}
+ if(request.method==='GET'&&url.pathname==='/api/diamonds/catalog'){const overrides=await publishedCatalog(env.DB);return json({ok:true,automaticDelivery:false,paymentsEnabled:false,products:[...catalog.filter(p=>overrides[p.id]?.active!==false).map(({recipe,salePriceCents,...p})=>({...p,...(overrides[p.id]?{name:overrides[p.id].name,salePriceMXN:overrides[p.id].priceCents/100}: {})})),...(await smartProducts(env.DB)).map(p=>({id:p.id,name:p.name,diamonds:p.diamonds,salePriceMXN:p.priceCents/100,regions:p.regions,available:p.available,paymentsEnabled:false}))]});}
  if(request.method==='POST'&&url.pathname==='/api/diamonds/preview'){
   const b=await request.json(),p=await publishedProduct(env.DB,getProduct(b.productId));
   if(!p||!/^[0-9]{5,15}$/.test(String(b.playerId||'')))return json({ok:false,error:'INVALID_PRODUCT_OR_PLAYER'},400);

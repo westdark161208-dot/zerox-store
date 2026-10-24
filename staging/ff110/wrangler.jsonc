@@ -1,0 +1,10 @@
+{
+ "name":"zerox-ff110-sim-staging",
+ "main":"worker.mjs",
+ "compatibility_date":"2026-09-10",
+ "workers_dev":false,
+ "preview_urls":false,
+ "observability":{"enabled":false},
+ "vars":{"FF110_SIM_EXPIRES_AT":"0"},
+ "vpc_services":[{"binding":"FF110_SIM_GATEWAY","service_id":"01a15769-3e76-7e51-9a7e-13a628870a2a","remote":true}]
+}

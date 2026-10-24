@@ -1,4 +1,6 @@
+import {privatePurchaseReady} from './ra-private-purchase.mjs';
 import {raPrivateMode} from '../providers/ra-private-policy.mjs';
+import {FF110_PRODUCT_ID,ff110PilotOnly,assertFf110PilotProduct,ff110PilotDeliveryAllowed} from './ff110-pilot.mjs';
 import {productQuotesEnabled,productPricing,prepareProductQuote,acceptProductQuote} from '../payments/product-pricing-v3.mjs';
 import {publicMethods,validContact,saveContact} from '../payments/public-checkout.mjs';
 import {orderReceipt} from './receipt.mjs';
@@ -14,20 +16,35 @@ import {walletSchema,postMovement} from '../wallet/ledger.mjs';
 import {safeProviderError} from '../providers/sixofire-read.mjs';
 const ROOT='/api/diamonds/purchase';
 export function purchaseConfiguration(env){
- const reasons=[];if(raPrivateMode(env))reasons.push('RA_PRIVATE_READ_ONLY');for(const [key,reason] of [['DIAMOND_PRODUCTION_ENABLED','PRODUCT_PAYMENTS_DISABLED'],['RA_READ_ENABLED','RA_READ_DISABLED'],['RA_DELIVERY_ENABLED','DELIVERY_DISABLED'],['RA_CONTRACT_VERIFIED','PROVIDER_CONTRACT_UNVERIFIED']])if(env[key]!=='true')reasons.push(reason);
+ const reasons=[];if(raPrivateMode(env)&&!ff110PilotOnly(env))reasons.push('RA_PRIVATE_READ_ONLY');
+ if(ff110PilotOnly(env)&&!privatePurchaseReady(env))reasons.push('RA_FF110_PURCHASE_TRANSPORT_PENDING');if(!ff110PilotOnly(env))for(const [key,reason] of [['DIAMOND_PRODUCTION_ENABLED','PRODUCT_PAYMENTS_DISABLED'],['RA_READ_ENABLED','RA_READ_DISABLED'],['RA_DELIVERY_ENABLED','DELIVERY_DISABLED'],['RA_CONTRACT_VERIFIED','PROVIDER_CONTRACT_UNVERIFIED']])if(env[key]!=='true')reasons.push(reason);
  if(!env.FF_INFO_API_KEY)reasons.push('PLAYER_VERIFIER_MISSING');
- if(!env.RECARGAS_AMERICA_API_KEY)reasons.push('PROVIDER_KEY_MISSING');else if(String(env.RECARGAS_AMERICA_API_KEY).startsWith('ra_test_'))reasons.push('PROVIDER_TEST_KEY');
- try{if(!Object.keys(raMapping(env)).length)reasons.push('RA_MAPPING_MISSING');}catch{reasons.push('RA_MAPPING_INVALID');}
+ if(!ff110PilotOnly(env)&&!env.RECARGAS_AMERICA_API_KEY)reasons.push('PROVIDER_KEY_MISSING');else if(!ff110PilotOnly(env)&&String(env.RECARGAS_AMERICA_API_KEY).startsWith('ra_test_'))reasons.push('PROVIDER_TEST_KEY');
+ try{const map=raMapping(env);if(!Object.keys(map).length)reasons.push('RA_MAPPING_MISSING');if(ff110PilotOnly(env)&&(Object.keys(map).length!==1||!map[110]||map[110].baseDiamonds!==100||map[110].bonusDiamonds!==10||map[110].regions.length!==1||map[110].regions[0]!=='US'))reasons.push('RA_MAPPING_INVALID');}catch{reasons.push('RA_MAPPING_INVALID');}
  if(env.MP_PRODUCTION_READ_ENABLED!=='true'||!productionToken(env)||!env.MP_COLLECTOR_ID_PRODUCTION||!env.MP_WEBHOOK_SECRET_PRODUCTION)reasons.push('PRODUCTION_PAYMENT_CONFIG_MISSING');return {enabled:!reasons.length,reasons};
 }
 async function schemas(db){await diamondSchema(db);await walletSchema(db);await db.prepare(`CREATE TABLE IF NOT EXISTS zx_product_payments (order_id TEXT PRIMARY KEY,user_id TEXT NOT NULL,method TEXT NOT NULL,region TEXT NOT NULL,collector_id TEXT NOT NULL,amount_cents INTEGER NOT NULL,checkout_url TEXT,preference_id TEXT,payment_id TEXT UNIQUE,state TEXT NOT NULL DEFAULT 'creating',created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)`).run();}
 export async function verifiedPlayer(env,uid,fetcher){if(!env.FF_INFO_API_KEY)throw Error('PLAYER_VERIFIER_MISSING');const r=await fetcher('https://developers.freefirecommunity.com/api/v1/info?'+new URLSearchParams({uid,region:'br'}),{method:'GET',redirect:'manual',headers:{'x-api-key':env.FF_INFO_API_KEY},signal:AbortSignal.timeout(12000)});if(!r.ok)throw Error('PLAYER_VERIFICATION_FAILED');const b=(await r.json()).basicInfo;if(String(b?.accountId)!==uid||!b?.nickname||!/^[A-Z]{2,5}$/.test(String(b.region)))throw Error('PLAYER_VERIFICATION_FAILED');return String(b.region);}
 export async function spendOrderWallet(db,order,user){
  if(order.user_id!==user.id||user.status!=='active')throw Error('WALLET_OWNER_MISMATCH');
- const old=await db.prepare('SELECT method FROM zx_product_payments WHERE order_id=?').bind(order.id).first();if(old?.method!=='wallet')throw Error('PAYMENT_METHOD_CONFLICT');
+ const old=await db.prepare('SELECT method,state FROM zx_product_payments WHERE order_id=?').bind(order.id).first();if(old?.method!=='wallet')throw Error('PAYMENT_METHOD_CONFLICT');
+ if(old.state==='refunded')return null;
  const movement=await postMovement(db,{userId:user.id,kind:'purchase',amountCents:order.sale_price_cents,currency:'MXN',source:'diamond-wallet',reference:order.id,requestKey:'diamond:'+order.id,orderId:order.id,actor:'wallet-purchase'});
  // Idempotent recovery after a crash between debit and state update.
  await db.batch([db.prepare("UPDATE zx_diamond_orders SET state='PAID',payment_reference=?,paid_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP WHERE id=? AND paid_at IS NULL AND state='PENDING_PAYMENT'").bind('wallet:'+movement.id,order.id),db.prepare("UPDATE zx_product_payments SET state='paid' WHERE order_id=? AND method='wallet'").bind(order.id)]);return movement;
+}
+// Only the isolated single-operation pilot can refund automatically. UNKNOWN is not failure.
+export async function refundFailedPilotWallet(env,id){
+ if(!ff110PilotOnly(env))return false;
+ const row=await env.DB.prepare("SELECT o.*,p.method,p.state AS payment_state FROM zx_diamond_orders o JOIN zx_product_payments p ON p.order_id=o.id WHERE o.id=?").bind(id).first();
+ if(!row||row.product_id!==FF110_PRODUCT_ID||row.diamonds!==110||row.state!=='FAILED'||row.delivered!==0||!row.paid_at||row.method!=='wallet'||!['paid','refunded'].includes(row.payment_state))return false;
+ const {results:ops}=await env.DB.prepare('SELECT state,receipt_json FROM zx_diamond_operations WHERE order_id=?').bind(id).all();
+ if(ops.length!==1||ops[0].state!=='FAILED'||JSON.parse(ops[0].receipt_json||'{}').status!=='NOT_ACCEPTED')return false;
+ const debit=await env.DB.prepare("SELECT id FROM zx_wallet_ledger WHERE source='diamond-wallet' AND reference=? AND user_id=? AND kind='purchase' AND amount_cents=? AND order_id=?").bind(id,row.user_id,-row.sale_price_cents,id).first();
+ if(!debit)return false;
+ await postMovement(env.DB,{userId:row.user_id,kind:'refund',amountCents:row.sale_price_cents,currency:'MXN',source:'diamond-wallet-refund',reference:id,requestKey:'diamond-refund:'+id,orderId:id,reversesId:debit.id,actor:'ff110-confirmed-failure'});
+ // Retry is safe if the process stops between the immutable reversal and this update.
+ await env.DB.prepare("UPDATE zx_product_payments SET state='refunded' WHERE order_id=? AND method='wallet' AND state='paid'").bind(id).run();return true;
 }
 export async function reconcileProductPayment(env,p,fetcher=fetch){
  const table=await env.DB.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='zx_product_payments'").first();if(!table)return {ignored:true};
@@ -42,19 +59,34 @@ export async function reconcileProductPayment(env,p,fetcher=fetch){
 }
 async function fulfill(env,id,fetcher,maxOperations=4){const order=await env.DB.prepare('SELECT * FROM zx_diamond_orders WHERE id=?').bind(id).first(),payment=await env.DB.prepare('SELECT region,state FROM zx_product_payments WHERE order_id=?').bind(id).first();if(!order?.paid_at||payment?.state!=='paid')return {deliveryPending:true};
  const plan=JSON.parse(order.snapshot_json).fulfillmentPlan;
+ if(!ff110PilotDeliveryAllowed(env,order,plan))return {deliveryPending:true,reviewRequired:true};
  // Old Sixofire orders stay in review; never reroute an already-paid order to another supplier.
  if(plan?.provider!=='recargas-america')return {deliveryPending:true,reviewRequired:true};
  if(plan.playerId!==order.player_id||plan.region!==payment.region)throw Error('RA_PLAN_MISMATCH');const provider=raProvider(env,plan,fetcher);
  // Bound work per request. Lost responses remain PROCESSING; no automatic resubmission.
- const result=await runOrder(env.DB,id,{provider,skuMap:Object.fromEntries(plan.packs.map(p=>[p.diamonds,p.sku])),maxOperations,maxAttempts:1});return {delivery:result};
+ const result=await runOrder(env.DB,id,{provider,skuMap:Object.fromEntries(plan.packs.map(p=>[p.diamonds,p.sku])),maxOperations,maxAttempts:1});const refunded=await refundFailedPilotWallet(env,id);return {delivery:result,...(refunded?{refunded:true}:{})};
 }
 export async function purchaseRoute(request,env,url,user,json,fetcher=fetch){
  const reply=(body,status=200)=>{const r=json(body,status);r.headers?.set('Cache-Control','no-store');return r;};
  if(!user||user.status!=='active')return reply({ok:false,error:'LOGIN_REQUIRED'},401);
  if(user.isFounder!==true&&env.PUBLIC_COMMERCE_ENABLED!=='true'&&!(request.method==='GET'&&/^\/api\/diamonds\/purchase\/orders\/[a-f0-9-]{36}(?:\/receipt)?$/.test(url.pathname))){if(url.pathname===ROOT+'/status'&&request.method==='GET')return reply({ok:true,pilot:true,enabled:false,walletEnabled:false,reasons:['FOUNDER_PILOT_ONLY']});return reply({ok:false,error:'FOUNDER_PILOT_ONLY'},403);}
+ // Wallet launch restricts NEW RA purchases without disabling public MP/SF elsewhere.
+ const walletPilot=ff110PilotOnly(env)&&env.RA_FF110_WALLET_ONLY==='true';
+ const historical=url.pathname.startsWith(ROOT+'/orders/')||url.pathname===ROOT+'/resume';
+ if(walletPilot&&!historical){
+  if(user.isFounder!==true){
+   if(url.pathname===ROOT+'/status')return reply({ok:true,enabled:false,walletEnabled:false,supplierEnabled:false,reasons:['FOUNDER_PILOT_ONLY']});
+   return reply({ok:false,error:'FOUNDER_PILOT_ONLY'},403);
+  }
+  if(url.pathname===ROOT+'/checkout'||url.pathname.startsWith(ROOT+'/supplier/'))return reply({ok:false,error:'FF110_WALLET_ONLY'},403);
+  if(url.pathname===ROOT+'/quote'&&request.method==='POST'){
+   let selection;try{selection=await request.clone().json();}catch{return reply({ok:false,error:'INVALID_REQUEST'},400);}
+   if(selection.method!=='wallet')return reply({ok:false,error:'FF110_WALLET_ONLY'},403);
+  }
+ }
  if(!(request.method==='GET'&&url.pathname.startsWith(ROOT+'/orders/')))env=await resolvedRaEnvironment(env,fetcher);
  const config=purchaseConfiguration(env),supplierLimit=env.PUBLIC_COMMERCE_ENABLED==='true'?1000000000:12000000;
- if(url.pathname===ROOT+'/status'&&request.method==='GET')return reply({ok:true,pilot:env.PUBLIC_COMMERCE_ENABLED!=='true',quotesV3:productQuotesEnabled(env),enabled:(user.isFounder===true||env.PUBLIC_COMMERCE_ENABLED==='true')&&config.enabled,walletEnabled:(user.isFounder===true||env.PUBLIC_COMMERCE_ENABLED==='true')&&!config.reasons.filter(r=>r!=='PRODUCTION_PAYMENT_CONFIG_MISSING').length,supplierEnabled:user.isFounder===true&&!config.reasons.filter(r=>r!=='PRODUCTION_PAYMENT_CONFIG_MISSING').length,reasons:(user.isFounder===true||env.PUBLIC_COMMERCE_ENABLED==='true')?config.reasons:['FOUNDER_PILOT_ONLY']});
+ if(url.pathname===ROOT+'/status'&&request.method==='GET')return reply({ok:true,pilot:env.PUBLIC_COMMERCE_ENABLED!=='true',quotesV3:productQuotesEnabled(env),pilotOnly:ff110PilotOnly(env),pilotProductId:ff110PilotOnly(env)?FF110_PRODUCT_ID:null,enabled:!walletPilot&&(user.isFounder===true||env.PUBLIC_COMMERCE_ENABLED==='true')&&config.enabled,walletEnabled:(user.isFounder===true||env.PUBLIC_COMMERCE_ENABLED==='true')&&!config.reasons.filter(r=>r!=='PRODUCTION_PAYMENT_CONFIG_MISSING').length,supplierEnabled:!walletPilot&&user.isFounder===true&&!config.reasons.filter(r=>r!=='PRODUCTION_PAYMENT_CONFIG_MISSING').length,reasons:(user.isFounder===true||env.PUBLIC_COMMERCE_ENABLED==='true')?config.reasons:['FOUNDER_PILOT_ONLY']});
  try{
   const receiptMatch=url.pathname.match(/^\/api\/diamonds\/purchase\/orders\/([a-f0-9-]{36})\/receipt$/);
   if(receiptMatch&&request.method==='GET'){const receipt=await orderReceipt(env.DB,receiptMatch[1],user.id);return !receipt?reply({ok:false,error:'NOT_FOUND'},404):receipt.pending?reply({ok:false,error:'RECEIPT_NOT_READY'},409):reply({ok:true,receipt});}
@@ -69,7 +101,7 @@ export async function purchaseRoute(request,env,url,user,json,fetcher=fetch){
    const reasons=config.reasons.filter(r=>r!=='PRODUCTION_PAYMENT_CONFIG_MISSING');if(reasons.length)return reply({ok:false,error:'PRODUCT_DELIVERY_NOT_READY',reasons},503);
    const body=await request.json(),uid=String(body.playerId||''),key=request.headers.get('Idempotency-Key'),buy=url.pathname.endsWith('/buy');
    if(!/^\d{5,15}$/.test(uid)||body.playerConfirmed!==true||buy&&(!/^[a-f0-9-]{36}$/.test(key||'')||body.supplierConfirmed!==true||!Number.isSafeInteger(body.maxTotalMicros)||body.maxTotalMicros<1||body.maxTotalMicros>supplierLimit))return reply({ok:false,error:'INVALID_REQUEST'},400);
-   const product=await publishedProduct(env.DB,getProduct(body.productId));if(!product||product.salePriceCents>(env.PUBLIC_COMMERCE_ENABLED==='true'?100000000:20000))return reply({ok:false,error:'PRODUCT_OUTSIDE_PILOT'},400);
+   const product=await publishedProduct(env.DB,getProduct(body.productId));if(!product||product.salePriceCents>(env.PUBLIC_COMMERCE_ENABLED==='true'?100000000:20000))return reply({ok:false,error:'PRODUCT_OUTSIDE_PILOT'},400);assertFf110PilotProduct(env,product);
    const exists=await env.DB.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='zx_product_payments'").first();
    if(exists&&/^[a-f0-9-]{36}$/.test(key||'')){
     const old=await env.DB.prepare('SELECT o.*,p.method FROM zx_diamond_orders o JOIN zx_product_payments p ON p.order_id=o.id WHERE o.user_id=? AND o.request_key=?').bind(user.id,key).first();
@@ -93,7 +125,7 @@ export async function purchaseRoute(request,env,url,user,json,fetcher=fetch){
   if(url.pathname===ROOT+'/quote'&&request.method==='POST'){
    if(!productQuotesEnabled(env))return reply({ok:false,error:'PRODUCT_QUOTE_UNAVAILABLE'},503);
    const b=await request.json();if(!['wallet','all','card','spei'].includes(b.method)||!/^\d{5,15}$/.test(b.playerId||'')||b.playerConfirmed!==true)return reply({ok:false,error:'INVALID_REQUEST'},400);
-   const product=await publishedProduct(env.DB,getProduct(b.productId));if(!product)throw Error('PRODUCT_UNAVAILABLE');
+   const product=await publishedProduct(env.DB,getProduct(b.productId));if(!product)throw Error('PRODUCT_UNAVAILABLE');assertFf110PilotProduct(env,product);
    const pricing=await productPricing(env,product.salePriceCents,b.couponCode,b.method),quote=await prepareProductQuote(env,user.id,['diamond',product.id,b.playerId,1],pricing,b.method);
    return reply({ok:true,pricing,quote,amountCents:quote.totalCents});
   }
@@ -104,12 +136,13 @@ export async function purchaseRoute(request,env,url,user,json,fetcher=fetch){
   if(url.pathname===ROOT+'/resume'){
    if(!/^[a-f0-9-]{36}$/.test(body.orderId||''))return reply({ok:false,error:'INVALID_REQUEST'},400);
    const own=await env.DB.prepare('SELECT * FROM zx_diamond_orders WHERE id=? AND user_id=?').bind(body.orderId,user.id).first();if(!own)return reply({ok:false,error:'NOT_FOUND'},404);
+   if(ff110PilotOnly(env)&&(own.product_id!==FF110_PRODUCT_ID||own.diamonds!==110))return reply({ok:false,error:'RA_FF110_PILOT_SCOPE',orderId:own.id},409);
    if(!own.paid_at){const debit=await env.DB.prepare("SELECT id FROM zx_wallet_ledger WHERE user_id=? AND source='diamond-wallet' AND reference=? AND kind='purchase' AND order_id=? AND amount_cents=?").bind(user.id,own.id,own.id,-own.sale_price_cents).first();if(debit)await spendOrderWallet(env.DB,own,user);}
    return reply({ok:true,...await fulfill(env,own.id,fetcher)});
   }
   const key=request.headers.get('Idempotency-Key'),uid=String(body.playerId||''),method=url.pathname.endsWith('/wallet')?'wallet':body.method||'all';
   if(!/^[a-f0-9-]{36}$/.test(key||'')||!/^\d{5,15}$/.test(uid)||body.playerConfirmed!==true||!['wallet','card','spei','all'].includes(method))return reply({ok:false,error:'INVALID_REQUEST'},400);
-  const product=await publishedProduct(env.DB,getProduct(body.productId));if(!product||product.salePriceCents>(env.PUBLIC_COMMERCE_ENABLED==='true'?100000000:20000))return reply({ok:false,error:'PRODUCT_OUTSIDE_PILOT'},400);
+  const product=await publishedProduct(env.DB,getProduct(body.productId));if(!product||product.salePriceCents>(env.PUBLIC_COMMERCE_ENABLED==='true'?100000000:20000))return reply({ok:false,error:'PRODUCT_OUTSIDE_PILOT'},400);assertFf110PilotProduct(env,product);
   const region=await verifiedPlayer(env,uid,fetcher);const plan=await raAmountPreflight(env,product.diamonds,region,uid,fetcher);if(method!=='wallet')await productionAccount(env,fetcher);
   await schemas(env.DB);
   let acceptedPricing=null;
@@ -136,13 +169,13 @@ export async function purchaseRoute(request,env,url,user,json,fetcher=fetch){
    const response=await fetcher('https://api.mercadopago.com/checkout/preferences',{method:'POST',redirect:'manual',headers:{Authorization:'Bearer '+productionToken(env),'Content-Type':'application/json'},signal:AbortSignal.timeout(12000),body:JSON.stringify({items:[{id:order.product_id,title:product.name||order.diamonds+' diamantes',quantity:1,currency_id:'MXN',unit_price:order.sale_price_cents/100}],external_reference:order.id,payment_methods:publicMethods(method),notification_url:'https://zerox-sixofire-api.westdark161208.workers.dev/api/payments/mercadopago/funding/webhook',back_urls:{success:back,pending:back,failure:back},expires:true,expiration_date_from:new Date(Date.now()-60000).toISOString(),expiration_date_to:new Date(Date.now()+3600000).toISOString()})});if(!response.ok){const detail=await response.json().catch(()=>({}));const reason=String(detail.error||detail.message||'').replace(/[^a-zA-Z0-9_]/g,'_').slice(0,80);console.warn('diamond_checkout_rejected',{orderId:order.id,status:response.status,reason});throw Error('MP_CHECKOUT_HTTP_'+response.status);}const pref=await response.json(),link=new URL(pref.init_point);if(link.protocol!=='https:'||!['www.mercadopago.com.mx','www.mercadopago.com'].includes(link.hostname)||link.username||link.password||String(pref.collector_id)!==String(env.MP_COLLECTOR_ID_PRODUCTION)||!pref.id)throw Error('failed');
    await env.DB.prepare("UPDATE zx_product_payments SET state='ready',checkout_url=?,preference_id=? WHERE order_id=?").bind(link.href,String(pref.id),order.id).run();return reply({ok:true,orderId:order.id,checkoutUrl:link.href});
   }catch(error){await env.DB.prepare("UPDATE zx_product_payments SET state='needs_review' WHERE order_id=?").bind(order.id).run();return reply({ok:false,error:'CHECKOUT_RECONCILIATION_REQUIRED',diagnostic:/^MP_CHECKOUT_HTTP_[0-9]{3}$/.test(error.message)?error.message:'MP_CHECKOUT_RESPONSE_UNCERTAIN',orderId:order.id},503);}
- }catch(error){const explicit=['QUOTE_NOT_FOUND','QUOTE_CHANGED','QUOTE_EXPIRED','QUOTE_ALREADY_USED','INVALID_QUOTE_CONTEXT','FEE_POLICY_NOT_VERIFIED','INVALID_FEE_POLICY','MP_PRODUCTION_CREDENTIAL_REJECTED','MP_PRODUCTION_ACCESS_REJECTED','MP_PRODUCTION_ACCOUNT_MISMATCH','MP_PRODUCTION_CONFIG_MISSING','MP_PRODUCTION_CONNECTION_FAILED','MP_PRODUCTION_TIMEOUT','CONTACT_REQUIRED','PROVIDER_MAPPING_INVALID','PROVIDER_MAPPING_MISSING','PROVIDER_DIAMOND_AMOUNT_MISMATCH','PROVIDER_DIRECT_PRODUCT_REQUIRED','PROVIDER_PRODUCT_UNAVAILABLE','PROVIDER_REGION_UNAVAILABLE','PROVIDER_ORDER_ACCESS_UNVERIFIED','PLAYER_VERIFIER_MISSING','PLAYER_VERIFICATION_FAILED','WALLET_MOVEMENT_REJECTED','WALLET_IDEMPOTENCY_CONFLICT','PAYMENT_METHOD_CONFLICT','IDEMPOTENCY_CONFLICT','PRODUCT_PRICE_CHANGED','COUPON_INVALID','COUPON_EXPIRED','COUPON_RETAIL_ONLY'];return reply({ok:false,error:explicit.includes(error.message)||/^RA_(READ_DISABLED|KEY_MISSING|UNAVAILABLE|INVALID_RESPONSE|INVALID_QUERY|HTTP_\d{3}|MAPPING_INVALID|MAPPING_MISSING|REGION_UNVERIFIED|REGION_UNAVAILABLE|PRODUCT_UNAVAILABLE|PRODUCT_MISMATCH|CURRENCY_UNVERIFIED|INSUFFICIENT_FUNDS|PLAYER_REJECTED|PLAN_MISMATCH|AMOUNT_INVALID|PRICE_INVALID|EXACT_RECIPE_UNAVAILABLE)$/.test(error.message)?error.message:safeProviderError(error)},503);}
+ }catch(error){const explicit=['QUOTE_NOT_FOUND','QUOTE_CHANGED','QUOTE_EXPIRED','QUOTE_ALREADY_USED','INVALID_QUOTE_CONTEXT','FEE_POLICY_NOT_VERIFIED','INVALID_FEE_POLICY','MP_PRODUCTION_CREDENTIAL_REJECTED','MP_PRODUCTION_ACCESS_REJECTED','MP_PRODUCTION_ACCOUNT_MISMATCH','MP_PRODUCTION_CONFIG_MISSING','MP_PRODUCTION_CONNECTION_FAILED','MP_PRODUCTION_TIMEOUT','CONTACT_REQUIRED','PROVIDER_MAPPING_INVALID','PROVIDER_MAPPING_MISSING','PROVIDER_DIAMOND_AMOUNT_MISMATCH','PROVIDER_DIRECT_PRODUCT_REQUIRED','PROVIDER_PRODUCT_UNAVAILABLE','PROVIDER_REGION_UNAVAILABLE','PROVIDER_ORDER_ACCESS_UNVERIFIED','PLAYER_VERIFIER_MISSING','PLAYER_VERIFICATION_FAILED','WALLET_MOVEMENT_REJECTED','WALLET_IDEMPOTENCY_CONFLICT','PAYMENT_METHOD_CONFLICT','IDEMPOTENCY_CONFLICT','PRODUCT_PRICE_CHANGED','COUPON_INVALID','COUPON_EXPIRED','COUPON_RETAIL_ONLY','RA_FF110_PILOT_SCOPE'];return reply({ok:false,error:explicit.includes(error.message)||/^RA_(READ_DISABLED|KEY_MISSING|UNAVAILABLE|INVALID_RESPONSE|INVALID_QUERY|HTTP_\d{3}|MAPPING_INVALID|MAPPING_MISSING|REGION_UNVERIFIED|REGION_UNAVAILABLE|PRODUCT_UNAVAILABLE|PRODUCT_MISMATCH|CURRENCY_UNVERIFIED|INSUFFICIENT_FUNDS|PLAYER_REJECTED|PLAN_MISMATCH|AMOUNT_INVALID|PRICE_INVALID|EXACT_RECIPE_UNAVAILABLE)$/.test(error.message)?error.message:safeProviderError(error)},503);}
 }
 
 // Continue only paid immutable plans. Unknown deliveries are never submitted again.
 export async function continuePaidDiamonds(env,fetcher=fetch){
- if(raPrivateMode(env)||env.RA_DELIVERY_ENABLED!=='true'||env.RA_CONTRACT_VERIFIED!=='true'||env.RA_READ_ENABLED!=='true'||!env.RECARGAS_AMERICA_API_KEY)return {processed:0};
+ if(ff110PilotOnly(env)?!privatePurchaseReady(env):(raPrivateMode(env)||env.RA_DELIVERY_ENABLED!=='true'||env.RA_CONTRACT_VERIFIED!=='true'||env.RA_READ_ENABLED!=='true'||!env.RECARGAS_AMERICA_API_KEY))return {processed:0};
  const exists=await env.DB.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='zx_product_payments'").first();if(!exists)return {processed:0};
- const {results:rows}=await env.DB.prepare("SELECT o.id FROM zx_diamond_orders o JOIN zx_product_payments p ON p.order_id=o.id WHERE o.paid_at IS NOT NULL AND p.state='paid' AND o.state IN ('PAID','PROCESSING','PARTIALLY_COMPLETED') AND o.lock_until<? ORDER BY o.updated_at,o.id LIMIT 2").bind(Date.now()).all();
+ const {results:rows}=await env.DB.prepare("SELECT o.id FROM zx_diamond_orders o JOIN zx_product_payments p ON p.order_id=o.id WHERE o.paid_at IS NOT NULL AND p.state='paid' AND (o.state IN ('PAID','PROCESSING','PARTIALLY_COMPLETED') OR (?=1 AND (o.state='FAILED' OR o.state='REQUIRES_REVIEW' AND EXISTS(SELECT 1 FROM zx_diamond_operations op WHERE op.order_id=o.id AND op.state='PROCESSING' AND op.provider_reference IS NOT NULL)))) AND (?=0 OR (o.product_id='zx-diamonds-110' AND o.diamonds=110)) AND o.lock_until<? ORDER BY o.updated_at,o.id LIMIT 2").bind(ff110PilotOnly(env)?1:0,ff110PilotOnly(env)?1:0,Date.now()).all();
  let processed=0;for(const row of rows){try{await fulfill(env,row.id,fetcher,2);processed++;}catch{ /* Next tick may retry preflight; the engine never resends uncertain operations. */ }}return {processed};
 }

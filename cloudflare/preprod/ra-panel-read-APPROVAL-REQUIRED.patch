@@ -1,0 +1,25 @@
+--- a/cloudflare/wrangler.jsonc
++++ b/cloudflare/wrangler.jsonc
+@@ -25,7 +25,9 @@
+     "MP_FEE_POLICY_VERSION": "mx-checkout-349-400-iva16-20261010",
+     "MP_FEE_RATE_BPS": "349",
+     "MP_FEE_FIXED_CENTS": "400",
+-    "MP_FEE_TAX_BPS": "1600"
++    "MP_FEE_TAX_BPS": "1600",
++    "RA_CATALOG_READ_ENABLED": "true",
++    "RA_CATALOG_READ_CONTRACT_VERIFIED": "true"
+   },
+   "d1_databases": [
+     {
+@@ -39,5 +41,11 @@
+       "binding": "MEDIA",
+       "bucket_name": "zerox-store-media"
+     }
++  ],
++  "services": [
++    {
++      "binding": "RA_READ_SERVICE",
++      "service": "zerox-ra-vpc-test"
++    }
+   ]
+ }

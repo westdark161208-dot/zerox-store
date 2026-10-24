@@ -1,0 +1,19 @@
+--- a/cloudflare/wrangler.jsonc
++++ b/cloudflare/wrangler.jsonc
+@@ -28,12 +28,12 @@
+     "MP_FEE_TAX_BPS": "1600",
+     "RA_ADMIN_READ_ENABLED": "true",
+     "RA_ADMIN_READ_TRANSPORT": "service-binding",
+-    "RA_ADMIN_READ_CONTRACT_VERIFIED": "false",
++    "RA_ADMIN_READ_CONTRACT_VERIFIED": "true",
+     "RA_FF110_PILOT_ONLY": "true",
+     "RA_FF110_WALLET_ONLY": "true",
+-    "RA_FF110_PURCHASE_ENABLED": "false",
+-    "RA_FF110_PRODUCT_VERIFIED": "false",
+-    "RA_FF110_CONTRACT_VERIFIED": "false",
++    "RA_FF110_PURCHASE_ENABLED": "true",
++    "RA_FF110_PRODUCT_VERIFIED": "true",
++    "RA_FF110_CONTRACT_VERIFIED": "true",
+     "RA_DIAMOND_PACKS": "{\"110\":{\"productId\":5,\"sku\":\"ADS005\",\"name\":\"Recarga Free Fire - 100 Diamantes + 10% Bono\",\"baseDiamonds\":100,\"bonusDiamonds\":10,\"regions\":[\"US\"],\"playerField\":\"player_id\",\"bonusEvidence\":\"Historical ADS005 catalog; requires approval and live revalidation before activation\"}}"
+   },
+   "d1_databases": [

@@ -29,3 +29,5 @@ export function makeSnapshot(productId,uid){
  if(!/^[0-9]{5,15}$/.test(uid))throw Error('INVALID_PLAYER_ID');
  return {productId:p.id,diamonds:p.diamonds,salePriceCents:p.salePriceCents,providerCostCents:costOf(p.recipe),currency:'MXN',playerId:uid,recipe:p.recipe.map(p=>({...p})),catalogVersion:'2026-09-28-v1'};
 }
+// Shared exact cost planner for administrative Smart Recipes; legacy exports remain stable.
+export {exactPlan,decimalUnits} from './exact-planner.mjs';
