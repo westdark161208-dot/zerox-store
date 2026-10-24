@@ -1,0 +1,21 @@
+const {createRequire}=require('node:module');const req=createRequire(require('node:path').join(process.env.ZEROX_BROWSER_MODULES||process.env.ZEROX_QA_MODULES||__dirname,'package.json'));const {chromium}=req('playwright');
+const fs=require('fs'),http=require('http'),path=require('path');
+const root=path.resolve(__dirname,'..');
+(async()=>{
+ const server=http.createServer((req,res)=>{let f=path.join(root,new URL(req.url,'http://local').pathname);if(f.endsWith('/'))f+='index.html';if(!f.startsWith(root)||!fs.existsSync(f)){res.writeHead(404);return res.end();}res.setHeader('Content-Type',f.endsWith('.js')?'text/javascript':f.endsWith('.css')?'text/css':f.endsWith('.html')?'text/html':'application/octet-stream');res.end(fs.readFileSync(f));}).listen(8877,'127.0.0.1');
+ const browser=await chromium.launch({headless:true,...(process.env.ZEROX_CHROMIUM_PATH?{executablePath:process.env.ZEROX_CHROMIUM_PATH}:{}),args:['--no-sandbox','--disable-dev-shm-usage','--disable-gpu']});const page=await browser.newPage({viewport:{width:412,height:915}});let draft={},published={},revision=0;const errors=[];page.on('dialog',d=>{d.accept()});page.on('pageerror',e=>errors.push(e.message));
+ await page.route('**/*',route=>{const u=new URL(route.request().url());if(u.origin==='http://127.0.0.1:8877')return route.continue();return route.fulfill({contentType:'application/json',body:JSON.stringify({ok:true,products:{},ads:[],sections:[]})});});
+ await page.goto('http://127.0.0.1:8877');await page.waitForTimeout(500);
+ await page.evaluate(()=>{window.getZeroXSession=()=>({token:'mock'});window.zeroxAuthRequest=async(path,options)=>{const b=options?JSON.parse(options.body):null;window.__draft??={};window.__revision??=0;if(path==='/api/admin/store-editor')return {revision:window.__revision,draft:JSON.stringify(window.__draft),published:JSON.stringify(window.__published||{})};if(path.endsWith('/draft')){window.__draft[b.product.id]=b.product;return {revision:++window.__revision};}if(path.endsWith('/publish')){window.__published=structuredClone(window.__draft);return {revision:++window.__revision};}if(path.endsWith('/smart-recipes'))return {products:Object.values(window.__published).map(p=>({...p,quotes:[{region:'US',status:'ready',quotedAt:new Date().toISOString(),packs:[{quantity:2,diamonds:110}],operationCount:2,costUSD:'0.249384',costMXNCents:424,salePriceCents:p.priceCents,marginCents:4576,marginBps:9152}]}))};return {products:[],ads:[]};};document.getElementById('creator-link').hidden=false;});
+ await page.locator('button.zx-creator-link').evaluate(el=>el.click());
+ await page.getByRole('button',{name:'Añadir combo de diamantes',exact:true}).click();
+ await page.locator('#zx-editor-dialog input[name=name]').fill('Combo 220 auditoría');await page.locator('input[name=diamonds]').fill('220');await page.locator('#zx-editor-dialog input[name=price]').fill('50');
+ await page.getByRole('button',{name:'Guardar borrador',exact:true}).click();
+ await page.getByRole('button',{name:'Publicar borrador',exact:true}).click();await page.getByRole('button',{name:'Receta automática RA',exact:true}).click();
+ await page.locator('#zx-smart-recipes section').waitFor();if(process.env.ZEROX_QA_SCREENSHOT)await page.screenshot({path:process.env.ZEROX_QA_SCREENSHOT});
+ if(!(await page.locator('#zx-smart-recipes').innerText()).includes('0.249384'))throw Error('Quote missing');
+ await page.getByRole('button',{name:'Cerrar',exact:true}).click();await page.getByRole('button',{name:'Salir',exact:true}).click();
+ await page.evaluate(()=>{zxOpenCatalog('Diamantes ilimitados');});
+ const card=page.locator('[data-product^="smart:diamonds:"]');await card.waitFor();if(await card.locator('[data-buy-now],[data-add]').count())throw Error('Smart checkout enabled');if(!await card.innerText().then(x=>x.includes('50')))throw Error('Price missing');
+ if(errors.length)throw Error(errors.join('; '));console.log('MOBILE_UI_OK: create, publish, recipe panel, catalog price, checkout disabled; no page errors');await browser.close();server.close();
+})().catch(e=>{console.error(e);process.exit(1)});

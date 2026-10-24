@@ -1,3 +1,4 @@
+import {isCombo,comboFields,smartRecipeRoute} from './smart-recipes.mjs';
 import '../../game-sections.js';
 import {gameCatalog} from '../services/games.mjs';
 import '../../diamond-catalog.js';
@@ -17,7 +18,7 @@ export async function publishedProduct(db,base){
  return p?{...base,name:p.name,salePriceMXN:p.priceCents/100,salePriceCents:p.priceCents}:base;
 }
 export function validateEdit(p){
- if(!p||typeof p!=='object'||(!bases.some(b=>b.id===p.id)&&!staticIds.includes(p.id)&&!/^ra-game-[1-9][0-9]{0,6}$/.test(p.id)&&!/^custom:(block|product):[a-f0-9-]{36}$/.test(p.id)&&!/^entity:(catalog|streaming|ads):[a-f0-9-]{36}$/.test(p.id)&&!globalThis.ZXEditorElements.some(e=>'page:'+e.id===p.id)))return null;
+ if(!p||typeof p!=='object'||(!isCombo(p.id)&&!bases.some(b=>b.id===p.id)&&!staticIds.includes(p.id)&&!/^ra-game-[1-9][0-9]{0,6}$/.test(p.id)&&!/^custom:(block|product):[a-f0-9-]{36}$/.test(p.id)&&!/^entity:(catalog|streaming|ads):[a-f0-9-]{36}$/.test(p.id)&&!globalThis.ZXEditorElements.some(e=>'page:'+e.id===p.id)))return null;
  if(typeof p.name!=='string'||!p.name.trim()||p.name.length>100||typeof p.description!=='string'||p.description.length>1500||typeof p.character!=='string'||p.character.length>100||typeof p.active!=='boolean')return null;
  if(!Number.isSafeInteger(p.priceCents)||p.priceCents<(p.id.startsWith('page:')||p.id.startsWith('entity:ads:')||p.id.startsWith('ra-game-')||p.id.startsWith('custom:')?0:1)||p.priceCents>100000000)return null;
  // Local artwork or existing server media only; no arbitrary tracking or script URLs.
@@ -26,13 +27,15 @@ export function validateEdit(p){
  if(p.region!==undefined&&(typeof p.region!=='string'||p.region.length>60))return null;
  if(p.position!==undefined&&(!Number.isInteger(p.position)||p.position<0||p.position>9999))return null;
 
- return {id:p.id,name:p.name.trim(),description:p.description.trim(),character:p.character.trim(),priceCents:p.priceCents,active:p.active,image:p.image,category:p.category||'',region:p.region||'',position:p.position||0};
+ const smart=isCombo(p.id)?comboFields(p):{};if(!smart)return null;
+ return {...smart,id:p.id,name:p.name.trim(),description:p.description.trim(),character:p.character.trim(),priceCents:p.priceCents,active:p.active,image:p.image,category:p.category||'',region:p.region||'',position:p.position||0};
 }
 export async function editorRoute(request,env,url,user,respond){
  const json=(data,status=200)=>{const response=respond(data,status);response.headers?.set('Cache-Control','no-store');return response;};
  const gamesRead=url.pathname==='/api/store-editor/games'&&request.method==='GET';
  const publicRead=url.pathname==='/api/store-editor/catalog'&&request.method==='GET'||gamesRead;
  if(!publicRead&&(!user||user.status!=='active'||user.isFounder!==true))return json({ok:false,error:'FORBIDDEN'},403);
+ if(url.pathname==='/api/admin/store-editor/smart-recipes')return smartRecipeRoute(request,env,user,json);
  await editorSchema(env.DB);
  if(gamesRead){try{return json({ok:true,products:await gameCatalog(env)})}catch{return json({ok:false,error:'CATALOG_UNAVAILABLE'},503)}}
  if(publicRead)return json({ok:true,products:await publishedCatalog(env.DB)});
