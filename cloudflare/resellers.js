@@ -1,3 +1,4 @@
+import {appearanceRoute} from "./resellers-appearance.js";
 import "../diamonds.js";
 // All monetary values are integer MXN cents. Prices and permissions are server-owned.
 export const LEVELS=['Novato','Principiante','Élite','Maestro','Titán','Legendario','Zero’X Supreme'];
@@ -17,6 +18,8 @@ export async function schema(env){
  'CREATE TABLE IF NOT EXISTS zx_r_ledger(id TEXT PRIMARY KEY,user_id TEXT NOT NULL,amount INTEGER NOT NULL,kind TEXT NOT NULL,reference TEXT NOT NULL UNIQUE,created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)',
  "CREATE TABLE IF NOT EXISTS zx_r_topups(id TEXT PRIMARY KEY,user_id TEXT NOT NULL,amount INTEGER NOT NULL,note TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'pending',reviewer TEXT,created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)",
  "CREATE TABLE IF NOT EXISTS zx_r_orders(id TEXT PRIMARY KEY,user_id TEXT NOT NULL,request_key TEXT NOT NULL,product_id TEXT NOT NULL,product_name TEXT NOT NULL,tier INTEGER NOT NULL,quantity INTEGER NOT NULL,total INTEGER NOT NULL,uid TEXT NOT NULL,region TEXT NOT NULL,nickname TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'pending',reviewer TEXT,created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,completed_at TEXT,UNIQUE(user_id,request_key))",
+ "CREATE TABLE IF NOT EXISTS zx_r_topup_requests(id TEXT PRIMARY KEY,user_id TEXT NOT NULL,note_key TEXT NOT NULL,UNIQUE(user_id,note_key))",
+ "CREATE TABLE IF NOT EXISTS zx_r_topup_reviews(id TEXT PRIMARY KEY,actor TEXT NOT NULL,action TEXT NOT NULL,payment_reference TEXT,created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)",
  'CREATE INDEX IF NOT EXISTS zx_r_ledger_user ON zx_r_ledger(user_id)',
  'CREATE INDEX IF NOT EXISTS zx_r_orders_user ON zx_r_orders(user_id,status,completed_at)'
  ])await env.DB.prepare(sql).run();
@@ -33,7 +36,9 @@ export async function state(env,user){
  const member=await env.DB.prepare('SELECT tier FROM zx_r_members WHERE user_id=?').bind(user.id).first();
  return {balanceCents:money.balance,depositedCents:money.deposits,tier:user.isFounder?7:member.tier,isFounder:!!user.isFounder,weekly:Number(sales.weekly||0),monthly:Number(sales.monthly||0),levels:LEVELS};
 }
-export async function resellerRoute(request,env,url,user,json){
+export async function resellerRoute(request,env,url,user,respond){
+ const json=(data,status)=>{const response=respond(data,status);response.headers.set('Cache-Control','no-store');return response;};
+ const visual=await appearanceRoute(request,env,url,user,json);if(visual)return visual;
  if(!user||user.status!=='active')return json({ok:false,error:'LOGIN_REQUIRED'},401);
  const admin=url.pathname.startsWith('/api/admin/resellers');
  if(admin&&!user.isFounder)return json({ok:false,error:'FORBIDDEN'},403);
@@ -42,14 +47,16 @@ export async function resellerRoute(request,env,url,user,json){
  if(request.method==='GET'&&admin&&path===''){
  const topups=await env.DB.prepare("SELECT t.*,u.username FROM zx_r_topups t JOIN zx_users u ON u.id=t.user_id WHERE t.status='pending' ORDER BY t.created_at LIMIT 100").all();
  const orders=await env.DB.prepare("SELECT o.*,u.username FROM zx_r_orders o JOIN zx_users u ON u.id=o.user_id WHERE o.status='pending' ORDER BY o.created_at LIMIT 100").all();
- return json({ok:true,topups:topups.results,orders:orders.results});
+ const history=await env.DB.prepare('SELECT t.*,u.username,r.actor,r.action,r.payment_reference,r.created_at reviewed_at FROM zx_r_topups t JOIN zx_users u ON u.id=t.user_id LEFT JOIN zx_r_topup_reviews r ON r.id=t.id ORDER BY t.created_at DESC LIMIT 200').all();
+ const members=await env.DB.prepare('SELECT u.id,u.username,COALESCE(m.tier,0) tier,COALESCE((SELECT SUM(amount) FROM zx_r_ledger WHERE user_id=u.id),0) balance FROM zx_users u JOIN zx_r_members m ON m.user_id=u.id ORDER BY u.username LIMIT 200').all();
+ return json({ok:true,topups:topups.results,orders:orders.results,history:history.results,members:members.results});
  }
  if(request.method==='GET'&&!admin&&path==='/me'){
  const s=await state(env,user);
  const orders=await env.DB.prepare('SELECT * FROM zx_r_orders WHERE user_id=? ORDER BY created_at DESC LIMIT 30').bind(user.id).all();
- const topups=await env.DB.prepare('SELECT id,amount,status,created_at FROM zx_r_topups WHERE user_id=? ORDER BY created_at DESC LIMIT 20').bind(user.id).all();
+ const topups=await env.DB.prepare('SELECT id,amount,note,status,created_at FROM zx_r_topups WHERE user_id=? ORDER BY created_at DESC LIMIT 20').bind(user.id).all();
  const ledger=await env.DB.prepare('SELECT amount,kind,created_at FROM zx_r_ledger WHERE user_id=? ORDER BY created_at DESC LIMIT 30').bind(user.id).all();
- return json({ok:true,...s,orders:orders.results,topups:topups.results,ledger:ledger.results});
+ return json({ok:true,username:user.username,...s,orders:orders.results,topups:topups.results,ledger:ledger.results});
  }
  if(request.method==='GET'&&!admin&&path==='/catalog'){
  const tier=Number(url.searchParams.get('tier')),s=await state(env,user);
@@ -60,21 +67,31 @@ export async function resellerRoute(request,env,url,user,json){
  const b=await request.json();
  if(!admin&&path==='/topups'){
  if(!uuid(b.requestId)||!Number.isSafeInteger(b.amountCents)||b.amountCents<20000||b.amountCents>10000000||typeof b.note!=='string'||b.note.trim().length<3||b.note.length>200)return json({ok:false,error:'INVALID_TOPUP'},400);
- const count=await env.DB.prepare("SELECT COUNT(*) n FROM zx_r_topups WHERE user_id=? AND status='pending'").bind(user.id).first();
- if(count.n>=3)return json({ok:false,error:'PENDING_TOPUP_EXISTS'},409);
- await env.DB.prepare('INSERT OR IGNORE INTO zx_r_topups(id,user_id,amount,note) VALUES(?,?,?,?)').bind(b.requestId,user.id,b.amountCents,b.note.trim()).run();
+ const old=await env.DB.prepare('SELECT * FROM zx_r_topups WHERE id=?').bind(b.requestId).first();
+ if(old)return old.user_id===user.id&&old.amount===b.amountCents&&old.note===b.note.trim()?json({ok:true,pending:old.status==='pending',repeated:true}):json({ok:false,error:'REQUEST_CONFLICT'},409);
+ const noteKey=b.note.trim().normalize('NFKC').toUpperCase().replace(/\s+/g,' ');
+ try{const result=await env.DB.batch([
+ env.DB.prepare("INSERT INTO zx_r_topup_requests(id,user_id,note_key) SELECT ?,?,? WHERE NOT EXISTS(SELECT 1 FROM zx_r_topups WHERE user_id=? AND status='pending') AND NOT EXISTS(SELECT 1 FROM zx_r_topups WHERE user_id=? AND status='approved' AND UPPER(TRIM(note))=?)").bind(b.requestId,user.id,noteKey,user.id,user.id,noteKey),
+ env.DB.prepare('INSERT INTO zx_r_topups(id,user_id,amount,note) SELECT ?,?,?,? WHERE EXISTS(SELECT 1 FROM zx_r_topup_requests WHERE id=?)').bind(b.requestId,user.id,b.amountCents,b.note.trim(),b.requestId)
+ ]);if(!result[0].meta.changes)return json({ok:false,error:'PENDING_TOPUP_EXISTS'},409);}catch(e){if(String(e).toLowerCase().includes('unique'))return json({ok:false,error:'DUPLICATE_REFERENCE'},409);throw e;}
  return json({ok:true,pending:true});
  }
  if(admin&&path==='/topups/review'){
  const topup=await env.DB.prepare("SELECT * FROM zx_r_topups WHERE id=? AND status='pending'").bind(b.id).first();
  if(!topup)return json({ok:false,error:'ALREADY_REVIEWED'},409);
- if(b.action==='reject'){await env.DB.prepare("UPDATE zx_r_topups SET status='rejected',reviewer=? WHERE id=? AND status='pending'").bind(user.id,b.id).run();return json({ok:true});}
+ if(b.action==='reject'){const result=await env.DB.batch([
+ env.DB.prepare("INSERT OR IGNORE INTO zx_r_topup_reviews(id,actor,action) SELECT ?,?,'reject' FROM zx_r_topups WHERE id=? AND status='pending'").bind(b.id,user.id,b.id),
+ env.DB.prepare("UPDATE zx_r_topups SET status='rejected',reviewer=? WHERE id=? AND status='pending' AND EXISTS(SELECT 1 FROM zx_r_topup_reviews WHERE id=? AND action='reject')").bind(user.id,b.id,b.id),
+ env.DB.prepare("DELETE FROM zx_r_topup_requests WHERE id=? AND EXISTS(SELECT 1 FROM zx_r_topups WHERE id=? AND status='rejected')").bind(b.id,b.id)
+ ]);return json({ok:!!result[1].meta.changes},result[1].meta.changes?200:409);}
  if(b.action!=='approve'||b.paymentConfirmed!==true||typeof b.paymentReference!=='string'||b.paymentReference.trim().length<3||b.paymentReference.length>120)return json({ok:false,error:'PAYMENT_CONFIRMATION_REQUIRED'},400);
  const ledgerId=crypto.randomUUID();
- try{await env.DB.batch([
+ try{const result=await env.DB.batch([
  env.DB.prepare("INSERT INTO zx_r_ledger(id,user_id,amount,kind,reference) SELECT ?,user_id,amount,'credit',? FROM zx_r_topups WHERE id=? AND status='pending'").bind(ledgerId,'payment:'+b.paymentReference.trim().toUpperCase(),b.id),
- env.DB.prepare("UPDATE zx_r_topups SET status='approved',reviewer=? WHERE id=? AND EXISTS(SELECT 1 FROM zx_r_ledger WHERE id=?)").bind(user.id,b.id,ledgerId)
- ]);}catch(e){if(String(e).toLowerCase().includes('unique'))return json({ok:false,error:'PAYMENT_ALREADY_CREDITED'},409);throw e;}
+ env.DB.prepare("UPDATE zx_r_topups SET status='approved',reviewer=? WHERE id=? AND EXISTS(SELECT 1 FROM zx_r_ledger WHERE id=?)").bind(user.id,b.id,ledgerId),
+ env.DB.prepare("INSERT INTO zx_r_topup_reviews(id,actor,action,payment_reference) SELECT ?,?,'approve',? WHERE EXISTS(SELECT 1 FROM zx_r_ledger WHERE id=?)").bind(b.id,user.id,b.paymentReference.trim().toUpperCase(),ledgerId)
+ ]);if(!result[0].meta.changes)return json({ok:false,error:'ALREADY_REVIEWED'},409);}catch(e){if(String(e).toLowerCase().includes('unique'))return json({ok:false,error:'PAYMENT_ALREADY_CREDITED'},409);throw e;}
+ await state(env,{id:topup.user_id,isFounder:false});
  return json({ok:true});
  }
  if(!admin&&path==='/orders'){
