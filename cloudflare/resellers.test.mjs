@@ -50,6 +50,7 @@ for(const product of ZXDiamonds.products){
  for(let tier=1;tier<=7;tier++){const next=ZXDiamonds.price(product.publicCents,tier);assert(next<last);last=next;}
  if(product.referenceCents)assert(last>=product.referenceCents);
 }
+await call('admin/resellers/topups/review',founder,{id:second,action:'reject'});
 const funding=crypto.randomUUID();
 await call('resellers/topups',user,{requestId:funding,amountCents:100000,note:'bundle-test'});
 await call('admin/resellers/topups/review',founder,{id:funding,action:'approve',paymentReference:'BankBundle',paymentConfirmed:true});
