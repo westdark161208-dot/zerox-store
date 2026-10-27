@@ -5,5 +5,22 @@ globalThis.ZXGameSections=Object.freeze([
  {id:'delta-force',name:'Delta Force PC',prefix:'Delta Force PC ',image:'assets/categories/delta-force.webp',description:'Delta Coins y pases · PC'},
  {id:'arena-breakout',name:'Arena Breakout',prefix:'Arena Breakout - ',image:'assets/categories/arena-breakout.webp',description:'Bonds y membresías · Plataforma por confirmar',platformPending:true},
  {id:'bleach',name:'BLEACH Soul Resonance',prefix:'BLEACH Soul Resonance - ',image:'assets/categories/bleach.webp',description:'Jade espiritual y membresías'},
- {id:'crossfire',name:'Crossfire: Legends',prefix:'Crossfire: Legends - ',image:'assets/categories/crossfire.webp',description:'Crossfire Coins y bonos'}
+ {id:'crossfire',name:'Crossfire: Legends',prefix:'Crossfire: Legends - ',image:'assets/categories/crossfire.webp',description:'Crossfire Coins y bonos'},
+ {"id": "minecraft", "name": "Minecraft", "prefix": "Minecraft - ", "image": "assets/categories/minecraft.jpg", "description": "Catálogo Recargas América · disponibilidad por producto"},
+ {"id": "roblox", "name": "Roblox", "prefix": "Roblox Gift Card ( US ) - ", "image": "assets/categories/roblox.jpg", "description": "Catálogo Recargas América · disponibilidad por producto"},
+ {"id": "age-of-empires", "name": "Age of Empires Mobile", "prefix": "Age of Empires Mobile - ", "image": "", "description": "Catálogo Recargas América · disponibilidad por producto"},
+ {"id": "crystal-of-atlan", "name": "Crystal of Atlan", "prefix": "Crystal of Atlan - ", "image": "", "description": "Catálogo Recargas América · disponibilidad por producto"},
+ {"id": "football-master", "name": "Football Master 2", "prefix": "Football Master 2 - ", "image": "", "description": "Catálogo Recargas América · disponibilidad por producto"},
+ {"id": "nikke", "name": "Goddess of Victory: Nikke", "prefix": "Goddess of Victory: Nikke - ", "image": "", "description": "Catálogo Recargas América · disponibilidad por producto"},
+ {"id": "honor-of-kings", "name": "Honor of Kings", "prefix": "Honor of Kings - ", "image": "", "description": "Catálogo Recargas América · disponibilidad por producto"},
+ {"id": "identity-v", "name": "Identity V", "prefix": "Identity V - ", "image": "", "description": "Catálogo Recargas América · disponibilidad por producto"},
+ {"id": "king-of-avalon", "name": "King of Avalon", "prefix": "King of Avalon - ", "image": "", "description": "Catálogo Recargas América · disponibilidad por producto"},
+ {"id": "last-hunter", "name": "Last Hunter K: Seoul", "prefix": "Last Hunter K: Seoul - ", "image": "", "description": "Catálogo Recargas América · disponibilidad por producto"},
+ {"id": "love-deepspace", "name": "Love and Deepspace", "prefix": "Love and Deepspace - ", "image": "", "description": "Catálogo Recargas América · disponibilidad por producto"},
+ {"id": "mobile-legends", "name": "Mobile Legends", "prefix": "Mobile Legends - ", "image": "", "description": "Catálogo Recargas América · disponibilidad por producto"},
+ {"id": "mobile-legends-us", "name": "Mobile Legends · US", "prefix": "Mobile Legends ( US ) - ", "image": "", "description": "Catálogo Recargas América · disponibilidad por producto"},
+ {"id": "nintendo-us", "name": "Nintendo eShop · US", "prefix": "Nintendo eShop Gift Card ( US ) - ", "image": "", "description": "Catálogo Recargas América · disponibilidad por producto"},
+ {"id": "playstation", "name": "PlayStation Network", "prefix": "PlayStation Network - ", "image": "", "description": "Catálogo Recargas América · disponibilidad por producto"},
+ {"id": "state-survival", "name": "State of Survival: Zombie War", "prefix": "State of Survival: Zombie War - ", "image": "", "description": "Catálogo Recargas América · disponibilidad por producto"},
+ {"id": "wuthering", "name": "Wuthering Waves", "prefix": "Wuthering Waves - ", "image": "", "description": "Catálogo Recargas América · disponibilidad por producto"}
 ]);
