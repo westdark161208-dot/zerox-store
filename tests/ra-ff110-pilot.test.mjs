@@ -46,7 +46,8 @@ test('pilot leaves Sixofire delivery enabled but blocks unrelated RA service pur
  assert.equal(deliveryEnabled(env,'recargas-america'),false);
  assert.equal(deliveryEnabled(env,'sixofire'),true);
  const noNetwork=()=>{throw Error('unexpected supplier request');};
- assert.deepEqual(await gameCatalog(env,noNetwork),[]);
+ // Missing private reader is an explicit catalogue error, not an empty inventory.
+ await assert.rejects(gameCatalog(env,noNetwork),/RA_ADMIN_READ_DISABLED/);
  await assert.rejects(gameDelivery(env,'ra-game-1','12345678',null,noNetwork),/PRODUCT_NOT_AVAILABLE/);
 });
 test('pilot prevents automatic SKU association without a confirmed mapping',async()=>{
