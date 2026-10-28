@@ -1,0 +1,902 @@
+[
+  {
+    "id": "ff-ra-weekly-basic",
+    "name": "Membresía semanal básica",
+    "description": "Tarjeta semanal básica de Free Fire. Recarga por ID; revisa las condiciones de la membresía.",
+    "category": "Pases Booyah",
+    "priceCents": 0,
+    "active": true,
+    "image": "./assets/freefire-2026-10/tarjeta-basica.webp",
+    "min": 1
+  },
+  {
+    "id": "ff-ra-weekly",
+    "name": "Membresía semanal",
+    "description": "Tarjeta semanal de Free Fire. Recarga por ID para tu cuenta.",
+    "category": "Pases Booyah",
+    "priceCents": 0,
+    "active": true,
+    "image": "./assets/freefire-2026-10/tarjeta-semanal.webp",
+    "min": 1
+  },
+  {
+    "id": "ff-ra-monthly",
+    "name": "Membresía mensual",
+    "description": "Tarjeta mensual de Free Fire. Confirma tu cuenta antes de solicitarla.",
+    "category": "Pases Booyah",
+    "priceCents": 0,
+    "active": true,
+    "image": "./assets/freefire-2026-10/tarjeta-mensual.webp",
+    "min": 1
+  },
+  {
+    "id": "ff-ra-booyah-premium",
+    "name": "Pase Booyah Premium",
+    "description": "Pase Booyah Premium con 50 medallas adicionales. Confirma tu ID y la disponibilidad de la temporada.",
+    "category": "Pases Booyah",
+    "priceCents": 0,
+    "active": true,
+    "image": "./assets/freefire-2026-10/pase-premium.webp",
+    "min": 1
+  },
+  {
+    "id": "d110-1",
+    "name": "110 Diamantes",
+    "description": "Promoción de 1 vez por ID. Se revisa el ID antes de procesar.",
+    "category": "Diamantes 1 vez",
+    "priceCents": 1300,
+    "active": true,
+    "image": "file_00000000561081f592ab7a6e14562570.png",
+    "min": 1
+  },
+  {
+    "id": "d340-1",
+    "name": "340 Diamantes",
+    "description": "Promoción de 1 vez por ID. Se revisa el ID antes de procesar.",
+    "category": "Diamantes 1 vez",
+    "priceCents": 4000,
+    "active": true,
+    "image": "file_000000004e4081f5b42e4462cb0ae3df.png",
+    "min": 1
+  },
+  {
+    "id": "d572-1",
+    "name": "572 Diamantes",
+    "description": "Promoción de 1 vez por ID. Se revisa el ID antes de procesar.",
+    "category": "Diamantes 1 vez",
+    "priceCents": 7500,
+    "active": true,
+    "image": "file_00000000469c81f596dc0e8f49ca0040.png",
+    "min": 1
+  },
+  {
+    "id": "d1166-1",
+    "name": "1,166 Diamantes",
+    "description": "Promoción de 1 vez por ID. Se revisa el ID antes de procesar.",
+    "category": "Diamantes 1 vez",
+    "priceCents": 13500,
+    "active": true,
+    "image": "file_000000000f1482309faad42cecb306fe.png",
+    "min": 1
+  },
+  {
+    "id": "d2398-1",
+    "name": "2,398 Diamantes",
+    "description": "Promoción de 1 vez por ID. Se revisa el ID antes de procesar.",
+    "category": "Diamantes 1 vez",
+    "priceCents": 26000,
+    "active": true,
+    "image": "file_000000009bac81f5847f448fd3b24e3a.png",
+    "min": 1
+  },
+  {
+    "id": "d6160-1",
+    "name": "6,160 Diamantes",
+    "description": "Promoción de 1 vez por ID. Se revisa el ID antes de procesar.",
+    "category": "Diamantes 1 vez",
+    "priceCents": 60000,
+    "active": true,
+    "image": "file_000000005b2081fd8514a17c052ac79f.png",
+    "min": 1
+  },
+  {
+    "id": "d110-u",
+    "name": "110 Diamantes",
+    "description": "Cantidad ilimitada. Puedes comprarla varias veces para el mismo ID.",
+    "category": "Diamantes ilimitados",
+    "priceCents": 1700,
+    "active": true,
+    "image": "file_00000000561081f592ab7a6e14562570.png",
+    "min": 1
+  },
+  {
+    "id": "d340-u",
+    "name": "341 Diamantes",
+    "description": "Cantidad ilimitada. Puedes comprarla varias veces para el mismo ID.",
+    "category": "Diamantes ilimitados",
+    "priceCents": 5600,
+    "active": true,
+    "image": "file_000000004e4081f5b42e4462cb0ae3df.png",
+    "min": 1
+  },
+  {
+    "id": "d572-u",
+    "name": "572 Diamantes",
+    "description": "Cantidad ilimitada. Puedes comprarla varias veces para el mismo ID.",
+    "category": "Diamantes ilimitados",
+    "priceCents": 8700,
+    "active": true,
+    "image": "file_00000000469c81f596dc0e8f49ca0040.png",
+    "min": 1
+  },
+  {
+    "id": "d1166-u",
+    "name": "1,166 Diamantes",
+    "description": "Cantidad ilimitada. Puedes comprarla varias veces para el mismo ID.",
+    "category": "Diamantes ilimitados",
+    "priceCents": 17000,
+    "active": true,
+    "image": "file_000000000f1482309faad42cecb306fe.png",
+    "min": 1
+  },
+  {
+    "id": "d2398-u",
+    "name": "2,398 Diamantes",
+    "description": "Cantidad ilimitada. Puedes comprarla varias veces para el mismo ID.",
+    "category": "Diamantes ilimitados",
+    "priceCents": 31000,
+    "active": true,
+    "image": "file_000000009bac81f5847f448fd3b24e3a.png",
+    "min": 1
+  },
+  {
+    "id": "d6160-u",
+    "name": "6,160 Diamantes",
+    "description": "Cantidad ilimitada. Puedes comprarla varias veces para el mismo ID.",
+    "category": "Diamantes ilimitados",
+    "priceCents": 72000,
+    "active": true,
+    "image": "file_000000005b2081fd8514a17c052ac79f.png",
+    "min": 1
+  },
+  {
+    "id": "ff-booyah-76828",
+    "name": "Pase Booyah",
+    "description": "Pase Booyah para Free Fire.",
+    "category": "Pases Booyah",
+    "priceCents": 3500,
+    "active": true,
+    "image": "./assets/products/pase-booyah-silver.jpg",
+    "min": 1
+  },
+  {
+    "id": "ff-frag-17729",
+    "name": "Fragmentos universales",
+    "description": "$1 MXN por fragmento. Pedido mínimo: 40.",
+    "category": "Fragmentos",
+    "priceCents": 100,
+    "active": true,
+    "image": "./assets/products/fragmento-universal-token-transparent.png",
+    "min": 40
+  },
+  {
+    "id": "ff-runas-4815",
+    "name": "Fragmentos de runas",
+    "description": "$1 MXN por fragmento. Pedido mínimo: 40.",
+    "category": "Fragmentos",
+    "priceCents": 100,
+    "active": true,
+    "image": "",
+    "min": 40
+  },
+  {
+    "id": "ff-galaxia-5657",
+    "name": "Fragmentos de hiperlibro Galaxia",
+    "description": "$1 MXN por fragmento. Pedido mínimo: 40.",
+    "category": "Fragmentos",
+    "priceCents": 100,
+    "active": true,
+    "image": "",
+    "min": 40
+  },
+  {
+    "id": "ff-revolucion-7649",
+    "name": "Fragmentos de hiperlibro Revolución",
+    "description": "$1 MXN por fragmento. Pedido mínimo: 40.",
+    "category": "Fragmentos",
+    "priceCents": 100,
+    "active": true,
+    "image": "",
+    "min": 40
+  },
+  {
+    "id": "ff-cajas-8816",
+    "name": "Cajas de fragmentos universales",
+    "description": "$3.50 MXN por caja. Pedido mínimo: 7 cajas.",
+    "category": "Cajas",
+    "priceCents": 350,
+    "active": true,
+    "image": "",
+    "min": 7
+  },
+  {
+    "id": "likes-demo",
+    "name": "Likes Free Fire",
+    "description": "Aumenta la popularidad de tu perfil.",
+    "category": "Likes",
+    "priceCents": 0,
+    "active": true,
+    "image": "",
+    "min": 1
+  },
+  {
+    "id": "netflix-perfil",
+    "name": "Netflix - Perfil",
+    "description": "Perfil Netflix",
+    "category": "Streaming",
+    "priceCents": 7000,
+    "active": true,
+    "image": "./assets/streaming/netflix.png.png",
+    "min": 1
+  },
+  {
+    "id": "netflix-privado",
+    "name": "Netflix - Perfil Privado",
+    "description": "Perfil privado",
+    "category": "Streaming",
+    "priceCents": 7500,
+    "active": true,
+    "image": "./assets/streaming/netflix.png.png",
+    "min": 1
+  },
+  {
+    "id": "netflix-privado-renovable",
+    "name": "Netflix - Perfil Privado Renovable",
+    "description": "Perfil privado renovable",
+    "category": "Streaming",
+    "priceCents": 8500,
+    "active": true,
+    "image": "./assets/streaming/netflix.png.png",
+    "min": 1
+  },
+  {
+    "id": "netflix-extra",
+    "name": "Netflix - Perfil Extra",
+    "description": "Perfil extra",
+    "category": "Streaming",
+    "priceCents": 9000,
+    "active": true,
+    "image": "./assets/streaming/netflix.png.png",
+    "min": 1
+  },
+  {
+    "id": "netflix-completa",
+    "name": "Netflix - Completa",
+    "description": "Cuenta completa",
+    "category": "Streaming",
+    "priceCents": 22000,
+    "active": true,
+    "image": "./assets/streaming/netflix.png.png",
+    "min": 1
+  },
+  {
+    "id": "disney-perfil",
+    "name": "Disney+ - Perfil",
+    "description": "Perfil Disney+",
+    "category": "Streaming",
+    "priceCents": 3100,
+    "active": true,
+    "image": "./assets/streaming/disney.png.png",
+    "min": 1
+  },
+  {
+    "id": "disney-perfil-renovable",
+    "name": "Disney+ - Perfil Renovable",
+    "description": "Perfil renovable",
+    "category": "Streaming",
+    "priceCents": 3500,
+    "active": true,
+    "image": "./assets/streaming/disney.png.png",
+    "min": 1
+  },
+  {
+    "id": "disney-completa",
+    "name": "Disney+ - Completa",
+    "description": "Cuenta completa",
+    "category": "Streaming",
+    "priceCents": 8500,
+    "active": true,
+    "image": "./assets/streaming/disney.png.png",
+    "min": 1
+  },
+  {
+    "id": "disney-completa-renovable",
+    "name": "Disney+ - Completa Renovable",
+    "description": "Cuenta completa renovable",
+    "category": "Streaming",
+    "priceCents": 9500,
+    "active": true,
+    "image": "./assets/streaming/disney.png.png",
+    "min": 1
+  },
+  {
+    "id": "max-perfil",
+    "name": "Max - Perfil",
+    "description": "Perfil HBO Max",
+    "category": "Streaming",
+    "priceCents": 2900,
+    "active": true,
+    "image": "./assets/streaming/max.png.png",
+    "min": 1
+  },
+  {
+    "id": "max-perfil-renovable",
+    "name": "Max - Perfil Renovable",
+    "description": "Perfil renovable",
+    "category": "Streaming",
+    "priceCents": 3400,
+    "active": true,
+    "image": "./assets/streaming/max.png.png",
+    "min": 1
+  },
+  {
+    "id": "max-platino",
+    "name": "Max - Completa Platino",
+    "description": "Cuenta completa Platino",
+    "category": "Streaming",
+    "priceCents": 6800,
+    "active": true,
+    "image": "./assets/streaming/max.png.png",
+    "min": 1
+  },
+  {
+    "id": "max-completa-renovable",
+    "name": "Max - Completa Renovable",
+    "description": "Cuenta completa renovable",
+    "category": "Streaming",
+    "priceCents": 8500,
+    "active": true,
+    "image": "./assets/streaming/max.png.png",
+    "min": 1
+  },
+  {
+    "id": "prime-1m-perfil",
+    "name": "Prime Video - 1 Mes Perfil",
+    "description": "Perfil por 1 mes",
+    "category": "Streaming",
+    "priceCents": 2700,
+    "active": true,
+    "image": "./assets/streaming/prime.png.png",
+    "min": 1
+  },
+  {
+    "id": "prime-1m-completa",
+    "name": "Prime Video - 1 Mes Completa",
+    "description": "Cuenta completa por 1 mes",
+    "category": "Streaming",
+    "priceCents": 6000,
+    "active": true,
+    "image": "./assets/streaming/prime.png.png",
+    "min": 1
+  },
+  {
+    "id": "prime-6m-perfil",
+    "name": "Prime Video - 6 Meses Perfil",
+    "description": "Perfil por 6 meses",
+    "category": "Streaming",
+    "priceCents": 5800,
+    "active": true,
+    "image": "./assets/streaming/prime.png.png",
+    "min": 1
+  },
+  {
+    "id": "prime-6m-completa",
+    "name": "Prime Video - 6 Meses Completa",
+    "description": "Cuenta completa por 6 meses",
+    "category": "Streaming",
+    "priceCents": 11000,
+    "active": true,
+    "image": "./assets/streaming/prime.png.png",
+    "min": 1
+  },
+  {
+    "id": "vix-1m-completa",
+    "name": "VIX - 1 Mes Completa",
+    "description": "Cuenta completa 1 mes",
+    "category": "Streaming",
+    "priceCents": 2700,
+    "active": true,
+    "image": "",
+    "min": 1
+  },
+  {
+    "id": "vix-1m-completa-renovable",
+    "name": "VIX - 1 Mes Completa Renovable",
+    "description": "Cuenta completa renovable",
+    "category": "Streaming",
+    "priceCents": 3300,
+    "active": true,
+    "image": "",
+    "min": 1
+  },
+  {
+    "id": "vix-2m-completa",
+    "name": "VIX - 2 Meses Completa",
+    "description": "Cuenta completa 2 meses",
+    "category": "Streaming",
+    "priceCents": 3300,
+    "active": true,
+    "image": "",
+    "min": 1
+  },
+  {
+    "id": "vix-anual-completa",
+    "name": "VIX - Anual Completa",
+    "description": "Cuenta completa anual",
+    "category": "Streaming",
+    "priceCents": 9000,
+    "active": true,
+    "image": "",
+    "min": 1
+  },
+  {
+    "id": "vix-perfil-1m",
+    "name": "VIX - Perfil 1 Mes",
+    "description": "Perfil por 1 mes",
+    "category": "Streaming",
+    "priceCents": 1900,
+    "active": true,
+    "image": "",
+    "min": 1
+  },
+  {
+    "id": "vix-perfil-1m-renovable",
+    "name": "VIX - Perfil 1 Mes Renovable",
+    "description": "Perfil renovable",
+    "category": "Streaming",
+    "priceCents": 2200,
+    "active": true,
+    "image": "",
+    "min": 1
+  },
+  {
+    "id": "vix-perfil-2m",
+    "name": "VIX - Perfil 2 Meses",
+    "description": "Perfil por 2 meses",
+    "category": "Streaming",
+    "priceCents": 2100,
+    "active": true,
+    "image": "",
+    "min": 1
+  },
+  {
+    "id": "vix-perfil-anual",
+    "name": "VIX - Perfil Anual",
+    "description": "Perfil anual",
+    "category": "Streaming",
+    "priceCents": 4000,
+    "active": true,
+    "image": "",
+    "min": 1
+  },
+  {
+    "id": "fox-perfil",
+    "name": "Fox One - Perfil",
+    "description": "Perfil Fox One",
+    "category": "Streaming",
+    "priceCents": 2800,
+    "active": true,
+    "image": "",
+    "min": 1
+  },
+  {
+    "id": "fox-completa",
+    "name": "Fox One - Completa",
+    "description": "Cuenta completa",
+    "category": "Streaming",
+    "priceCents": 6500,
+    "active": true,
+    "image": "",
+    "min": 1
+  },
+  {
+    "id": "crunchyroll-1m-completa",
+    "name": "Crunchyroll - 1 Mes Completa",
+    "description": "Cuenta completa 1 mes",
+    "category": "Streaming",
+    "priceCents": 6000,
+    "active": true,
+    "image": "./assets/streaming/crunchyroll.png.png",
+    "min": 1
+  },
+  {
+    "id": "crunchyroll-anual-completa",
+    "name": "Crunchyroll - Anual Completa",
+    "description": "Cuenta completa anual",
+    "category": "Streaming",
+    "priceCents": 20000,
+    "active": true,
+    "image": "./assets/streaming/crunchyroll.png.png",
+    "min": 1
+  },
+  {
+    "id": "crunchyroll-perfil-1m",
+    "name": "Crunchyroll - Perfil 1 Mes",
+    "description": "Perfil por 1 mes",
+    "category": "Streaming",
+    "priceCents": 2700,
+    "active": true,
+    "image": "./assets/streaming/crunchyroll.png.png",
+    "min": 1
+  },
+  {
+    "id": "crunchyroll-perfil-anual",
+    "name": "Crunchyroll - Perfil Anual",
+    "description": "Perfil anual",
+    "category": "Streaming",
+    "priceCents": 8500,
+    "active": true,
+    "image": "./assets/streaming/crunchyroll.png.png",
+    "min": 1
+  },
+  {
+    "id": "paramount-completa",
+    "name": "Paramount+ - Mensual Completa",
+    "description": "Cuenta completa mensual",
+    "category": "Streaming",
+    "priceCents": 7000,
+    "active": true,
+    "image": "",
+    "min": 1
+  },
+  {
+    "id": "paramount-perfil",
+    "name": "Paramount+ - Perfil Mensual",
+    "description": "Perfil mensual",
+    "category": "Streaming",
+    "priceCents": 2800,
+    "active": true,
+    "image": "",
+    "min": 1
+  },
+  {
+    "id": "dazn-perfil",
+    "name": "DAZN - Perfil Mensual",
+    "description": "Perfil mensual",
+    "category": "Streaming",
+    "priceCents": 6000,
+    "active": true,
+    "image": "",
+    "min": 1
+  },
+  {
+    "id": "dazn-completa",
+    "name": "DAZN - Completa Mensual",
+    "description": "Cuenta completa mensual",
+    "category": "Streaming",
+    "priceCents": 14000,
+    "active": true,
+    "image": "",
+    "min": 1
+  },
+  {
+    "id": "mubi-completa",
+    "name": "MUBI - Completa",
+    "description": "Cuenta completa",
+    "category": "Streaming",
+    "priceCents": 3500,
+    "active": true,
+    "image": "",
+    "min": 1
+  },
+  {
+    "id": "mubi-perfil",
+    "name": "MUBI - Perfil",
+    "description": "Perfil",
+    "category": "Streaming",
+    "priceCents": 2300,
+    "active": true,
+    "image": "",
+    "min": 1
+  },
+  {
+    "id": "viki-completa",
+    "name": "VIKI - Completa",
+    "description": "Cuenta completa",
+    "category": "Streaming",
+    "priceCents": 5000,
+    "active": true,
+    "image": "",
+    "min": 1
+  },
+  {
+    "id": "viki-perfil",
+    "name": "VIKI - Perfil",
+    "description": "Perfil",
+    "category": "Streaming",
+    "priceCents": 2500,
+    "active": true,
+    "image": "",
+    "min": 1
+  },
+  {
+    "id": "chatgpt-go",
+    "name": "ChatGPT - Go Compartido",
+    "description": "Acceso compartido",
+    "category": "Streaming",
+    "priceCents": 7500,
+    "active": true,
+    "image": "",
+    "min": 1
+  },
+  {
+    "id": "chatgpt-plus",
+    "name": "ChatGPT - Plus Compartido",
+    "description": "Acceso compartido",
+    "category": "Streaming",
+    "priceCents": 11000,
+    "active": true,
+    "image": "",
+    "min": 1
+  },
+  {
+    "id": "capcut-perfil",
+    "name": "CapCut - Perfil",
+    "description": "Perfil",
+    "category": "Streaming",
+    "priceCents": 6300,
+    "active": true,
+    "image": "",
+    "min": 1
+  },
+  {
+    "id": "capcut-completa",
+    "name": "CapCut - Completa",
+    "description": "Cuenta completa",
+    "category": "Streaming",
+    "priceCents": 11000,
+    "active": true,
+    "image": "",
+    "min": 1
+  },
+  {
+    "id": "duolingo-individual",
+    "name": "Duolingo - 1 Mes Individual",
+    "description": "Activación a tus datos",
+    "category": "Streaming",
+    "priceCents": 2500,
+    "active": true,
+    "image": "",
+    "min": 1
+  },
+  {
+    "id": "youtube-familiar",
+    "name": "YouTube Premium - Familiar",
+    "description": "Plan familiar",
+    "category": "Streaming",
+    "priceCents": 6000,
+    "active": true,
+    "image": "",
+    "min": 1
+  },
+  {
+    "id": "youtube-individual",
+    "name": "YouTube Premium - Individual",
+    "description": "Plan individual",
+    "category": "Streaming",
+    "priceCents": 3500,
+    "active": true,
+    "image": "",
+    "min": 1
+  },
+  {
+    "id": "youtube-invitacion",
+    "name": "YouTube Premium - Invitación",
+    "description": "Activación mediante invitación",
+    "category": "Streaming",
+    "priceCents": 2800,
+    "active": true,
+    "image": "",
+    "min": 1
+  },
+  {
+    "id": "spotify-familiar",
+    "name": "Spotify - Familiar",
+    "description": "Plan familiar",
+    "category": "Streaming",
+    "priceCents": 18500,
+    "active": true,
+    "image": "./assets/streaming/spotify.png.png",
+    "min": 1
+  },
+  {
+    "id": "spotify-1m",
+    "name": "Spotify - Individual 1 Mes",
+    "description": "Individual / invitación",
+    "category": "Streaming",
+    "priceCents": 6500,
+    "active": true,
+    "image": "./assets/streaming/spotify.png.png",
+    "min": 1
+  },
+  {
+    "id": "spotify-3m",
+    "name": "Spotify - Individual 3 Meses",
+    "description": "Plan individual",
+    "category": "Streaming",
+    "priceCents": 10500,
+    "active": true,
+    "image": "./assets/streaming/spotify.png.png",
+    "min": 1
+  },
+  {
+    "id": "spotify-6m",
+    "name": "Spotify - Individual 6 Meses",
+    "description": "Plan individual",
+    "category": "Streaming",
+    "priceCents": 14000,
+    "active": true,
+    "image": "./assets/streaming/spotify.png.png",
+    "min": 1
+  },
+  {
+    "id": "spotify-anual",
+    "name": "Spotify - Individual Anual",
+    "description": "Plan individual anual",
+    "category": "Streaming",
+    "priceCents": 17500,
+    "active": true,
+    "image": "./assets/streaming/spotify.png.png",
+    "min": 1
+  },
+  {
+    "id": "canva-edu-1m",
+    "name": "Canva EDU - 1 Mes",
+    "description": "Canva EDU",
+    "category": "Streaming",
+    "priceCents": 2100,
+    "active": true,
+    "image": "",
+    "min": 1
+  },
+  {
+    "id": "canva-edu-2m",
+    "name": "Canva EDU - 2 Meses",
+    "description": "Canva EDU",
+    "category": "Streaming",
+    "priceCents": 2500,
+    "active": true,
+    "image": "",
+    "min": 1
+  },
+  {
+    "id": "canva-edu-3m",
+    "name": "Canva EDU - 3 Meses",
+    "description": "Canva EDU",
+    "category": "Streaming",
+    "priceCents": 2900,
+    "active": true,
+    "image": "",
+    "min": 1
+  },
+  {
+    "id": "canva-edu-6m",
+    "name": "Canva EDU - 6 Meses",
+    "description": "Canva EDU",
+    "category": "Streaming",
+    "priceCents": 3300,
+    "active": true,
+    "image": "",
+    "min": 1
+  },
+  {
+    "id": "canva-edu-anual",
+    "name": "Canva EDU - Anual",
+    "description": "Canva EDU",
+    "category": "Streaming",
+    "priceCents": 4000,
+    "active": true,
+    "image": "",
+    "min": 1
+  },
+  {
+    "id": "canva-edu-2anos",
+    "name": "Canva EDU - 2 Años",
+    "description": "Canva EDU",
+    "category": "Streaming",
+    "priceCents": 5800,
+    "active": true,
+    "image": "",
+    "min": 1
+  },
+  {
+    "id": "canva-edu-perma",
+    "name": "Canva EDU - Perma",
+    "description": "Acceso permanente",
+    "category": "Streaming",
+    "priceCents": 7000,
+    "active": true,
+    "image": "",
+    "min": 1
+  },
+  {
+    "id": "canva-pro-1m",
+    "name": "Canva Pro - 1 Mes",
+    "description": "Canva Pro por 1 mes",
+    "category": "Streaming",
+    "priceCents": 3500,
+    "active": true,
+    "image": "",
+    "min": 1
+  },
+  {
+    "id": "appletv-1m-perfil",
+    "name": "Apple TV - 1 Mes Perfil",
+    "description": "Perfil por 1 mes",
+    "category": "Streaming",
+    "priceCents": 3800,
+    "active": true,
+    "image": "",
+    "min": 1
+  },
+  {
+    "id": "appletv-1m-completa",
+    "name": "Apple TV - 1 Mes Completa",
+    "description": "Cuenta completa 1 mes",
+    "category": "Streaming",
+    "priceCents": 8000,
+    "active": true,
+    "image": "",
+    "min": 1
+  },
+  {
+    "id": "appletv-3m-perfil",
+    "name": "Apple TV - 3 Meses Perfil",
+    "description": "Perfil por 3 meses",
+    "category": "Streaming",
+    "priceCents": 6000,
+    "active": true,
+    "image": "",
+    "min": 1
+  },
+  {
+    "id": "appletv-3m-completa",
+    "name": "Apple TV - 3 Meses Completa",
+    "description": "Cuenta completa 3 meses",
+    "category": "Streaming",
+    "priceCents": 10000,
+    "active": true,
+    "image": "",
+    "min": 1
+  },
+  {
+    "id": "applemusic-invitacion",
+    "name": "Apple Music - Invitación",
+    "description": "Acceso mediante invitación",
+    "category": "Streaming",
+    "priceCents": 6800,
+    "active": true,
+    "image": "",
+    "min": 1
+  },
+  {
+    "id": "gemini-pro-18m",
+    "name": "Gemini Pro - 18 Meses",
+    "description": "Activación mediante link",
+    "category": "Streaming",
+    "priceCents": 11000,
+    "active": true,
+    "image": "",
+    "min": 1
+  },
+  {
+    "id": "office-anual",
+    "name": "Microsoft Office - Anual",
+    "description": "Paquetería Office. Se solicita correo y contraseña.",
+    "category": "Streaming",
+    "priceCents": 29000,
+    "active": true,
+    "image": "",
+    "min": 1
+  }
+]
