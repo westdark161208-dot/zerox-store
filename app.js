@@ -1063,10 +1063,7 @@ function zxUpdateManagedCurrency(){
  }
 }
 let zxPendingReseller=false;
-async function zxEnterResellers(){
- if(!getZeroXSession()?.token){zxPendingReseller=true;zxCloseViews();zxShow($("#secciones"),true);showAuthMode("login");$("#account-modal").showModal();$("#auth-result").textContent="Inicia sesión para acceder a Revendedores.";return;}
- zxCloseViews();zxShow($("#secciones"),false);zxShow($("#zx-reseller-panel"),true);await window.zxResellerOpen?.();zxScroll($("#zx-reseller-panel"));
-}
+async function zxEnterResellers(){ window.location.assign('/resellers-portal'); }
 window.zxRequireResellerLogin=()=>{saveZeroXSession(null);zeroxUser=null;renderZeroXAccount();zxEnterResellers()};
 async function zxResumeReseller(){if(zxPendingReseller){zxPendingReseller=false;$("#account-modal").close();await zxEnterResellers();}}
 function zxOpenComing(zone){zxCloseViews();zxShow($("#secciones"),false);zxShow($("#zx-coming"),true);$("#zx-coming").setAttribute("aria-label",zone+": próximamente");zxScroll($("#zx-coming"));}
@@ -2266,3 +2263,4 @@ loadPublishedAds();
 
 const catalogMethods=document.getElementById("zx-catalog-payment-methods");
 if(catalogMethods)zxRenderPaymentMethods(catalogMethods,document.querySelector("#checkout [name=payment]"));
+
