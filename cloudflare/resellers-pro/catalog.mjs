@@ -18,7 +18,8 @@ export async function mirror(env,legacy){
   products.set(id,{...old,name:p.name||old.name,description:p.description||'',image:p.image||old.image||'',category:edits[p.category]?.name||p.category||old.category||'Catálogo',active:p.active!==false,prices:Array(7).fill(p.priceCents??old.prices?.[0]??0)});
  }
  for(const [id,name,category,min,max,prices,plan]of legacy){if(id.startsWith('combo-'))continue;const old=products.get(id);products.set(id,{...old,id,name:old?.name||name,description:old?.description||'',category:old?.category||category,min,max,prices,plan:plan||null,image:old?.image||'',active:old?.active!==false,checkout:'resellers'});}
- return [...products.values()];
+ // Superseded duplicate packs are hidden only in the reseller mirror.
+ return [...products.values()].filter(p=>!/^d\d+-u$/.test(p.id));
 }
 export async function catalogue(env,legacy,draft=false){
  const row=await env.DB.prepare('SELECT * FROM zx_r_catalog_editor WHERE id=1').first(),overrides=JSON.parse(row[draft?'draft':'published']);

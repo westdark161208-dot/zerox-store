@@ -3,3 +3,15 @@
 .rp-toolbar details{flex:1;min-width:150px;border:1px solid var(--r-border);border-radius:14px;padding:12px}.rp-toolbar summary{cursor:pointer;font-weight:700;color:var(--r-primary)}.rp-category-tabs{display:flex;gap:8px;overflow-x:auto;padding:10px 0 16px;scrollbar-width:thin}.rp-category-tabs button{white-space:nowrap;flex:none;border-radius:999px;background:transparent}.rp-category-tabs button[aria-pressed=true]{background:var(--r-primary);color:var(--r-background)}
 
 #rp-products .rp-card{position:relative;border:1px solid var(--r-border);border-radius:12px;padding:10px;background:radial-gradient(circle at 50% 30%,#00aeff14,transparent 35%),linear-gradient(180deg,var(--r-card),#070709);box-shadow:inset 0 0 18px #ffffff08,0 5px 18px #0005}#rp-products .rp-card h3{text-align:center;font-weight:800;font-size:1.15rem;line-height:1.15;color:var(--r-heading);text-shadow:0 2px #000;min-height:2.6em}#rp-products .rp-card img{height:auto;aspect-ratio:1;object-fit:contain}#rp-products .rp-card strong{text-align:center;color:var(--r-primary)}#rp-products .rp-card button{margin-top:auto}#rp-products .rp-kicker{letter-spacing:1px;font-size:.64rem}.rp-toolbar{gap:8px}.rp-top nav{flex-wrap:nowrap;overflow-x:auto;max-width:100%}.rp-top nav button{white-space:nowrap}.rp-summary .rp-avatar{width:80px;height:80px}
+
+/* Every portal surface follows the published Control palette. */
+body{background:var(--r-background)}
+.rp-gate,#rp-products .rp-card{background:var(--r-card)}
+input,textarea,select{background:var(--r-background);border-color:var(--r-border)}
+.rp-notice,.rp-placeholder{background:var(--r-card)}
+.rp-category-tabs button[aria-pressed=true],.rp-top nav button[aria-current=page]{background:var(--r-active,var(--r-button));color:var(--r-heading)}
+.rp-chip,.rp-brand span{color:var(--r-secondary,var(--r-primary))}
+.rp-placeholder,.rp-toolbar summary::marker{color:var(--r-icon,var(--r-primary))}
+.rp-gate,#rp-products .rp-card{box-shadow:0 0 var(--r-brightness,0px) var(--r-glow,var(--r-primary))}
+progress{accent-color:var(--r-progress,var(--r-primary))}
+input[readonly]{cursor:default}

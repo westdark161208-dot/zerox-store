@@ -38,7 +38,7 @@ test('portal reads current profile avatar from stored profile',async()=>{
  const env=await setup();env.DB.sql.prepare('INSERT INTO zx_profiles(user_id,avatar_url) VALUES(?,?)').run('b','/api/avatar/test');
  assert.equal((await call(env,'resellers/portal/me',null,buyer)).data.user.avatar,'/api/avatar/test');
 });
-test('unpublished legacy combos disappear without changing original packs',async()=>{const env=await setup();const d=(await call(env,'admin/resellers/portal/catalog')).data;assert(!d.products.some(p=>p.id.startsWith('combo-')));assert(d.products.some(p=>p.id==='d110-u'));});
+test('unpublished legacy combos disappear without changing original packs',async()=>{const env=await setup();const d=(await call(env,'admin/resellers/portal/catalog')).data;assert(!d.products.some(p=>p.id.startsWith('combo-')));assert(!d.products.some(p=>/^d\d+-u$/.test(p.id)));assert.equal(d.products.filter(p=>p.id.startsWith('zx-diamonds-')).length,globalThis.ZXDiamondCatalog.length);assert(d.products.some(p=>p.id==='d110-1'));});
 test('Free Fire manual checkout validates with original verifier before debit',async()=>{
  const env=await setup();await call(env,'admin/resellers/portal/accounts/create',{email:buyer.email});
  env.DB.sql.exec("INSERT INTO zx_r_ledger(id,user_id,amount,kind,reference) VALUES('fund','b',1000000,'credit','local-test')");
