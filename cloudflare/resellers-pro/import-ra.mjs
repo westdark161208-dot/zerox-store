@@ -3,7 +3,19 @@ import {editorSchema} from '../editor/catalog.mjs';
 import {fail} from './accounts.mjs';
 // Stable IDs make imports repeatable without overwriting founder edits.
 async function stable(value){const bytes=new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value)));const h=[...bytes.slice(0,16)].map(v=>v.toString(16).padStart(2,'0')).join('');return `${h.slice(0,8)}-${h.slice(8,12)}-${h.slice(12,16)}-${h.slice(16,20)}-${h.slice(20)}`;}
-export function raSection(name){for(const label of ['Free Fire','Blood Strike','PUBG Mobile','Delta Force','Arena Breakout','BLEACH','Crossfire','Roblox','Fortnite','Call of Duty','Minecraft','Mobile Legends','Honor of Kings','Genshin Impact','Honkai','Valorant','League of Legends','Netflix','Disney','Spotify','Xbox','PlayStation','Steam'])if(name.toLowerCase().includes(label.toLowerCase()))return label;return 'Recargas América · Otros';}
+export function raSection(name){
+ const lower=name.toLowerCase();
+ if(/pubg.*pin/i.test(name))return 'PUBG Mobile · PIN';
+ if(/free fire/i.test(name)){
+  if(/\bpin\b/i.test(name))return 'Free Fire · PIN';
+  if(/tarjeta|membres[ií]a/i.test(name))return 'Free Fire · Membresías';
+  if(/pase|booyah/i.test(name))return 'Free Fire · Pases';
+  return 'Free Fire';
+ }
+ for(const label of ['Age of Empires Mobile','Crystal of Atlan','Discord Nitro','Football Master 2','Goddess of Victory: Nikke','Google Play','Identity V','King of Avalon','Last Hunter K: Seoul','Lords Mobile','Love and Deepspace','Nintendo eShop','Razer Gold','State of Survival','Wuthering Waves','Blood Strike','PUBG Mobile','Delta Force PC','Arena Breakout','BLEACH','Crossfire','Roblox','Fortnite','Call of Duty','Minecraft','Mobile Legends','Honor of Kings','Genshin Impact','Honkai','Valorant','League of Legends','Netflix','Disney','Spotify','Xbox','PlayStation','Steam'])if(lower.includes(label.toLowerCase()))return label;
+ return 'Recargas América · Otros';
+}
+
 export async function importRa(env,user,b){
  if(!user?.isFounder)fail('FORBIDDEN',403);
  if(!Number.isFinite(b.mxnPerUsd)||b.mxnPerUsd<=0||b.mxnPerUsd>1000||!Number.isFinite(b.markupPercent)||b.markupPercent<0||b.markupPercent>1000)fail('INVALID_EXCHANGE_OR_MARKUP');

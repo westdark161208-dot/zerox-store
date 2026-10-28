@@ -22,7 +22,7 @@ export async function mirror(env,legacy){
 }
 export async function catalogue(env,legacy,draft=false){
  const row=await env.DB.prepare('SELECT * FROM zx_r_catalog_editor WHERE id=1').first(),overrides=JSON.parse(row[draft?'draft':'published']);
- return {revision:row.revision,overrides,products:(await mirror(env,legacy)).map(p=>({...p,...overrides[p.id],id:p.id,basePriceCents:p.prices[0],min:p.min,max:p.max,plan:p.plan,requiresPlayer:/^(?:d\d+-[1u]|ff-|ff-ra-)/.test(p.id)||/Free Fire|Diamantes|Booyah|Fragmentos|Cajas/i.test(p.category),manualAllowed:!['promotion','resellers'].includes(p.checkout),checkout:p.checkout==='resellers'?'resellers':(p.checkout!=='promotion'&&overrides[p.id]?.manualDelivery!==false&&(overrides[p.id]?.prices||p.prices)[0]>0?'manual':'store')}))};
+ return {revision:row.revision,overrides,products:(await mirror(env,legacy)).map(p=>({...p,...overrides[p.id],id:p.id,basePriceCents:p.prices[0],min:p.min,max:p.max,plan:p.plan,requiresPlayer:!(/\bPIN\b|gift card/i.test(p.name||'')||/\bPIN\b/i.test(p.category||''))&&(/^(?:d\d+-[1u]|ff-|ff-ra-)/.test(p.id)||/Free Fire|Diamantes|Booyah|Fragmentos|Cajas/i.test(p.category)),manualAllowed:!['promotion','resellers'].includes(p.checkout),checkout:p.checkout==='resellers'?'resellers':(p.checkout!=='promotion'&&overrides[p.id]?.manualDelivery!==false&&(overrides[p.id]?.prices||p.prices)[0]>0?'manual':'store')}))};
 }
 export async function catalogRoute(request,env,url,user,json,legacy,state){
  const admin=url.pathname.startsWith('/api/admin/');const path=url.pathname.replace(admin?'/api/admin/resellers/portal':'/api/resellers/portal','');

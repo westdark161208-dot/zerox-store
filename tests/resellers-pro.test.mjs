@@ -58,3 +58,18 @@ test('RA import uses private reader, explicit conversion, draft only and repeata
  assert.equal(env.DB.sql.prepare('SELECT published FROM zx_store_editor').get().published,'{}');
  assert.equal((await call(env,'admin/resellers/portal/catalog/import-ra',{...b,storeRevision:1})).data.products.length,0);
 });
+import {raSection} from '../cloudflare/resellers-pro/import-ra.mjs';
+test('RA catalogue sections preserve game identity and separate PIN from direct recharge',()=>{
+ for(const game of ['Age of Empires Mobile','Crystal of Atlan','Discord Nitro','Football Master 2','Goddess of Victory: Nikke','Google Play','Identity V','King of Avalon','Last Hunter K: Seoul','Lords Mobile','Love and Deepspace','Nintendo eShop','Razer Gold','State of Survival','Wuthering Waves'])assert.equal(raSection(game+' - Test'),game);
+ assert.equal(raSection('PUBG Pin - 60 UC'),'PUBG Mobile · PIN');
+ assert.equal(raSection('Pin Free fire - 100 Diamantes'),'Free Fire · PIN');
+ assert.equal(raSection('Recarga Free Fire - 100 Diamantes'),'Free Fire');
+ assert.equal(raSection('Tarjeta Semanal de Free Fire'),'Free Fire · Membresías');
+});
+test('published Free Fire PIN uses code delivery instead of player verification',async()=>{
+ const env=await setup();await call(env,'admin/resellers/portal/catalog');
+ const id='custom:product:12345678-1234-1234-1234-123456789012';
+ env.DB.sql.prepare('UPDATE zx_store_editor SET published=?').run(JSON.stringify({[id]:{id,name:'Pin Free Fire - 100 Diamantes',description:'Entrega de código',category:'Free Fire · PIN',priceCents:1785,active:true,image:''}}));
+ const p=(await call(env,'admin/resellers/portal/catalog')).data.products.find(x=>x.id===id);
+ assert.equal(p.requiresPlayer,false);assert.equal(p.checkout,'manual');
+});
