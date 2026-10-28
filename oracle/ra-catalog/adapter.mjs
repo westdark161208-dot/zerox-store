@@ -7,7 +7,7 @@ const text = x => typeof x === 'string' && x.length > 0 && x.length <= 240 && !/
 const fields = ['player_id','zone_id','server_id'];
 const pending = new Set(['QUEUED','PROCESSING','PROCESSING_PROVIDER','PROCESSING_API']);
 const terminal = new Set(['COMPLETED','PARTIAL','NEEDS_REVIEW','REFUNDED']);
-function requirePlan(p) {
+export function requirePlan(p) {
  if (!p || !Number.isSafeInteger(p.productId) || p.productId < 1 || !text(p.sku) || !text(p.name) || !['recharge','game','pin','streaming'].includes(p.type) || p.quantity !== 1 || !Number.isFinite(p.maxPriceUsd) || p.maxPriceUsd <= 0 || !p.fields || Object.getPrototypeOf(p.fields) !== Object.prototype || Object.keys(p.fields).some(k => !fields.includes(k) || !text(p.fields[k]))) throw Error('INVALID_PLAN');
 }
 function delivery(d,type) {
