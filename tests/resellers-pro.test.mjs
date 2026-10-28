@@ -20,3 +20,41 @@ import {notifyApplication} from '../cloudflare/resellers-pro/umy.mjs';
 test('Umy never claims delivery without configuration; concurrent sends claim once; ambiguous result cannot retry',async()=>{const env=await setup();const {data:{id}}=await call(env,'resellers/portal/applications',application(),buyer);assert.equal(await notifyApplication(env,id),'pending');Object.assign(env,{UMY_WHATSAPP_TOKEN:'local-test-token',UMY_PHONE_NUMBER_ID:'123',UMY_GRAPH_VERSION:'v23.0',UMY_APPLICATION_TEMPLATE:'resellers_application'});const original=globalThis.fetch;let uploads=0,sends=0;globalThis.fetch=async(url,options)=>{if(url.endsWith('/media')){uploads++;return Response.json({id:'media-test'})}sends++;const payload=JSON.parse(options.body);assert.equal(payload.to,'529514754210');assert.equal(payload.template.components[0].parameters[0].image.id,'media-test');throw new Error('simulated lost response')};try{await Promise.all([notifyApplication(env,id),notifyApplication(env,id)]);assert.equal(uploads,1);assert.equal(sends,1);assert.equal(await notifyApplication(env,id),'uncertain');assert.equal(sends,1)}finally{globalThis.fetch=original}});
 test('appearance changes cannot approve a pending applicant or create credit; new passwords use existing auth format',async()=>{const env=await setup();await call(env,'resellers/portal/applications',application(),buyer);assert.equal((await call(env,'admin/resellers/portal/accounts/update',{userId:'b',revision:0,status:'approved',tier:7,color:'#ffffff',frame:'crown'})).status,409);assert.equal((await state(env,buyer)).balanceCents,0);assert.equal((await call(env,'admin/resellers/portal/accounts/create',{email:'new@example.test',username:'NewReseller',password:'TestPassword123!',storeName:'Local store'})).status,201);const row=env.DB.sql.prepare("SELECT password_hash FROM zx_users WHERE email='new@example.test'").get();const [kind,iterations,salt,hash]=row.password_hash.split('$');assert.equal(kind,'pbkdf2');assert.equal(iterations,'100000');const key=await crypto.subtle.importKey('raw',new TextEncoder().encode('TestPassword123!'),'PBKDF2',false,['deriveBits']);const bits=await crypto.subtle.deriveBits({name:'PBKDF2',hash:'SHA-256',salt:Buffer.from(salt,'base64'),iterations:100000},key,256);assert.equal(Buffer.from(bits).toString('base64'),hash);});
 test('published reseller prices control legacy player-verified checkout; main catalogue remains unchanged',async()=>{const env=await setup();await call(env,'admin/resellers/portal/accounts/create',{email:buyer.email});const d=(await call(env,'admin/resellers/portal/catalog')).data,p=d.products.find(p=>p.id==='ff-booyah-76828');await call(env,'admin/resellers/portal/catalog/draft',{revision:0,product:{...p,prices:[3000,2900,2800,2700,2600,2500,2400]}});await call(env,'admin/resellers/portal/catalog/publish',{revision:1,confirm:true});assert.equal((await call(env,'resellers/catalog?tier=1',null,buyer)).data.products.find(x=>x.id===p.id).unitCents,3000);await call(env,'admin/resellers/portal/accounts/credit',{userId:'b',requestId:crypto.randomUUID(),amountCents:20000,reference:'LOCAL-CREDIT',reason:'Local test fixture',confirm:true});env.FF_INFO_API_KEY='mock';const original=globalThis.fetch;globalThis.fetch=async()=>Response.json({basicInfo:{accountId:'1234567',nickname:'Test'}});try{const result=await call(env,'resellers/orders',{requestId:crypto.randomUUID(),productId:p.id,quantity:1,tier:1,uid:'1234567',region:'br',total:1},buyer);assert.equal(result.status,200);assert.equal(result.data.order.total,3000);assert.equal((await state(env,buyer)).balanceCents,17000)}finally{globalThis.fetch=original}});
+test('section discounts isolate draft, reject unauthorized or stale writes, and do not compound',async()=>{
+ const env=await setup();await call(env,'admin/resellers/portal/accounts/create',{email:buyer.email});
+ const d=(await call(env,'admin/resellers/portal/catalog')).data,p=d.products.find(p=>p.id==='netflix-perfil');
+ const b={revision:0,category:p.category,discounts:[0,1,2,3,4,5,6]};
+ assert.equal((await call(env,'admin/resellers/portal/catalog/discounts',b,buyer)).status,403);
+ assert.equal((await call(env,'admin/resellers/portal/catalog/discounts',{...b,discounts:[100,0,0,0,0,0,0]})).status,400);
+ assert.equal((await call(env,'admin/resellers/portal/catalog/discounts',b)).status,200);
+ assert.equal((await call(env,'admin/resellers/portal/catalog/discounts',b)).status,409);
+ const after=(await call(env,'admin/resellers/portal/catalog')).data.products.find(x=>x.id===p.id);
+ assert.equal(after.prices[6],Math.round(p.basePriceCents*.94));
+ assert.equal((await call(env,'resellers/portal/catalog',null,buyer)).data.products.find(x=>x.id===p.id).unitCents,p.prices[0]);
+ assert.equal((await call(env,'admin/resellers/portal/catalog/discounts',{...b,revision:1})).status,200);
+ assert.deepEqual((await call(env,'admin/resellers/portal/catalog')).data.products.find(x=>x.id===p.id).prices,after.prices);
+});
+test('portal reads current profile avatar from stored profile',async()=>{
+ const env=await setup();env.DB.sql.prepare('INSERT INTO zx_profiles(user_id,avatar_url) VALUES(?,?)').run('b','/api/avatar/test');
+ assert.equal((await call(env,'resellers/portal/me',null,buyer)).data.user.avatar,'/api/avatar/test');
+});
+test('unpublished legacy combos disappear without changing original packs',async()=>{const env=await setup();const d=(await call(env,'admin/resellers/portal/catalog')).data;assert(!d.products.some(p=>p.id.startsWith('combo-')));assert(d.products.some(p=>p.id==='d110-u'));});
+test('Free Fire manual checkout validates with original verifier before debit',async()=>{
+ const env=await setup();await call(env,'admin/resellers/portal/accounts/create',{email:buyer.email});
+ env.DB.sql.exec("INSERT INTO zx_r_ledger(id,user_id,amount,kind,reference) VALUES('fund','b',1000000,'credit','local-test')");
+ const p=(await call(env,'admin/resellers/portal/catalog')).data.products.find(p=>p.requiresPlayer&&p.checkout==='manual');assert(p);
+ const body={requestId:crypto.randomUUID(),productId:p.id,tier:1,quantity:1,uid:'1234567',manualDeliveryAccepted:true};
+ assert.equal((await call(env,'resellers/portal/orders',body,buyer)).status,409);assert.equal((await state(env,buyer)).balanceCents,1000000);
+ env.FF_INFO_API_KEY='local-test';const old=globalThis.fetch;
+ globalThis.fetch=async()=>Response.json({basicInfo:{accountId:'1234567',nickname:'Local Player',region:'US'}});
+ try{const r=await call(env,'resellers/portal/orders',body,buyer);assert.equal(r.status,201);assert.equal(r.data.order.region,'US');assert.equal(r.data.order.total,p.prices[0]);assert.equal((await call(env,'resellers/portal/orders',body,buyer)).data.repeated,true)}finally{globalThis.fetch=old}
+});
+test('RA import uses private reader, explicit conversion, draft only and repeatable IDs',async()=>{
+ const env=await setup();Object.assign(env,{RA_CATALOG_READ_ENABLED:'true',RA_CATALOG_READ_CONTRACT_VERIFIED:'true',RA_CATALOG_READ_TOKEN:'a'.repeat(64),RA_READ_SERVICE:{fetch:async()=>Response.json({ok:true,resource:'catalog',purchasesEnabled:false,productCount:1,invalidProducts:0,data:[{id:91,sku:'BS-91',name:'Blood Strike Gold',type:'recharge',price:'2',requiredFields:['player_id']}]})}});
+ const b={storeRevision:0,mxnPerUsd:20,markupPercent:10,preview:true};
+ const r=await call(env,'admin/resellers/portal/catalog/import-ra',b);assert.equal(r.status,200);assert.equal(r.data.products[0].priceCents,4400);
+ assert.equal((await call(env,'admin/resellers/portal/catalog/import-ra',b,buyer)).status,403);
+ assert.equal((await call(env,'admin/resellers/portal/catalog/import-ra',{...b,preview:false,confirm:true})).status,200);
+ assert.equal(env.DB.sql.prepare('SELECT published FROM zx_store_editor').get().published,'{}');
+ assert.equal((await call(env,'admin/resellers/portal/catalog/import-ra',{...b,storeRevision:1})).data.products.length,0);
+});
