@@ -1,3 +1,4 @@
+import {singleLevel} from './resellers-pro/pricing.mjs';
 import {umyRoute} from './resellers-pro/umy.mjs';
 import {orderRoute} from './resellers-pro/orders.mjs';
 import {catalogRoute,effectiveLegacy} from './resellers-pro/catalog.mjs';
@@ -40,7 +41,8 @@ export async function state(env,user){
  const member=await env.DB.prepare('SELECT tier FROM zx_r_members WHERE user_id=?').bind(user.id).first();
  let effectiveTier=user.isFounder?7:member.tier;
  if(env.RESELLERS_PORTAL_PRO_ENABLED==='true'){await proSchema(env);const account=await profile(env,user);effectiveTier=account?.status==='approved'?(account.manual_tier??Math.max(1,member.tier)):0;}
- return {balanceCents:money.balance,depositedCents:money.deposits,tier:effectiveTier,isFounder:!!user.isFounder,weekly:Number(sales.weekly||0),monthly:Number(sales.monthly||0),levels:LEVELS};
+ if(singleLevel(env)&&env.RESELLERS_PORTAL_PRO_ENABLED==='true')effectiveTier=effectiveTier>0?1:0;
+ return {singleLevel:singleLevel(env),balanceCents:money.balance,depositedCents:money.deposits,tier:effectiveTier,isFounder:!!user.isFounder,weekly:Number(sales.weekly||0),monthly:Number(sales.monthly||0),levels:LEVELS};
 }
 export async function resellerRoute(request,env,url,user,respond){
  const json=(data,status)=>{const response=respond(data,status);response.headers.set('Cache-Control','no-store');return response;};

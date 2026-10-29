@@ -7834,3 +7834,7 @@ body{background:
 #r-products.products .product-bottom [data-r-buy]{grid-column:1/-1;width:100%;min-height:45px;padding:9px;border:1px solid rgba(var(--zx-neon),.9);background:linear-gradient(115deg,rgba(var(--zx-neon),.55),#141621);border-radius:11px;color:#fff;font-size:13px;font-weight:900}
 #r-products.products .ff-product-art{width:100%;box-sizing:border-box}
 @media(max-width:600px){#r-products.products{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}#r-products.products .product-copy{min-height:175px}#r-products.products .zx-product-card[data-kind="diamonds"] .character-art{height:190px}#r-products.products .product-bottom [data-r-buy]{font-size:12px;letter-spacing:0}}
+
+/* Compact captions preserve the category artwork. */
+.zx-hub-card div{margin-top:-18px;padding-top:22px;min-height:0;background:linear-gradient(180deg,transparent,#08090de8 26px,#08090d 100%)}
+.zx-hub-card strong{text-shadow:0 1px 3px #000}

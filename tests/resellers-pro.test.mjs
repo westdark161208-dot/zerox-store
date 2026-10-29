@@ -73,3 +73,25 @@ test('published Free Fire PIN uses code delivery instead of player verification'
  const p=(await call(env,'admin/resellers/portal/catalog')).data.products.find(x=>x.id===id);
  assert.equal(p.requiresPlayer,false);assert.equal(p.checkout,'manual');
 });
+
+test('single reseller level uses published section policy, preserves draft isolation and rejects higher tier',async()=>{
+ const env=await setup();env.RESELLERS_SINGLE_LEVEL_ENABLED='true';
+ await call(env,'admin/resellers/portal/accounts/create',{email:buyer.email});
+ env.DB.sql.exec("INSERT OR REPLACE INTO zx_r_members VALUES('b',7)");
+ assert.equal((await state(env,buyer)).tier,1);
+ assert.equal((await call(env,'resellers/portal/catalog?tier=7',null,buyer)).status,403);
+ let d=(await call(env,'admin/resellers/portal/catalog')).data;
+ assert.equal(d.singleLevel,true);
+ const p=d.products.find(p=>p.id==='ff-frag-17729');
+ const before=(await call(env,'resellers/portal/catalog',null,buyer)).data.products.find(x=>x.id===p.id).unitCents;
+ assert.equal((await call(env,'admin/resellers/portal/catalog/discounts',{revision:d.revision,category:p.category,discounts:[35]},buyer)).status,403);
+ assert.equal((await call(env,'admin/resellers/portal/catalog/discounts',{revision:d.revision,category:p.category,discounts:[35]})).status,200);
+ assert.equal((await call(env,'resellers/portal/catalog',null,buyer)).data.products.find(x=>x.id===p.id).unitCents,before);
+ await call(env,'admin/resellers/portal/catalog/publish',{revision:d.revision+1,confirm:true});
+ const price=(await call(env,'resellers/portal/catalog',null,buyer)).data.products.find(x=>x.id===p.id).unitCents;
+ assert.equal(price,Math.round(p.basePriceCents*.65));
+ d=(await call(env,'admin/resellers/portal/catalog')).data;
+ await call(env,'admin/resellers/portal/catalog/discounts',{revision:d.revision,category:p.category,discounts:[35]});
+ await call(env,'admin/resellers/portal/catalog/publish',{revision:d.revision+1,confirm:true});
+ assert.equal((await call(env,'resellers/portal/catalog',null,buyer)).data.products.find(x=>x.id===p.id).unitCents,price);
+});
