@@ -1,3 +1,5 @@
+import {singleLevel,sectionName,applySectionPricing} from './pricing.mjs';
+import {importRa} from './import-ra.mjs';
 import base from './store-base.json' with {type:'json'};
 import '../../diamond-catalog.js';
 import {gameCatalog} from '../services/games.mjs';
@@ -14,14 +16,16 @@ export async function mirror(env,legacy){
  for(const [id,p]of Object.entries(edits)){
   if(id.startsWith('page:')||id.startsWith('custom:block:')||id.startsWith('entity:ads:'))continue;
   const old=products.get(id)||{id,min:1,max:1,checkout:'store'};
-  products.set(id,{...old,name:p.name||old.name,description:p.description||'',image:p.image||old.image||'',category:p.category||old.category||'Catálogo',active:p.active!==false,prices:Array(7).fill(p.priceCents??old.prices?.[0]??0)});
+  products.set(id,{...old,name:p.name||old.name,description:p.description||'',image:p.image||old.image||'',category:edits[p.category]?.name||p.category||old.category||'Catálogo',active:p.active!==false,prices:Array(7).fill(p.priceCents??old.prices?.[0]??0)});
  }
- for(const [id,name,category,min,max,prices,plan]of legacy){const old=products.get(id);products.set(id,{...old,id,name:old?.name||name,description:old?.description||'',category:old?.category||category,min,max,prices,plan:plan||null,image:old?.image||'',active:old?.active!==false,checkout:'resellers'});}
- return [...products.values()];
+ for(const [id,name,category,min,max,prices,plan]of legacy){if(id.startsWith('combo-'))continue;const old=products.get(id);products.set(id,{...old,id,name:old?.name||name,description:old?.description||'',category:old?.category||category,min,max,prices:singleLevel(env)?(old?.prices||prices):prices,plan:plan||null,image:old?.image||'',active:old?.active!==false,checkout:'resellers'});}
+ // Superseded duplicate packs are hidden only in the reseller mirror.
+ return [...products.values()].filter(p=>!/^d\d+-u$/.test(p.id));
 }
 export async function catalogue(env,legacy,draft=false){
  const row=await env.DB.prepare('SELECT * FROM zx_r_catalog_editor WHERE id=1').first(),overrides=JSON.parse(row[draft?'draft':'published']);
- return {revision:row.revision,overrides,products:(await mirror(env,legacy)).map(p=>({...p,...overrides[p.id],id:p.id,min:p.min,max:p.max,plan:p.plan,manualAllowed:!['promotion','managed','resellers'].includes(p.checkout),checkout:p.checkout==='resellers'?'resellers':(overrides[p.id]?.manualDelivery===true&&!['promotion','managed'].includes(p.checkout)?'manual':'store')}))};
+ const original=await mirror(env,legacy);const source=singleLevel(env)?applySectionPricing(original,overrides):original;
+ return {singleLevel:singleLevel(env),revision:row.revision,overrides,products:source.map(p=>({...p,...(singleLevel(env)?{}:overrides[p.id]),id:p.id,basePriceCents:p.basePriceCents??p.prices[0],min:p.min,max:p.max,plan:p.plan,requiresPlayer:!(/\bPIN\b|gift card/i.test(p.name||'')||/\bPIN\b/i.test(p.category||''))&&(/^(?:d\d+-[1u]|ff-|ff-ra-)/.test(p.id)||/Free Fire|Diamantes|Booyah|Fragmentos|Cajas/i.test(p.category)),manualAllowed:!['promotion','resellers'].includes(p.checkout),checkout:p.checkout==='resellers'?'resellers':(p.checkout!=='promotion'&&overrides[p.id]?.manualDelivery!==false&&(overrides[p.id]?.prices||p.prices)[0]>0?'manual':'store')}))};
 }
 export async function catalogRoute(request,env,url,user,json,legacy,state){
  const admin=url.pathname.startsWith('/api/admin/');const path=url.pathname.replace(admin?'/api/admin/resellers/portal':'/api/resellers/portal','');
@@ -32,13 +36,26 @@ export async function catalogRoute(request,env,url,user,json,legacy,state){
   const result=await catalogue(env,legacy,admin);
   if(admin)return json({ok:true,...result});
   const s=await state(env,user);const tier=Number(url.searchParams.get('tier')||s.tier);if(!Number.isInteger(tier)||tier<1||tier>s.tier)fail('LEVEL_LOCKED',403);
-  return json({ok:true,revision:result.revision,tier,products:result.products.filter(p=>p.active).map(p=>({id:p.id,name:p.name,description:p.description,category:p.category,image:p.image,min:p.min,max:p.max,unitCents:p.prices[tier-1],checkout:p.checkout}))});
+  return json({ok:true,revision:result.revision,tier,products:result.products.filter(p=>p.active).map(p=>({id:p.id,name:p.name,description:p.description,category:p.category,image:p.image,min:p.min,max:p.max,unitCents:p.prices[tier-1],checkout:p.checkout,requiresPlayer:p.requiresPlayer}))});
  }
  if(!admin||request.method!=='POST')return null;
- const b=await jsonBody(request),row=await env.DB.prepare('SELECT * FROM zx_r_catalog_editor WHERE id=1').first();if(b.revision!==row.revision)fail('REVISION_CONFLICT',409);
+ const b=await jsonBody(request);if(path==='/catalog/import-ra')return json(await importRa(env,user,b));const row=await env.DB.prepare('SELECT * FROM zx_r_catalog_editor WHERE id=1').first();if(b.revision!==row.revision)fail('REVISION_CONFLICT',409);
  let value;
- if(path==='/catalog/draft'){
-  const p=b.product;if(!p||!(await mirror(env,legacy)).some(x=>x.id===p.id)||typeof p.name!=='string'||!p.name.trim()||p.name.length>100||typeof p.description!=='string'||p.description.length>1500||typeof p.category!=='string'||p.category.length>80||!safeImage(p.image)||typeof p.active!=='boolean'||!Array.isArray(p.prices)||p.prices.length!==7||p.prices.some(x=>!Number.isSafeInteger(x)||x<1||x>10000000))fail('INVALID_PRODUCT');
+ if(path==='/catalog/discounts'&&singleLevel(env)){
+  if(typeof b.category!=='string'||!Array.isArray(b.discounts)||b.discounts.length!==1||!Number.isFinite(b.discounts[0])||b.discounts[0]<0||b.discounts[0]>=100||Math.abs(b.discounts[0]*100-Math.round(b.discounts[0]*100))>1e-8)fail('INVALID_DISCOUNTS');
+  const category=sectionName(b.category),draft=JSON.parse(row.draft);
+  if(!(await mirror(env,legacy)).some(p=>sectionName(draft[p.id]?.category??p.category)===category))fail('SECTION_PRICE_UNAVAILABLE');
+  draft.__sectionDiscounts={...draft.__sectionDiscounts,[category]:b.discounts[0]};
+  value=JSON.stringify(draft);
+ }else if(path==='/catalog/discounts'){
+  if(typeof b.category!=='string'||!b.category||!Array.isArray(b.discounts)||b.discounts.length!==7||b.discounts.some(x=>!Number.isFinite(x)||x<0||x>=100||Math.abs(Math.round(x*100)-x*100)>1e-8))fail('INVALID_DISCOUNTS');
+  const source=(await mirror(env,legacy)).filter(p=>p.category===b.category);
+  if(!source.length||source.some(p=>!Number.isSafeInteger(p.prices[0])||p.prices[0]<1))fail('SECTION_PRICE_UNAVAILABLE');
+  const draft=JSON.parse(row.draft);
+  for(const p of source){const prices=b.discounts.map(d=>Math.round(p.prices[0]*(100-d)/100));if(prices.some(v=>v<1||v>10000000))fail('INVALID_PRICE');draft[p.id]={...draft[p.id],prices};}
+  value=JSON.stringify(draft);
+ }else if(path==='/catalog/draft'){
+  const p=b.product;if(singleLevel(env)&&p&&Array.isArray(p.prices)&&p.prices.length===1)p.prices=Array(7).fill(p.prices[0]);if(!p||!(await mirror(env,legacy)).some(x=>x.id===p.id)||typeof p.name!=='string'||!p.name.trim()||p.name.length>100||typeof p.description!=='string'||p.description.length>1500||typeof p.category!=='string'||p.category.length>80||!safeImage(p.image)||typeof p.active!=='boolean'||!Array.isArray(p.prices)||p.prices.length!==7||p.prices.some(x=>!Number.isSafeInteger(x)||x<1||x>10000000))fail('INVALID_PRODUCT');
   const draft=JSON.parse(row.draft);draft[p.id]={name:p.name.trim(),description:p.description,category:p.category,image:p.image,active:p.active,prices:p.prices,manualDelivery:p.manualDelivery===true};value=JSON.stringify(draft);
  }else if(path==='/catalog/restore'){value=row.published;}else if(path==='/catalog/publish'){
   if(b.confirm!==true)fail('CONFIRM_PUBLICATION');

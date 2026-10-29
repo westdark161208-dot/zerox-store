@@ -9,3 +9,5 @@ export const message=e=>errors[e.message]||'No se completó la operación ('+e.m
 export function field(label,name,type='text',value='',extra=''){return `<label>${esc(label)}<input name="${name}" type="${type}" value="${esc(value)}" ${extra}></label>`;}
 export async function submit(form,action){const btn=form.querySelector('button[type=submit]')||form.querySelector('button');btn.disabled=true;const out=form.querySelector('[role=status]');try{await action(Object.fromEntries(new FormData(form)),form);if(out)out.textContent='Guardado correctamente.';}catch(e){if(out)out.textContent=message(e);else throw e}finally{btn.disabled=false}}
 export function imageURL(src){if(!src)return '';if(src.startsWith('/api/'))return BASE+src;try{const u=new URL(src,location.href);if(u.protocol!=='https:'&&u.protocol!=='http:')return '';if(u.origin===location.origin||u.origin===BASE)return u.href;}catch{}return '';}
+
+export function avatarURL(src){return typeof src==='string'&&src.length<=500000&&/^data:image\/(?:png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(src)?src:imageURL(src);}

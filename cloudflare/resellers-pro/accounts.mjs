@@ -44,8 +44,11 @@ export async function accountRoute(request,env,url,user,json,state){
  const db=env.DB;
  if(!admin&&path==='/me'&&request.method==='GET'){
   const account=await profile(env,user), financial=await state(env,user);
+  const storedProfile=await db.prepare('SELECT avatar_url FROM zx_profiles WHERE user_id=?').bind(user.id).first();
+  const hasStyle=await db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='zx_profile_style'").first();
+  const style=hasStyle?await db.prepare('SELECT avatar FROM zx_profile_style WHERE user_id=?').bind(user.id).first():null;
   const applications=await db.prepare('SELECT id,status,review_note,created_at FROM zx_r_applications WHERE user_id=? ORDER BY created_at DESC LIMIT 20').bind(user.id).all();
-  return json({ok:true,account,user:{id:user.id,username:user.username,email:user.email,avatar:user.avatar_url||''},...financial,applications:applications.results});
+  return json({ok:true,account,user:{id:user.id,username:user.username,email:user.email,avatar:style?.avatar||storedProfile?.avatar_url||user.avatar_url||''},...financial,applications:applications.results});
  }
  const receipt=/^\/applications\/([a-f0-9-]{36})\/receipt$/.exec(path);
  if(receipt&&request.method==='GET'){

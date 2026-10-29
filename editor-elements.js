@@ -1,5 +1,6 @@
 // Fixed commercial-content targets. No arbitrary selectors or executable HTML.
 globalThis.ZXEditorElements=Object.freeze([
+ {id:'umy-advisor',selector:'#zx-umy-advisor',label:'Umy Advisor · imagen',imageOnly:true},
  {id:'footer-brand',selector:'.footer-brand',label:'Pie de página · marca'},
  {id:'footer-tagline',selector:'.footer-grid>div>small',label:'Pie de página · subtítulo'},
  ...[1,2,3].map(n=>({id:'hero-badge-'+n,selector:'.hero-badges>span:nth-child('+n+')',label:'Portada · distintivo '+n})),
