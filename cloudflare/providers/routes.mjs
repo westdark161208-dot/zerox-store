@@ -1,3 +1,4 @@
+import {controlBalances} from "./control-balances.mjs";
 import {raPrivateMode} from './ra-private-policy.mjs';
 import {raFounderRead} from './ra-founder-read.mjs';
 import {founderBalancesRoute} from './founder-balances.mjs';
@@ -13,6 +14,7 @@ import {readRaAdminService} from './ra-admin-service.mjs';
 export async function providerRoute(request,env,url,user,json) {
   const reply=(body,status=200)=>{const response=json(body,status);response.headers?.set('Cache-Control','no-store');return response;};
   if (!user || user.status!=='active') return reply({ok:false,error:'LOGIN_REQUIRED'},401);
+  if(url.pathname==='/api/admin/providers/control-balances')return controlBalances(request,env,user,reply);
   if(url.pathname==='/api/admin/providers/founder-balances')return founderBalancesRoute(request,env,user,reply);
   if (!can(user,'providers.read')) return reply({ok:false,error:'FORBIDDEN'},403);
   if(url.pathname==='/api/admin/providers/recargas-america/associations'&&(!raPrivateMode(env)||env.RA_CATALOG_READ_ENABLED!==undefined))return associationRoute(request,env,url,user,reply);
