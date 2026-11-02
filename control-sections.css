@@ -1,0 +1,12 @@
+[data-section-inactive]{display:none!important}
+#workspace>.console-nav,#r-control .rp-admin-tabs,#r-control .r-controls,.zx-control-actions{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:1fr;
+  gap:8px;align-items:stretch;overflow:visible;position:static
+}
+#workspace>.console-nav>a,#r-control .rp-admin-tabs>button,#r-control .r-controls>button,.zx-control-actions>:is(button,a){
+  box-sizing:border-box;display:flex;align-items:center;justify-content:center;
+  width:100%;max-width:100%;min-width:0;min-height:44px;height:100%;margin:0;
+  padding:8px 6px;text-align:center;white-space:normal;overflow-wrap:anywhere;
+  font-size:clamp(.82rem,2.8vw,1rem);line-height:1.2
+}
+.console-nav a[aria-current]{outline:2px solid #66e4be;outline-offset:-2px}
