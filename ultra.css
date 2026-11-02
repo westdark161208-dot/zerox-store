@@ -37,3 +37,11 @@ body:has(#inicio),#inicio{background:#050505;animation:none}
 #zerox-ad-carousel .ad-stage>img{width:100%;height:100%;min-height:0;object-fit:contain;background:#060609}
 #zerox-ad-carousel .ad-copy{padding:6px 24px 14px 6px;min-width:0}#zerox-ad-carousel .ad-copy small,#zerox-ad-carousel .ad-copy p{display:none}#zerox-ad-carousel .ad-copy h2{font-size:clamp(14px,4.3vw,24px);line-height:1.12;margin:4px 0}#zerox-ad-carousel #ad-action{font-size:11px;padding:5px 8px;max-width:100%}
 @media(min-width:900px){.zerox-ad-zone .ad-gallery{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}.ad-gallery:not(:empty)+#zerox-ad-carousel{display:none}.ad-gallery a{display:flex;align-items:center;gap:8px;flex:0 1 220px;aspect-ratio:2/1;background:#09090d;border:1px solid #45344c;border-radius:12px;overflow:hidden;color:white;text-decoration:none;padding-right:6px}.ad-gallery img{width:52%;height:100%;object-fit:contain}.ad-gallery strong{font:650 15px/1.2 system-ui;overflow-wrap:anywhere}}
+#zerox-ad-carousel .ad-stage{position:relative;display:block;background:#060609}
+#zerox-ad-carousel .ad-stage>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;cursor:pointer}
+#zerox-ad-carousel .ad-copy{position:absolute;inset:auto 0 0;display:flex;align-items:end;justify-content:space-between;gap:6px;padding:18px 8px 5px;background:linear-gradient(transparent,#000b);pointer-events:none}
+#zerox-ad-carousel .ad-copy h2{margin:0;color:white;text-shadow:0 1px 4px #000;font-size:clamp(13px,3.3vw,20px)}
+#zerox-ad-carousel #ad-action{pointer-events:auto;margin:0}
+#zerox-ad-carousel .ad-arrow{bottom:2px;z-index:3;height:26px;width:32px}
+#zerox-ad-carousel .ad-prev{left:4px;right:auto}#zerox-ad-carousel .ad-next{right:4px}
+@media(min-width:900px){.ad-gallery a{position:relative;display:block;padding:0}.ad-gallery img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.ad-gallery strong{position:absolute;inset:auto 0 0;padding:14px 5px 4px;background:linear-gradient(transparent,#000c)}}

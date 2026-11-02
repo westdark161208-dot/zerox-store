@@ -1064,10 +1064,7 @@ function zxUpdateManagedCurrency(){
  }
 }
 let zxPendingReseller=false;
-async function zxEnterResellers(){
- if(!getZeroXSession()?.token){zxPendingReseller=true;zxCloseViews();zxShow($("#secciones"),true);showAuthMode("login");$("#account-modal").showModal();$("#auth-result").textContent="Inicia sesión para acceder a Revendedores.";return;}
- zxCloseViews();zxShow($("#secciones"),false);zxShow($("#zx-reseller-panel"),true);await window.zxResellerOpen?.();zxScroll($("#zx-reseller-panel"));
-}
+function zxEnterResellers(){location.assign("/resellers-portal");}
 window.zxRequireResellerLogin=()=>{saveZeroXSession(null);zeroxUser=null;renderZeroXAccount();zxEnterResellers()};
 async function zxResumeReseller(){if(zxPendingReseller){zxPendingReseller=false;$("#account-modal").close();await zxEnterResellers();}}
 function zxOpenComing(zone){zxCloseViews();zxShow($("#secciones"),false);zxShow($("#zx-coming"),true);$("#zx-coming").setAttribute("aria-label",zone+": próximamente");zxScroll($("#zx-coming"));}
@@ -1108,9 +1105,11 @@ if ($("#currency")) {
 
 const searchInput = $("#search");
 const searchForm = $("#catalog-search-form");
+const searchesPortal = value => /^(?:portal\s+)?(?:resellers?|revendedor(?:es)?)$/i.test(value.trim());
 function submitCatalogSearch() {
   searchTerm = searchInput.value.trim();
   if (!searchTerm) return;
+  if (searchesPortal(searchTerm)) return zxEnterResellers();
   zxOpenCatalog("Todos");
   $("#catalog-title").textContent = "Resultados para «" + searchTerm + "»";
   searchInput.blur();
@@ -1119,6 +1118,7 @@ searchForm?.addEventListener("submit", event => {event.preventDefault();submitCa
 searchInput?.addEventListener("input", () => {
   searchTerm = searchInput.value.trim();
   if (searchTerm) {
+    if (searchesPortal(searchTerm)) { $("#search-feedback").textContent="Abrir Portal Resellers →"; return; }
     setFilter("Todos",false);
     const count = $("#products").querySelectorAll("[data-product]").length;
     $("#search-feedback").textContent = count ? count+" resultado"+(count===1?"":"s")+" · Ver resultados" : "Sin coincidencias. Prueba otro nombre.";
