@@ -1,3 +1,5 @@
+import {trialOrder} from './universal/orders.mjs';
+import {scheduleCatalog,rechargeWebhook} from './universal/runtime.mjs';
 import {FOUNDER_USER_ID} from './security/founder.mjs';
 import {couponRoute} from './coupons.mjs';
 import {touchActivity} from './accounts/lifecycle.mjs';
@@ -205,7 +207,7 @@ async function contentRoutes(request,env,url){
 }
 
 export default {
-  async scheduled(event,env,ctx){ctx.waitUntil(continuePaidDiamonds(env));},
+  async scheduled(event,env,ctx){ctx.waitUntil(continuePaidDiamonds(env));scheduleCatalog(event,env,ctx);},
   async fetch(request, env) {
     try {
       if (request.method === "OPTIONS") {
@@ -216,6 +218,14 @@ export default {
       }
 
       const url = new URL(request.url);
+      if(url.pathname === "/api/providers/rechargegames/webhook") return await rechargeWebhook(request,env);
+      if(url.pathname === "/api/admin/providers/smart/trial" && request.method === "POST"){
+        if(env.SMART_TRIALS_ENABLED!=="true") return json({ok:false},404);
+        await authSchema(env);
+        const user=await currentUser(request,env);
+        if(user?.isFounder!==true || user.status!=="active") return json({ok:false},403);
+        return await trialOrder(env,await request.json());
+      }
       if(url.pathname.startsWith('/api/payments/mercadopago/funding/')){
         let user=null;
         if(!url.pathname.endsWith('/webhook')){await authSchema(env);user=await currentUser(request,env);}
