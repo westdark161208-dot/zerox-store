@@ -53,3 +53,16 @@ body:has(#inicio),#inicio{background:#050505;animation:none}
 .topbar .topbar-grid #open-account{display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:100%!important}
 #open-account>span{line-height:1}
 #open-account #account-caption{display:block;font:500 9px/1.1 system-ui!important;letter-spacing:0;text-transform:none;white-space:nowrap;color:#eee}
+#drawer.zx-drawer{background:linear-gradient(165deg,#13111d,#090810 52%);border-right:1px solid #493767}
+#drawer .zx-drawer-scroll{display:flex;flex-direction:column;gap:3px;padding:8px 12px 18px}
+#drawer .zx-drawer-scroll>button,#drawer .zx-drawer-scroll>a{width:100%;display:flex;align-items:center;gap:12px;min-height:39px;padding:6px 12px;border:1px solid transparent;border-radius:9px;background:#12101c;color:#eee8ff;text-align:left}
+#drawer .zx-drawer-scroll>:is(button,a):is(:hover,:focus-visible,:active){background:#29193d;border-color:#ad75ff}
+#drawer .zx-drawer-kicker{margin:8px 0 3px;color:#bd9ce3}
+#account-modal .profile-shortcuts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:3px 0 8px}
+#account-modal .profile-shortcuts>.zx-creator-link:not([hidden]){box-sizing:border-box;display:grid;place-items:center;min-width:0;width:100%;min-height:38px;padding:5px;margin:0;background:#000;color:#a8ffdf;border:1px solid #56dfb3;border-radius:8px;box-shadow:0 0 6px #49e6bb66;font:600 12px/1.2 system-ui;text-align:center}
+#account-modal .profile-shortcuts>[hidden]{display:none!important}
+#account-modal #profile-banner{min-height:0!important;height:clamp(56px,13vw,88px)!important}
+#account-modal #account-avatar{width:58px!important;height:58px!important;min-width:0!important}
+#account-modal .zx-profile-identity,#account-modal .zx-profile-info,#account-modal .zx-account-panel{padding:9px!important;margin:5px 0!important;min-height:0}
+#account-modal .zx-profile-info-grid{gap:4px!important}#account-modal .zx-profile-info-grid>div{padding:3px 6px!important}
+#account-modal .zx-profile-bio,#account-modal .zx-profile-section-title,#account-modal .account-stats,#account-modal .level-help{margin:5px 0!important}

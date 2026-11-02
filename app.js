@@ -2044,6 +2044,9 @@ $("#drawer").addEventListener("click",e=>{
   const b=e.target.closest("[data-drawer-zone],[data-drawer-sub],[data-drawer-cat]");if(!b)return;
   e.preventDefault();e.stopPropagation();closeDrawer();
   const zone=b.dataset.drawerZone;
+  if(zone==="profile"){ $("#open-account").click();return; }
+  if(zone==="fund"){ $("#zx-header-wallet").click();return; }
+  if(zone==="games"){zxCloseViews();zxShow($("#secciones"),true);zxScroll(document.querySelector('.zx-hub-card[data-zone="roblox"]'));return;}
   if(["minecraft","roblox","call-of-duty"].includes(zone)){zxOpenComing(zone);return;}
   if(zone==="home"){zxCloseViews();zxShow($("#secciones"),true);$("#inicio")?.scrollIntoView({behavior:"smooth"});return;}
   if(zone==="freefire"){zxCloseViews();zxShow($("#secciones"),false);zxShow($("#freefire-menu"),true);zxScroll($("#freefire-menu"));return;}
