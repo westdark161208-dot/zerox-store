@@ -26,3 +26,14 @@ body:has(#inicio),#inicio{background:#050505;animation:none}
 #wallet-rate-form{margin:12px 0;padding:10px 0;border-block:1px solid #45434a}
 #wallet-rate-form input{width:6em;padding:.4em;background:#000;color:white;border:1px solid #777;border-radius:6px}
 #wallet-rate-form button{margin:.4em;padding:.45em .7em}#wallet-rate-form small,#wallet-rate-form output{display:block;margin-top:.25em}
+.topbar .search-wrap:has(.channel-link){display:grid!important;grid-template-columns:minmax(0,1fr) auto;gap:5px 8px;align-items:center}
+#catalog-search-form{display:flex;align-items:center;min-width:0;position:relative;margin:0}
+#catalog-search-form input{width:100%;min-width:0;padding-right:34px}
+#catalog-search-form button{position:absolute;right:2px;inset-block:2px;width:31px;border:0;background:transparent;color:#fff;font:24px system-ui}
+.channel-link{max-width:15ch;padding:5px 9px;border:1px solid #25d366;border-radius:10px;color:#45f486!important;background:#000;text-decoration:none;text-align:center;font:650 12px/1.2 system-ui;box-shadow:0 0 4px #25d366,0 0 10px #25d36666}
+#search-feedback{grid-column:1/-1;color:#eee;font:13px system-ui;cursor:pointer}#search-feedback:empty{display:none}
+.ad-gallery{display:none}
+#zerox-ad-carousel .ad-stage{display:grid;grid-template-columns:52% 48%;aspect-ratio:2/1!important;overflow:hidden;align-items:center}
+#zerox-ad-carousel .ad-stage>img{width:100%;height:100%;min-height:0;object-fit:contain;background:#060609}
+#zerox-ad-carousel .ad-copy{padding:6px 24px 14px 6px;min-width:0}#zerox-ad-carousel .ad-copy small,#zerox-ad-carousel .ad-copy p{display:none}#zerox-ad-carousel .ad-copy h2{font-size:clamp(14px,4.3vw,24px);line-height:1.12;margin:4px 0}#zerox-ad-carousel #ad-action{font-size:11px;padding:5px 8px;max-width:100%}
+@media(min-width:900px){.zerox-ad-zone .ad-gallery{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}.ad-gallery:not(:empty)+#zerox-ad-carousel{display:none}.ad-gallery a{display:flex;align-items:center;gap:8px;flex:0 1 220px;aspect-ratio:2/1;background:#09090d;border:1px solid #45344c;border-radius:12px;overflow:hidden;color:white;text-decoration:none;padding-right:6px}.ad-gallery img{width:52%;height:100%;object-fit:contain}.ad-gallery strong{font:650 15px/1.2 system-ui;overflow-wrap:anywhere}}

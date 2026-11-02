@@ -973,11 +973,12 @@ if (category === "Streaming") {
 function render() {
   const container = document.getElementById("products");
   if (!container) return;
-  const q = String(searchTerm || "").toLowerCase();
+  const normalize = text => text.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+  const words = normalize(searchTerm).split(/\s+/).filter(Boolean);
   const rows = PRODUCTS.filter(product => {
     if (!product.active) return false;
     const categoryMatch = filter === "Todos" || product.category === filter || (filter === "Cajas y Fragmentos" && ["Cajas","Fragmentos"].includes(product.category));
-    const searchMatch = !q || (product.name + " " + (product.description || "") + " " + product.category).toLowerCase().includes(q);
+    const searchMatch = words.every(word => normalize(product.name + " " + (product.description || "") + " " + product.category).includes(word));
     return categoryMatch && searchMatch;
   }).sort((a,b)=>(a.editorPosition||0)-(b.editorPosition||0));
   container.innerHTML = rows.length ? rows.map(product => `
@@ -1105,19 +1106,28 @@ if ($("#currency")) {
   };
 }
 
-if ($("#search")) {
-  $("#search").addEventListener(
-    "input",
-    event => {
-      searchTerm =
-        event.target.value
-          .trim()
-          .toLowerCase();
-
-      render();
-    }
-  );
+const searchInput = $("#search");
+const searchForm = $("#catalog-search-form");
+function submitCatalogSearch() {
+  searchTerm = searchInput.value.trim();
+  if (!searchTerm) return;
+  zxOpenCatalog("Todos");
+  $("#catalog-title").textContent = "Resultados para «" + searchTerm + "»";
+  searchInput.blur();
 }
+searchForm?.addEventListener("submit", event => {event.preventDefault();submitCatalogSearch()});
+searchInput?.addEventListener("input", () => {
+  searchTerm = searchInput.value.trim();
+  if (searchTerm) {
+    setFilter("Todos",false);
+    const count = $("#products").querySelectorAll("[data-product]").length;
+    $("#search-feedback").textContent = count ? count+" resultado"+(count===1?"":"s")+" · Ver resultados" : "Sin coincidencias. Prueba otro nombre.";
+  } else {
+    $("#search-feedback").textContent="";
+    setFilter(filter,false);
+  }
+});
+$("#search-feedback")?.addEventListener("click",submitCatalogSearch);
 
 /* =========================================================
    MODAL DE CARRITO
@@ -2026,7 +2036,7 @@ if (backdrop) {
 }
 
 $("#drawer-profile")?.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();closeDrawer();$("#account-modal")?.showModal();});
-$("#drawer-search")?.addEventListener("keydown",e=>{if(e.key!=="Enter")return;e.preventDefault();const query=e.target.value.trim();closeDrawer();$("#search").value=query;$("#search").dispatchEvent(new Event("input",{bubbles:true}));$("#catalogo")?.scrollIntoView({behavior:"smooth"});});
+$("#drawer-search")?.addEventListener("keydown",e=>{if(e.key!=="Enter")return;e.preventDefault();const query=e.target.value.trim();closeDrawer();$("#search").value=query;$("#search").dispatchEvent(new Event("input",{bubbles:true}));submitCatalogSearch();});
 $("#drawer").addEventListener("click",e=>{
   const b=e.target.closest("[data-drawer-zone],[data-drawer-sub],[data-drawer-cat]");if(!b)return;
   e.preventDefault();e.stopPropagation();closeDrawer();
