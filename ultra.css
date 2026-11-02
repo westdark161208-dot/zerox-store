@@ -66,3 +66,10 @@ body:has(#inicio),#inicio{background:#050505;animation:none}
 #account-modal .zx-profile-identity,#account-modal .zx-profile-info,#account-modal .zx-account-panel{padding:9px!important;margin:5px 0!important;min-height:0}
 #account-modal .zx-profile-info-grid{gap:4px!important}#account-modal .zx-profile-info-grid>div{padding:3px 6px!important}
 #account-modal .zx-profile-bio,#account-modal .zx-profile-section-title,#account-modal .account-stats,#account-modal .level-help{margin:5px 0!important}
+#account-modal.zx-profile-page{background:#000!important}
+#account-modal.zx-profile-page::before,#account-modal.zx-profile-page::after{content:none!important}
+#account-modal .profile-identity-card{position:relative;isolation:isolate;overflow:hidden;padding:7px 10px;background:#000;border:1px solid #392d42;border-radius:14px}
+#account-modal .profile-identity-card .zx-profile-identity{background:transparent!important;border:0!important;box-shadow:none!important}
+#account-modal.zx-profile-page #account-avatar-wrap.is-founder #account-avatar{border-width:3px!important;box-shadow:0 0 0 1px #a87729,0 0 6px #dfa94077!important}
+#account-modal .profile-identity-card .zx-profile-bio{white-space:pre-line}
+.zx-purchase-toast{background:#000!important;box-shadow:0 0 5px #54edff,0 0 16px #45cbea70!important}

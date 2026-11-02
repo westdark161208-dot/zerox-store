@@ -1,3 +1,4 @@
+import {benefitsRoute} from './benefits.mjs';
 import {FOUNDER_USER_ID} from './security/founder.mjs';
 import {couponRoute} from './coupons.mjs';
 import {touchActivity} from './accounts/lifecycle.mjs';
@@ -226,6 +227,7 @@ export default {
         if(!url.pathname.endsWith("/webhook")){await authSchema(env);user=await currentUser(request,env);}
         return await mpTestRoute(request,env,url,user,json);
       }
+      if(["/api/benefits/me","/api/admin/benefits"].includes(url.pathname)){await authSchema(env);return benefitsRoute(request,env,await currentUser(request,env),json,passwordHash);}
       if(url.pathname==="/api/auth/location"){await authSchema(env);return await locationRoute(request,env,url,await currentUser(request,env),json);}
       if(url.pathname==='/api/admin/coupons'||url.pathname==='/api/coupons/validate'){await authSchema(env);return await couponRoute(request,env,url,await currentUser(request,env),json);}
       if(url.pathname.startsWith("/api/promotions/")){await authSchema(env);return await promotionRoute(request,env,url,await currentUser(request,env),json);}
@@ -260,7 +262,9 @@ export default {
         const row=await env.DB.prepare("SELECT u.id,u.username,u.created_at,p.display_name,p.level,p.xp,s.bio,s.favorites,s.avatar,s.banner,s.banner_image AS bannerImage,s.frame FROM zx_users u JOIN zx_profile_style s ON s.user_id=u.id LEFT JOIN zx_profiles p ON p.user_id=u.id WHERE u.username=? COLLATE NOCASE AND u.status='active' AND s.is_public=1 LIMIT 1").bind(publicHandle[1]).first();
         if(!row)return json({ok:false,error:"NOT_FOUND"},404);
         let favorites=[];try{favorites=JSON.parse(row.favorites||"[]")}catch{}
-        return json({ok:true,profile:{username:row.username,displayName:row.display_name||row.username,createdAt:row.created_at,level:row.level||1,xp:row.xp||0,bio:row.bio,favorites,avatar:row.avatar,banner:row.banner,bannerImage:row.bannerImage,frame:row.frame,isFounder:row.id===FOUNDER_USER_ID}});
+        const hasStyles=await env.DB.prepare("SELECT name FROM sqlite_master WHERE name='zx_member_styles'").first();
+        const style=hasStyles?await env.DB.prepare("SELECT color,font,frame FROM zx_member_styles WHERE user_id=?").bind(row.id).first():null;
+        return json({ok:true,profile:{style,username:row.username,displayName:row.display_name||row.username,createdAt:row.created_at,level:row.level||1,xp:row.xp||0,bio:row.bio,favorites,avatar:row.avatar,banner:row.banner,bannerImage:row.bannerImage,frame:row.frame,isFounder:row.id===FOUNDER_USER_ID}});
       }
 
       if(url.pathname==="/api/auth/username-available" && request.method==="GET"){

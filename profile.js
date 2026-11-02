@@ -17,6 +17,7 @@ async function loadProfile(name){
     $("#public-name").textContent=p.displayName||p.username;
     $("#public-name").classList.toggle("founder-name",p.isFounder===true);
     $("#public-handle").textContent="@"+p.username;
+    for(const id of ["#public-name","#public-handle"]){$(id).style.color=p.style?.color||"";$(id).style.fontFamily=p.style?.font||""}
     $("#public-bio").textContent=p.bio||"Este miembro todavía no ha escrito su presentación.";
     $("#public-level").textContent=p.level||1;
     $("#public-xp").textContent=p.xp||0;
