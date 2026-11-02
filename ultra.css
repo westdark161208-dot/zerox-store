@@ -21,3 +21,8 @@
 body:has(#inicio),#inicio{background:#050505;animation:none}
 #inicio .hero{position:relative;isolation:isolate}#inicio .hero .zerox-auth-particles{z-index:1}#inicio .hero-content{position:relative;z-index:2}
 @media(prefers-reduced-motion:reduce){#inicio .hero-title .zx-signature{animation:none}}
+#inicio .liquid-row{gap:clamp(6px,1.5vw,12px)}
+#inicio .liquid-row button{background:#000;border:1px solid var(--accent);box-shadow:0 0 3px var(--accent),0 0 9px color-mix(in srgb,var(--accent) 65%,transparent)}
+#wallet-rate-form{margin:12px 0;padding:10px 0;border-block:1px solid #45434a}
+#wallet-rate-form input{width:6em;padding:.4em;background:#000;color:white;border:1px solid #777;border-radius:6px}
+#wallet-rate-form button{margin:.4em;padding:.45em .7em}#wallet-rate-form small,#wallet-rate-form output{display:block;margin-top:.25em}
