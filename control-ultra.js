@@ -27,17 +27,38 @@
     const pending = controller = new AbortController();
     data={status:'Consultando…'};paint();
     try {
-      const token=JSON.parse(localStorage.getItem('zerox-session')).token;
-      const res=await fetch('https://zerox-sixofire-api.westdark161208.workers.dev/api/admin/providers/control-balances',{
-        headers:{Authorization:'Bearer '+token},cache:'no-store',signal:pending.signal});
-      if (!res.ok) throw Error();
-      const result=await res.json();
+      let result;
+      const options={cache:'no-store',signal:pending.signal};
+      try {
+        result=await zeroxAuthRequest('/api/admin/providers/control-balances',options);
+        if (!result.balances) throw Error();
+      } catch (error) {
+        if (pending.signal.aborted || [401,403].includes(error.status)) throw error;
+        const legacy=await zeroxAuthRequest('/api/admin/providers/founder-balances',options);
+        const ra=legacy.balances.ra;
+        result={queriedAt:legacy.queriedAt,balances:{
+          ra:ra.available ? {...ra,state:'Conectado',mxn:ra.estimatedMxnCents==null?null:ra.estimatedMxnCents/100} : {state:'Sin conexión'},
+          rg:{state:'Consulta pendiente'},sf:{state:'Consulta no disponible'}
+        }};
+      }
       if (!pending.signal.aborted) data=result;
     } catch { if (!pending.signal.aborted) data={status:'Consulta fallida'}; }
     if (!pending.signal.aborted) paint();
   }
   cards.forEach(card=>card.onclick=()=>{selected=card;paint();dialog.showModal()});
   document.querySelector('#wallet-reload').onclick=refresh;
-  window.addEventListener('zx-control-ready',()=>{panel.hidden=false;refresh()});
-  window.addEventListener('zx-control-clear',()=>{controller?.abort();dialog.close();selected=null;data=null;paint();panel.hidden=true});
+  function clear() {
+    controller?.abort(); dialog.close(); selected=null; data=null; paint(); panel.hidden=true;
+  }
+  function sync() {
+    clear();
+    if (document.hidden || typeof zeroxUser==='undefined' || !zeroxUser?.isFounder || !getZeroXSession()?.token) return;
+    panel.hidden=false;refresh();
+  }
+  window.addEventListener('zx-account-ready',sync);
+  window.addEventListener('zx-session-change',clear);
+  window.addEventListener('storage',e=>{if (!e.key || e.key==='zerox-session') clear()});
+  window.addEventListener('pagehide',clear);
+  document.addEventListener('visibilitychange',sync);
+  sync();
 })();
