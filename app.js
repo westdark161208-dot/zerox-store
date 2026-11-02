@@ -477,7 +477,7 @@ function renderZeroXAccount() {
   if ($("#account-title")) $("#account-title").textContent = zeroxUser ? "MI PERFIL" : "MI CUENTA";
   if (profile) {
     profile.classList.toggle("signed-in", !!zeroxUser);
-    profile.textContent = zeroxUser ? "Mi cuenta" : "Iniciar sesión";
+    profile.querySelector("#account-caption").textContent = zeroxUser ? "Mi cuenta" : "Iniciar sesión";
   }
   $("#account-modal")?.classList.toggle("zx-profile-page", !!zeroxUser);
   const drawerAvatar=$("#drawer-avatar"),drawerName=$("#drawer-profile-name"),drawerHandle=$("#drawer-profile-handle");
