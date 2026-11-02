@@ -10,14 +10,14 @@
 #inicio{background-color:#050506;background-image:radial-gradient(ellipse at 20% 75%,#34213a99,transparent 48%),radial-gradient(ellipse at 85% 10%,#152942aa,transparent 52%);background-size:130% 120%;animation:zx-metal 14s ease-in-out infinite alternate}
 @keyframes zx-metal{to{background-position:100% 50%}}
 @media(prefers-reduced-motion:reduce){#inicio,.brand.brand-metal :is(strong,i,span){animation:none}}
-#inicio #liquidity{max-width:1120px;background:linear-gradient(145deg,#102447,#070e20);border-color:#4268a4;padding:12px;margin:8px auto}
-#liquidity .console-kicker{font:600 10px/1.2 system-ui;letter-spacing:.15em;color:#9dbbff}#liquidity h2{font:700 19px/1.2 system-ui;margin:5px 0 10px;color:#eff5ff}
-#inicio .liquid-row button{background:linear-gradient(155deg,#1c3663,#0b142d);border-color:#5275b0;border-top-color:var(--accent);box-shadow:inset 0 1px 8px #749fff22}
+#inicio #liquidity{max-width:1120px;background:#080809;border:1px solid #302c32;padding:8px;margin:4px auto}
+#liquidity h2{font:600 14px/1.2 system-ui;margin:0 0 6px;color:#f4f3f5}
+#inicio .liquid-row button{background:linear-gradient(155deg,#19181b,#09090a);border:1px solid #343037;border-top:2px solid var(--accent);border-radius:9px;gap:2px;padding:5px 3px;height:auto;min-height:44px;box-shadow:none;align-content:center}
+#inicio .liquid-row small,#inicio .liquid-row em,#inicio .liquid-row span{min-height:0;line-height:1.15}
+#inicio .liquid-row strong{line-height:1.12}
 #inicio .hero-title .zx-signature{width:min(78vw,480px);display:block!important;animation:signature-float 4.4s ease-in-out infinite;transform-origin:30% 60%}
 .zx-signature img{display:block;width:100%;height:auto;filter:drop-shadow(0 1px 0 #ffc2a9) drop-shadow(1px 3px 0 #5b1423) drop-shadow(0 5px 4px #02040a) drop-shadow(0 0 8px #ec294344)}
 @keyframes signature-float{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-4px) rotate(.7deg) scale(1.016)}}
-body:has(#inicio){background:#050a17}#inicio{background:radial-gradient(ellipse at 12% 22%,#163878,transparent 43%),linear-gradient(155deg,#050912,#102657 55%,#050a16)}
-#inicio .hero{box-shadow:inset 0 -3px 22px #2c65cb55}#inicio .hero-copy .cta{background:linear-gradient(#508fff,#2458cb)!important;border-color:#83abff!important;box-shadow:0 3px 20px #295bd266}
-#inicio .zx-hub-card{border:1px solid #5984d2!important;box-shadow:0 0 12px #4e87ff50,inset 0 0 10px #5887f633!important}
-body:has(#inicio) .bottom-nav{background:linear-gradient(135deg,#071021f7,#101e3af7)!important;border-color:#4769a7!important}
+body:has(#inicio),#inicio{background:#050505;animation:none}
+#inicio .hero{position:relative;isolation:isolate}#inicio .hero .zerox-auth-particles{z-index:1}#inicio .hero-content{position:relative;z-index:2}
 @media(prefers-reduced-motion:reduce){#inicio .hero-title .zx-signature{animation:none}}
