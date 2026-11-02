@@ -45,3 +45,10 @@ body:has(#inicio),#inicio{background:#050505;animation:none}
 #zerox-ad-carousel .ad-arrow{bottom:2px;z-index:3;height:26px;width:32px}
 #zerox-ad-carousel .ad-prev{left:4px;right:auto}#zerox-ad-carousel .ad-next{right:4px}
 @media(min-width:900px){.ad-gallery a{position:relative;display:block;padding:0}.ad-gallery img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.ad-gallery strong{position:absolute;inset:auto 0 0;padding:14px 5px 4px;background:linear-gradient(transparent,#000c)}}
+.topbar .topbar-grid #open-account{width:100%!important;max-width:78px;white-space:normal;border:1px solid #aa475c;background:#190d12;border-radius:10px;color:#fff;font:650 12px/1.15 system-ui;text-align:center}
+.topbar .topbar-grid #open-account::after{display:none}
+.topbar .channel-link{box-sizing:border-box;width:78px;max-width:none;padding:4px 5px;font:650 11px/1.12 system-ui;border-radius:8px;align-self:center}
+@media(min-width:1024px){.topbar .shell.topbar-grid{grid-template-columns:44px 150px minmax(140px,1fr) 84px 118px 44px 78px!important}}
+@media(min-width:651px) and (max-width:1023px){.topbar .shell.topbar-grid{grid-template-columns:44px minmax(0,1fr) 84px 118px 44px 72px!important}}
+@media(max-width:650px){.topbar .shell.topbar-grid{grid-template-columns:30px minmax(0,1fr) 52px 68px 30px 54px!important}}
+@media(max-width:359px){.topbar .shell.topbar-grid{grid-template-columns:28px minmax(0,1fr) 46px 58px 26px 50px!important}}
