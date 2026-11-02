@@ -17,7 +17,7 @@ export async function publishedProduct(db,base){
  return p?{...base,name:p.name,salePriceMXN:p.priceCents/100,salePriceCents:p.priceCents}:base;
 }
 export function validateEdit(p){
- if(!p||typeof p!=='object'||(!bases.some(b=>b.id===p.id)&&!staticIds.includes(p.id)&&!/^ra-game-[1-9][0-9]{0,6}$/.test(p.id)&&!/^custom:(block|product):[a-f0-9-]{36}$/.test(p.id)&&!/^entity:(catalog|streaming|ads):[a-f0-9-]{36}$/.test(p.id)&&!globalThis.ZXEditorElements.some(e=>'page:'+e.id===p.id)))return null;
+ if(!p||typeof p!=='object'||(!bases.some(b=>b.id===p.id)&&!staticIds.includes(p.id)&&!/^smart-[a-z0-9-]{1,60}$/.test(p.id)&&!/^ra-game-[1-9][0-9]{0,6}$/.test(p.id)&&!/^custom:(block|product):[a-f0-9-]{36}$/.test(p.id)&&!/^entity:(catalog|streaming|ads):[a-f0-9-]{36}$/.test(p.id)&&!globalThis.ZXEditorElements.some(e=>'page:'+e.id===p.id)))return null;
  if(typeof p.name!=='string'||!p.name.trim()||p.name.length>100||typeof p.description!=='string'||p.description.length>1500||typeof p.character!=='string'||p.character.length>100||typeof p.active!=='boolean')return null;
  if(!Number.isSafeInteger(p.priceCents)||p.priceCents<(p.id.startsWith('page:')||p.id.startsWith('entity:ads:')||p.id.startsWith('ra-game-')||p.id.startsWith('custom:')?0:1)||p.priceCents>100000000)return null;
  // Local artwork or existing server media only; no arbitrary tracking or script URLs.
