@@ -2,9 +2,22 @@ import '../../retail-pricing.js';
 import {retailDiscount} from '../coupons.mjs';
 import {calculateQuote,feePolicy,quoteSchema,createQuote,acceptQuote} from './quotes-v3.mjs';
 export const productQuotesEnabled=env=>env.MP_PRODUCT_QUOTES_V3==='true';
-export async function productPricing(env,baseCents,couponCode,method){
+export async function productPricing(env,baseCents,couponCode,method,member){
  const enabled=productQuotesEnabled(env);
  const discount=await retailDiscount(env.DB,enabled?baseCents:globalThis.ZXRetailPricing.legacyPriceCents(baseCents),couponCode,method);
+ if(member && !couponCode && !['ra','sf','ra-funds'].includes(method)){
+   const exists=await env.DB.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='zx_member_perks'").first();
+   const perks=exists && await env.DB.prepare('SELECT rules FROM zx_member_perks WHERE user_id=?').bind(member.userId).first();
+   if(perks){
+     const percent=JSON.parse(perks.rules).reduce((best,rule)=>{
+       const matches=rule.scope==='product'?rule.key===member.id:
+         rule.scope==='category'?rule.key.toLowerCase()===member.category?.toLowerCase():
+         rule.scope==='freefire'?member.game==='freefire':rule.scope===member.section;
+       return matches?Math.max(best,rule.percent):best;
+     },0);
+     if(percent){discount.discountCents=Math.floor(discount.subtotalCents*percent/100);discount.amountCents=discount.subtotalCents-discount.discountCents;discount.memberPercent=percent}
+   }
+ }
  if(!enabled)return discount;
  const charge=calculateQuote(discount.amountCents,['ra','sf','ra-funds'].includes(method)?'wallet':method,feePolicy(env));
  return {...discount,amountCents:charge.totalCents,paymentQuote:charge,version:'v3'};

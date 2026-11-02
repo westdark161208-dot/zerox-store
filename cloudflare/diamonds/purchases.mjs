@@ -93,7 +93,7 @@ export async function purchaseRoute(request,env,url,user,json,fetcher=fetch){
    if(!productQuotesEnabled(env))return reply({ok:false,error:'PRODUCT_QUOTE_UNAVAILABLE'},503);
    const b=await request.json();if(!['wallet','all','card','spei'].includes(b.method)||!/^\d{5,15}$/.test(b.playerId||'')||b.playerConfirmed!==true)return reply({ok:false,error:'INVALID_REQUEST'},400);
    const product=await publishedProduct(env.DB,getProduct(b.productId));if(!product)throw Error('PRODUCT_UNAVAILABLE');
-   const pricing=await productPricing(env,product.salePriceCents,b.couponCode,b.method),quote=await prepareProductQuote(env,user.id,['diamond',product.id,b.playerId,1],pricing,b.method);
+   const pricing=await productPricing(env,product.salePriceCents,b.couponCode,b.method,{userId:user.id,id:product.id,game:'freefire',section:'diamonds',category:'Diamantes ilimitados'}),quote=await prepareProductQuote(env,user.id,['diamond',product.id,b.playerId,1],pricing,b.method);
    return reply({ok:true,pricing,quote,amountCents:quote.totalCents});
   }
   if(!([ROOT+'/resume',ROOT+'/wallet'].includes(url.pathname)?!config.reasons.filter(r=>r!=='PRODUCTION_PAYMENT_CONFIG_MISSING').length:config.enabled))return reply({ok:false,error:'PRODUCT_DELIVERY_NOT_READY',reasons:config.reasons},503);
@@ -114,7 +114,7 @@ export async function purchaseRoute(request,env,url,user,json,fetcher=fetch){
   let acceptedPricing=null;
   if(productQuotesEnabled(env)){
    const existing=await env.DB.prepare('SELECT id FROM zx_diamond_orders WHERE user_id=? AND request_key=?').bind(user.id,key).first();
-   if(!existing){const pricing=await productPricing(env,product.salePriceCents,body.couponCode,method);acceptedPricing=await acceptProductQuote(env,user.id,['diamond',product.id,uid,1],pricing,{...body,method},key);}
+   if(!existing){const pricing=await productPricing(env,product.salePriceCents,body.couponCode,method,{userId:user.id,id:product.id,game:'freefire',section:'diamonds',category:'Diamantes ilimitados'});acceptedPricing=await acceptProductQuote(env,user.id,['diamond',product.id,uid,1],pricing,{...body,method},key);}
   }
   const order=await createOrder(env.DB,{userId:user.id,requestKey:key,productId:product.id,playerId:uid,fulfillmentPlan:plan,acceptedPricing,couponCode:body.couponCode||'',maxAmountCents:body.maxAmountCents??null});
   await saveContact(env.DB,order.id,user.id,body.contactPhone);
