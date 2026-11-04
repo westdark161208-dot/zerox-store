@@ -1108,11 +1108,9 @@ if ($("#currency")) {
 
 const searchInput = $("#search");
 const searchForm = $("#catalog-search-form");
-const searchesPortal = value => /^(?:portal\s+)?(?:resellers?|revendedor(?:es)?)$/i.test(value.trim());
 function submitCatalogSearch() {
   searchTerm = searchInput.value.trim();
   if (!searchTerm) return;
-  if (searchesPortal(searchTerm)) return zxEnterResellers();
   zxOpenCatalog("Todos");
   $("#catalog-title").textContent = "Resultados para «" + searchTerm + "»";
   searchInput.blur();
@@ -1121,7 +1119,6 @@ searchForm?.addEventListener("submit", event => {event.preventDefault();submitCa
 searchInput?.addEventListener("input", () => {
   searchTerm = searchInput.value.trim();
   if (searchTerm) {
-    if (searchesPortal(searchTerm)) { $("#search-feedback").textContent="Abrir Portal Resellers →"; return; }
     setFilter("Todos",false);
     const count = $("#products").querySelectorAll("[data-product]").length;
     $("#search-feedback").textContent = count ? count+" resultado"+(count===1?"":"s")+" · Ver resultados" : "Sin coincidencias. Prueba otro nombre.";

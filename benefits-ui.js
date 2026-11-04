@@ -5,7 +5,7 @@
  async function api(path,body){
    const token=session();
    const r=await fetch(base+path,{method:body?'POST':'GET',headers:{Authorization:'Bearer '+token,...(body?{'Content-Type':'application/json'}:{})},body:body?JSON.stringify(body):undefined,cache:'no-store'});
-   const d=await r.json();if(!r.ok||!d.ok||token!==session())throw Error();
+   const d=await r.json();if(!r.ok||!d.ok||token!==session())throw Error(r.status===404?"El Worker de producción aún no tiene habilitado el servicio de beneficios.":d.error==="ACCOUNT_EXISTS"?"Ese correo o usuario ya está registrado.":r.status===403?"Se requiere una sesión fundadora.":"No se pudo completar la operación.");
    return d;
  }
  if(q('benefits')){
@@ -34,7 +34,7 @@
        if(action==='reward')b.level=Number(b.level);
        else b.rules=[...rules.children].map(row=>{const [key,pct]=row.querySelectorAll('input');return {scope:row.querySelector('select').value,key:key.required?key.value.trim():'',percent:Number(pct.value)}});
        e.submitter.disabled=true;
-       try{await api('admin/benefits',{...b,action});out.textContent='Guardado.';if(action==='reward')await load();else{form.reset();rules.replaceChildren()}}catch{out.textContent='No se pudo guardar. Comprueba los datos y la disponibilidad del servicio.'}finally{e.submitter.disabled=false}};
+       try{await api('admin/benefits',{...b,action});out.textContent='Guardado.';if(action==='reward')await load();else{form.reset();rules.replaceChildren()}}catch(error){out.textContent=error.message}finally{e.submitter.disabled=false}};
    }
    window.addEventListener('zx-control-ready',load);
    window.addEventListener('zx-control-clear',()=>{awards=[];editor.reset();editor.hidden=true;q('benefit-form').reset();rules.replaceChildren();result.textContent='';q('reward-result').textContent=''});

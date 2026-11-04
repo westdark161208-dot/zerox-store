@@ -73,3 +73,9 @@ body:has(#inicio),#inicio{background:#050505;animation:none}
 #account-modal.zx-profile-page #account-avatar-wrap.is-founder #account-avatar{border-width:3px!important;box-shadow:0 0 0 1px #a87729,0 0 6px #dfa94077!important}
 #account-modal .profile-identity-card .zx-profile-bio{white-space:pre-line}
 .zx-purchase-toast{background:#000!important;box-shadow:0 0 5px #54edff,0 0 16px #45cbea70!important}
+#secciones .zx-hub-grid .zx-hub-card{height:auto;min-height:0;padding:0;align-self:start;background:#08080b!important}
+#secciones .zx-hub-card>img{display:block;width:100%;height:auto;aspect-ratio:2.5/1;object-fit:contain;object-position:center;background:#08080b}
+#secciones .zx-hub-card>div{position:relative;inset:auto;min-height:0;height:auto;margin:0;padding:6px 10px;display:flex;align-items:baseline;flex-wrap:wrap;gap:2px 7px;background:#0b0a0f}
+#secciones .zx-hub-card>div small{font-size:9px;margin:0;padding:1px 4px}
+#secciones .zx-hub-card>div strong{font-size:clamp(15px,2.4vw,19px);margin:0;line-height:1.1}
+#secciones .zx-hub-card>div span{flex-basis:100%;font-size:11px;line-height:1.2}
