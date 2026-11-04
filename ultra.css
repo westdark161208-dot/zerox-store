@@ -96,3 +96,17 @@ body:has(#inicio),#inicio{background:#050505;animation:none}
 @media(max-width:650px){#inicio .hero-action-labels{position:absolute;left:16px;bottom:57px;z-index:3}}
 
 #inicio .hero-action-labels .hero-action-caption,#inicio .hero-action-labels .hero-tagline{display:block;margin:0 0 2px!important}
+
+/* Reserve a right-hand art area and a distinct reading area for the signature. */
+#inicio .hero{background-color:#050506;background-repeat:no-repeat;background-position:center,right 6% center!important;background-size:100% 100%,auto 100%}
+#inicio .hero-action-row{display:flex;align-items:center;gap:clamp(12px,2vw,24px);flex-wrap:wrap;margin-top:12px}
+#inicio .hero-action-labels{position:static;border-left:2px solid #a82542;padding-left:9px}
+#inicio .hero-action-row .cta{margin:0}
+@media(max-width:650px){
+  #inicio .hero{--action-height:62px;background-size:90% auto!important;background-position:right -6vw bottom var(--action-height)!important;background-color:#050506!important}
+  #inicio .hero-content{min-height:calc(91vw + var(--action-height))!important;padding-bottom:var(--action-height)!important}
+  #inicio .hero-action-row{position:absolute;inset:auto 0 0;z-index:3;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;height:var(--action-height);box-sizing:border-box;padding:7px clamp(8px,3vw,18px);margin:0;background:linear-gradient(180deg,#09090b,#050506);border-top:1px solid #341720}
+  #inicio .hero-action-row .hero-action-caption{font-size:clamp(11px,3.3vw,15px)!important}
+  #inicio .hero-action-row .hero-tagline{font-size:clamp(10px,2.8vw,13px)!important}
+  #inicio .hero-action-row .cta{position:static!important;max-width:none!important;min-height:36px!important;padding:0 9px!important;font-size:clamp(9px,2.5vw,12px)!important}
+}
