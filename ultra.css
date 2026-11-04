@@ -93,4 +93,6 @@ body:has(#inicio),#inicio{background:#050505;animation:none}
 #inicio .hero-title .brush-white:nth-child(2),#inicio .hero-title .brush-red:nth-child(3){display:none!important}
 #inicio .hero-action-caption{display:block;margin:4px 0 6px;color:white;font:italic 800 clamp(13px,2vw,23px)/1.2 system-ui;text-shadow:0 1px 4px #000}
 #inicio .hero-action-caption b{color:#ed3349}
-@media(max-width:650px){#inicio .hero-action-caption{position:absolute;left:16px;bottom:57px;margin:0;z-index:3}}
+@media(max-width:650px){#inicio .hero-action-labels{position:absolute;left:16px;bottom:57px;z-index:3}}
+
+#inicio .hero-action-labels .hero-action-caption,#inicio .hero-action-labels .hero-tagline{display:block;margin:0 0 2px!important}

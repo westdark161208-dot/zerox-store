@@ -59,6 +59,18 @@
           rg:{state:'Consulta pendiente'},sf:{state:'Consulta no disponible'}
         }};
       }
+      if (!pending.signal.aborted && result.balances.ra?.balance == null) {
+        try {
+          const wallet=await zeroxAuthRequest('/api/admin/providers/recargas-america/wallet',options);
+          const {balance,currency}=wallet.data;
+          if (!wallet.ok || !/^\d+(\.\d+)?$/.test(String(balance)) || !currency) throw Error();
+          const factor=currency==='MXN'?1:['USD','USDT'].includes(currency)?result.rate:null;
+          result.balances.ra={balance,currency,state:'Conectado',mxn:factor>0?Number(balance)*factor:null};
+        } catch(error) {
+          if ([401,403].includes(error.status)) throw error;
+          result.balances.ra={state:'Saldo no disponible'};
+        }
+      }
       if (!pending.signal.aborted) data=result;
     } catch { if (!pending.signal.aborted) data={status:'Consulta fallida'}; }
     if (!pending.signal.aborted) paint();
