@@ -86,3 +86,6 @@ body:has(#inicio),#inicio{background:#050505;animation:none}
 #inicio .hero-title .brush-white:nth-child(2),#inicio .hero-title .brush-red:nth-child(3){display:inline!important;font:italic 800 clamp(13px,2vw,23px)/1.25 system-ui!important;letter-spacing:.035em!important;margin:0!important}
 #inicio .hero-title .small-brush{font-size:clamp(12px,1.4vw,18px)!important}
 @media(min-width:900px){.zerox-ad-zone .ad-gallery{flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;scroll-snap-type:x proximity;padding-block:4px}.zerox-ad-zone .ad-gallery a{flex:1 0 135px;min-width:0;max-width:240px;scroll-snap-align:start}}
+@media (min-width:1024px){
+  #zerox-splash .zerox-splash-bg{background-image:url("./assets/loading-desktop.webp");background-position:center;background-size:contain;background-repeat:no-repeat;background-color:#000}
+}
