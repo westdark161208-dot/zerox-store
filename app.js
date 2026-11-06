@@ -459,6 +459,7 @@ function authMessage(error) {
     USERNAME_TAKEN: "Ese nombre de usuario ya está ocupado. Elige otro.",
     INVALID_EMAIL: "Escribe un correo válido.",
     INVALID_USERNAME: "El usuario debe tener entre 3 y 24 caracteres y usar letras, números, punto, guion o guion bajo.",
+    INVALID_REFERRAL: "El código de referido no está disponible. Revisa lo que escribiste.",
     INVALID_LOCATION: "Selecciona tu país de compra. El estado o provincia debe tener hasta 100 caracteres.",
     INVALID_PASSWORD: "La contraseña debe tener entre 8 y 128 caracteres.",
     ACCOUNT_DISABLED: "Esta cuenta está deshabilitada.",

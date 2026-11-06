@@ -1,3 +1,4 @@
+import {invitation,programRoute,settleInvites} from './programs.mjs';
 import {benefitsRoute} from './benefits.mjs';
 import {FOUNDER_USER_ID} from './security/founder.mjs';
 import {couponRoute} from './coupons.mjs';
@@ -206,7 +207,7 @@ async function contentRoutes(request,env,url){
 }
 
 export default {
-  async scheduled(event,env,ctx){ctx.waitUntil(continuePaidDiamonds(env));},
+  async scheduled(event,env,ctx){ctx.waitUntil(continuePaidDiamonds(env));ctx.waitUntil(settleInvites(env.DB));},
   async fetch(request, env) {
     try {
       if (request.method === "OPTIONS") {
@@ -227,6 +228,7 @@ export default {
         if(!url.pathname.endsWith("/webhook")){await authSchema(env);user=await currentUser(request,env);}
         return await mpTestRoute(request,env,url,user,json);
       }
+      if(url.pathname.startsWith('/api/programs/')){await authSchema(env);return programRoute(request,env,await currentUser(request,env),json);}
       if(["/api/benefits/me","/api/admin/benefits"].includes(url.pathname)){await authSchema(env);return benefitsRoute(request,env,await currentUser(request,env),json,passwordHash);}
       if(url.pathname==="/api/auth/location"){await authSchema(env);return await locationRoute(request,env,url,await currentUser(request,env),json);}
       if(url.pathname==='/api/admin/coupons'||url.pathname==='/api/coupons/validate'){await authSchema(env);return await couponRoute(request,env,url,await currentUser(request,env),json);}
@@ -285,11 +287,14 @@ export default {
         const exists=await env.DB.prepare("SELECT id FROM zx_users WHERE lower(email)=lower(?) OR lower(username)=lower(?) LIMIT 1").bind(email,username).first();
         if(exists) return json({ok:false,error:"ACCOUNT_EXISTS"},409);
         const id=crypto.randomUUID(), hash=await passwordHash(password);
+        const invite=body.referralCode && await invitation(env.DB,body.referralCode,id,body.country);
+        if(body.referralCode&&!invite)return json({ok:false,error:"INVALID_REFERRAL"},400);
         try{
           await env.DB.batch([
             env.DB.prepare("INSERT INTO zx_users(id,email,username,password_hash) VALUES(?,?,?,?)").bind(id,email,username,hash),
             env.DB.prepare("INSERT INTO zx_profiles(user_id,display_name) VALUES(?,?)").bind(id,displayName||username),
-            env.DB.prepare("INSERT INTO zx_customer_location(user_id,country,state) VALUES(?,?,?)").bind(id,body.country,(body.state||"").trim())
+            env.DB.prepare("INSERT INTO zx_customer_location(user_id,country,state) VALUES(?,?,?)").bind(id,body.country,(body.state||"").trim()),
+            ...(invite?[invite]:[])
           ]);
         }catch(e){
           if(String(e.message||"").toLowerCase().includes("unique")) return json({ok:false,error:"ACCOUNT_EXISTS"},409);

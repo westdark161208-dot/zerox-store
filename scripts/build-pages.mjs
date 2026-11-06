@@ -5,6 +5,7 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 const out = join(root, 'dist');
 // Explicit application entrypoints. Never publish cloudflare/, tests/, docs/ or .git/.
 const files = [
+  'programas.html','programas.js','programas.css',
   'benefits-ui.js', 'control-sections.js', 'control-sections.css', 'control-resellers.js', 'control-resellers-pro.js', 'resellers-control-pro.css', 'resellers-v2.css',
   'resellers-portal.html', 'resellers-portal.js', 'resellers-portal.css', 'resellers-pro-shared.js', 'resellers-theme.js', 'resellers-presentation.js',
   'ultra.css', 'control-ultra.js',

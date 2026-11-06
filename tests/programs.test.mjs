@@ -1,0 +1,36 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {database} from './helpers/d1.mjs';
+import {programSchema,invitation,settleInvites,programRoute} from '../cloudflare/programs.mjs';
+test('mixed-country referral waits for completion and credits both participants once',async()=>{
+  const db=database();
+  await programSchema(db);
+  db.sql.exec(`CREATE TABLE zx_users(id TEXT,status TEXT);
+    INSERT INTO zx_users VALUES('a','active'),('b','active');
+    INSERT INTO zx_customer_location(user_id,country) VALUES('a','MX');
+    INSERT INTO zx_invite_codes VALUES('a','ZX-TEST');
+    CREATE TABLE zx_market_settings(id INTEGER,settings_json TEXT);
+    INSERT INTO zx_market_settings VALUES(1,'{"usdMxn":19}');
+    CREATE TABLE zx_service_orders(id TEXT,user_id TEXT,product_name TEXT,quantity INTEGER,player_id TEXT,state TEXT,amount_cents INTEGER,created_at TEXT,updated_at TEXT,method TEXT,payment_state TEXT,plan_json TEXT);
+    INSERT INTO zx_service_orders VALUES('o','b','Pase',1,'1','PROCESSING',2500,'','','wallet','paid','{}');`);
+  assert.equal(await invitation(db,'wrong','b','US'),null);
+  await (await invitation(db,'zx-test','b','US')).run();
+  await settleInvites(db);
+  assert.equal(db.sql.prepare('SELECT settled FROM zx_invites').get().settled,0);
+  db.sql.exec("UPDATE zx_service_orders SET state='COMPLETED'");
+  await Promise.all([settleInvites(db),settleInvites(db)]);
+  assert.deepEqual(db.sql.prepare('SELECT amount_cents FROM zx_wallet_ledger ORDER BY user_id').all().map(r=>r.amount_cents),[2000,1900]);
+});
+test('video submitted once, reviewed by founder, delivery separate',async()=>{
+  const DB=database();
+  const route=(body,isFounder=false)=>programRoute(new Request('https://example.org/api/programs/creators',{method:'POST',body:JSON.stringify(body)}),{DB},{id:'u',isFounder},(b,s=200)=>s);
+  const video='123456789012',claim={url:'https://www.tiktok.com/@zerox/video/'+video,handle:'@zerox',uid:'12345678',views:4200};
+  assert.equal(await route(claim),201);
+  assert.equal(await route(claim),409);
+  const review={action:'aprobado',video,verified:4000};
+  assert.equal(await route(review),403);
+  assert.equal(await route(review,true),200);
+  assert.equal(DB.sql.prepare('SELECT diamonds FROM zx_creator_entries').get().diamonds,452);
+  assert.equal(await route({action:'entregado',video},true),200);
+  assert.equal(await route({action:'entregado',video},true),409);
+});
