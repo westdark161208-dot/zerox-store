@@ -118,3 +118,9 @@ body:has(#inicio),#inicio{background:#050505;animation:none}
   #inicio .hero-action-labels{bottom:calc(var(--action-height) + 5vw)}
   #inicio .hero-action-row{display:flex;justify-content:flex-start;padding-left:12px}
 }
+
+.zx-program-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.65rem;margin:1rem auto}
+.zx-program-links a{display:grid;place-items:center;text-align:center;min-height:44px;padding:.5rem;border:1px solid currentColor;border-radius:12px;color:#69f5d2;background:#090a0c;font-weight:700;text-decoration:none;box-shadow:0 0 10px #52edcc24}
+.zx-program-links a:last-child{color:#e9a8ff}
+.zx-program-links a:is(:focus-visible,:hover){box-shadow:0 0 12px currentColor}
+#invite-registration[hidden]{display:none}
