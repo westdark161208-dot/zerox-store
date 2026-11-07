@@ -2038,6 +2038,17 @@ if (backdrop) {
 
 $("#drawer-profile")?.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();closeDrawer();$("#account-modal")?.showModal();});
 $("#drawer-search")?.addEventListener("keydown",e=>{if(e.key!=="Enter")return;e.preventDefault();const query=e.target.value.trim();closeDrawer();$("#search").value=query;$("#search").dispatchEvent(new Event("input",{bubbles:true}));submitCatalogSearch();});
+
+const drawerChoices = document.querySelector('#drawer .zx-drawer-scroll');
+function highlightDrawerChoice(event) {
+  const choice = event.target.closest('button, a');
+  if (!choice || !drawerChoices.contains(choice)) return;
+  drawerChoices.querySelectorAll('.drawer-selected').forEach(item => item.classList.remove('drawer-selected'));
+  choice.classList.add('drawer-selected');
+}
+drawerChoices?.addEventListener('pointerdown', highlightDrawerChoice);
+drawerChoices?.addEventListener('click', highlightDrawerChoice);
+
 $("#drawer").addEventListener("click",e=>{
   const b=e.target.closest("[data-drawer-zone],[data-drawer-sub],[data-drawer-cat]");if(!b)return;
   e.preventDefault();e.stopPropagation();closeDrawer();
