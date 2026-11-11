@@ -743,14 +743,13 @@ function renderFreeFireCard(player,uid,region="br"){
     const b=player.basicInfo||{},clan=player.clanBasicInfo||{},score=player.creditScoreInfo||{},pet=player.petInfo||{},profile=player.profileInfo||{},social=player.socialInfo||{};
     const itemImage=id=>/^\d{4,18}$/.test(String(id||""))?`${ZEROX_API}/api/item-image?itemID=${encodeURIComponent(id)}`:"";
     // The provider supplies item IDs. Prefer locally verified artwork when available.
-    const bundledArtwork=new Set(["901053006","902052004","912051002","914051001"]);
+    const bundledArtwork=new Set(["902052004","912051002","914051001"]);
     const portrait=(id,label,kind)=>{
       const src=itemImage(id);
       if(!src)return "";
       return `<img class="zx-player-${kind}" src="${bundledArtwork.has(String(id))?`assets/freefire-profile/${id}.webp`:src}" data-profile-item="${id}" alt="${label}" referrerpolicy="no-referrer">`;
     };
     const avatar=portrait(b.headPic,"Foto de perfil del jugador","avatar");
-    const banner=portrait(b.bannerId||profile.bannerId,"Banner equipado del jugador","banner");
     const statIcons={Nivel:"nivel.png",Rango:"rango.png",Likes:"likes.png",Región:"region.png"};
     const stat=(label,value)=>value===undefined||value===null||value===""?"":`<div class="zx-ff-stat"><small>${statIcons[label]?`<img src="${statIcons[label]}" class="ff-stat-icon" alt="" loading="lazy">`:""}${esc(label)}</small><strong>${esc(String(value))}</strong></div>`;
     const date=Number(b.createAt||b.createTime||0);
@@ -762,13 +761,13 @@ function renderFreeFireCard(player,uid,region="br"){
     const showcaseNames={"907300004":"Puño Cobra","912051002":"Dream Show · Animación","914051001":"Dreamspace Look Changer · Emote"};
     const showcase=Array.isArray(b.weaponSkinShows)?[...new Set(b.weaponSkinShows.map(String))].filter(itemImage):[];
     const petArt=portrait(pet.skinId||pet.id,"Aspecto equipado de la mascota","pet");
-    const identity=`<header class="zx-ff-nameplate">${avatar}<div class="zx-ff-player-strip">${banner}
+    const identity=`<header class="zx-ff-nameplate">${avatar}
       <div class="zx-ff-player-caption"><small>FREE FIRE · ${esc(String(b.region||region).toUpperCase())}</small>
-      <h4>${esc(b.nickname||player.nickname||"Jugador Free Fire")}</h4><span>ID ${esc(uid)}</span></div></div></header>`;
+      <h4>${esc(b.nickname||player.nickname||"Jugador Free Fire")}</h4><span>ID ${esc(uid)}</span></div></header>`;
     const exhibited=showcase.length?`<div class="zx-ff-detail"><small>ARMAS Y OBJETOS EN EXHIBICIÓN</small>
       <div class="zx-ff-showcase">${showcase.map(id=>`<figure>${portrait(id,"Objeto en exhibición "+id,"showcase")}
         <figcaption>${esc(showcaseNames[id]||("ID "+id))}</figcaption></figure>`).join("")}</div></div>`:"";
-    return `<article class="zx-ff-card">${identity}<div class="zx-ff-stats">${stat("Nivel",b.level)}${stat("Rango",b.rank)}${stat("Likes",b.liked??b.likes)}${stat("Prime",b.primePrivilegeDetail?.primeLevel??b.primeLevel??player.primeLevel)}${stat("Honor",score.creditScore)}${stat("Desde",since)}${stat("Región",b.region||region)}${stat("Último acceso",lastAccess)}</div>${clan.clanName?`<div class="zx-ff-detail"><small><img src="clan.png" class="ff-stat-icon" alt=""> CLAN</small><strong>${esc(clan.clanName)}</strong><span>${esc(clan.clanLevel?`Nivel ${clan.clanLevel}`:"")}${clan.memberNum!=null&&clan.capacity!=null?` · ${esc(String(clan.memberNum))}/${esc(String(clan.capacity))} miembros`:""}</span></div>`:""}${social.signature?`<div class="zx-ff-detail"><small>FIRMA DEL JUGADOR</small><p>${esc(social.signature)}</p></div>`:""}${pet.id?`<div class="zx-ff-detail"><small>MASCOTA EQUIPADA</small>${petArt}<strong>ID ${esc(pet.id)}</strong>${pet.level?`<span> · Nivel ${esc(String(pet.level))}</span>`:""}</div>`:""}${clothes.length?`<div class="zx-ff-detail"><small>OBJETOS EQUIPADOS</small><div class="zx-ff-outfit">${clothes.map(url=>`<img src="${url}" alt="Objeto equipado" loading="lazy">`).join("")}</div></div>`:""}${exhibited}<small class="zx-ff-disclaimer">Consulta informativa de una API externa. La imagen o algún dato pueden no estar disponibles.</small></article>`;
+    return `<article class="zx-ff-card">${identity}<div class="zx-ff-stats">${stat("Nivel",b.level)}${stat("Rango",b.rank)}${stat("Likes",b.liked??b.likes)}${stat("Prime",b.primePrivilegeDetail?.primeLevel??b.primeLevel??player.primeLevel)}${stat("Honor",score.creditScore)}${stat("Región",b.region||region)}</div><div class="zx-ff-stats zx-ff-dates">${stat("Desde",since)}${stat("Último acceso",lastAccess)}</div>${clan.clanName?`<div class="zx-ff-detail zx-ff-clan"><small><img src="clan.png" class="ff-stat-icon" alt=""> CLAN</small><strong>${esc(clan.clanName)}</strong><span>${esc(clan.clanLevel?`Nivel ${clan.clanLevel}`:"")}${clan.memberNum!=null&&clan.capacity!=null?` · ${esc(String(clan.memberNum))}/${esc(String(clan.capacity))} miembros`:""}</span></div>`:""}${social.signature?`<div class="zx-ff-detail"><small>FIRMA DEL JUGADOR</small><p>${esc(social.signature)}</p></div>`:""}${pet.id?`<div class="zx-ff-detail"><small>MASCOTA EQUIPADA</small>${petArt}<strong>ID ${esc(pet.id)}</strong>${pet.level?`<span> · Nivel ${esc(String(pet.level))}</span>`:""}</div>`:""}${clothes.length?`<div class="zx-ff-detail"><small>OBJETOS EQUIPADOS</small><div class="zx-ff-outfit">${clothes.map(url=>`<img src="${url}" alt="Objeto equipado" loading="lazy">`).join("")}</div></div>`:""}${exhibited}<small class="zx-ff-disclaimer">Consulta informativa de una API externa. La imagen o algún dato pueden no estar disponibles.</small></article>`;
 }
 
 $("#zx-ff-form")?.addEventListener("submit",async event=>{
@@ -801,10 +800,10 @@ document.addEventListener("error",event=>{
     image.src=`https://raw.githubusercontent.com/ShahGCreator/icon/e74b2c08e738b664da963bcde87069bc5b4104d8/PNG/${id}.png`;
     return;
   }
-  if(image.matches(".zx-player-banner,.zx-player-avatar")){
+  if(image.matches(".zx-player-avatar")){
     const message=document.createElement("small");
     message.className="zx-art-unavailable";
-    message.textContent=image.classList.contains("zx-player-banner")?"Banner sin imagen disponible":"Foto sin imagen disponible";
+    message.textContent="Foto sin imagen disponible";
     image.replaceWith(message);
   }
   else image.hidden=true;
