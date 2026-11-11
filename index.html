@@ -51,8 +51,25 @@
 <link rel="stylesheet" href="discount-codes.css?v=1"><link rel="stylesheet" href="order-history.css?v=compact-20261012">
 <link rel="stylesheet" href="premium-store.css?v=1">
 <link rel="stylesheet" href="ultra.css?v=player23"><style>
-#zx-maintenance{padding:0;width:min(380px,calc(100% - 28px));max-height:94vh;max-height:94dvh;overflow:auto;color:#f7f7f8;background:#0d0e11;border:1px solid #786637;border-radius:16px;box-shadow:0 18px 90px #000b}#zx-maintenance::backdrop{background:#03040bd9;backdrop-filter:blur(3px)}#zx-maintenance .art{display:block;width:100%;height:min(51vh,465px);height:min(51dvh,465px);object-fit:contain;background:#050506}#zx-maintenance .close{position:absolute;right:9px;top:9px;width:42px;height:42px;border-radius:50%;background:#090a0df2;color:white;border:1px solid #aaa;font-size:27px;line-height:1;cursor:pointer}#zx-maintenance .copy{padding:16px 18px 18px;border-top:1px solid #514524}#zx-maintenance h2{margin:0;font-size:clamp(19px,5vw,23px);line-height:1.2}#zx-maintenance p{font-size:15px;color:#d4d4d9;margin:10px 0}#zx-maintenance small{display:block;color:#b8bbc0;margin:0 0 12px}#zx-maintenance .wa{display:flex;align-items:center;justify-content:center;gap:9px;padding:11px 9px;background:#070b09;border:1px solid #46e997;border-radius:7px;color:#78ffae;font-weight:700;text-decoration:none}#zx-maintenance button:focus-visible,#zx-maintenance a:focus-visible{outline:2px solid white;outline-offset:-4px}
+#zx-maintenance{padding:0;width:min(380px,calc(100% - 28px));max-height:94vh;max-height:94dvh;overflow:auto;color:#f7f7f8;background:#0d0e11;border:2px solid #ffdc59;border-radius:16px;box-shadow:0 0 4px #fff3bf,0 0 14px #ffc326aa,0 0 32px #ef9a0080,0 18px 65px #000b}#zx-maintenance::backdrop{background:#03040bd9;backdrop-filter:blur(3px)}#zx-maintenance .art{display:block;width:100%;height:min(49vh,449px);height:min(49dvh,449px);object-fit:contain;border-radius:6px}#zx-maintenance .close{position:absolute;right:9px;top:9px;width:42px;height:42px;border-radius:50%;background:#090a0df2;color:white;border:1px solid #aaa;font-size:27px;line-height:1;cursor:pointer}#zx-maintenance .copy{padding:16px 18px 18px;border-top:1px solid #514524}#zx-maintenance h2{margin:0;font-size:clamp(19px,5vw,23px);line-height:1.2}#zx-maintenance p{font-size:15px;color:#d4d4d9;margin:10px 0}#zx-maintenance small{display:block;color:#b8bbc0;margin:0 0 12px}#zx-maintenance .wa{display:flex;align-items:center;justify-content:center;gap:9px;padding:11px 9px;background:#070b09;border:1px solid #46e997;border-radius:7px;color:#78ffae;font-weight:700;text-decoration:none}#zx-maintenance button:focus-visible,#zx-maintenance a:focus-visible{outline:2px solid white;outline-offset:-4px}
 #zx-maintenance{margin:auto;inset:0;font:16px/1.45 Arial,sans-serif;}
+#zx-maintenance .poster-frame{
+  position:relative;overflow:hidden;padding:9px 10px;background:#080807;
+}
+#zx-maintenance .poster-frame::before,#zx-maintenance .poster-frame::after{
+  content:"";position:absolute;top:100%;width:3px;height:30px;border-radius:99px;
+  pointer-events:none;background:linear-gradient(to top,transparent,var(--spark));
+  filter:drop-shadow(0 0 3px var(--spark));animation:zx-notice-rise 3.8s linear infinite;
+}
+#zx-maintenance .poster-frame::before{left:4px;--spark:#ffd342}
+#zx-maintenance .poster-frame::after{right:4px;--spark:#fff2c0;animation-duration:4.2s;animation-delay:-2.1s}
+#zx-maintenance .close{z-index:1}
+@keyframes zx-notice-rise{
+  0%{top:100%;opacity:0}12%,82%{opacity:1}100%{top:-30px;opacity:0}
+}
+@media(prefers-reduced-motion:reduce){
+  #zx-maintenance .poster-frame::before,#zx-maintenance .poster-frame::after{animation:none;opacity:0}
+}
 #zx-maintenance .copy h2{color:#f7f7f8;text-transform:none;margin:0;letter-spacing:normal;}
 #zx-maintenance .copy p{line-height:1.45;}
 #zx-maintenance button,#zx-maintenance a{font-family:inherit;}
@@ -1328,7 +1345,7 @@ document.getElementById('auth-register-tab')?.addEventListener('click', async ()
     }
   } catch {}
 });
-</script><dialog id="zx-maintenance" aria-labelledby="zx-maintenance-title"><img class="art" alt="Cartel de mantenimiento de Zero’X Store" src="assets/mantenimiento-zerox.jpg"><button type="button" autofocus class="close" id="zx-maintenance-close" aria-label="Cerrar aviso">×</button><section class="copy"><h2 id="zx-maintenance-title">Página en Mantenimiento ⚠️</h2><p>Las recargas están temporalmente inhabilitadas. Para pedir diamantes, cuentas o monedas, escríbenos al número de soporte.</p><small>Soporte · +52 951 475 4210</small><a class="wa" target="_blank" rel="noopener" href="https://wa.me/529514754210"><svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20.9 11.7a9 9 0 0 1-13.4 7.9l-4.6 1.2 1.3-4.4A9 9 0 1 1 20.9 11.7Z"/><path fill="currentColor" stroke="none" d="M8.1 6.8c-.5 0-1.4.6-1.4 1.8 0 2.3 3.5 6.6 7.3 7.2 1.3.2 2.4-.8 2.5-1.6.1-.4 0-.6-.3-.7l-2-1c-.3-.1-.5-.1-.7.2l-.8.9c-1.2-.3-3-1.8-3.5-2.9l.7-.9c.2-.2.2-.5.1-.8l-.9-2c-.2-.3-.6-.3-1-.2Z"/></svg> WhatsApp Soporte</a></section></dialog>
+</script><dialog id="zx-maintenance" aria-labelledby="zx-maintenance-title"><div class="poster-frame"><img class="art" alt="Cartel de mantenimiento de Zero’X Store" src="assets/mantenimiento-zerox.jpg"></div><button type="button" autofocus class="close" id="zx-maintenance-close" aria-label="Cerrar aviso">×</button><section class="copy"><h2 id="zx-maintenance-title">Página en Mantenimiento ⚠️</h2><p>Las recargas están temporalmente inhabilitadas. Para pedir diamantes, cuentas o monedas, escríbenos al número de soporte.</p><small>Soporte · +52 951 475 4210</small><a class="wa" target="_blank" rel="noopener" href="https://wa.me/529514754210"><svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20.9 11.7a9 9 0 0 1-13.4 7.9l-4.6 1.2 1.3-4.4A9 9 0 1 1 20.9 11.7Z"/><path fill="currentColor" stroke="none" d="M8.1 6.8c-.5 0-1.4.6-1.4 1.8 0 2.3 3.5 6.6 7.3 7.2 1.3.2 2.4-.8 2.5-1.6.1-.4 0-.6-.3-.7l-2-1c-.3-.1-.5-.1-.7.2l-.8.9c-1.2-.3-3-1.8-3.5-2.9l.7-.9c.2-.2.2-.5.1-.8l-.9-2c-.2-.3-.6-.3-1-.2Z"/></svg> WhatsApp Soporte</a></section></dialog>
 <script>
 (() => {
   const notice = document.getElementById("zx-maintenance");
