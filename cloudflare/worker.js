@@ -257,11 +257,11 @@ export default {
       }
       if(url.pathname.startsWith("/api/auth/") || url.pathname.startsWith("/api/public-profile/")) await authSchema(env);
 
-      if(url.pathname==="/api/auth/features" && request.method==="GET")return json({ok:true,contact:true,publicProfiles:true});
+      if(url.pathname==="/api/auth/features" && request.method==="GET")return json({ok:true,contact:true,publicProfiles:true,publicProfilesByDefault:true});
 
       const publicHandle=url.pathname.match(/^\/api\/public-profile\/([A-Za-z0-9_.-]{3,24})$/);
       if(publicHandle && request.method==="GET"){
-        const row=await env.DB.prepare("SELECT u.id,u.username,u.created_at,p.display_name,p.level,p.xp,s.bio,s.favorites,s.avatar,s.banner,s.banner_image AS bannerImage,s.frame FROM zx_users u JOIN zx_profile_style s ON s.user_id=u.id LEFT JOIN zx_profiles p ON p.user_id=u.id WHERE u.username=? COLLATE NOCASE AND u.status='active' AND s.is_public=1 LIMIT 1").bind(publicHandle[1]).first();
+        const row=await env.DB.prepare("SELECT u.id,u.username,u.created_at,p.display_name,p.level,p.xp,s.bio,s.favorites,s.avatar,s.banner,s.banner_image AS bannerImage,s.frame FROM zx_users u LEFT JOIN zx_profile_style s ON s.user_id=u.id LEFT JOIN zx_profiles p ON p.user_id=u.id WHERE u.username=? COLLATE NOCASE AND u.status='active' AND COALESCE(s.is_public,1)=1 LIMIT 1").bind(publicHandle[1]).first();
         if(!row)return json({ok:false,error:"NOT_FOUND"},404);
         let favorites=[];try{favorites=JSON.parse(row.favorites||"[]")}catch{}
         const hasStyles=await env.DB.prepare("SELECT name FROM sqlite_master WHERE name='zx_member_styles'").first();
@@ -293,6 +293,7 @@ export default {
           await env.DB.batch([
             env.DB.prepare("INSERT INTO zx_users(id,email,username,password_hash) VALUES(?,?,?,?)").bind(id,email,username,hash),
             env.DB.prepare("INSERT INTO zx_profiles(user_id,display_name) VALUES(?,?)").bind(id,displayName||username),
+            env.DB.prepare("INSERT INTO zx_profile_style(user_id,is_public) VALUES(?,1)").bind(id),
             env.DB.prepare("INSERT INTO zx_customer_location(user_id,country,state) VALUES(?,?,?)").bind(id,body.country,(body.state||"").trim()),
             ...(invite?[invite]:[])
           ]);
@@ -300,7 +301,7 @@ export default {
           if(String(e.message||"").toLowerCase().includes("unique")) return json({ok:false,error:"ACCOUNT_EXISTS"},409);
           throw e;
         }
-        return json({ok:true,user:{id,email,username,displayName:displayName||username,country:body.country,purchaseRegion:countryRegions[body.country]},session:await newSession(env,id)},201);
+        return json({ok:true,user:{id,email,username,displayName:displayName||username,profile:{isPublic:true},country:body.country,purchaseRegion:countryRegions[body.country]},session:await newSession(env,id)},201);
       }
 
       if(url.pathname==="/api/auth/username" && request.method==="POST"){
@@ -361,7 +362,7 @@ export default {
         if(!u)return json({ok:false,error:"UNAUTHORIZED"},401);
         const style=await env.DB.prepare("SELECT bio,favorites,avatar,banner,banner_image AS bannerImage,frame,is_public AS isPublic FROM zx_profile_style WHERE user_id=?").bind(u.id).first();
         const contact=await env.DB.prepare("SELECT phone FROM zx_private_contact WHERE user_id=?").bind(u.id).first();
-        return json({ok:true,user:{...u,phone:contact?.phone||"",profile:style?{...style,isPublic:!!style.isPublic,favorites:JSON.parse(style.favorites||"[]")}:{bio:"",favorites:[],avatar:"",banner:"violet",bannerImage:"",frame:"steel",isPublic:false}}});
+        return json({ok:true,user:{...u,phone:contact?.phone||"",profile:style?{...style,isPublic:!!style.isPublic,favorites:JSON.parse(style.favorites||"[]")}:{bio:"",favorites:[],avatar:"",banner:"violet",bannerImage:"",frame:"steel",isPublic:true}}});
       }
 
       if(url.pathname==="/api/auth/logout" && request.method==="POST"){

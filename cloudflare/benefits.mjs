@@ -30,6 +30,7 @@ export async function benefitsRoute(request,env,user,json,passwordHash){
   try{await db.batch([
     db.prepare('INSERT INTO zx_users(id,email,username,password_hash) VALUES(?,?,?,?)').bind(id,b.email.toLowerCase().trim(),b.username,hash),
     db.prepare('INSERT INTO zx_profiles(user_id,display_name) VALUES(?,?)').bind(id,b.username),
+    db.prepare('INSERT INTO zx_profile_style(user_id,is_public) VALUES(?,1)').bind(id),
     db.prepare('INSERT INTO zx_member_perks VALUES(?,?,?)').bind(id,badge,JSON.stringify(rules)),
     db.prepare('INSERT INTO zx_member_styles VALUES(?,?,?,?)').bind(id,b.color,b.font,b.frame)
   ]);}catch(error){if(/unique/i.test(error.message))return json({ok:false,error:'ACCOUNT_EXISTS'},409);throw error}

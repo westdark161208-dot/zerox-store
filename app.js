@@ -635,8 +635,21 @@ $("#register-form")?.addEventListener("submit", async event => {
     const data = await zeroxAuthRequest("/api/auth/register", { method:"POST", body:JSON.stringify(body) });
     saveZeroXSession(data.session);
     zeroxUser = data.user;
+    // Older Workers create the account before they initialize its public presentation.
+    let profileSetupFailed=false;
+    if(data.user.profile?.isPublic!==true){
+      try{
+        const response=await fetch(ZEROX_API+"/api/auth/profile",{
+          method:"POST",
+          headers:{"Content-Type":"application/json",Authorization:"Bearer "+data.session.token},
+          body:JSON.stringify({bio:"",favorites:[],avatar:"",banner:"violet",bannerImage:"",frame:"steel",isPublic:true})
+        });
+        profileSetupFailed=!response.ok;
+      }catch{profileSetupFailed=true;}
+    }
     form.reset();
     await restoreZeroXSession();
+    if(profileSetupFailed)$("#zx-public-status").textContent="Cuenta creada. Para aparecer en la búsqueda, activa la visibilidad y guarda tu perfil.";
     await zxResumeReseller();
   } catch (error) {
     $("#auth-result").innerHTML = `<div class="error">${esc(authMessage(error))}</div>`;
