@@ -172,3 +172,21 @@ body:has(#inicio),#inicio{background:#050505;animation:none}
 }
 .zerox-splash-bg{overflow:hidden}
 @media(prefers-reduced-motion:reduce){.zx-ff-card .zx-ff-stat::after{animation:none}}
+
+.zx-ff-card .zx-ff-identity>img.zx-player-avatar{
+  border-radius:3px;
+  aspect-ratio:1;
+  object-fit:contain;
+}
+.zx-ff-all{min-width:0;margin:14px 0 6px;color:#e4ecff}
+.zx-ff-all h5{margin:0 0 8px;font-size:15px}
+.zx-ff-fields{min-width:0;margin:5px 0;padding:0 9px;background:#0a101d;border:1px solid #354977;border-radius:8px}
+.zx-ff-fields summary{padding:9px 0;cursor:pointer;color:#c6d5ff;font-weight:700}
+.zx-ff-fields summary:focus-visible{outline:2px solid #8dafff}
+.zx-ff-fields dl{margin:0 0 8px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:4px 8px}
+.zx-ff-fields :is(dt,dd,li){margin:0;font-size:13px;line-height:1.45;overflow-wrap:anywhere;white-space:pre-wrap}
+.zx-ff-fields dt{color:#a7b7db}
+.zx-ff-fields dd dl{display:block;padding-left:6px;border-left:1px solid #425477}
+.zx-ff-fields dd dd{margin:0 0 5px}
+.zx-ff-fields ol{margin:0;padding-left:18px}
+.zx-art-unavailable{color:#c5d3fd;padding:4px;font-size:11px}

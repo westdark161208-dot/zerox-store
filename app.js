@@ -742,10 +742,12 @@ $("#zx-public-enabled")?.addEventListener("change",()=>{$("#zx-public-status").t
 function renderFreeFireCard(player,uid,region="br"){
     const b=player.basicInfo||{},clan=player.clanBasicInfo||{},score=player.creditScoreInfo||{},pet=player.petInfo||{},profile=player.profileInfo||{},social=player.socialInfo||{};
     const itemImage=id=>/^\d{4,18}$/.test(String(id||""))?`${ZEROX_API}/api/item-image?itemID=${encodeURIComponent(id)}`:"";
+    // The provider supplies item IDs. Prefer locally verified artwork when available.
+    const bundledArtwork=new Set(["901053006","902052004"]);
     const portrait=(id,label,kind)=>{
       const src=itemImage(id);
       if(!src)return "";
-      return `<img class="zx-player-${kind}" src="${src}" data-profile-item="${id}" alt="${label}" referrerpolicy="no-referrer">`;
+      return `<img class="zx-player-${kind}" src="${bundledArtwork.has(String(id))?`assets/freefire-profile/${id}.webp`:src}" data-profile-item="${id}" alt="${label}" referrerpolicy="no-referrer">`;
     };
     const avatar=portrait(b.headPic,"Foto de perfil del jugador","avatar");
     const banner=portrait(b.bannerId||profile.bannerId,"Banner equipado del jugador","banner");
@@ -754,7 +756,51 @@ function renderFreeFireCard(player,uid,region="br"){
     const date=Number(b.createAt||b.createTime||0);
     const since=date>1000000000&&date<3000000000?new Intl.DateTimeFormat("es-MX",{dateStyle:"medium"}).format(new Date(date*1000)):"";
     const clothes=Array.isArray(profile.clothes)?profile.clothes.map(itemImage).filter(Boolean).slice(0,6):[];
-    return `<article class="zx-ff-card">${banner?`<div class="zx-ff-banner">${banner}</div>`:""}<div class="zx-ff-identity">${avatar}<div><small>PERFIL FREE FIRE · ${esc(String(b.region||region).toUpperCase())}</small><h4>${esc(b.nickname||player.nickname||"Jugador Free Fire")}</h4><span>ID ${esc(uid)}</span></div></div><div class="zx-ff-stats">${stat("Nivel",b.level)}${stat("Rango",b.rank)}${stat("Likes",b.liked??b.likes)}${stat("Prime",b.primePrivilegeDetail?.primeLevel??b.primeLevel??player.primeLevel)}${stat("Honor",score.creditScore)}${stat("Desde",since)}${stat("Región",b.region||region)}</div>${clan.clanName?`<div class="zx-ff-detail"><small><img src="clan.png" class="ff-stat-icon" alt=""> CLAN</small><strong>${esc(clan.clanName)}</strong><span>${esc(clan.clanLevel?`Nivel ${clan.clanLevel}`:"")}${clan.memberNum!=null&&clan.capacity!=null?` · ${esc(String(clan.memberNum))}/${esc(String(clan.capacity))} miembros`:""}</span></div>`:""}${social.signature?`<div class="zx-ff-detail"><small>FIRMA DEL JUGADOR</small><p>${esc(social.signature)}</p></div>`:""}${pet.id?`<div class="zx-ff-detail"><small>MASCOTA EQUIPADA</small><strong>ID ${esc(pet.id)}</strong>${pet.level?`<span> · Nivel ${esc(String(pet.level))}</span>`:""}</div>`:""}${clothes.length?`<div class="zx-ff-detail"><small>OBJETOS EQUIPADOS</small><div class="zx-ff-outfit">${clothes.map(url=>`<img src="${url}" alt="Objeto equipado" loading="lazy">`).join("")}</div></div>`:""}<small class="zx-ff-disclaimer">Consulta informativa de una API externa. La imagen o algún dato pueden no estar disponibles.</small></article>`;
+    const fields={
+      basicInfo:"Cuenta y clasificación",captainBasicInfo:"Perfil del capitán",clanBasicInfo:"Clan",
+      creditScoreInfo:"Honor y recompensas",diamondCostRes:"Datos de diamantes",petInfo:"Mascota",
+      profileInfo:"Personaje y equipamiento",socialInfo:"Perfil social",accountId:"ID de jugador",
+      accountPrefers:"Preferencias",accountType:"Tipo de cuenta",badgeCnt:"Cantidad de insignias",
+      badgeId:"ID de insignia",bannerId:"ID del banner",createAt:"Fecha de creación",
+      csMaxRank:"Rango máximo de DE",csRank:"Rango de DE",csRankingPoints:"Puntos de DE",
+      exp:"Experiencia",externalIconInfo:"Icono externo",showType:"Tipo de visualización",
+      status:"Estado",headPic:"ID de la foto de perfil",lastLoginAt:"Último acceso",level:"Nivel",
+      liked:"Likes",maxRank:"Rango máximo de BR",nickname:"Nombre",pinId:"ID del pin",
+      primePrivilegeDetail:"Privilegios Prime",primeLevel:"Nivel Prime",privilegeIdList:"IDs de privilegios",
+      rank:"Rango de BR",rankingPoints:"Puntos de BR",region:"Región",releaseVersion:"Versión del juego",
+      seasonId:"Temporada",selectOccupations:"Roles seleccionados",modeId:"ID del modo",type:"Tipo",
+      details:"Detalles",showBrRank:"Mostrar rango de BR",showCsRank:"Mostrar rango de DE",
+      showRank:"Mostrar rango",title:"ID del título",weaponSkinShows:"Skins de armas exhibidas",
+      capacity:"Capacidad",captainId:"ID del capitán",clanId:"ID del clan",clanLevel:"Nivel del clan",
+      clanName:"Nombre del clan",memberNum:"Miembros",creditScore:"Honor",rewardEndAt:"Fin de recompensa",
+      rewardStartAt:"Inicio de recompensa",rewardState:"Estado de recompensa",rewardType:"Tipo de recompensa",
+      diamondCost:"Costo de diamantes reportado",id:"ID",isSelected:"Equipado",selectedSkillId:"ID de habilidad seleccionada",
+      skinId:"ID de skin",avatarId:"ID de personaje",clothes:"Objetos equipados",equipedSkills:"Habilidades equipadas",
+      skillId:"ID de habilidad",slotId:"Ranura",isSelectedAwaken:"Despertar seleccionado",signature:"Firma"
+    };
+    const labelFor=key=>Object.hasOwn(fields,key)?fields[key]:key;
+    function fieldValue(value,key){
+      if(value===null)return "Sin dato";
+      if(typeof value==="boolean")return value?"Sí":"No";
+      if(Array.isArray(value)){
+        if(!value.length)return "Lista vacía";
+        if(value.every(entry=>entry===null||typeof entry!=="object"))return value.map(entry=>fieldValue(entry,"")).join(" · ");
+        return `<ol>${value.map(entry=>`<li>${fieldValue(entry,"")}</li>`).join("")}</ol>`;
+      }
+      if(typeof value==="object"){
+        const entries=Object.entries(value);
+        return entries.length?`<dl>${entries.map(([name,entry])=>`<dt>${esc(labelFor(name))}</dt><dd>${fieldValue(entry,name)}</dd>`).join("")}</dl>`:"Sin campos";
+      }
+      if(["createAt","lastLoginAt","rewardEndAt","rewardStartAt"].includes(key)&&/^\d{10}$/.test(String(value))){
+        const time=new Date(Number(value)*1000);
+        return `${esc(time.toLocaleString("es-MX",{timeZone:"UTC"}))} UTC · ${esc(value)}`;
+      }
+      return value===""?"Texto vacío":esc(value);
+    }
+    const allData=Object.entries(player).map(([key,value])=>
+      `<details class="zx-ff-fields"><summary>${esc(labelFor(key))}</summary>${fieldValue(value,key)}</details>`
+    ).join("");
+    return `<article class="zx-ff-card">${banner?`<div class="zx-ff-banner">${banner}</div>`:""}<div class="zx-ff-identity">${avatar}<div><small>PERFIL FREE FIRE · ${esc(String(b.region||region).toUpperCase())}</small><h4>${esc(b.nickname||player.nickname||"Jugador Free Fire")}</h4><span>ID ${esc(uid)}</span></div></div><div class="zx-ff-stats">${stat("Nivel",b.level)}${stat("Rango",b.rank)}${stat("Likes",b.liked??b.likes)}${stat("Prime",b.primePrivilegeDetail?.primeLevel??b.primeLevel??player.primeLevel)}${stat("Honor",score.creditScore)}${stat("Desde",since)}${stat("Región",b.region||region)}</div>${clan.clanName?`<div class="zx-ff-detail"><small><img src="clan.png" class="ff-stat-icon" alt=""> CLAN</small><strong>${esc(clan.clanName)}</strong><span>${esc(clan.clanLevel?`Nivel ${clan.clanLevel}`:"")}${clan.memberNum!=null&&clan.capacity!=null?` · ${esc(String(clan.memberNum))}/${esc(String(clan.capacity))} miembros`:""}</span></div>`:""}${social.signature?`<div class="zx-ff-detail"><small>FIRMA DEL JUGADOR</small><p>${esc(social.signature)}</p></div>`:""}${pet.id?`<div class="zx-ff-detail"><small>MASCOTA EQUIPADA</small><strong>ID ${esc(pet.id)}</strong>${pet.level?`<span> · Nivel ${esc(String(pet.level))}</span>`:""}</div>`:""}${clothes.length?`<div class="zx-ff-detail"><small>OBJETOS EQUIPADOS</small><div class="zx-ff-outfit">${clothes.map(url=>`<img src="${url}" alt="Objeto equipado" loading="lazy">`).join("")}</div></div>`:""}<section class="zx-ff-all"><h5>Información completa del jugador</h5>${allData}</section><small class="zx-ff-disclaimer">Consulta informativa de una API externa. La imagen o algún dato pueden no estar disponibles.</small></article>`;
 }
 
 $("#zx-ff-form")?.addEventListener("submit",async event=>{
@@ -787,7 +833,12 @@ document.addEventListener("error",event=>{
     image.src=`https://raw.githubusercontent.com/ShahGCreator/icon/e74b2c08e738b664da963bcde87069bc5b4104d8/PNG/${id}.png`;
     return;
   }
-  if(image.classList.contains("zx-player-banner"))image.closest(".zx-ff-banner")?.remove();
+  if(image.matches(".zx-player-banner,.zx-player-avatar")){
+    const message=document.createElement("small");
+    message.className="zx-art-unavailable";
+    message.textContent=image.classList.contains("zx-player-banner")?"Banner sin imagen disponible":"Foto sin imagen disponible";
+    image.replaceWith(message);
+  }
   else image.hidden=true;
 },true);
 
@@ -1329,7 +1380,6 @@ function openCheckout(id) {
       card.innerHTML=playerContent.innerHTML;
       card.querySelectorAll('.zx-ff-stats,.zx-ff-detail,.zx-ff-disclaimer').forEach(el=>el.remove());
       card.classList.add('zx-confirmed-player');
-      card.querySelectorAll('img').forEach(img=>img.addEventListener('error',()=>img.hidden=true,{once:true}));
       if(playerDialog.open)playerDialog.close();
       payments.scrollIntoView({block:"nearest"});
       pay.disabled=true;realAvailable=false;note.textContent="Comprobando si pago y entrega están disponibles…";
