@@ -8,12 +8,12 @@ test('shared player card escapes external profile text and bounds remote item im
 });
 test('profile artwork uses headPic and bannerId independently of the equipped character',()=>{
  const html=render({basicInfo:{headPic:'902052004',bannerId:'901053006'},profileInfo:{avatarId:'102000012'}},'1136210821');
- assert(html.includes('902052004.webp'));assert(html.includes('901053006.webp'));assert(!html.includes('itemID=102000012'));assert(html.includes('<dd>102000012</dd>'));
+ assert(html.includes('902052004.webp'));assert(html.includes('901053006.webp'));assert(!html.includes('itemID=102000012'));
  const missing=render({profileInfo:{avatarId:'102000012'}},'12345');
  assert(!missing.includes('zx-player-avatar'));assert(!missing.includes('zx-ff-banner'));
 });
-test('renders every response block and nested fields, preserves zero and false, and escapes unknown keys and values',()=>{
- const html=render({basicInfo:{headPic:'902052004',bannerId:'901053006'},extra:{'<new>':[{flag:false,count:0,value:'<tag>'}],missing:null}},'12345');
- assert(html.includes('assets/freefire-profile/902052004.webp'));assert(html.includes('assets/freefire-profile/901053006.webp'));
- for(const value of ['extra','&lt;new&gt;','No','<dd>0</dd>','&lt;tag&gt;','Sin dato'])assert(html.includes(value));
+test('compact card renders last login and artwork for the selected pet skin and valid showcase IDs',()=>{
+ const html=render({basicInfo:{lastLoginAt:"1794405484",weaponSkinShows:["907300004","bad"]},petInfo:{id:"1300000115",skinId:"1310000157"}},'12345');
+ assert(html.includes('Último acceso'));assert(html.includes('itemID=1310000157'));assert(html.includes('itemID=907300004'));assert(!html.includes('itemID=bad'));
+ assert(!html.includes('<details'));assert(!render({basicInfo:{lastLoginAt:"0"}},'12345').includes('Último acceso'));
 });

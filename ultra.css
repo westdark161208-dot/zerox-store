@@ -136,18 +136,6 @@ body:has(#inicio),#inicio{background:#050505;animation:none}
 @media(prefers-reduced-motion:reduce){#drawer .zx-drawer-scroll :is(button,a){transition:none}}
 
 .zx-ff-card img[hidden]{display:none!important}
-.zx-ff-card .zx-ff-banner:has(.zx-player-banner){
-  display:grid;
-  place-items:center;
-  overflow:hidden;
-  background:radial-gradient(ellipse at center,#282656,#090e1c 78%);
-  border-color:#6c7fee;
-  box-shadow:0 0 10px #527aff50;
-}
-.zx-player-banner{display:block;width:100%;height:100%;min-height:0;object-fit:contain}
-.zx-ff-card .zx-ff-identity{margin-top:6px}
-#zx-player-confirm-dialog .zx-ff-identity{padding:6px 4px 14px}
-#zx-player-confirm-dialog .zx-ff-identity:after{bottom:0;height:5px;opacity:.6}
 .zx-ff-card .zx-ff-stats{gap:7px;grid-template-columns:repeat(auto-fit,minmax(min(100%,92px),1fr))}
 .zx-ff-card .zx-ff-stat{
   position:relative;
@@ -173,20 +161,33 @@ body:has(#inicio),#inicio{background:#050505;animation:none}
 .zerox-splash-bg{overflow:hidden}
 @media(prefers-reduced-motion:reduce){.zx-ff-card .zx-ff-stat::after{animation:none}}
 
-.zx-ff-card .zx-ff-identity>img.zx-player-avatar{
-  border-radius:3px;
-  aspect-ratio:1;
-  object-fit:contain;
+/* The catalogue artwork can be square. Keep the complete item at its original aspect ratio. */
+.zx-ff-nameplate{
+  display:flex;align-items:center;gap:6px;margin:0 0 12px;min-width:0;
 }
-.zx-ff-all{min-width:0;margin:14px 0 6px;color:#e4ecff}
-.zx-ff-all h5{margin:0 0 8px;font-size:15px}
-.zx-ff-fields{min-width:0;margin:5px 0;padding:0 9px;background:#0a101d;border:1px solid #354977;border-radius:8px}
-.zx-ff-fields summary{padding:9px 0;cursor:pointer;color:#c6d5ff;font-weight:700}
-.zx-ff-fields summary:focus-visible{outline:2px solid #8dafff}
-.zx-ff-fields dl{margin:0 0 8px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:4px 8px}
-.zx-ff-fields :is(dt,dd,li){margin:0;font-size:13px;line-height:1.45;overflow-wrap:anywhere;white-space:pre-wrap}
-.zx-ff-fields dt{color:#a7b7db}
-.zx-ff-fields dd dl{display:block;padding-left:6px;border-left:1px solid #425477}
-.zx-ff-fields dd dd{margin:0 0 5px}
-.zx-ff-fields ol{margin:0;padding-left:18px}
+.zx-ff-nameplate>.zx-player-avatar{
+  flex:none;width:clamp(44px,13vw,72px);height:auto;aspect-ratio:1;object-fit:contain;
+  border:2px solid #658aff;border-radius:3px;box-shadow:0 0 10px #4269f866;
+}
+.zx-ff-player-strip{
+  position:relative;isolation:isolate;display:grid;align-items:end;flex:1;min-width:0;
+  min-height:clamp(105px,28vw,145px);overflow:hidden;border:1px solid #748df7;border-radius:8px;
+  background:linear-gradient(112deg,#091324,#20375c 60%,#080c16);box-shadow:0 0 10px #477fff44;
+}
+.zx-ff-player-strip>.zx-player-banner{
+  position:absolute;inset:0;z-index:-1;display:block;width:100%;height:100%;
+  object-fit:contain;object-position:right center;
+}
+.zx-ff-player-caption{
+  justify-self:start;min-width:0;max-width:100%;box-sizing:border-box;padding:5px 8px;
+  border-radius:0 6px 0 0;color:white;background:rgba(3,8,18,.84);overflow-wrap:anywhere;
+}
+.zx-ff-player-caption small{font-size:10px;letter-spacing:.05em;color:#c5dbff}
+.zx-ff-player-caption h4{margin:2px 0;font-size:clamp(16px,4vw,21px);line-height:1.1;color:white}
+.zx-ff-player-caption span{font-size:12px;color:white}
+.zx-ff-card .zx-player-pet{display:block;width:74px;height:74px;object-fit:contain}
+.zx-ff-showcase{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,80px),1fr));gap:7px;margin-top:7px}
+.zx-ff-showcase figure{margin:0;min-width:0;padding:4px;border:1px solid #344b77;border-radius:8px;background:#0a1220}
+.zx-ff-showcase img{display:block;width:100%;height:64px;object-fit:contain}
+.zx-ff-showcase figcaption{font-size:12px;line-height:1.2;color:#c9d8f3;overflow-wrap:anywhere;text-align:center}
 .zx-art-unavailable{color:#c5d3fd;padding:4px;font-size:11px}
