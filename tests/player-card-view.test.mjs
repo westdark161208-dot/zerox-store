@@ -6,3 +6,9 @@ test('shared player card escapes external profile text and bounds remote item im
  const html=render({basicInfo:{nickname:'<img src=x onerror=alert(1)>',level:76,rank:314,liked:0,region:'US'},profileInfo:{avatarId:"x' onerror=alert(1)",clothes:['12345678','bad']},clanBasicInfo:{clanName:'<script>secret</script>'}},'1136210821');
  assert(!html.includes('<script>'));assert(html.includes('&lt;img'));assert(!html.includes('itemID=x'));assert(html.includes('itemID=12345678'));assert(html.includes('nivel.png'));assert(html.includes('rango.png'));assert(html.includes('likes.png'));assert(html.includes('region.png'));assert(html.includes('clan.png'));assert(html.includes('<strong>0</strong>'));
 });
+test('profile artwork uses headPic and bannerId independently of the equipped character',()=>{
+ const html=render({basicInfo:{headPic:'902052004',bannerId:'901053006'},profileInfo:{avatarId:'102000012'}},'1136210821');
+ assert(html.includes('itemID=902052004'));assert(html.includes('itemID=901053006'));assert(!html.includes('102000012'));
+ const missing=render({profileInfo:{avatarId:'102000012'}},'12345');
+ assert(!missing.includes('zx-player-avatar'));assert(!missing.includes('zx-ff-banner'));
+});

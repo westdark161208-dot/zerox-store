@@ -742,13 +742,19 @@ $("#zx-public-enabled")?.addEventListener("change",()=>{$("#zx-public-status").t
 function renderFreeFireCard(player,uid,region="br"){
     const b=player.basicInfo||{},clan=player.clanBasicInfo||{},score=player.creditScoreInfo||{},pet=player.petInfo||{},profile=player.profileInfo||{},social=player.socialInfo||{};
     const itemImage=id=>/^\d{4,18}$/.test(String(id||""))?`${ZEROX_API}/api/item-image?itemID=${encodeURIComponent(id)}`:"";
-    const avatar=itemImage(profile.avatarId),banner=itemImage(b.bannerId||profile.bannerId);
+    const portrait=(id,label,kind)=>{
+      const src=itemImage(id);
+      if(!src)return "";
+      return `<img class="zx-player-${kind}" src="${src}" data-profile-item="${id}" alt="${label}" referrerpolicy="no-referrer">`;
+    };
+    const avatar=portrait(b.headPic,"Foto de perfil del jugador","avatar");
+    const banner=portrait(b.bannerId||profile.bannerId,"Banner equipado del jugador","banner");
     const statIcons={Nivel:"nivel.png",Rango:"rango.png",Likes:"likes.png",Región:"region.png"};
     const stat=(label,value)=>value===undefined||value===null||value===""?"":`<div class="zx-ff-stat"><small>${statIcons[label]?`<img src="${statIcons[label]}" class="ff-stat-icon" alt="" loading="lazy">`:""}${esc(label)}</small><strong>${esc(String(value))}</strong></div>`;
     const date=Number(b.createAt||b.createTime||0);
     const since=date>1000000000&&date<3000000000?new Intl.DateTimeFormat("es-MX",{dateStyle:"medium"}).format(new Date(date*1000)):"";
     const clothes=Array.isArray(profile.clothes)?profile.clothes.map(itemImage).filter(Boolean).slice(0,6):[];
-    return `<article class="zx-ff-card"><div class="zx-ff-banner" ${banner?`style="background-image:linear-gradient(0deg,#101523bb,#10152322),url('${banner}')"`:""}></div><div class="zx-ff-identity">${avatar?`<img src="${avatar}" alt="Avatar del jugador" loading="lazy">`:`<span aria-hidden="true">◆</span>`}<div><small>PERFIL FREE FIRE · ${esc(String(b.region||region).toUpperCase())}</small><h4>${esc(b.nickname||player.nickname||"Jugador Free Fire")}</h4><span>ID ${esc(uid)}</span></div></div><div class="zx-ff-stats">${stat("Nivel",b.level)}${stat("Rango",b.rank)}${stat("Likes",b.liked??b.likes)}${stat("Prime",b.primePrivilegeDetail?.primeLevel??b.primeLevel??player.primeLevel)}${stat("Honor",score.creditScore)}${stat("Desde",since)}${stat("Región",b.region||region)}</div>${clan.clanName?`<div class="zx-ff-detail"><small><img src="clan.png" class="ff-stat-icon" alt=""> CLAN</small><strong>${esc(clan.clanName)}</strong><span>${esc(clan.clanLevel?`Nivel ${clan.clanLevel}`:"")}${clan.memberNum!=null&&clan.capacity!=null?` · ${esc(String(clan.memberNum))}/${esc(String(clan.capacity))} miembros`:""}</span></div>`:""}${social.signature?`<div class="zx-ff-detail"><small>FIRMA DEL JUGADOR</small><p>${esc(social.signature)}</p></div>`:""}${pet.id?`<div class="zx-ff-detail"><small>MASCOTA EQUIPADA</small><strong>ID ${esc(pet.id)}</strong>${pet.level?`<span> · Nivel ${esc(String(pet.level))}</span>`:""}</div>`:""}${clothes.length?`<div class="zx-ff-detail"><small>OBJETOS EQUIPADOS</small><div class="zx-ff-outfit">${clothes.map(url=>`<img src="${url}" alt="Objeto equipado" loading="lazy">`).join("")}</div></div>`:""}<small class="zx-ff-disclaimer">Consulta informativa de una API externa. La imagen o algún dato pueden no estar disponibles.</small></article>`;
+    return `<article class="zx-ff-card">${banner?`<div class="zx-ff-banner">${banner}</div>`:""}<div class="zx-ff-identity">${avatar}<div><small>PERFIL FREE FIRE · ${esc(String(b.region||region).toUpperCase())}</small><h4>${esc(b.nickname||player.nickname||"Jugador Free Fire")}</h4><span>ID ${esc(uid)}</span></div></div><div class="zx-ff-stats">${stat("Nivel",b.level)}${stat("Rango",b.rank)}${stat("Likes",b.liked??b.likes)}${stat("Prime",b.primePrivilegeDetail?.primeLevel??b.primeLevel??player.primeLevel)}${stat("Honor",score.creditScore)}${stat("Desde",since)}${stat("Región",b.region||region)}</div>${clan.clanName?`<div class="zx-ff-detail"><small><img src="clan.png" class="ff-stat-icon" alt=""> CLAN</small><strong>${esc(clan.clanName)}</strong><span>${esc(clan.clanLevel?`Nivel ${clan.clanLevel}`:"")}${clan.memberNum!=null&&clan.capacity!=null?` · ${esc(String(clan.memberNum))}/${esc(String(clan.capacity))} miembros`:""}</span></div>`:""}${social.signature?`<div class="zx-ff-detail"><small>FIRMA DEL JUGADOR</small><p>${esc(social.signature)}</p></div>`:""}${pet.id?`<div class="zx-ff-detail"><small>MASCOTA EQUIPADA</small><strong>ID ${esc(pet.id)}</strong>${pet.level?`<span> · Nivel ${esc(String(pet.level))}</span>`:""}</div>`:""}${clothes.length?`<div class="zx-ff-detail"><small>OBJETOS EQUIPADOS</small><div class="zx-ff-outfit">${clothes.map(url=>`<img src="${url}" alt="Objeto equipado" loading="lazy">`).join("")}</div></div>`:""}<small class="zx-ff-disclaimer">Consulta informativa de una API externa. La imagen o algún dato pueden no estar disponibles.</small></article>`;
 }
 
 $("#zx-ff-form")?.addEventListener("submit",async event=>{
@@ -770,6 +776,20 @@ $("#zx-ff-form")?.addEventListener("submit",async event=>{
 });
 
 
+
+// Image errors do not bubble. Capture them for every card, including checkout copies.
+document.addEventListener("error",event=>{
+  const image=event.target;
+  if(!(image instanceof HTMLImageElement)||!image.matches(".zx-ff-card img"))return;
+  const id=image.dataset.profileItem;
+  if(id && /^\d{4,18}$/.test(id)){
+    delete image.dataset.profileItem;
+    image.src=`https://raw.githubusercontent.com/ShahGCreator/icon/e74b2c08e738b664da963bcde87069bc5b4104d8/PNG/${id}.png`;
+    return;
+  }
+  if(image.classList.contains("zx-player-banner"))image.closest(".zx-ff-banner")?.remove();
+  else image.hidden=true;
+},true);
 
 /* =========================================================
    CARRITO
@@ -1296,7 +1316,6 @@ function openCheckout(id) {
         if(info.accountId && String(info.accountId)!==uid)throw new Error("mismatch");
         playerContent.innerHTML=renderFreeFireCard(result.player,uid);
         playerContent.querySelector(".zx-ff-disclaimer")?.remove();
-        playerContent.querySelectorAll("img").forEach(image=>image.addEventListener("error",()=>{image.hidden=true;},{once:true}));
         verifiedUid=uid;status.textContent=`Jugador: ${nickname} · ID: ${uid}. Pendiente de tu confirmación.`;
         playerDialog.showModal();
       } catch(error) {
@@ -1525,7 +1544,6 @@ async function checkFreeFirePlayer() {
     const basicInfo=data.basicInfo||{};
     if(basicInfo.accountId && String(basicInfo.accountId)!==uid)throw Error("PLAYER_ID_MISMATCH");
     profileCard.innerHTML=`<div class="player-profile-card">${renderFreeFireCard(data,uid)}<div class="player-confirm-box"><h4>¿Esta es tu cuenta?</h4><p>Verifica la información antes de continuar.</p><div class="player-confirm-actions"><button type="button" class="confirm-player-btn ff-confirm-account" data-player-verified="true">✓ SÍ, ES MI CUENTA</button><button type="button" class="change-player-btn ff-change-account">↻ CAMBIAR ID</button></div></div></div>`;
-    profileCard.querySelectorAll("img").forEach(image=>image.addEventListener("error",()=>{image.hidden=true;},{once:true}));
 
     profileCard.dataset.playerVerified = "false";
     profileCard.dataset.playerUid = uid;
