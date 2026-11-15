@@ -178,3 +178,39 @@ body:has(#inicio),#inicio{background:#050505;animation:none}
 .zx-ff-showcase img{display:block;width:100%;height:64px;object-fit:contain}
 .zx-ff-showcase figcaption{font-size:12px;line-height:1.2;color:#c9d8f3;overflow-wrap:anywhere;text-align:center}
 .zx-art-unavailable{color:#c5d3fd;padding:4px;font-size:11px}
+
+/* Six compact indicators share one row, including on mobile. */
+.zx-ff-card .zx-ff-metrics{
+  display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px;
+}
+.zx-ff-card .zx-ff-metrics .zx-ff-stat{
+  --stat-neon:#b99aff;--stat-fill:#25193d;
+  inline-size:auto;min-inline-size:0;aspect-ratio:auto;min-height:62px;padding:5px 2px;
+  background:var(--stat-fill);border-color:var(--stat-neon);
+  box-shadow:0 0 6px color-mix(in srgb,var(--stat-neon) 45%,transparent);
+}
+.zx-ff-card .zx-ff-metrics [data-stat="Nivel"]{--stat-neon:#ffd65e;--stat-fill:#34280e}
+.zx-ff-card .zx-ff-metrics [data-stat="Rango"]{--stat-neon:#ff7970;--stat-fill:#361612}
+.zx-ff-card .zx-ff-metrics [data-stat="Likes"]{--stat-neon:#ffb58a;--stat-fill:#342015}
+.zx-ff-card .zx-ff-metrics [data-stat="Honor"]{--stat-neon:#68f2c3;--stat-fill:#103127}
+.zx-ff-card .zx-ff-metrics [data-stat="Región"]{--stat-neon:#70caff;--stat-fill:#102b40}
+.zx-ff-card .zx-ff-metrics .zx-ff-stat small{
+  display:flex;flex-direction:column;justify-content:flex-end;align-items:center;
+  min-height:27px;gap:3px;font-size:10px;letter-spacing:0;white-space:nowrap;
+  color:var(--stat-neon);text-shadow:0 0 6px color-mix(in srgb,var(--stat-neon) 50%,transparent);
+}
+.zx-ff-card .zx-ff-metrics .zx-ff-stat strong{font-size:14px;line-height:1.15}
+.zx-ff-card .zx-ff-detail>small,.zx-ff-card .zx-ff-dates small{
+  color:#79dfff;text-shadow:0 0 7px #37bfff80;
+}
+.zx-ff-card .zx-ff-clan>small{color:#ffd46c;text-shadow:0 0 7px #ffb52c80}
+.zx-ff-card .zx-ff-pet>small{color:#7dffd7;text-shadow:0 0 7px #36eeb380}
+.zx-ff-card .zx-ff-stat strong,.zx-ff-card .zx-ff-detail :is(strong,span,p),.zx-ff-card figcaption{color:#fff}
+.zx-ff-card .zx-ff-pet{
+  display:grid;justify-items:center;gap:5px;width:fit-content;max-width:100%;
+  box-sizing:border-box;justify-self:start;padding:10px 12px;
+}
+.zx-ff-card .zx-ff-pet>small{font-size:10px;letter-spacing:.06em}
+.zx-ff-card .zx-ff-pet>strong{font-size:13px;margin:0}
+.zx-ff-card .zx-ff-pet>span{font-size:12px}
+.zx-ff-card .zx-ff-pet .zx-player-pet{width:84px;height:84px}
