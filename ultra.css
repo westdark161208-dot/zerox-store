@@ -181,7 +181,7 @@ body:has(#inicio),#inicio{background:#050505;animation:none}
 
 /* Six compact indicators share one row, including on mobile. */
 .zx-ff-card .zx-ff-metrics{
-  display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px;
+  display:grid;grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:4px;
 }
 .zx-ff-card .zx-ff-metrics .zx-ff-stat{
   --stat-neon:#b99aff;--stat-fill:#25193d;
