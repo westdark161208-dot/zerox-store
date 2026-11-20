@@ -1,0 +1,10 @@
+{
+  "name": "zerox-store",
+  "compatibility_date": "2026-09-10",
+  "pages_build_output_dir": "./dist",
+  "env": {
+    "production": {
+      "r2_buckets": [{ "binding": "MANUAL_APPEARANCE", "bucket_name": "zerox-store-media" }]
+    }
+  }
+}

@@ -1,18 +1,81 @@
-(()=>{
- const trigger=document.getElementById('zx-open-oxxo');if(!trigger)return;
- const dialog=document.createElement('dialog');dialog.className='zx-oxxo-modal';dialog.setAttribute('aria-labelledby','zx-oxxo-title');
- dialog.innerHTML='<button type="button" data-close aria-label="Cerrar depósito OXXO">Cerrar ×</button><h2 id="zx-oxxo-title">Recarga tu saldo en OXXO</h2><p>Deposita en OXXO por medio del código o usa el número de tarjeta debajo.</p><img src="assets/oxxo-deposit.png" alt="Código de depósito Spin by OXXO. Número: 2242 1701 0032 3890"><strong>2242 1701 0032 3890</strong><button type="button" data-copy>Copiar número</button><a class="zx-order-payment-link" href="https://wa.me/529514754210?text=Hola%2C%20comparto%20mi%20comprobante%20de%20dep%C3%B3sito%20OXXO%20para%20recargar%20mi%20saldo%20ZeroX.%20Mi%20usuario%20es%3A%20" target="_blank" rel="noopener noreferrer">Comparte tu comprobante aquí ↗</a><p>Incluye tu nombre de usuario. El abono es manual y puede tardar de minutos a horas, según la disponibilidad del administrador. Tu saldo se actualizará después de revisar el depósito.</p><p data-status role="status"></p>';
- document.body.append(dialog);trigger.onclick=()=>dialog.showModal();dialog.querySelector('[data-close]').onclick=()=>dialog.close();
- dialog.querySelector('[data-copy]').onclick=async()=>{try{await navigator.clipboard.writeText('2242170100323890');dialog.querySelector('[data-status]').textContent='Número copiado.';}catch{dialog.querySelector('[data-status]').textContent='Selecciona y copia el número que aparece arriba.';}};
-})();
+import {appearance, defaults, settingsPath, validValue} from './manual-recharges.mjs';
 
-// Manual transfers are reviewed by the founder; opening WhatsApp never credits a wallet.
-(()=>{
- const trigger=document.getElementById('zx-open-transfer');if(!trigger)return;
- const dialog=document.createElement('dialog');dialog.className='zx-oxxo-modal';dialog.setAttribute('aria-labelledby','zx-transfer-title');
- dialog.innerHTML='<button type="button" data-close aria-label="Cerrar transferencia">Cerrar ×</button><h2 id="zx-transfer-title">Transferencia manual</h2><img src="assets/payments/mercadopago.jpg" alt="Mercado Pago" style="max-width:150px"><h3 class="zx-transfer-bank">🇲🇽 Mercado Pago W</h3><dl class="zx-transfer-details"><dt>CLABE</dt><dd><code>722969020278978570</code><button type="button" data-copy-value="722969020278978570" aria-label="Copiar CLABE">▣ Copiar</button></dd><dt>Titular</dt><dd>Alexander Hernández<button type="button" data-copy-value="Alexander Hernández" aria-label="Copiar titular">▣ Copiar</button></dd><dt>Concepto</dt><dd>Recarga ZeroX<button type="button" data-copy-value="Recarga ZeroX" aria-label="Copiar concepto">▣ Copiar</button></dd></dl><p data-copy-status role="status" aria-live="polite"></p><p>Recarga mínima: $20 MXN. Comprueba los datos del destinatario antes de confirmar tu transferencia.</p><p>Zero’X Store no cobra comisión por esta recarga manual. El tiempo de acreditación puede ser de minutos a horas, según la disponibilidad del administrador.</p><p>Después de transferir, envía la captura de tu comprobante e incluye tu usuario, importe, fecha y referencia. El saldo se acredita después de verificar el ingreso y comprobar que no se ha abonado antes.</p><a class="zx-order-payment-link" data-receipt target="_blank" rel="noopener noreferrer">Comparte tu comprobante aquí ↗</a><p>Adjunta el comprobante en WhatsApp. Abrir el chat no lo envía automáticamente.</p>';
- document.body.append(dialog);
- trigger.onclick=()=>{const user=typeof zeroxUser!=='undefined'?zeroxUser?.username||'':'';dialog.querySelector('[data-receipt]').href='https://wa.me/529514754210?text='+encodeURIComponent('Hola, comparto mi comprobante de transferencia manual para recargar saldo Zero’X Store. Usuario: '+user+'\nImporte: $___ MXN\nFecha: ___\nReferencia de transferencia: ___\nAdjunto mi comprobante para revisión.');dialog.showModal();};
- dialog.querySelectorAll('[data-copy-value]').forEach(button=>button.onclick=async()=>{const status=dialog.querySelector('[data-copy-status]');try{await navigator.clipboard.writeText(button.dataset.copyValue);status.textContent='Copiado.';}catch{status.textContent='Selecciona y copia el dato que aparece arriba.';}});
- dialog.querySelector('[data-close]').onclick=()=>dialog.close();
-})();
+function manualDialog(method, markup) {
+  const dialog = document.createElement('dialog');
+  dialog.className = 'zx-oxxo-modal';
+  dialog.setAttribute('aria-labelledby', 'zx-' + method + '-title');
+  dialog.innerHTML = markup;
+  document.body.append(dialog);
+  dialog.querySelector('[data-close]').onclick = () => dialog.close();
+  return dialog;
+}
+
+const oxxo = manualDialog('oxxo', `
+  <button type="button" data-close aria-label="Cerrar depósito OXXO">Cerrar ×</button>
+  <h2 id="zx-oxxo-title" data-manual-text="oxxoTitle"></h2><p data-manual-text="oxxoIntro"></p>
+  <img src="assets/oxxo-deposit.png" alt="Código de depósito Spin by OXXO. Número: 2242 1701 0032 3890">
+  <strong>2242 1701 0032 3890</strong><button type="button" data-copy data-manual-text="oxxoCopy"></button>
+  <a class="zx-order-payment-link" href="https://wa.me/529514754210?text=Hola%2C%20comparto%20mi%20comprobante%20de%20dep%C3%B3sito%20OXXO%20para%20recargar%20mi%20saldo%20ZeroX.%20Mi%20usuario%20es%3A%20" target="_blank" rel="noopener noreferrer" data-manual-text="oxxoReceipt"></a>
+  <p data-manual-text="oxxoFooter"></p><p data-status role="status"></p>`);
+
+const transfer = manualDialog('transfer', `
+  <button type="button" data-close aria-label="Cerrar transferencia">Cerrar ×</button>
+  <h2 id="zx-transfer-title" data-manual-text="transferTitle"></h2>
+  <img data-manual-image="transferImage" alt="Logotipo de transferencia" style="max-width:150px">
+  <h3 class="zx-transfer-bank" data-manual-text="bank"></h3>
+  <dl class="zx-transfer-details">
+    <dt>CLABE</dt><dd><code>722969020278978570</code><button type="button" data-copy data-manual-text="copyLabel" aria-label="Copiar CLABE"></button></dd>
+    <dt>Titular</dt><dd><span>Alexander Hernández</span><button type="button" data-copy data-manual-text="copyLabel" aria-label="Copiar titular"></button></dd>
+    <dt>Concepto</dt><dd><span data-manual-text="concept"></span><button type="button" data-copy data-manual-text="copyLabel" aria-label="Copiar concepto"></button></dd>
+  </dl><p data-status role="status" aria-live="polite"></p>
+  <p data-manual-text="transferMinimum"></p><p data-manual-text="transferTiming"></p>
+  <p data-manual-text="transferProof"></p>
+  <a class="zx-order-payment-link" data-receipt data-manual-text="transferReceipt" target="_blank" rel="noopener noreferrer"></a>
+  <p data-manual-text="transferFooter"></p>`);
+
+function render(values) {
+  const config = {...defaults};
+  for (const field of appearance) {
+    if (validValue(field, values[field.key])) config[field.key] = values[field.key];
+  }
+  for (const node of document.querySelectorAll('[data-manual-text]')) node.textContent = config[node.dataset.manualText];
+  for (const img of document.querySelectorAll('[data-manual-image]')) img.src = config[img.dataset.manualImage];
+}
+
+render(defaults);
+let lastRead = 0;
+let loading = false;
+async function refresh() {
+  if (loading || Date.now() - lastRead < 15000) return;
+  loading = true;
+  try {
+    const response = await fetch(settingsPath, {cache: 'no-store'});
+    if (!response.ok) return;
+    const {values} = await response.json();
+    render(values);
+    lastRead = Date.now();
+  } catch { /* The local presentation is usable offline. */ }
+  finally { loading = false; }
+}
+refresh();
+
+async function copy(dialog, value, message) {
+  const status = dialog.querySelector('[data-status]');
+  try {
+    await navigator.clipboard.writeText(value);
+    status.textContent = message;
+  } catch { status.textContent = 'Selecciona y copia el dato que aparece arriba.'; }
+}
+oxxo.querySelector('[data-copy]').onclick = () => copy(oxxo, '2242170100323890', 'Número copiado.');
+for (const button of transfer.querySelectorAll('[data-copy]')) {
+  button.onclick = () => copy(transfer, button.previousElementSibling.textContent, 'Copiado.');
+}
+document.getElementById('zx-open-oxxo').onclick = () => { refresh(); oxxo.showModal(); };
+document.getElementById('zx-open-transfer').onclick = () => {
+  refresh();
+  const user = typeof zeroxUser !== 'undefined' ? zeroxUser?.username || '' : '';
+  const message = 'Hola, comparto mi comprobante de transferencia manual para recargar saldo Zero’X Store. Usuario: ' + user +
+    '\nImporte: $___ MXN\nFecha: ___\nReferencia de transferencia: ___\nAdjunto mi comprobante para revisión.';
+  transfer.querySelector('[data-receipt]').href = 'https://wa.me/529514754210?text=' + encodeURIComponent(message);
+  transfer.showModal();
+};

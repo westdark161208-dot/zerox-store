@@ -11,7 +11,7 @@ const files = [
   'ultra.css', 'control-ultra.js',
   'game-sections.js', 'game-store.js', 'retail-pricing.js', 'discount-codes.js', 'discount-codes.css', 'control-codes.js',
   'community.js', 'community.css', 'control-gift-message.js',
-  'country-regions.js', 'country-map-points.js', 'control-customers.js', 'oxxo-deposit.js', 'customer-regions.css', 'account-location.js', 'promotions.html', 'promotions.js',
+  'country-regions.js', 'country-map-points.js', 'control-customers.js', 'oxxo-deposit.js', 'manual-recharges.mjs', 'control-manual-recharges.js', 'customer-regions.css', 'account-location.js', 'promotions.html', 'promotions.js',
   'store-polish.css', 'store-extras.js', 'premium-store.css', 'storefront-community.js',
   'order-history.js', 'order-history.css',
   'freefire-artwork.css', 'purchase-flow.js', 'purchase-flow.css', 'purchase-receipt.css', 'product-payment.html', 'product-payment.js', 'system-holograms.js', 'header-wallet.js', 'wallet-payment.html', 'wallet-payment.js',
