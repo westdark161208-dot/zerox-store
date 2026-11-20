@@ -3,7 +3,7 @@ import { apiBase, appearance, validValue } from '../../manual-recharges.mjs';
 const key = 'storefront/manual-recharges.json';
 const reply = (data, status = 200) => Response.json(data, {status, headers: {'Cache-Control': 'no-store'}});
 
-async function checkFounder(request, service) {
+export async function checkFounder(request, service) {
   const authorization = request.headers.get('Authorization');
   if (!authorization?.startsWith('Bearer ')) return reply({error: 'UNAUTHORIZED'}, 401);
   try {

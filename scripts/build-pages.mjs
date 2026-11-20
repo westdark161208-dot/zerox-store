@@ -28,6 +28,12 @@ const files = [
 ];
 await rm(out, { recursive: true, force: true });
 await mkdir(out, { recursive: true });
+await mkdir(join(out,'fx-studio'),{recursive:true});
+for (const file of ['model.mjs','effects.mjs','renderer.mjs','storefront.mjs','editor.mjs','studio.css']) files.push('fx-studio/'+file);
+if (process.env.CF_PAGES_BRANCH === 'codex/fx-studio-v1' || process.env.ZX_FX_REVIEW === '1') {
+  await cp(join(root,'tests/fx-review.html'),join(out,'fx-review.html'));
+  await cp(join(root,'tests/fx-review.mjs'),join(out,'fx-review.mjs'));
+}
 for (const file of files) await cp(join(root, file), join(out, file));
 // Media only: new source/config files cannot accidentally enter the public build.
 const media = /\.(png|jpe?g|webp|gif|svg|ico|avif|woff2?|ttf|otf|mp4|webm|mp3|ogg)$/i;

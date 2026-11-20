@@ -74,6 +74,7 @@
 #zx-maintenance .copy p{line-height:1.45;}
 #zx-maintenance button,#zx-maintenance a{font-family:inherit;}
 </style>
+<link rel="stylesheet" href="./fx-studio/studio.css">
 </head>
 
 <body>
@@ -1333,7 +1334,8 @@
 
 <script src="game-store.js?v=2" defer></script>
 <script src="./editor-elements.js?v=1" defer></script>
-<script src="./store-editor.js?v=compact-20261012" defer></script>
+<script type="module" src="./fx-studio/storefront.mjs"></script>
+<script src="./store-editor.js?v=fx-v1" defer></script>
 <script src="system-holograms.js?v=1" defer></script><script type="module" src="oxxo-deposit.js?v=manual-visuals1"></script><script defer src="control-ultra.js?v=ra15"></script><script defer src="benefits-ui.js?v=levels8"></script><script>
 document.getElementById('auth-register-tab')?.addEventListener('click', async () => {
   const label = document.getElementById('invite-registration');

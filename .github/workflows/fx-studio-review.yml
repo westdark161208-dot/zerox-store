@@ -1,0 +1,29 @@
+name: FX Studio review
+on:
+  push:
+    branches: [codex/fx-studio-v1]
+    paths:
+      - 'fx-studio/**'
+      - 'functions/api/fx-studio.js'
+      - 'store-editor.js'
+      - 'tests/fx-*'
+      - '.github/workflows/fx-studio-review.yml'
+permissions:
+  contents: read
+jobs:
+  development:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Unit and regression tests
+        run: node --test tests/*.test.mjs
+      - name: Build review fixture
+        run: ZX_FX_REVIEW=1 node scripts/build-pages.mjs
+      - name: Install isolated browser test tools
+        run: npm install --prefix "$RUNNER_TEMP/fx-tools" --no-audit --no-fund playwright-core@1.58.2 miniflare@4.20260730.0 esbuild@0.28.2
+      - name: Exercise editor, local R2 and Canvas
+        run: ZX_FX_DEPS="$RUNNER_TEMP/fx-tools/package.json" CHROME_PATH=/usr/bin/google-chrome node tests/fx-browser.mjs
