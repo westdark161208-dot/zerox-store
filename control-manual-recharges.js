@@ -145,7 +145,17 @@ form.onsubmit = async event => {
       revision = null;
       throw Error('Hay una versión más reciente. Vuelve a cargar antes de editar.');
     }
-    if (!response.ok) throw Error('No se pudo publicar. Comprueba tu sesión y vuelve a intentarlo.');
+    if (!response.ok) {
+      const {error} = await response.json().catch(() => ({}));
+      const messages = {
+        UNAUTHORIZED: 'Tu sesión venció. Inicia sesión en la tienda y vuelve a publicar.',
+        FORBIDDEN: 'Solo la cuenta fundadora puede publicar estos cambios.',
+        IDENTITY_UNAVAILABLE: 'No se pudo consultar tu sesión. Conserva esta pantalla y vuelve a pulsar Publicar cambios.',
+        STORAGE_UNAVAILABLE: 'El almacenamiento no está disponible. Conserva esta pantalla y vuelve a pulsar Publicar cambios.',
+        INVALID_APPEARANCE: 'Revisa los textos y las imágenes antes de volver a publicar.'
+      };
+      throw Error(messages[error] || 'No se pudo publicar. Tus cambios siguen en el formulario. Inténtalo de nuevo.');
+    }
     const result = await response.json();
     if (run !== sequence || session() !== token) return;
     revision = result.revision;

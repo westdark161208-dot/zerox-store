@@ -5,7 +5,7 @@ import {readFile} from 'node:fs/promises';
 import {onRequest} from '../functions/api/manual-recharges.js';
 import {apiBase, defaults} from '../manual-recharges.mjs';
 
-function setup() {
+function setup(identity) {
   let entry;
   const bucket = {
     get: async () => entry,
@@ -15,22 +15,23 @@ function setup() {
       return entry;
     }
   };
-  return (method, payload, token = '') => onRequest({env:{MANUAL_APPEARANCE:bucket},
+  return (method, payload, token = '') => onRequest({env:{MANUAL_APPEARANCE:bucket, STORE_IDENTITY:identity},
     request:new Request('https://zeroxstore.com/api/manual-recharges', {method,
       headers:{'Content-Type':'application/json', ...(token && {Authorization:'Bearer ' + token})},
       ...(payload && {body:JSON.stringify(payload)})})});
 }
 
-test('published appearance is founder-only, round-trips text and media, and rejects stale writes', async t => {
-  t.mock.method(globalThis, 'fetch', async (url, {headers}) => {
-    assert.equal(url, apiBase + '/api/auth/me');
-    return Response.json({user:{isFounder:headers.Authorization === 'Bearer founder'}});
-  });
-  const route = setup();
+test('published appearance is founder-only, round-trips text and media, and rejects stale writes', async () => {
+  const route = setup({async fetch(request) {
+    assert.equal(request.url, apiBase + '/api/auth/me');
+    assert.equal(request.method, 'GET');
+    assert.equal(request.redirect, 'manual');
+    return Response.json({ok:true, user:{isFounder:request.headers.get('Authorization') === 'Bearer founder'}});
+  }});
   assert.deepEqual(await (await route('GET')).json(), {revision:'', values:{}});
   const values = {...defaults, concept:'CONCEPTO NUEVO', transferImage:apiBase + '/api/catalog/media/12345678-1234-1234-1234-123456789abc.png'};
   const body = {revision:'', values};
-  assert.equal((await route('POST', body)).status, 403);
+  assert.equal((await route('POST', body)).status, 401);
   assert.equal((await route('POST', body, 'customer')).status, 403);
   const saved = await (await route('POST', body, 'founder')).json();
   assert.ok(saved.revision);
@@ -41,6 +42,22 @@ test('published appearance is founder-only, round-trips text and media, and reje
   assert.equal((await route('POST', edit, 'founder')).status, 409);
   for (const change of [{clabe:'123'}, {transferImage:'https://example.com/image.png'}, {concept:' '}]) {
     assert.equal((await route('POST', {...edit, values:{...values, ...change}}, 'founder')).status, 400);
+  }
+});
+
+test('session errors are distinct from identity service failures and neither can publish', async () => {
+  for (const [result, status, error] of [
+    [() => new Response(null, {status:401}), 401, 'UNAUTHORIZED'],
+    [() => new Response(null, {status:503}), 503, 'IDENTITY_UNAVAILABLE'],
+    [() => new Response('not JSON'), 503, 'IDENTITY_UNAVAILABLE'],
+    [() => Response.json({ok:true}), 503, 'IDENTITY_UNAVAILABLE'],
+    [() => { throw Error('service unavailable'); }, 503, 'IDENTITY_UNAVAILABLE']
+  ]) {
+    const route = setup({fetch:result});
+    const response = await route('POST', {revision:'', values:defaults}, 'test');
+    assert.equal(response.status, status);
+    assert.equal((await response.json()).error, error);
+    assert.deepEqual((await (await route('GET')).json()).values, {});
   }
 });
 

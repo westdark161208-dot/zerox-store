@@ -4,6 +4,7 @@
   "pages_build_output_dir": "./dist",
   "env": {
     "production": {
+      "services": [{ "binding": "STORE_IDENTITY", "service": "zerox-sixofire-api" }],
       "r2_buckets": [{ "binding": "MANUAL_APPEARANCE", "bucket_name": "zerox-store-media" }]
     }
   }
