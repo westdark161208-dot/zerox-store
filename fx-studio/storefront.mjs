@@ -4,7 +4,7 @@ let rendererReady;
 
 let state=null;
 const mounted=new Map();
-const grids=['products','zx-managed-grid'].map(id=>document.getElementById(id)).filter(Boolean);
+const grids=['products','zx-managed-grid','r-products'].map(id=>document.getElementById(id)).filter(Boolean);
 function clean(card,art) {
   renderer?.detach(art);if(art.dataset.fxPlaceholder!==undefined)art.remove();mounted.delete(card);
 }

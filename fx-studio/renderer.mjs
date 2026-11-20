@@ -28,13 +28,17 @@ function frame(now) {
   const b=budget(), reduced=motion.matches||!observer;
   if(last && now-last<1000/b.hz-1){wake();return;}
   elapsed+=last?Math.min(now-last,90)/1000:0;last=now;
-  let remaining=b.layers, moving=false;
+  let remaining=b.layers, moving=false, pending=false, staticSlots=2;
   const start=performance.now();
   for(const s of [...visible].sort((a,b)=>b.priority-a.priority)) {
     const live=s.config.layers.filter(l=>l.enabled&&s.config[l.plane]);
     const animate=!reduced && remaining>=live.length && live.some(l=>l.speed>0);
     if(animate){remaining-=live.length;moving=true;}
-    if(!animate&&!s.dirty) continue;
+    if(!animate) {
+      if(!s.dirty)continue;
+      if(!staticSlots){pending=true;continue;}
+      staticSlots--;
+    }
     const factor=Math.min(b.side/Math.max(s.width,s.height,1),devicePixelRatio||1);
     const w=Math.max(1,Math.round(s.width*factor)),h=Math.max(1,Math.round(s.height*factor));
     for(const plane of ['back','front']) {
@@ -53,7 +57,7 @@ function frame(now) {
   if(!adaptive && performance.now()-start>22 && ++slow>=4) {
     adaptive=true;for(const s of visible)s.dirty=true;
   }
-  if(moving)wake();
+  if(moving||pending)wake();
 }
 function invalidate() {last=0;for(const s of visible)s.dirty=true;wake();}
 motion.addEventListener('change',invalidate);small.addEventListener('change',invalidate);

@@ -93,6 +93,22 @@ try{
   assert.equal(saved.items['zx-diamonds-110'].config.layers.length,4);
   assert.equal(saved.designs[saved.items['d110-1'].link].config.layers.length,4);
   assert.equal(saved.items['zx-diamonds-341'],undefined);
+  // Cards use a stable product ID, so a copied design can diverge without changing the source.
+  await page.getByRole('button',{name:'Cerrar aviso'}).click();
+  await page.locator('#open-account').click();
+  await page.getByRole('button',{name:/Zero’X Editor · Toda la tienda/}).click();
+  await page.locator('#zx-editor-bar [data-target]').selectOption('zx-diamonds-341');
+  await article.getByRole('button',{name:'Efectos visuales FX'}).click();
+  await btn('Biblioteca FX').click();await btn('Diamante prueba').click();
+  await btn('Aplicar una copia').click();await studio.getByText('Cambios FX guardados.').waitFor();
+  await studio.locator('.fx-layers li').last().getByRole('button',{name:'Eliminar'}).click();
+  await studio.locator('.fx-layers li').first().getByRole('button',{name:'Duplicar'}).click();
+  await field('Color principal hexadecimal').fill('#ffffff');
+  await btn('Guardar cambios').click();await studio.getByText('Cambios FX guardados.').waitFor();
+  const checkCopy=await (await ctx.request.get(origin+'/api/fx-studio')).json();
+  assert.equal(checkCopy.items['zx-diamonds-341'].config.layers[1].color,'#ffffff');
+  assert.deepEqual(checkCopy.items['zx-diamonds-110'],saved.items['zx-diamonds-110']);
+  assert.deepEqual(checkCopy.designs,saved.designs);
   assert.deepEqual(writes,[]);
   console.log('PASS real editor → four layers → saved library → linked second product → reload. External writes: 0.');
   // Development fixture provides visible cards without navigating through store categories.

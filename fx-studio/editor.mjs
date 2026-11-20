@@ -61,7 +61,7 @@ export async function openStudio({id=null,name='',image='',library=false,store=r
     stage.dataset.device=v;for(const b of tools.children)b.setAttribute('aria-pressed',String(b.textContent===title));
   }));
   tools.lastChild.setAttribute('aria-pressed','true');
-  function preview(){mount(stage,draft,10);}
+  function preview(){mount(stage,tab==='library'&&picked?designOf(state,picked)?.config:draft,10);}
   function touch(){dirty=true;status.textContent='Cambios sin guardar.';preview();}
   function update(command,done) {
     if(busy)return;
@@ -220,7 +220,7 @@ export async function openStudio({id=null,name='',image='',library=false,store=r
         if(filter.startsWith('c:')&&filter.slice(2)!==d.category)continue;
         if(filter.startsWith('t:')&&!d.config.layers.some(l=>l.type===filter.slice(2)))continue;
         const card=group('fx-card'),thumb=group('fx-thumb');
-        const choose=button(d.name,()=>{picked=d.id;cards();});
+        const choose=button(d.name,()=>{picked=d.id;cards();preview();});
         choose.setAttribute('aria-pressed',String(picked===d.id));
         card.append(thumb,choose,el('small',(state.designs[d.id]?'Personalizado':'Predeterminado')+' · '+d.category));grid.append(card);
         mount(thumb,d.config,1);thumbs.add(thumb);
