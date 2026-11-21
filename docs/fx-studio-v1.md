@@ -48,7 +48,7 @@ El presupuesto se comparte con vistas previas y miniaturas. Las tarjetas adicion
 
 El generador `scripts/build-fx-clouds.py` integra la densidad de seis volúmenes tridimensionales a lo largo del rayo de cámara y calcula la sombra hacia una fuente superior izquierda. Guarda la iluminación y la opacidad en `assets/fx/cloud-light-v1.png`. En el navegador, `fx-studio/volume.mjs` tiñe las texturas con los colores de la capa, ordena los volúmenes por distancia y cambia su tamaño y movimiento según la profundidad. El recurso se carga al dibujar la primera nube, tormenta o humo. Los demás efectos usan proyección, facetas y núcleos luminosos según su forma. La luz precalculada mantiene una orientación fija.
 
-El test de Chrome comprueba que el atlas se decodifica y mide el contraste entre zonas claras y oscuras en el interior opaco de las nubes. Esta revisión conserva el formato de configuraciones y el almacenamiento existentes.
+El test de Chrome comprueba que el atlas se decodifica y mide el contraste entre zonas claras y oscuras en el interior opaco de las nubes. En la revisión `24722f2`, pasaron las 224 pruebas y la prueba del editor en Chrome. El ejemplo violeta con cuatro capas a 240 × 240 píxeles tomó 6,7 ms de mediana y 7,4 ms en el percentil 95 (50 muestras, Chrome en Linux). La textura compartida ocupa 58 312 bytes. Esta revisión conserva el formato de configuraciones y el almacenamiento existentes.
 
 ## Repetición
 
