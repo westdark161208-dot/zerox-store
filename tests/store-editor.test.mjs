@@ -27,3 +27,16 @@ test('managed product publication updates commercial fields while preserving sto
  const p={...product,id:'entity:streaming:12345678-1234-1234-1234-123456789abc',image:'',name:'Nuevo nombre',priceCents:2500};
  assert.equal((await call(db,'/api/admin/store-editor/draft',{revision:0,product:p})).status,200);await call(db,'/api/admin/store-editor/publish',{revision:1,confirm:true});const saved=db.sql.prepare('SELECT * FROM zx_streaming').get();assert.equal(saved.price,25);assert.equal(saved.stock,7);assert.equal(saved.name,'Nuevo nombre');
 });
+test('diamond panel persists only on the selected package after publication',async()=>{
+ const db=database(), cardVisual={height:156,width:76,badgeOn:true,badgeText:'OFERTA',main:'#44aaff'};
+ await call(db,'/api/admin/store-editor/draft',{revision:0,product:{...product,cardVisual}});
+ assert.deepEqual(JSON.parse((await call(db,'/api/admin/store-editor')).data.draft)[product.id].cardVisual,cardVisual);
+ await call(db,'/api/admin/store-editor/publish',{revision:1,confirm:true});
+ const catalog=(await call(db,'/api/store-editor/catalog')).data.products;
+ assert.deepEqual(catalog[product.id].cardVisual,cardVisual);
+ assert.equal(catalog['zx-diamonds-220'],undefined);
+ for(const invalid of [{width:101},{height:-1},{badgeOn:'1'},{main:'url(x)'},{price:1},{diamonds:999}]){
+   assert.equal(validateEdit({...product,cardVisual:invalid}),null);
+ }
+ assert.equal(validateEdit({...product,id:'page:hero-tagline',cardVisual}),null);
+});

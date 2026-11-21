@@ -1,0 +1,31 @@
+name: Diamond card review
+on:
+  push:
+    branches: [codex/diamond-cards-v2]
+permissions:
+  contents: read
+jobs:
+  development:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: 0a4447d2bb8657d10bcbfe22a71189cc38b091d2
+          path: original
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: node --test tests/*.test.mjs
+      - run: node original/scripts/build-pages.mjs && ZX_FX_REVIEW=1 node scripts/build-pages.mjs
+      - run: npm install --prefix "$RUNNER_TEMP/card-tools" --no-audit --no-fund playwright-core@1.58.2 miniflare@4.20260730.0 esbuild@0.28.2
+      - name: Verify cards, cart and editor with isolated services
+        run: ZX_FX_DEPS="$RUNNER_TEMP/card-tools/package.json" CHROME_PATH=/usr/bin/google-chrome node tests/diamond-cards-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tarjetas-diamantes
+          path: card-evidence/
+      - name: Verify existing FX editor
+        run: ZX_FX_DEPS="$RUNNER_TEMP/card-tools/package.json" CHROME_PATH=/usr/bin/google-chrome node tests/fx-browser.mjs

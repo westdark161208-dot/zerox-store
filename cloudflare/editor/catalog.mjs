@@ -1,3 +1,4 @@
+import '../../diamond-card-settings.js';
 import '../../game-sections.js';
 import {gameCatalog} from '../services/games.mjs';
 import '../../diamond-catalog.js';
@@ -26,7 +27,8 @@ export function validateEdit(p){
  if(p.region!==undefined&&(typeof p.region!=='string'||p.region.length>60))return null;
  if(p.position!==undefined&&(!Number.isInteger(p.position)||p.position<0||p.position>9999))return null;
 
- return {id:p.id,name:p.name.trim(),description:p.description.trim(),character:p.character.trim(),priceCents:p.priceCents,active:p.active,image:p.image,category:p.category||'',region:p.region||'',position:p.position||0};
+ if(p.cardVisual!==undefined && (!(bases.some(b=>b.id===p.id)||/^d(?:110|340|572|1166|2398|6160)-1$/.test(p.id)) || !globalThis.ZXCardSettings.valid(p.cardVisual)))return null;
+ return {...(p.cardVisual!==undefined?{cardVisual:p.cardVisual}:{}),id:p.id,name:p.name.trim(),description:p.description.trim(),character:p.character.trim(),priceCents:p.priceCents,active:p.active,image:p.image,category:p.category||'',region:p.region||'',position:p.position||0};
 }
 export async function editorRoute(request,env,url,user,respond){
  const json=(data,status=200)=>{const response=respond(data,status);response.headers?.set('Cache-Control','no-store');return response;};

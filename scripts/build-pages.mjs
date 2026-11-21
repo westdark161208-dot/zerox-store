@@ -21,7 +21,7 @@ const files = [
   'control.html', 'control.js', 'control.css', 'control-finance.js',
   'editor-elements.js', 'store-editor.js', 'store-editor.css',
   'payment-test.html', 'payment-test.js', 'index.html', 'admin.html', 'manage.html', 'profile.html',
-  'app.js', 'diamonds.js', 'diamond-catalog.js', 'diamond-collection.js',
+  'app.js', 'diamonds.js', 'diamond-catalog.js', 'diamond-collection.js', 'diamond-card.js', 'diamond-card-settings.js', 'diamond-card-editor.js', 'diamond-card.css',
   'payments-config.js', 'resellers.js', 'resellers-admin.js', 'manage.js', 'profile.js',
   'styles.css', 'diamond-collection.css', 'responsive.css', 'manage.css', 'profile.css',
   'manifest.json', 'service-worker.js'

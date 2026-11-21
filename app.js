@@ -863,7 +863,7 @@ function addToCart(id) {
   if (!id || !selectedProduct(id)) return;
   const items = cart();
 
-  if (!items.includes(id)) {
+  if (globalThis.ZXDiamondCard?.supports(PRODUCTS.find(p=>p.id===id)) || !items.includes(id)) {
     items.push(id);
   }
 
@@ -882,8 +882,13 @@ function addToCart(id) {
   }
 }
 
+function cartWithoutOne(id) {
+  const items=cart(), index=items.indexOf(id);
+  if(index>=0) items.splice(index,1);
+  return items;
+}
 function removeFromCart(id) {
-  saveCart(cart().filter(item => item !== id));
+  saveCart(cartWithoutOne(id));
   renderCart();
 }
 
@@ -983,29 +988,10 @@ if (category === "Streaming") {
   let character = "";
   let characterName = "";
 
-  if (name.includes("110")) {
-    character = "file_00000000561081f592ab7a6e14562570.png";
-    characterName = "EREN";
-  } 
-  else if ((name.includes("340") || name.includes("341"))) {
-    character = "file_000000004e4081f5b42e4462cb0ae3df.png";
-    characterName = "SUKUNA";
-}
-  else if (name.includes("572")) {
-    character = "file_00000000469c81f596dc0e8f49ca0040.png";
-    characterName = "NAMI";
-  } 
-  else if (name.includes("1,166") || name.includes("1166")) {
-    character = "file_000000000f1482309faad42cecb306fe.png";
-    characterName = "ZORO";
-}
-  else if (name.includes("2,398") || name.includes("2398")) {
-    character = "file_000000009bac81f5847f448fd3b24e3a.png";
-    characterName = "GOJO";
-}
-  else if (name.includes("6,160") || name.includes("6160")) {
-    character = "file_000000005b2081fd8514a17c052ac79f.png";
-    characterName = "LUFFY";
+  const firstArt = globalThis.ZXDiamondCard?.artwork(product);
+  if (firstArt) {
+    character = firstArt.image;
+    characterName = firstArt.character.toUpperCase();
   }
 
   if (character) {
@@ -1036,7 +1022,7 @@ function render() {
     const searchMatch = words.every(word => normalize(product.name + " " + (product.description || "") + " " + product.category).includes(word));
     return categoryMatch && searchMatch;
   }).sort((a,b)=>(a.editorPosition||0)-(b.editorPosition||0));
-  container.innerHTML = rows.length ? rows.map(product => `
+  container.innerHTML = rows.length ? rows.map(product => globalThis.ZXDiamondCard?.supports(product) ? ZXDiamondCard.renderCard(product) : `
     <article class="product-card zx-product-card" ${globalThis.ZXCollection?.attributes(product) || ""} data-product="${esc(product.id)}" data-kind="${product.category.includes("Diamantes") ? "diamonds" : product.category === "Pases Booyah" ? "pass" : product.category === "Cajas" ? "box" : product.category === "Fragmentos" ? "fragments" : "other"}">
       ${artFor(product)}
       <div class="product-copy">
@@ -1910,13 +1896,7 @@ ${zxPaymentAction(order)}
         `;
       }
 
-      saveCart(
-        cart().filter(
-          id =>
-            id !==
-            (product.quantity ? `${product.id}::${product.quantity}` : product.id)
-        )
-      );
+      saveCart(cartWithoutOne(product.quantity ? `${product.id}::${product.quantity}` : product.id));
 
       if (button) {
         button.textContent =
