@@ -42,6 +42,14 @@ Se compararon los píxeles de los doce efectos en dos instantes, la congelación
 
 El presupuesto se comparte con vistas previas y miniaturas. Las tarjetas adicionales producen una imagen estática. El motor deja de animar en segundo plano, libera lienzos fuera de pantalla y reduce su calidad si detecta fotogramas costosos. Una configuración puede tener hasta cuatro capas. La aplicación por categoría queda para una versión posterior. La prueba utiliza los ID reales de los diamantes y una configuración de muestra exclusiva del entorno de revisión.
 
+## Nubes y profundidad
+
+**Cúmulos 3D** combina un banco de nubes iluminado detrás del artículo con nubes más pequeñas en primer plano. En la demostración de desarrollo se ve en los 110 diamantes de Primera Vez. El preset violeta de Ilimitados utiliza humo filamentoso.
+
+El generador `scripts/build-fx-clouds.py` integra la densidad de seis volúmenes tridimensionales a lo largo del rayo de cámara y calcula la sombra hacia una fuente superior izquierda. Guarda la iluminación y la opacidad en `assets/fx/cloud-light-v1.png`. En el navegador, `fx-studio/volume.mjs` tiñe las texturas con los colores de la capa, ordena los volúmenes por distancia y cambia su tamaño y movimiento según la profundidad. El recurso se carga al dibujar la primera nube, tormenta o humo. Los demás efectos usan proyección, facetas y núcleos luminosos según su forma. La luz precalculada mantiene una orientación fija.
+
+El test de Chrome comprueba que el atlas se decodifica y mide el contraste entre zonas claras y oscuras en el interior opaco de las nubes. Esta revisión conserva el formato de configuraciones y el almacenamiento existentes.
+
 ## Repetición
 
 Desde la raíz, ejecuta `node --test tests/*.test.mjs`. Para repetir las pruebas con navegador, usa los pasos y versiones del flujo **FX Studio review**. El entorno de demostración se incluye en la compilación de la rama `codex/fx-studio-v1` o con `ZX_FX_REVIEW=1`. La compilación normal de producción excluye la demostración.

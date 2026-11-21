@@ -60,6 +60,7 @@ function frame(now) {
   if(moving||pending)wake();
 }
 function invalidate() {last=0;for(const s of visible)s.dirty=true;wake();}
+window.addEventListener('zx-fx-volumes-ready',invalidate);
 motion.addEventListener('change',invalidate);small.addEventListener('change',invalidate);
 document.addEventListener('visibilitychange',()=>{
   if(document.hidden){cancelAnimationFrame(raf);raf=0;last=0;}else invalidate();

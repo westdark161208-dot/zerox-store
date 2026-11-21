@@ -117,6 +117,8 @@ try{
   assert.equal(await cards.nth(2).locator('canvas').count(),0);
   const samples=await page.evaluate(async()=>{
     const {paint}=await import('/fx-studio/effects.mjs'),{presets,types,layer}=await import('/fx-studio/model.mjs');
+    const {loadVolumes}=await import('/fx-studio/volume.mjs');
+    if (!await loadVolumes()) throw Error('Missing cloud volume atlas');
     const c=document.createElement('canvas');c.width=c.height=240;
     const g=c.getContext('2d',{willReadFrequently:true}),fingerprints={};
     const hash=()=>{const a=g.getImageData(0,0,240,240).data;let h=0,sum=0;
@@ -126,14 +128,23 @@ try{
       for(const t of [.2,1.83]){g.clearRect(0,0,240,240);paint(g,l,t,240,240,.6);frames.push(hash());}
       fingerprints[type]=frames;
     }
+    // Opaque interiors must contain both illuminated faces and self-shadow.
+    const cloud={...layer('cloud'),color:'#ffffff',secondary:'#ffffff',opacity:100,intensity:100,brightness:100};
+    g.clearRect(0,0,240,240);paint(g,cloud,1,240,240);
+    const pixels=g.getImageData(0,0,240,240).data, light=[];
+    for(let i=0;i<pixels.length;i+=4) if(pixels[i+3]>150) light.push(pixels[i]);
+    light.sort((a,b)=>a-b);
+    const relief=light[Math.floor(light.length*.9)]-light[Math.floor(light.length*.1)];
     const ms=[];for(let i=0;i<50;i++){
       const t=performance.now();g.clearRect(0,0,240,240);
       for(const l of presets[0].config.layers)paint(g,l,i/20,240,240,.58);
       g.getImageData(0,0,1,1);ms.push(performance.now()-t);
     }
     ms.sort((a,b)=>a-b);
-    return {fingerprints,median:ms[25],p95:ms[47]};
+    return {fingerprints,relief,median:ms[25],p95:ms[47]};
   });
+  assert.ok(samples.relief>40,'Shaded cloud interiors require visible luminance contrast: '+samples.relief);
+  console.log('PASS cloud atlas decoded; interior luminance contrast',samples.relief);
   assert.equal(new Set(Object.values(samples.fingerprints).map(v=>v[0][1])).size,12);
   for(const [type,v] of Object.entries(samples.fingerprints)){assert.ok(v[0][0]>0,type);assert.notEqual(v[0][1],v[1][1],type);}
   console.log('PASS 12 distinct animated pixel outputs; 240px four-layer CPU benchmark (ms), median',samples.median,'p95',samples.p95);

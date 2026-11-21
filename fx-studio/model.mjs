@@ -25,6 +25,9 @@ export const presets = [
   preset('violet','Humo Zero’X Violeta','Atmósfera','Humo violeta con nubes suaves, chispas doradas y destellos al frente.',[
     ['smoke','back',{size:110}],['cloud','front',{opacity:30,y:67,secondary:'#ddd1ff'}],
     ['sparks','back',{color:'#ffc053',secondary:'#fff8cc',density:35}],['glow','front',{opacity:20,density:12,speed:40}]]),
+  preset('cumulus','Cúmulos 3D','Atmósfera','Nubes de luz fría con sombras interiores y bancos de niebla en primer plano.',[
+    ['cloud','back',{color:'#7890aa',secondary:'#fff7e7',intensity:98,opacity:97,y:42,size:125,density:68}],
+    ['cloud','front',{color:'#8193b0',secondary:'#f4edff',opacity:62,intensity:90,y:69,size:81,density:40,speed:52}]]),
   preset('inferno','Fuego Infernal','Fuego','Lenguas de fuego y brasas.',[['fire','back',{color:'#ff3919',secondary:'#ffbb49'}],['sparks','front',{color:'#ff922d',opacity:52}]]),
   preset('cosmos','Diamantes Galácticos','Espacio','Una espiral de polvo estelar.',[['galaxy','back',{color:'#805dff',secondary:'#4cdaff'}],['meteors','front',{density:30,opacity:45}]]),
   preset('storm','Tormenta Eléctrica','Energía','Nubes de tormenta y filamentos azules.',[['storm','back',{color:'#49547d',secondary:'#72dfff'}]]),

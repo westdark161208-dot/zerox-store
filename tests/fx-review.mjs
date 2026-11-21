@@ -5,6 +5,7 @@ const key='zx-fx-studio-review-v1';
 function load(){
   const stored=localStorage.getItem(key);if(stored)return JSON.parse(stored);
   const state=blank();state.items['zx-diamonds-110']={config:structuredClone(presets[0].config)};
+  state.items['d110-1']={config:structuredClone(presets.find(p=>p.id==='cumulus').config)};
   return {revision:'0',state};
 }
 const store={load,async save(revision,command){
